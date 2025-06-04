@@ -1,5 +1,4 @@
 #include <stdint.h>
-#include "enums.h"
 
 #ifndef OPTIONS_H
 #define OPTIONS_H
