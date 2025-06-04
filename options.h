@@ -11,10 +11,4 @@ struct color_options {
 	uint8_t brightness;
 } typedef color_options;
 
-struct button_options {
-	MOUSE_BUTTON button;
-	ASSIGNMENT_TYPE type;
-	uint8_t action;
-} typedef button_options;
-
 #endif

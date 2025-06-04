@@ -17,44 +17,27 @@ enum MOUSE_BUTTON {
 	DPI_BUTTON
 } typedef MOUSE_BUTTON;
 
-enum ASSIGNMENT_TYPE {
-    DISABLED_FUNCTION,
-	MOUSE_FUNCTION,
-	KEYBOARD_FUNCTION,
-	MEDIA_FUNCTION,
-	MACRO_FUNCTION,
-	DPI_FUNCTION = 0x07
-} typedef ASSIGNMENT_TYPE;
+enum MOUSE_ACTION {
+    DISABLED     = 0x0000,
 
-enum TYPE_MOUSE_FUNCTION {
-    LEFT_CLICK = 0x01,
-    RIGHT_CLICK,
-    MIDDLE_CLICK,
-    BACK,
-    FORWARD
-} typedef TYPE_MOUSE_FUNCTION;
+    LEFT_CLICK   = 0x0101,
+    RIGHT_CLICK  = 0x0102,
+    MIDDLE_CLICK = 0x0103,
+    BACK         = 0x0104,
+    FORWARD      = 0x0105,
 
-enum TYPE_KEYBOARD_FUNCTION {
-    KEY_A = 0x04
-} typedef TYPE_KEYBOARD_FUNCTION;
+    KEY_A        = 0x0204, // TODO: add special keys
 
-enum TYPE_MEDIA_FUNCTION {
-    PLAY_PAUSE  = 0x00,
-    STOP        = 0x01,
-    PREVIOUS    = 0x02,
-    NEXT        = 0x03,
-    MUTE        = 0x04,
-    VOLUME_DOWN = 0x05,
-    VOLUME_UP   = 0x06,
-} typedef TYPE_MEDIA_FUNCTION;
-
-enum TYPE_DPI_FUNCTION {
-    DPI_SWITCH = 0x08
-} typedef TYPE_DPI_FUNCTION;
-
-enum TYPE_DISABLED_FUNCTION {
-    DISABLED
-} typedef TYPE_DISABLED_FUNCTION;
+    PLAY_PAUSE   = 0x0300,
+    STOP         = 0x0301,
+    PREVIOUS     = 0x0302,
+    NEXT         = 0x0303,
+    MUTE         = 0x0304,
+    VOLUME_DOWN  = 0x0305,
+    VOLUME_UP    = 0x0306,
+    
+    DPI_SWITCH   = 0x0708
+} typedef MOUSE_ACTION;
 
 enum SEND_BYTE {
     SEND_POLLING_RATE        = 0xd0,

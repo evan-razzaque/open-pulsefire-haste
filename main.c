@@ -138,12 +138,14 @@ int change_color(hid_device *dev, color_options *options) {
  * Change a binding for a mouse button.
  * 
  * @param dev The mouse device handle
- * @param options The options for the mouse binding being changed
+ * @param options The mouse button to re-assign
+ * @param action The action to assign to the button
  * @return the number of bytes written or -1 on error
  */
-int assign_button(hid_device *dev, button_options *options) {
-	uint8_t data[PACKET_SIZE] = {SEND_BUTTON_ASSIGNMENT, options->button, options->type, 0x02, options->action, 0x00}; // TODO: Macro assignment (last byte is different)
+int assign_button(hid_device *dev, uint8_t button, MOUSE_ACTION action) {
+	uint8_t type = action >> 8;
 
+	uint8_t data[PACKET_SIZE] = {SEND_BUTTON_ASSIGNMENT, button, type, 0x02, (uint8_t) action, 0x00}; // TODO: Macro assignment (last byte is different)
 	return mouse_write(dev, data);
 }
 
@@ -171,17 +173,9 @@ int main() {
 	res = change_color(dev, &options);
 	HID_ERROR(res < 0, dev);
 
-	button_options btn_options = {.button = SIDE_BUTTON_BACK, .type = MOUSE_FUNCTION, .action = BACK};
-
-	res = assign_button(dev, &btn_options);
+	res = assign_button(dev, SIDE_BUTTON_FORWARD, FORWARD);
 	HID_ERROR(res < 0, dev);
 
-	btn_options.button = SIDE_BUTTON_FORWARD;
-	btn_options.action = FORWARD;
-
-	res = assign_button(dev, &btn_options);
-	HID_ERROR(res < 0, dev);
-	
 	res = save_settings(dev);
 	HID_ERROR(res < 0, dev);
 
