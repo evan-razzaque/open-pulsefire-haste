@@ -2,49 +2,74 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <unistd.h>
-#include <libusb-1.0/libusb.h>
+#include <hidapi/hidapi.h>
 
 #include "enums.h"
 #include "options.h"
 #include "reports.h"
 
 #define VID (0x03F0)
-#define PID (0x028E)
+#define PID_WIRELESS (0x028E)
+#define PID_WIRED (0x048E)
 
-#define INTERFACE (2)
-#define ENDPOINT_OUT (0x04)
-#define ENDPOINT_IN (0x83)
+#define INTERFACE (0x02)
 #define PACKET_SIZE (64)
+// #define ENDPOINT_OUT (0x04)
+// #define ENDPOINT_IN (0x83)
 
 /**
- * Opens the device handle for the mouse
- * and claims the interface used to change settings.
+ * Used for debugging purposes.
+ * Logs the last error caused by HIDAPI and exits the program.
+ * 
+ * @param cond The condition to detect the error
+ * @param dev The device to close if not NULL
+ */
+#define HID_ERROR(cond, dev)\
+	if ((cond)) {\
+		printf("Error: %S\n", hid_error(NULL));\
+		if ((dev)) hid_close((dev));\
+		hid_exit();\
+		return 1;\
+	}
+
+/**
+ * Opens the mouse.
  * 
  * @return the mouse device handle
  */
-libusb_device_handle* open_device() {
-	libusb_device_handle *dev = libusb_open_device_with_vid_pid(NULL, VID, PID);
-	
-	if (!dev) {
-		printf("Error opening mouse\n");
-		return NULL;
-	}
-	
-	int statusCode;
-	statusCode = libusb_set_auto_detach_kernel_driver(dev, 1);
-	
-	if (statusCode < 0) {
-		printf("Warning: Your system does not support kernal driver auto detachment: %s\n", libusb_error_name(statusCode));
+hid_device* open_device() {
+	struct hid_device_info *dev_list, *dev_info;
+	hid_device *dev;
+
+	dev_list = hid_enumerate(VID, PID_WIRELESS);
+
+	if (!dev_list) {
+		dev_list = hid_enumerate(VID, PID_WIRED);
+        if (!dev_list) return NULL;
 	}
 
-	statusCode = libusb_claim_interface(dev, INTERFACE);
+	dev_info = dev_list;
 
-	if (statusCode < 0) {
-		printf("Error opening mouse interface: %s\n", libusb_error_name(statusCode));
-		libusb_release_interface(dev, INTERFACE);
-		return NULL;
+	while (dev_info) {
+		// printf("Path:           : %s\n", dev_info->path);
+		// printf("- Manufacturer  : %ls\n", dev_info->manufacturer_string);
+		// printf("- Product       : %ls\n", dev_info->product_string);
+		// printf("- Serial number : %ls\n", dev_info->serial_number);
+		// printf("- Release number: %hu\n", dev_info->release_number);
+		// printf("- Usage Page    : %#04x\n", dev_info->usage_page);
+		// printf("- Usage         : %#04x\n", dev_info->usage);
+		// printf("- Interface     : %i\n", dev_info->interface_number);
+		// printf("\n");
+
+		if (dev_info->interface_number == INTERFACE) {
+			dev = hid_open_path(dev_info->path);
+			break;
+		}
+
+		dev_info = dev_info->next;
 	}
 
+	hid_free_enumeration(dev_list);
 	return dev;
 }
 
@@ -53,10 +78,10 @@ libusb_device_handle* open_device() {
  * 
  * @param dev The mouse device handle
  * @param data The packet data containing a request bt
- * @return LIBUSB_SUCCESS on success, or LIBUSB_ERROR if unsucessful
+ * @return the number of bytes written or -1 on error
  */
-int mouse_write(libusb_device_handle *dev,  uint8_t *data) {
-	return libusb_interrupt_transfer(dev, ENDPOINT_OUT, data, PACKET_SIZE, NULL, 0);
+int mouse_write(hid_device *dev, uint8_t *data) {
+	return hid_write(dev, data, PACKET_SIZE);
 }
 
 /**
@@ -65,19 +90,19 @@ int mouse_write(libusb_device_handle *dev,  uint8_t *data) {
  * @param dev The mouse device handle
  * @param reportType The report to request
  * @param data A buffer to store the output data
- * @return LIBUSB_SUCCESS on success, or LIBUSB_ERROR if unsucessful
+ * @return the actual number of bytes read or -1 on error
  */
-int mouse_read(libusb_device_handle *dev, MOUSE_REPORT reportType, uint8_t *data) {
+int mouse_read(hid_device *dev, MOUSE_REPORT reportType, uint8_t *data) {
 	int res;
 
 	data[0] = reportType;
 
-	res = libusb_interrupt_transfer(dev, ENDPOINT_OUT, data, PACKET_SIZE, NULL, 0);
+	res = hid_write(dev, data, PACKET_SIZE);
 	if (res < 0) return res;
 
 	data[0] = 0x00;
 	
-	return libusb_interrupt_transfer(dev, ENDPOINT_IN, data, PACKET_SIZE, NULL, 0);
+	return hid_read(dev, data, PACKET_SIZE);
 }
 
 /**
@@ -85,17 +110,18 @@ int mouse_read(libusb_device_handle *dev, MOUSE_REPORT reportType, uint8_t *data
  * 
  * @param dev The mouse device handle
  * @param options The options to set for the LED configuration
+ * @return the number of bytes written or -1 on error
  */
-void changeColor(libusb_device_handle *dev, color_options *options) {
+int change_color(hid_device *dev, color_options *options) {
 	if (options->brightness < 0 || options->brightness > 100) {
 		printf("Brightness must be between 0 - 100\n");
-		return;
+		return -1;
 	}
-
+	
 	float multiplier = options->brightness / 100.0;
 
 	uint8_t data[PACKET_SIZE] = {
-		0xd2, 0x00, 0x00, 0x08, 
+		SEND_LED, 0x00, 0x00, 0x08,
 		(int) (options->red * multiplier),
 		(int) (options->green * multiplier), 
 		(int) (options->blue * multiplier), 
@@ -104,48 +130,51 @@ void changeColor(libusb_device_handle *dev, color_options *options) {
 		(int) (options->blue * multiplier), 
 		options->brightness
 	};
-
-	int result = mouse_write(dev, data);
+	
+	return mouse_write(dev, data);
 }
 
 /**
- * Assigns a mouse button an action.
+ * Change a binding for a mouse button.
  * 
  * @param dev The mouse device handle
  * @param options The options for the mouse binding being changed
+ * @return the number of bytes written or -1 on error
  */
-void assignButton(libusb_device_handle *dev, button_options *options) {
-	uint8_t data[PACKET_SIZE] = {0xd4, options->button, options->type, 0x02, options->action};
-	
-	int result = mouse_write(dev, data);
+int assign_button(hid_device *dev, button_options *options) {
+	uint8_t data[PACKET_SIZE] = {SEND_BUTTON_ASSIGNMENT, options->button, options->type, 0x02, options->action, 0x00}; // TODO: Macro assignment (last byte is different)
+
+	return mouse_write(dev, data);
 }
 
-int main(int argc, char **argv) {
+/**
+ * Saves the mouse settings to its on-board memory
+ * 
+ * @param dev The mouse device handle
+ */
+int save_settings(hid_device *dev) {
+	uint8_t data[PACKET_SIZE] = {SAVE_END, 0xff};
+
+	return mouse_write(dev, data);
+}
+
+int main() {
 	int res;
 
-	res = libusb_init_context(NULL, NULL, 0);
-	libusb_set_option(NULL, LIBUSB_OPTION_LOG_LEVEL, LIBUSB_LOG_LEVEL_WARNING);
+	res = hid_init();
+	HID_ERROR(res < 0, NULL);
 
-	if (res < 0) {
-		printf("Error opening context\n");
-		exit(-1);
-	}
-
-	libusb_device_handle *dev = open_device();
-	if (dev == NULL) exit(-1);
-
-	uint8_t data[PACKET_SIZE];
-	mouse_read(dev, REPORT_HEARTBEAT, data);
-
-	for (int i = 0; i < PACKET_SIZE; i++) {
-		printf("%#0.2x ", data[i]);
-	}
+	hid_device *dev = open_device();
+	HID_ERROR(!dev, NULL);
 	
-	printf("\n");
-
-	libusb_release_interface(dev, INTERFACE);
-	libusb_close(dev);
+	color_options options = {.red = 0xff, .brightness = 30};
+	res = change_color(dev, &options);
+	HID_ERROR(res < 0, dev);
 	
-	libusb_exit(NULL);
+	res = save_settings(dev);
+	HID_ERROR(res < 0, dev);
+
+	hid_close(dev);
+	hid_exit();
 	return 0;
 }
