@@ -14,8 +14,6 @@
 
 #define INTERFACE (0x02)
 #define PACKET_SIZE (64)
-// #define ENDPOINT_OUT (0x04)
-// #define ENDPOINT_IN (0x83)
 
 /**
  * Used for debugging purposes.
@@ -51,16 +49,6 @@ hid_device* open_device() {
 	dev_info = dev_list;
 
 	while (dev_info) {
-		// printf("Path:           : %s\n", dev_info->path);
-		// printf("- Manufacturer  : %ls\n", dev_info->manufacturer_string);
-		// printf("- Product       : %ls\n", dev_info->product_string);
-		// printf("- Serial number : %ls\n", dev_info->serial_number);
-		// printf("- Release number: %hu\n", dev_info->release_number);
-		// printf("- Usage Page    : %#04x\n", dev_info->usage_page);
-		// printf("- Usage         : %#04x\n", dev_info->usage);
-		// printf("- Interface     : %i\n", dev_info->interface_number);
-		// printf("\n");
-
 		if (dev_info->interface_number == INTERFACE) {
 			dev = hid_open_path(dev_info->path);
 			break;
