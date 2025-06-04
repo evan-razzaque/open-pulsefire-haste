@@ -64,13 +64,7 @@ enum SEND_BYTE {
     SEND_BUTTON_ASSIGNMENT   = 0xd4,
     SEND_MACRO_ASSIGNMENT    = 0xd5,
     SEND_MACRO_DATA          = 0xd6,
+    SAVE_SETTINGS            = 0xda
 } typedef SEND_BYTE;
-
-enum SAVE_BYTE {
-    SAVE_BODY    = 0xda,
-    SAVE_SIXTH   = 0xd9,
-    SAVE_SEVENTH = 0xdb,
-    SAVE_END     = 0xde
-} typedef SAVE_BYTE;
 
 #endif

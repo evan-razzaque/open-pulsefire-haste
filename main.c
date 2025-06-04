@@ -153,7 +153,7 @@ int assign_button(hid_device *dev, button_options *options) {
  * @param dev The mouse device handle
  */
 int save_settings(hid_device *dev) {
-	uint8_t data[PACKET_SIZE] = {SAVE_END, 0xff};
+	uint8_t data[PACKET_SIZE] = {SAVE_SETTINGS, 0xff};
 
 	return mouse_write(dev, data);
 }
@@ -167,8 +167,19 @@ int main() {
 	hid_device *dev = open_device();
 	HID_ERROR(!dev, NULL);
 	
-	color_options options = {.red = 0xff, .brightness = 30};
+	color_options options = {.red = 0xff, .brightness = 50};
 	res = change_color(dev, &options);
+	HID_ERROR(res < 0, dev);
+
+	button_options btn_options = {.button = SIDE_BUTTON_BACK, .type = MOUSE_FUNCTION, .action = BACK};
+
+	res = assign_button(dev, &btn_options);
+	HID_ERROR(res < 0, dev);
+
+	btn_options.button = SIDE_BUTTON_FORWARD;
+	btn_options.action = FORWARD;
+
+	res = assign_button(dev, &btn_options);
 	HID_ERROR(res < 0, dev);
 	
 	res = save_settings(dev);
