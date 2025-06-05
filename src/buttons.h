@@ -13,6 +13,10 @@ enum MOUSE_BUTTON {
 	DPI_BUTTON
 } typedef MOUSE_BUTTON;
 
+/**
+ * An enum for mouse actions. Each member is composed of the type of action and the action itself.
+ * Format (in hex bytes): <type> <action>
+ */
 enum MOUSE_ACTION {
     DISABLED     = 0x0000,
 

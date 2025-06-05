@@ -1,6 +1,6 @@
 CC       = gcc
-CFLAGS   = -Wall -Werror
-LDLIBS  = -lhidapi-hidraw
+CFLAGS   = $$(pkg-config --cflags gtk4) -Wall -Werror
+LDLIBS  = -lhidapi-hidraw $$(pkg-config --libs gtk4)
 OBJFILES = build/buttons.o build/main.o build/mouse.o build/rgb.o 
 TARGET   = bin/main
 
