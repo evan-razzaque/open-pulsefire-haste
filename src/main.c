@@ -31,7 +31,7 @@ int main() {
 	hid_device *dev = open_device();
 	HID_ERROR(!dev, NULL);
 	
-	color_options options = {.red = 0xff, .green = 0xee, .blue = 0xdd, .brightness = 100};
+	color_options options = {.red = 0xff, .blue = 0xff, .brightness = 100};
 	res = change_color(dev, &options);
 	HID_ERROR(res < 0, dev);
 

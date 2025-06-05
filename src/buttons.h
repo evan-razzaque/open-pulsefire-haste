@@ -1,8 +1,8 @@
-#include <stdint.h>
-#include <hidapi/hidapi.h>
-
 #ifndef BUTTONS_H
 #define BUTTONS_H
+
+#include <stdint.h>
+#include <hidapi/hidapi.h>
 
 enum MOUSE_BUTTON {
 	LEFT_MOUSE_BUTTON,

@@ -24,7 +24,7 @@ int change_color(hid_device *dev, color_options *options) {
 	};
 
 	for (int i = 0; i < 14; i++) {
-		printf("%#0.2x ", data[i]);
+		printf("%#.2x ", data[i]);
 	}
 
 	printf("\n");
