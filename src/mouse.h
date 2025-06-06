@@ -11,7 +11,16 @@
 #define PID_WIRED (0x048E)
 
 #define INTERFACE (0x02)
+#define TRUE_PACKET_SIZE (64) // Packet data length without report id
+
+#ifdef _WIN32
+// Shifts the packet data over a single byte for the report id (thanks windows)
+#define REPORT_BYTE(byte) 0x00, (byte)
+#define PACKET_SIZE (65)
+#else
+#define REPORT_BYTE(byte) (byte)
 #define PACKET_SIZE (64)
+#endif
 
 enum SEND_BYTE {
     SEND_POLLING_RATE        = 0xd0,

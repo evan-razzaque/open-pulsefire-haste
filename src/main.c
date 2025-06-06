@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <hidapi/hidapi.h>
-#include <gtk-4.0/gtk/gtk.h>
+#include <gtk/gtk.h>
 #include <gtk/gtkapplication.h>
 
 #include "mouse.h"
@@ -30,7 +30,7 @@ struct mouse_data {
  */
 #define HID_ERROR(cond, dev)\
 	if ((cond)) {\
-		printf("Error: %S\n", hid_error(NULL));\
+		printf("Error: %S\n", hid_error(dev));\
 		if ((dev)) hid_close((dev));\
 		hid_exit();\
 		return 1;\
@@ -76,7 +76,7 @@ void activate(GtkApplication *app, void *data) {
 	GtkWidget *saveButton = gtk_button_new_with_label("Save");
 
 	mouse_data *mouse = (mouse_data*) data;
-
+	
 	g_signal_connect(redButton, "clicked", G_CALLBACK(set_red), mouse->led);
 	g_signal_connect(greenButton, "clicked", G_CALLBACK(set_green), mouse->led);
 	g_signal_connect(blueButton, "clicked", G_CALLBACK(set_blue), mouse->led);
@@ -116,7 +116,9 @@ int main() {
 	hid_device *dev = open_device();
 	HID_ERROR(!dev, NULL);
 
-	color_options color = {.red = 0xff, .brightness = 0x64};
+	color_options color = {.red = 0xff, .blue = 0xff, .brightness = 0x64};
+	res = change_color(dev, &color);
+	
 	mouse_data mouse = {.dev = dev, .led = &color};
 	
 	GtkApplication *app;

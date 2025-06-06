@@ -1,8 +1,12 @@
 CC       = gcc
-CFLAGS   = $$(pkg-config --cflags gtk4) -Wall
+CFLAGS   = $$(pkg-config --cflags gtk4) -Wall -Werror
 LDLIBS  = -lhidapi-hidraw $$(pkg-config --libs gtk4)
 OBJFILES = build/buttons.o build/main.o build/mouse.o build/rgb.o 
 TARGET   = bin/main
+
+ifeq ($(OS),Windows_NT)
+	LDLIBS = -lhidapi $$(pkg-config --libs gtk4) -I /mingw64/include/hidapi
+endif
 
 all: $(TARGET)
 	
