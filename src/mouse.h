@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <hidapi/hidapi.h>
 
+#include "rgb.h"
+
 #define VID (0x03F0)
 #define PID_WIRELESS (0x028E)
 #define PID_WIRED (0x048E)
@@ -60,6 +62,6 @@ int mouse_read(hid_device *dev, MOUSE_REPORT reportType, uint8_t *data);
  * 
  * @param dev The mouse device handle
  */
-int save_settings(hid_device *dev);
+int save_settings(hid_device *dev, color_options *color);
 
 #endif

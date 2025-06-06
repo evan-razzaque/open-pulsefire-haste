@@ -47,6 +47,6 @@ enum MOUSE_ACTION {
  * @param action The action to assign to the button
  * @return the number of bytes written or -1 on error
  */
-int assign_button(hid_device *dev, uint8_t button, MOUSE_ACTION action);
+int assign_button(hid_device *dev, MOUSE_BUTTON button, MOUSE_ACTION action);
 
 #endif

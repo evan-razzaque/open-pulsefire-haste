@@ -23,11 +23,5 @@ int change_color(hid_device *dev, color_options *options) {
 		options->brightness
 	};
 
-	for (int i = 0; i < 14; i++) {
-		printf("%#.2x ", data[i]);
-	}
-
-	printf("\n");
-
 	return mouse_write(dev, data);
 }
