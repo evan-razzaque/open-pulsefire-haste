@@ -12,7 +12,7 @@
 enum MOUSE_STATE {
 	UPDATE,
 	SAVE,
-	HEARTBEAT,
+	CONNECTION,
 	EXIT,
 } typedef MOUSE_STATE;
 
@@ -36,6 +36,9 @@ struct mouse_data {
 		hid_exit();\
 		return 1;\
 	}
+
+#define widget_add_event(builder, widget_name, detailed_signal, c_handler, data)\
+	g_signal_connect(gtk_builder_get_object(builder, widget_name), detailed_signal, G_CALLBACK(c_handler), data);
 
 void set_color(color_options *color, uint64_t new_color) {
 	color->red = new_color >> 24;
@@ -61,23 +64,31 @@ void save_mouse_settings(GtkApplication *app, void *data) {
 	mouse->state = SAVE;
 }
 
-void output_heartbeat(GtkApplication *app, void *data) {
+void output_connection_status(GtkApplication *app, void *data) {
 	mouse_data *mouse = (mouse_data*) data;
-	mouse->state = HEARTBEAT;
+	mouse->state = CONNECTION;
+}
+
+void close_application(GtkApplication *app, void *data) {
+	GtkWindow *window = (GtkWindow*) data;
+
+	printf("window closed\n");
+	gtk_window_close(window);
 }
 
 void activate(GtkApplication *app, void *data) {
 	mouse_data *mouse = (mouse_data*) data;
 
-	GtkBuilder *builder;
-	GtkWidget *window, *buttonRed;
+	GtkBuilder *builder = gtk_builder_new_from_file("ui/window.ui");
+	GtkWidget *window = GTK_WIDGET(gtk_builder_get_object(builder, "window"));
 
-	builder = gtk_builder_new_from_file("ui/window.glade");
-	window = GTK_WIDGET(gtk_builder_get_object(builder, "window"));
-	g_signal_connect(window, "destroy", G_CALLBACK(gtk_window_close), NULL);
+	g_signal_connect(GTK_WINDOW(window), "close-request", G_CALLBACK(close_application), GTK_WINDOW(window));
 	
-	buttonRed = GTK_WIDGET(gtk_builder_get_object(builder, "buttonRed"));
-	g_signal_connect(buttonRed, "clicked", G_CALLBACK(set_red), mouse->led);
+	widget_add_event(builder, "buttonRed", "clicked", set_red, mouse->led);
+	widget_add_event(builder, "buttonGreen", "clicked", set_green, mouse->led);
+	widget_add_event(builder, "buttonBlue", "clicked", set_blue, mouse->led);
+	widget_add_event(builder, "buttonSave", "clicked", save_mouse_settings, mouse);
+	widget_add_event(builder, "buttonConnection", "clicked", output_connection_status, mouse);
 
 	gtk_window_set_application(GTK_WINDOW(window), app);
 	gtk_window_present(GTK_WINDOW(window));
@@ -88,23 +99,23 @@ void* update_leds(void *data) {
 
 	while (mouse->state != EXIT) {
 		if (mouse->state == SAVE) {
+			printf("save\n");
 			save_settings(mouse->dev, mouse->led);
 			mouse->state = UPDATE;
-		} else if (mouse->state == HEARTBEAT) {
-			uint8_t data[PACKET_SIZE];
-			mouse_read(mouse->dev, REPORT_HEARTBEAT, data);
-
-			for (int i = 0; i < PACKET_SIZE; i++) {
-				printf("%.2x ", data[i]);
-			}
-
-			printf("\n");
+		} else if (mouse->state == CONNECTION) {
+			uint8_t data[PACKET_SIZE] = {};
+			mouse_read(mouse->dev, REPORT_CONNECTION, data);
+			
+			printf("Connection Status: ");
+			print_data(data);
 			mouse->state = UPDATE;
+		} else if (mouse->state == UPDATE) {
+			change_color(mouse->dev, mouse->led);
+			g_usleep(1000 * 100);
 		}
-
-		change_color(mouse->dev, mouse->led);
-		g_usleep(1000 * 100);
 	}
+
+	printf("stopped mouse update loop\n");
 
 	return NULL;
 }
@@ -119,7 +130,6 @@ int main() {
 	HID_ERROR(!dev, NULL);
 
 	color_options color = {.red = 0xff, .blue = 0xff, .brightness = 0x64};
-	res = change_color(dev, &color);
 	
 	mouse_data mouse = {.dev = dev, .led = &color};
 	
@@ -130,11 +140,14 @@ int main() {
 
 	app = gtk_application_new("org.gtk.pulsefire-haste", G_APPLICATION_DEFAULT_FLAGS);
 	g_signal_connect(app, "activate", G_CALLBACK(activate), &mouse);
-	g_thread_new("update_leds", update_leds, &mouse);
 
+	GThread *updateThread = g_thread_new("update_leds", update_leds, &mouse);
 	status = g_application_run(G_APPLICATION(app), 0, NULL);
+
 	g_object_unref(app);
 	mouse.state = EXIT;
+
+	g_thread_join(updateThread);
 
 	hid_close(dev);
 	hid_exit();

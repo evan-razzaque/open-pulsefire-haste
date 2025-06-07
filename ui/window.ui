@@ -51,7 +51,7 @@
         <child>
           <object class="GtkButton" id="buttonConnection">
             <property name="can-focus">True</property>
-            <property name="label" translatable="yes">Heartbeat</property>
+            <property name="label" translatable="yes">Connection</property>
             <property name="receives-default">True</property>
             <property name="visible">True</property>
           </object>

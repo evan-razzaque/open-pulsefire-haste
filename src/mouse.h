@@ -41,6 +41,13 @@ enum MOUSE_REPORT {
 } typedef MOUSE_REPORT;
 
 /**
+ * A helper function to print packet data
+ * 
+ * @param data The packet data 
+ */
+void print_data(uint8_t *data);
+
+/**
  * Opens the mouse.
  * 
  * @return the mouse device handle
@@ -51,7 +58,7 @@ hid_device* open_device();
  * Write data to the device.
  * 
  * @param dev The mouse device handle
- * @param data The packet data containing a request bt
+ * @param data The packet data containing a request byte
  * @return the number of bytes written or -1 on error
  */
 int mouse_write(hid_device *dev, uint8_t *data);

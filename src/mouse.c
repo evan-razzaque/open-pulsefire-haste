@@ -1,8 +1,17 @@
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 #include <hidapi/hidapi.h>
 
 #include "mouse.h"
+
+void print_data(uint8_t *data) {
+	for (int i = 0; i < PACKET_SIZE; i++) {
+		printf("%.2x ", data[i]);
+	}
+
+	printf("\n");
+}
 
 hid_device* open_device() {
 	struct hid_device_info *dev_list, *dev_info;
@@ -31,21 +40,33 @@ hid_device* open_device() {
 }
 
 int mouse_write(hid_device *dev, uint8_t *data) {
-	return hid_write(dev, data, PACKET_SIZE);
+	uint8_t temp[PACKET_SIZE] = {};
+	int bytes_written = hid_write(dev, data, PACKET_SIZE);
+	hid_read(dev, temp, PACKET_SIZE);
+	
+	return bytes_written;
 }
 
 int mouse_read(hid_device *dev, MOUSE_REPORT reportType, uint8_t *data) {
 	int res;
 
-	data[PACKET_SIZE - TRUE_PACKET_SIZE] = reportType;
-
-	res = hid_write(dev, data, PACKET_SIZE);
-	if (res < 0) return res;
-
-	data[0] = 0x00;
-	data[1] = 0x00;
+	uint8_t temp[PACKET_SIZE] = {REPORT_BYTE(reportType)};
 	
-	return hid_read(dev, data, PACKET_SIZE);
+	res = hid_write(dev, temp, PACKET_SIZE);
+
+	if (res < 0) {
+		printf("Error: %S\n", hid_error(dev));
+		return res;
+	}
+
+	data[PACKET_SIZE - TRUE_PACKET_SIZE] = reportType;
+	res = hid_read(dev, data, PACKET_SIZE);
+
+	int i = 1;
+
+	printf("%d\n", i);
+
+	return res;
 }
 
 int save_settings(hid_device *dev, color_options *color) {
