@@ -10,9 +10,10 @@
 #include "buttons.h"
 
 enum MOUSE_STATE {
-	UPDATE = 0,
-	SAVE   = 1,
-	EXIT   = 2,
+	UPDATE,
+	SAVE,
+	HEARTBEAT,
+	EXIT,
 } typedef MOUSE_STATE;
 
 struct mouse_data {
@@ -57,37 +58,28 @@ void set_blue(GtkApplication *app, void *color) {
 
 void save_mouse_settings(GtkApplication *app, void *data) {
 	mouse_data *mouse = (mouse_data*) data;
-	mouse->state = 1;
+	mouse->state = SAVE;
+}
+
+void output_heartbeat(GtkApplication *app, void *data) {
+	mouse_data *mouse = (mouse_data*) data;
+	mouse->state = HEARTBEAT;
 }
 
 void activate(GtkApplication *app, void *data) {
-	GtkWidget *window = gtk_application_window_new(app);
-	gtk_window_set_title(GTK_WINDOW(window), "HyperX Pulsefire Haste Gaming Mouse");
-	gtk_window_set_default_size(GTK_WINDOW(window), 800, 400);
-
-	GtkWidget *box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
-	gtk_widget_set_halign(box, GTK_ALIGN_CENTER);
-	gtk_widget_set_valign(box, GTK_ALIGN_CENTER);
-	gtk_window_set_child(GTK_WINDOW(window), box);
-
-	GtkWidget *redButton = gtk_button_new_with_label("Red"); 
-	GtkWidget *greenButton = gtk_button_new_with_label("Green");
-	GtkWidget *blueButton = gtk_button_new_with_label("Blue");
-	GtkWidget *saveButton = gtk_button_new_with_label("Save");
-
 	mouse_data *mouse = (mouse_data*) data;
-	
-	g_signal_connect(redButton, "clicked", G_CALLBACK(set_red), mouse->led);
-	g_signal_connect(greenButton, "clicked", G_CALLBACK(set_green), mouse->led);
-	g_signal_connect(blueButton, "clicked", G_CALLBACK(set_blue), mouse->led);
-	g_signal_connect(saveButton, "clicked", G_CALLBACK(save_mouse_settings), mouse);
 
-	gtk_box_append(GTK_BOX(box), redButton);
-	gtk_box_append(GTK_BOX(box), greenButton);
-	gtk_box_append(GTK_BOX(box), blueButton);
-	gtk_box_append(GTK_BOX(box), saveButton);
-	
+	GtkBuilder *builder;
+	GtkWidget *window, *buttonRed;
 
+	builder = gtk_builder_new_from_file("ui/window.glade");
+	window = GTK_WIDGET(gtk_builder_get_object(builder, "window"));
+	g_signal_connect(window, "destroy", G_CALLBACK(gtk_window_close), NULL);
+	
+	buttonRed = GTK_WIDGET(gtk_builder_get_object(builder, "buttonRed"));
+	g_signal_connect(buttonRed, "clicked", G_CALLBACK(set_red), mouse->led);
+
+	gtk_window_set_application(GTK_WINDOW(window), app);
 	gtk_window_present(GTK_WINDOW(window));
 }
 
@@ -97,6 +89,16 @@ void* update_leds(void *data) {
 	while (mouse->state != EXIT) {
 		if (mouse->state == SAVE) {
 			save_settings(mouse->dev, mouse->led);
+			mouse->state = UPDATE;
+		} else if (mouse->state == HEARTBEAT) {
+			uint8_t data[PACKET_SIZE];
+			mouse_read(mouse->dev, REPORT_HEARTBEAT, data);
+
+			for (int i = 0; i < PACKET_SIZE; i++) {
+				printf("%.2x ", data[i]);
+			}
+
+			printf("\n");
 			mouse->state = UPDATE;
 		}
 
@@ -123,12 +125,15 @@ int main() {
 	
 	GtkApplication *app;
 	int status;
-	
+
+	printf("%s\n", __FILE__);
+
 	app = gtk_application_new("org.gtk.pulsefire-haste", G_APPLICATION_DEFAULT_FLAGS);
 	g_signal_connect(app, "activate", G_CALLBACK(activate), &mouse);
 	g_thread_new("update_leds", update_leds, &mouse);
 
 	status = g_application_run(G_APPLICATION(app), 0, NULL);
+	g_object_unref(app);
 	mouse.state = EXIT;
 
 	hid_close(dev);
