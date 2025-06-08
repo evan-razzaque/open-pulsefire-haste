@@ -24,6 +24,11 @@
 
 typedef uint8_t byte;
 
+enum CONNECTION_TYPE {
+    CONNECTION_TYPE_WIRED,
+    CONNECTION_TYPE_WIRELESS
+} typedef CONNECTION_TYPE;
+
 enum SEND_BYTE {
     SEND_POLLING_RATE        = 0xd0,
     SEND_LOWER_POWER_WARNING = 0xd1, // TODO: verify value
@@ -50,11 +55,20 @@ enum MOUSE_REPORT {
 void print_data(byte *data);
 
 /**
+ * Gets a list of device info objects for the active mouse connection.
+ * 
+ * @param connection_type Output location to store the type of connection (wired or wireless)
+ * @return a list of device info objects
+ */
+struct hid_device_info* get_devices(CONNECTION_TYPE *connection_type);
+
+/**
  * Opens the mouse.
  * 
+ * @param connection_type Output location to store the type of connection (wired or wireless)
  * @return the mouse device handle
  */
-hid_device* open_device();
+hid_device* open_device(CONNECTION_TYPE *connection_type);
 
 /**
  * Write data to the device.
