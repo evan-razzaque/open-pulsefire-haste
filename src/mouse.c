@@ -15,12 +15,12 @@ void print_data(uint8_t *data) {
 
 hid_device* open_device() {
 	struct hid_device_info *dev_list, *dev_info;
-	hid_device *dev;
+	hid_device *dev = NULL;
 
-	dev_list = hid_enumerate(VID, PID_WIRELESS);
+	dev_list = hid_enumerate(VID, PID_WIRED);
 
 	if (!dev_list) {
-		dev_list = hid_enumerate(VID, PID_WIRED);
+		dev_list = hid_enumerate(VID, PID_WIRELESS);
         if (!dev_list) return NULL;
 	}
 
@@ -40,9 +40,7 @@ hid_device* open_device() {
 }
 
 int mouse_write(hid_device *dev, uint8_t *data) {
-	uint8_t temp[PACKET_SIZE] = {};
 	int bytes_written = hid_write(dev, data, PACKET_SIZE);
-	hid_read(dev, temp, PACKET_SIZE);
 	
 	return bytes_written;
 }
