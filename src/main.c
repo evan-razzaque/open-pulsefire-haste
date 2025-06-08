@@ -20,6 +20,7 @@ enum MOUSE_STATE {
 struct mouse_data {
 	hid_device *dev;
 	color_options *led;
+	CONNECTION_TYPE type;
 	int state;
 } typedef mouse_data;
 
@@ -105,13 +106,13 @@ void* update_leds(void *data) {
 	mouse_data *mouse = (mouse_data*) data;
 
 	int res;
-    int poll_mouse_type = 1;
+    int poll_mouse_type = 0;
 
 	while (mouse->state != EXIT) {
 		switch (mouse->state) {
 		case SAVE:
-			printf("save\n");
 			res = save_settings(mouse->dev, mouse->led);
+			printf("save\n");
 			mouse->state = UPDATE;
 			break;
 		case CONNECTION:
@@ -128,12 +129,30 @@ void* update_leds(void *data) {
 				mouse->dev = NULL;
 			}
 
-			mouse->dev = open_device();
+			mouse->dev = open_device(&mouse->type);
 			if (mouse->dev) mouse->state = UPDATE;
 			
 			g_usleep(1000 * 2000);
 			break;
 		case UPDATE:
+			/**
+			 * If the user plugs in the mouse cable with the wireless dongle plugged in,
+			 * the mouse will switch to wired. However, the wireless device is still available,
+			 * but not active, so sending packets to it will have no effect. Thus, we check every second
+			 * for to see if the expected connection type is different the actual connection type.
+			 */
+			if (poll_mouse_type == 9) {
+				CONNECTION_TYPE expected_connection = mouse->type;
+				printf("Expected Type: %d\n", expected_connection);
+				get_devices(&mouse->type);
+				printf("Actual Type: %d\n", mouse->type);
+
+				if (expected_connection != mouse->type) {
+					mouse->state = DISCONNECTED;
+					continue;
+				}
+			}
+
 			res = change_color(mouse->dev, mouse->led);
             poll_mouse_type = (poll_mouse_type + 1) % 10;
 			g_usleep(1000 * 100);
@@ -143,8 +162,8 @@ void* update_leds(void *data) {
 		}
 
 		if (res < 0) {
-			res = 0;
 			printf("%d\n", res);
+			res = 0;
 			mouse->state = DISCONNECTED;
 		}
 	}
@@ -157,16 +176,17 @@ void* update_leds(void *data) {
 
 int main() {
 	int res;
+	CONNECTION_TYPE connection_type;
 
 	res = hid_init();
 	HID_ERROR(res < 0, NULL);
 
-	hid_device *dev = open_device();
+	hid_device *dev = open_device(&connection_type);
 	HID_ERROR(!dev, NULL);
 
 	color_options color = {.red = 0xff, .blue = 0xff, .brightness = 0x64};
 	
-	mouse_data mouse = {.dev = dev, .led = &color};
+	mouse_data mouse = {.dev = dev, .led = &color, .type = connection_type};
 	
 	GtkApplication *app;
 	int status;
@@ -183,9 +203,6 @@ int main() {
 
 	g_thread_join(updateThread);
 
-	printf("%p\n", mouse.dev);
-
 	hid_exit();
-
 	return status;
 }

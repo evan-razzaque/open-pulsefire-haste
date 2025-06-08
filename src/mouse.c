@@ -13,17 +13,25 @@ void print_data(byte *data) {
 	printf("\n");
 }
 
-hid_device* open_device() {
-	struct hid_device_info *dev_list, *dev_info;
-	hid_device *dev = NULL;
+struct hid_device_info* get_devices(CONNECTION_TYPE *connection_type) {
+	int type = CONNECTION_TYPE_WIRED;
 
-	dev_list = hid_enumerate(VID, PID_WIRED);
+	struct hid_device_info *dev_list = hid_enumerate(VID, PID_WIRED);
 
 	if (!dev_list) {
 		dev_list = hid_enumerate(VID, PID_WIRELESS);
-        if (!dev_list) return NULL;
+		type = CONNECTION_TYPE_WIRELESS;
 	}
 
+	if (connection_type != NULL) *connection_type = type;
+	return dev_list;
+}
+
+hid_device* open_device(CONNECTION_TYPE *connection_type) {
+	struct hid_device_info *dev_list, *dev_info;
+	hid_device *dev = NULL;
+
+	dev_list = get_devices(connection_type);
 	dev_info = dev_list;
 
 	while (dev_info) {
