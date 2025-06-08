@@ -19,7 +19,7 @@ enum MOUSE_BUTTON {
  */
 enum MOUSE_ACTION {
     DISABLED     = 0x0000,
-
+    
     LEFT_CLICK   = 0x0101,
     RIGHT_CLICK  = 0x0102,
     MIDDLE_CLICK = 0x0103,

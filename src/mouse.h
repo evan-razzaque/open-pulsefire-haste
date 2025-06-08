@@ -18,9 +18,10 @@
 #define REPORT_BYTE(byte) 0x00, (byte)
 #define PACKET_SIZE (65)
 #else
-#define REPORT_BYTE(byte) (byte)
+#define REPORT_BYTE(uint8_t) (uint8_t)
 #define PACKET_SIZE (64)
 #endif
+
 
 enum SEND_BYTE {
     SEND_POLLING_RATE        = 0xd0,
@@ -58,7 +59,7 @@ hid_device* open_device();
  * Write data to the device.
  * 
  * @param dev The mouse device handle
- * @param data The packet data containing a request byte
+ * @param data The packet data containing a request uint8_t
  * @return the number of bytes written or -1 on error
  */
 int mouse_write(hid_device *dev, uint8_t *data);

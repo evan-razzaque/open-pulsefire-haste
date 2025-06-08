@@ -60,10 +60,7 @@ int mouse_read(hid_device *dev, MOUSE_REPORT reportType, uint8_t *data) {
 	data[PACKET_SIZE - TRUE_PACKET_SIZE] = reportType;
 	res = hid_read(dev, data, PACKET_SIZE);
 
-	int i = 1;
-
-	printf("%d\n", i);
-
+	printf("done\n");
 	return res;
 }
 

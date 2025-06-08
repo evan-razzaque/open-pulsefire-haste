@@ -40,6 +40,12 @@ struct mouse_data {
 #define widget_add_event(builder, widget_name, detailed_signal, c_handler, data)\
 	g_signal_connect(gtk_builder_get_object(builder, widget_name), detailed_signal, G_CALLBACK(c_handler), data);
 
+
+struct mouse_color {
+	color_options *prev_color;
+	uint64_t *new_color;
+} typedef mouse_color;
+
 void set_color(color_options *color, uint64_t new_color) {
 	color->red = new_color >> 24;
 	color->green = new_color >> 16;
@@ -97,21 +103,33 @@ void activate(GtkApplication *app, void *data) {
 void* update_leds(void *data) {
 	mouse_data *mouse = (mouse_data*) data;
 
+	int res;
+    int poll_mouse_type = 1;
+
 	while (mouse->state != EXIT) {
-		if (mouse->state == SAVE) {
+		switch (mouse->state) {
+		case SAVE:
 			printf("save\n");
-			save_settings(mouse->dev, mouse->led);
+			res = save_settings(mouse->dev, mouse->led);
 			mouse->state = UPDATE;
-		} else if (mouse->state == CONNECTION) {
+			break;
+		case CONNECTION:
 			uint8_t data[PACKET_SIZE] = {};
-			mouse_read(mouse->dev, REPORT_CONNECTION, data);
+			res = mouse_read(mouse->dev, REPORT_CONNECTION, data);
+
+            mouse->dev = open_device();
 			
 			printf("Connection Status: ");
 			print_data(data);
 			mouse->state = UPDATE;
-		} else if (mouse->state == UPDATE) {
+			break;
+		case UPDATE:
 			change_color(mouse->dev, mouse->led);
+            poll_mouse_type = (poll_mouse_type + 1) % 10;
 			g_usleep(1000 * 100);
+			break;
+		default:
+			break;
 		}
 	}
 
@@ -149,7 +167,10 @@ int main() {
 
 	g_thread_join(updateThread);
 
-	hid_close(dev);
+	if (mouse.dev != NULL) {
+		hid_close(dev);
+	}
+
 	hid_exit();
 
 	return status;
