@@ -4,11 +4,13 @@
 #include <stdint.h>
 #include <hidapi/hidapi.h>
 
+typedef uint8_t byte;
+
 struct color_options {
-	uint8_t red; 
-	uint8_t green; 
-	uint8_t blue;
-	uint8_t brightness;
+	byte red; 
+	byte green; 
+	byte blue;
+	byte brightness;
 } typedef color_options;
 
 /**

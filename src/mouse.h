@@ -18,10 +18,11 @@
 #define REPORT_BYTE(byte) 0x00, (byte)
 #define PACKET_SIZE (65)
 #else
-#define REPORT_BYTE(uint8_t) (uint8_t)
+#define REPORT_BYTE(byte) (byte)
 #define PACKET_SIZE (64)
 #endif
 
+typedef uint8_t byte;
 
 enum SEND_BYTE {
     SEND_POLLING_RATE        = 0xd0,
@@ -46,7 +47,7 @@ enum MOUSE_REPORT {
  * 
  * @param data The packet data 
  */
-void print_data(uint8_t *data);
+void print_data(byte *data);
 
 /**
  * Opens the mouse.
@@ -59,10 +60,10 @@ hid_device* open_device();
  * Write data to the device.
  * 
  * @param dev The mouse device handle
- * @param data The packet data containing a request uint8_t
+ * @param data The packet data containing a request byte
  * @return the number of bytes written or -1 on error
  */
-int mouse_write(hid_device *dev, uint8_t *data);
+int mouse_write(hid_device *dev, byte *data);
 
 /**
  * Read data from the device.
@@ -72,7 +73,7 @@ int mouse_write(hid_device *dev, uint8_t *data);
  * @param data A buffer to store the output data
  * @return the actual number of bytes read or -1 on error
  */
-int mouse_read(hid_device *dev, MOUSE_REPORT reportType, uint8_t *data);
+int mouse_read(hid_device *dev, MOUSE_REPORT reportType, byte *data);
 
 /**
  * Saves the mouse settings to its on-board memory

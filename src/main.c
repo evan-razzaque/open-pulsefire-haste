@@ -114,22 +114,26 @@ void* update_leds(void *data) {
 			mouse->state = UPDATE;
 			break;
 		case CONNECTION:
-			uint8_t data[PACKET_SIZE] = {};
+			byte data[PACKET_SIZE] = {};
 			res = mouse_read(mouse->dev, REPORT_CONNECTION, data);
 
-            mouse->dev = open_device();
+            // mouse->dev = open_device();
 			
 			printf("Connection Status: ");
 			print_data(data);
 			mouse->state = UPDATE;
 			break;
 		case UPDATE:
-			change_color(mouse->dev, mouse->led);
+			res = change_color(mouse->dev, mouse->led);
             poll_mouse_type = (poll_mouse_type + 1) % 10;
 			g_usleep(1000 * 100);
 			break;
 		default:
 			break;
+		}
+
+		if (res < 0) {
+			printf("%d\n", res);
 		}
 	}
 

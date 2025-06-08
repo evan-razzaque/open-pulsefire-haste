@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <hidapi/hidapi.h>
 
+typedef uint8_t byte;
+
 enum MOUSE_BUTTON {
 	LEFT_MOUSE_BUTTON,
 	RIGHT_MOUSE_BUTTON,
