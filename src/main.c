@@ -13,6 +13,7 @@ enum MOUSE_STATE {
 	UPDATE,
 	SAVE,
 	CONNECTION,
+	DISCONNECTED,
 	EXIT,
 } typedef MOUSE_STATE;
 
@@ -116,12 +117,21 @@ void* update_leds(void *data) {
 		case CONNECTION:
 			byte data[PACKET_SIZE] = {};
 			res = mouse_read(mouse->dev, REPORT_CONNECTION, data);
-
-            // mouse->dev = open_device();
 			
 			printf("Connection Status: ");
 			print_data(data);
 			mouse->state = UPDATE;
+			break;
+		case DISCONNECTED:
+			if (mouse->dev != NULL) {
+				hid_close(mouse->dev);
+				mouse->dev = NULL;
+			}
+
+			mouse->dev = open_device();
+			if (mouse->dev) mouse->state = UPDATE;
+			
+			g_usleep(1000 * 2000);
 			break;
 		case UPDATE:
 			res = change_color(mouse->dev, mouse->led);
@@ -133,11 +143,14 @@ void* update_leds(void *data) {
 		}
 
 		if (res < 0) {
+			res = 0;
 			printf("%d\n", res);
+			mouse->state = DISCONNECTED;
 		}
 	}
 
 	printf("stopped mouse update loop\n");
+	hid_close(mouse->dev);
 
 	return NULL;
 }
@@ -157,9 +170,8 @@ int main() {
 	
 	GtkApplication *app;
 	int status;
-
-	printf("%s\n", __FILE__);
-
+	printf("%p\n", mouse.dev);
+	
 	app = gtk_application_new("org.gtk.pulsefire-haste", G_APPLICATION_DEFAULT_FLAGS);
 	g_signal_connect(app, "activate", G_CALLBACK(activate), &mouse);
 
@@ -171,9 +183,7 @@ int main() {
 
 	g_thread_join(updateThread);
 
-	if (mouse.dev != NULL) {
-		hid_close(dev);
-	}
+	printf("%p\n", mouse.dev);
 
 	hid_exit();
 
