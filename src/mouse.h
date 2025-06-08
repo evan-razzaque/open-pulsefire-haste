@@ -22,6 +22,8 @@
 #define PACKET_SIZE (64)
 #endif
 
+#define FIRST_BYTE (PACKET_SIZE - TRUE_PACKET_SIZE)
+
 typedef uint8_t byte;
 
 enum CONNECTION_TYPE {

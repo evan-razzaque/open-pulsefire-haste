@@ -65,8 +65,12 @@ int mouse_read(hid_device *dev, REPORT_BYTE reportType, byte *data) {
 		return res;
 	}
 
-	data[PACKET_SIZE - TRUE_PACKET_SIZE] = reportType;
-	res = hid_read(dev, data, PACKET_SIZE);
+	// data[PACKET_SIZE - TRUE_PACKET_SIZE] = reportType;
+
+	do {
+		res = hid_read(dev, data, PACKET_SIZE);
+		if (res < 0) break;
+	} while (data[FIRST_BYTE] != reportType);
 
 	return res;
 }
