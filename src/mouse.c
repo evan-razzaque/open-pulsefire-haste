@@ -53,7 +53,7 @@ int mouse_write(hid_device *dev, byte *data) {
 	return bytes_written;
 }
 
-int mouse_read(hid_device *dev, MOUSE_REPORT reportType, byte *data) {
+int mouse_read(hid_device *dev, REPORT_BYTE reportType, byte *data) {
 	int res;
 
 	byte temp[PACKET_SIZE] = {REPORT_BYTE(reportType)};
@@ -68,7 +68,6 @@ int mouse_read(hid_device *dev, MOUSE_REPORT reportType, byte *data) {
 	data[PACKET_SIZE - TRUE_PACKET_SIZE] = reportType;
 	res = hid_read(dev, data, PACKET_SIZE);
 
-	printf("done\n");
 	return res;
 }
 

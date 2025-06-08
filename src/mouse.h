@@ -40,12 +40,12 @@ enum SEND_BYTE {
     SAVE_SETTINGS            = 0xda
 } typedef SEND_BYTE;
 
-enum MOUSE_REPORT {
-    REPORT_CONNECTION           = 0x46,
-    REPORT_HARDWARE             = 0x50,
-    REPORT_HEARTBEAT            = 0x51,
-    REPORT_ONBOARD_LED_SETTINGS = 0x52
-} typedef MOUSE_REPORT;
+enum REPORT_BYTE {
+    REPORT_BYTE_CONNECTION           = 0x46,
+    REPORT_BYTE_HARDWARE             = 0x50,
+    REPORT_BYTE_HEARTBEAT            = 0x51,
+    REPORT_BYTE_ONBOARD_LED_SETTINGS = 0x52
+} typedef REPORT_BYTE;
 
 /**
  * A helper function to print packet data
@@ -87,7 +87,7 @@ int mouse_write(hid_device *dev, byte *data);
  * @param data A buffer to store the output data
  * @return the actual number of bytes read or -1 on error
  */
-int mouse_read(hid_device *dev, MOUSE_REPORT reportType, byte *data);
+int mouse_read(hid_device *dev, REPORT_BYTE reportType, byte *data);
 
 /**
  * Saves the mouse settings to its on-board memory

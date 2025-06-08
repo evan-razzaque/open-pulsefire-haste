@@ -12,9 +12,8 @@
 enum MOUSE_STATE {
 	UPDATE,
 	SAVE,
-	CONNECTION,
 	DISCONNECTED,
-	EXIT,
+	CLOSED,
 } typedef MOUSE_STATE;
 
 struct mouse_data {
@@ -72,11 +71,6 @@ void save_mouse_settings(GtkApplication *app, void *data) {
 	mouse->state = SAVE;
 }
 
-void output_connection_status(GtkApplication *app, void *data) {
-	mouse_data *mouse = (mouse_data*) data;
-	mouse->state = CONNECTION;
-}
-
 void close_application(GtkApplication *app, void *data) {
 	GtkWindow *window = (GtkWindow*) data;
 
@@ -96,7 +90,6 @@ void activate(GtkApplication *app, void *data) {
 	widget_add_event(builder, "buttonGreen", "clicked", set_green, mouse->led);
 	widget_add_event(builder, "buttonBlue", "clicked", set_blue, mouse->led);
 	widget_add_event(builder, "buttonSave", "clicked", save_mouse_settings, mouse);
-	widget_add_event(builder, "buttonConnection", "clicked", output_connection_status, mouse);
 
 	gtk_window_set_application(GTK_WINDOW(window), app);
 	gtk_window_present(GTK_WINDOW(window));
@@ -108,19 +101,11 @@ void* update_leds(void *data) {
 	int res;
     int poll_mouse_type = 0;
 
-	while (mouse->state != EXIT) {
+	while (mouse->state != CLOSED) {
 		switch (mouse->state) {
 		case SAVE:
 			res = save_settings(mouse->dev, mouse->led);
-			printf("save\n");
-			mouse->state = UPDATE;
-			break;
-		case CONNECTION:
-			byte data[PACKET_SIZE] = {};
-			res = mouse_read(mouse->dev, REPORT_CONNECTION, data);
-			
-			printf("Connection Status: ");
-			print_data(data);
+			printf("Response: %d\n", res);
 			mouse->state = UPDATE;
 			break;
 		case DISCONNECTED:
@@ -142,11 +127,13 @@ void* update_leds(void *data) {
 			 * for to see if the expected connection type is different the actual connection type.
 			 */
 			if (poll_mouse_type == 9) {
-				CONNECTION_TYPE expected_connection = mouse->type;
-				printf("Expected Type: %d\n", expected_connection);
-				get_devices(&mouse->type);
-				printf("Actual Type: %d\n", mouse->type);
+				byte data[PACKET_SIZE] = {};
+				mouse_read(mouse->dev, REPORT_BYTE_CONNECTION, data);
+				print_data(data);
 
+				CONNECTION_TYPE expected_connection = mouse->type;
+				get_devices(&mouse->type);
+				
 				if (expected_connection != mouse->type) {
 					mouse->state = DISCONNECTED;
 					continue;
@@ -168,7 +155,6 @@ void* update_leds(void *data) {
 		}
 	}
 
-	printf("stopped mouse update loop\n");
 	hid_close(mouse->dev);
 
 	return NULL;
@@ -199,7 +185,7 @@ int main() {
 	status = g_application_run(G_APPLICATION(app), 0, NULL);
 
 	g_object_unref(app);
-	mouse.state = EXIT;
+	mouse.state = CLOSED;
 
 	g_thread_join(updateThread);
 
