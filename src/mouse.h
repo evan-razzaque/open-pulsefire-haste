@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <hidapi/hidapi.h>
+#include <gtk/gtk.h>
 
 #include "rgb.h"
 
@@ -48,6 +49,15 @@ enum REPORT_BYTE {
     REPORT_BYTE_HEARTBEAT            = 0x51,
     REPORT_BYTE_ONBOARD_LED_SETTINGS = 0x52
 } typedef REPORT_BYTE;
+
+struct mouse_data {
+	GMutex *mutex;
+	hid_device *dev;
+	color_options *led;
+	CONNECTION_TYPE type;
+	int battery_level;
+	int state;
+} typedef mouse_data;
 
 /**
  * A helper function to print packet data

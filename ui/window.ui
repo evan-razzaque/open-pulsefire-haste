@@ -10,41 +10,52 @@
     <property name="default-width">800</property>
     <child>
       <object class="GtkBox">
-        <property name="halign">center</property>
-        <property name="homogeneous">True</property>
-        <property name="spacing">5</property>
-        <property name="valign">center</property>
-        <property name="visible">True</property>
+        <property name="orientation">vertical</property>
         <child>
-          <object class="GtkButton" id="buttonRed">
-            <property name="can-focus">True</property>
-            <property name="label" translatable="yes">Red</property>
-            <property name="receives-default">True</property>
-            <property name="visible">True</property>
+          <object class="GtkLabel" id="labelBattery">
+            <property name="halign">start</property>
           </object>
         </child>
         <child>
-          <object class="GtkButton" id="buttonGreen">
-            <property name="can-focus">True</property>
-            <property name="label" translatable="yes">Green</property>
-            <property name="receives-default">True</property>
+          <object class="GtkBox">
+            <property name="halign">center</property>
+            <property name="homogeneous">True</property>
+            <property name="spacing">5</property>
+            <property name="valign">center</property>
+            <property name="vexpand">True</property>
             <property name="visible">True</property>
-          </object>
-        </child>
-        <child>
-          <object class="GtkButton" id="buttonBlue">
-            <property name="can-focus">True</property>
-            <property name="label" translatable="yes">Blue</property>
-            <property name="receives-default">True</property>
-            <property name="visible">True</property>
-          </object>
-        </child>
-        <child>
-          <object class="GtkButton" id="buttonSave">
-            <property name="can-focus">True</property>
-            <property name="label" translatable="yes">Save</property>
-            <property name="receives-default">True</property>
-            <property name="visible">True</property>
+            <child>
+              <object class="GtkButton" id="buttonRed">
+                <property name="can-focus">True</property>
+                <property name="label" translatable="yes">Red</property>
+                <property name="receives-default">True</property>
+                <property name="visible">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="buttonGreen">
+                <property name="can-focus">True</property>
+                <property name="label" translatable="yes">Green</property>
+                <property name="receives-default">True</property>
+                <property name="visible">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="buttonBlue">
+                <property name="can-focus">True</property>
+                <property name="label" translatable="yes">Blue</property>
+                <property name="receives-default">True</property>
+                <property name="visible">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="buttonSave">
+                <property name="can-focus">True</property>
+                <property name="label" translatable="yes">Save</property>
+                <property name="receives-default">True</property>
+                <property name="visible">True</property>
+              </object>
+            </child>
           </object>
         </child>
       </object>
