@@ -1,19 +1,18 @@
 #include <stdio.h>
 #include <stdint.h>
+#include <math.h>
 #include <hidapi/hidapi.h>
 #include <gtk/gtk.h>
 
 #include "mouse.h"
 #include "rgb.h"
 
-void set_color(GtkApplication *app, void* color_options) {
-	mouse_color* color_data = (mouse_color*) color_options;
-	uint64_t new_color = color_data->new_color;
-
-	color_data->prev_color->red = new_color >> 24;
-	color_data->prev_color->green = new_color >> 16;
-	color_data->prev_color->blue = new_color >> 8;
-	color_data->prev_color->brightness = new_color;
+void set_color(GtkColorChooser *self, GdkRGBA *color, void *data) {
+	mouse_data *mouse = (mouse_data*) data;
+	
+	mouse->led->red = (byte) (color->red * 255);
+	mouse->led->green = (byte) (color->green * 255);
+	mouse->led->blue = (byte) (color->blue * 255);
 }
 
 int change_color(hid_device *dev, color_options *options) {

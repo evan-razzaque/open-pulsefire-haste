@@ -73,15 +73,8 @@ void activate(GtkApplication *app, void *data) {
 	GtkWidget *window = GTK_WIDGET(gtk_builder_get_object(builder, "window"));
 
 	g_signal_connect(GTK_WINDOW(window), "close-request", G_CALLBACK(close_application), GTK_WINDOW(window));
-
-	mouse_color *colors = malloc(sizeof(mouse_color) * 3);
-	colors[0] = (mouse_color) {.prev_color = mouse->led, .new_color = 0xff000064};
-	colors[1] = (mouse_color) {.prev_color = mouse->led, .new_color = 0x00ff0064};
-	colors[2] = (mouse_color) {.prev_color = mouse->led, .new_color = 0x0000ff64};
 	
-	widget_add_event(builder, "buttonRed", "clicked", set_color, &colors[0]);
-	widget_add_event(builder, "buttonGreen", "clicked", set_color, &colors[1]);
-	widget_add_event(builder, "buttonBlue", "clicked", set_color, &colors[2]);
+	widget_add_event(builder, "ledColor", "color-activated", set_color, mouse);
 	widget_add_event(builder, "buttonSave", "clicked", save_mouse_settings, mouse);
 
 	battery_indicator *battery_data = malloc(sizeof(battery_indicator));

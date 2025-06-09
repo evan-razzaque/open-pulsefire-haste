@@ -21,10 +21,11 @@ struct mouse_color {
 /**
  * A function to set the LED settings for the mouse update thread.
  * 
- * @param app The gtk app instance
- * @param data A color_options object
+ * @param app Gtk color chooser
+ * @param color The color to set
+ * @param data Mouse data object
  */
-void set_color(GtkApplication *app, void* data);
+void set_color(GtkColorChooser *self, GdkRGBA *color, void *data);
 
 /**
  * Changes the LED settings for the mouse.
