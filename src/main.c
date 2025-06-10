@@ -5,16 +5,9 @@
 #include <gtk/gtk.h>
 #include <gtk/gtkapplication.h>
 
-#include "mouse.h"
-#include "rgb.h"
-#include "buttons.h"
-
-enum MOUSE_STATE {
-	UPDATE,
-	SAVE,
-	DISCONNECTED,
-	CLOSED,
-} typedef MOUSE_STATE;
+#include "device/mouse.h"
+#include "device/rgb.h"
+#include "device/buttons.h"
 
 /**
  * Used for debugging purposes.
@@ -34,6 +27,21 @@ enum MOUSE_STATE {
 #define widget_add_event(builder, widget_name, detailed_signal, c_handler, data)\
 	g_signal_connect(gtk_builder_get_object(builder, widget_name), detailed_signal, G_CALLBACK(c_handler), data);
 
+enum MOUSE_STATE {
+	UPDATE,
+	SAVE,
+	DISCONNECTED,
+	CLOSED,
+} typedef MOUSE_STATE;
+
+struct mouse_data {
+	GMutex *mutex;
+	hid_device *dev;
+	color_options *led;
+	CONNECTION_TYPE type;
+	int battery_level;
+	MOUSE_STATE state;
+} typedef mouse_data;
 
 struct widget_data {
 	mouse_data *mouse;
@@ -62,6 +70,14 @@ int window_update_loop(void* _data) {
 
 void save_mouse_settings(GtkWidget *widget, void *mouse) {
 	((mouse_data*) mouse)->state = SAVE;
+}
+
+void set_color(GtkColorChooser *self, GdkRGBA *color, void *data) {
+	mouse_data *mouse = (mouse_data*) data;
+	
+	mouse->led->red = (byte) (color->red * 255);
+	mouse->led->green = (byte) (color->green * 255);
+	mouse->led->blue = (byte) (color->blue * 255);
 }
 
 void update_brightness(GtkRange *brightness, void *data) {

@@ -65,8 +65,6 @@ int mouse_read(hid_device *dev, REPORT_BYTE reportType, byte *data) {
 		return res;
 	}
 
-	// data[PACKET_SIZE - TRUE_PACKET_SIZE] = reportType;
-
 	do {
 		res = hid_read(dev, data, PACKET_SIZE);
 		if (res < 0) break;
@@ -76,21 +74,21 @@ int mouse_read(hid_device *dev, REPORT_BYTE reportType, byte *data) {
 }
 
 int save_settings(hid_device *dev, color_options *color) {
-	byte d1[PACKET_SIZE] = {REPORT_BYTE(0xda), 0x01, 0x00, 0x3c, color->red, color->green, color->blue};
-	mouse_write(dev, d1);
+	// byte d1[PACKET_SIZE] = {REPORT_BYTE(SAVE_SETTINGS), 0x01, 0x00, 0x3c, color->red, color->green, color->blue};
+	// mouse_write(dev, d1);
 
-	for (int i = 0; i < 5; i++) {
-		byte d2[PACKET_SIZE] = {REPORT_BYTE(0xda), 0x01, i + 1, 0x3c};
-		mouse_write(dev, d2); 
-	}
+	// for (int i = 0; i < 5; i++) {
+	// 	byte d2[PACKET_SIZE] = {REPORT_BYTE(SAVE_SETTINGS), 0x01, i + 1, 0x3c};
+	// 	mouse_write(dev, d2); 
+	// }
 
-	byte d3[PACKET_SIZE] = {REPORT_BYTE(0xd9), 0x00, 0x00, 0x03, 0x55, 0x01, 0x23};
-	mouse_write(dev, d3);
+	// byte d3[PACKET_SIZE] = {REPORT_BYTE(0xd9), 0x00, 0x00, 0x03, 0x55, 0x01, 0x23};
+	// mouse_write(dev, d3);
 
-	byte d4[PACKET_SIZE] = {REPORT_BYTE(0xdb), 0x55};
-	mouse_write(dev, d4);
+	// byte d4[PACKET_SIZE] = {REPORT_BYTE(0xdb), 0x55};
+	// mouse_write(dev, d4);
 
-	byte d5[PACKET_SIZE] = {REPORT_BYTE(SAVE_SETTINGS), 0xff};
+	byte data[PACKET_SIZE] = {REPORT_BYTE(SEND_BYTE_SAVE_SETTINGS), 0xff};
 
-	return mouse_write(dev, d5);
+	return mouse_write(dev, data);
 }

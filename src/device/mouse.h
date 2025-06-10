@@ -3,7 +3,6 @@
 
 #include <stdint.h>
 #include <hidapi/hidapi.h>
-#include <gtk/gtk.h>
 
 #include "rgb.h"
 
@@ -33,14 +32,15 @@ enum CONNECTION_TYPE {
 } typedef CONNECTION_TYPE;
 
 enum SEND_BYTE {
-    SEND_POLLING_RATE        = 0xd0,
-    SEND_LOWER_POWER_WARNING = 0xd1, // TODO: verify value
-    SEND_LED                 = 0xd2,
-    SEND_DPI                 = 0xd3,
-    SEND_BUTTON_ASSIGNMENT   = 0xd4,
-    SEND_MACRO_ASSIGNMENT    = 0xd5,
-    SEND_MACRO_DATA          = 0xd6,
-    SAVE_SETTINGS            = 0xda
+    SEND_BYTE_POLLING_RATE                  = 0xd0,
+    SEND_BYTE_LOWER_POWER_WARNING           = 0xd1, // TODO: verify value
+    SEND_BYTE_LED                           = 0xd2,
+    SEND_BYTE_DPI                           = 0xd3,
+    SEND_BYTE_BUTTON_ASSIGNMENT             = 0xd4,
+    SEND_BYTE_MACRO_ASSIGNMENT              = 0xd5,
+    SEND_BYTE_MACRO_DATA                    = 0xd6,
+    SEND_BYTE_SAVE_SETTINGS_OLD             = 0xda, // Ngenuity sends packets starting with this byte, but AFAIK it seems to be unessesary
+    SEND_BYTE_SAVE_SETTINGS                 = 0xde
 } typedef SEND_BYTE;
 
 enum REPORT_BYTE {
@@ -50,19 +50,10 @@ enum REPORT_BYTE {
     REPORT_BYTE_ONBOARD_LED_SETTINGS = 0x52
 } typedef REPORT_BYTE;
 
-struct mouse_data {
-	GMutex *mutex;
-	hid_device *dev;
-	color_options *led;
-	CONNECTION_TYPE type;
-	int battery_level;
-	int state;
-} typedef mouse_data;
-
 /**
  * A helper function to print packet data
  * 
- * @param data The packet data 
+ * @param data The packet data
  */
 void print_data(byte *data);
 

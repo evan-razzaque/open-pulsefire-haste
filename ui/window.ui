@@ -9,13 +9,14 @@
     <property name="default-height">400</property>
     <property name="default-width">800</property>
     <property name="destroy-with-parent">True</property>
+    <property name="title">HyperX Pulsefire Haste</property>
     <child>
       <object class="GtkGrid">
         <property name="column-homogeneous">True</property>
-        <property name="margin-bottom">5</property>
-        <property name="margin-end">5</property>
-        <property name="margin-start">5</property>
-        <property name="margin-top">5</property>
+        <property name="margin-bottom">10</property>
+        <property name="margin-end">10</property>
+        <property name="margin-start">10</property>
+        <property name="margin-top">10</property>
         <child>
           <object class="GtkBox">
             <property name="halign">start</property>
@@ -87,6 +88,15 @@
                 <property name="halign">end</property>
                 <property name="show-editor">True</property>
                 <property name="use-alpha">False</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="halign">start</property>
+                <property name="justify">center</property>
+                <property name="label">Brightness</property>
+                <property name="margin-start">12</property>
+                <property name="margin-top">20</property>
               </object>
             </child>
             <child>

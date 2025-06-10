@@ -13,20 +13,6 @@ struct color_options {
 	byte brightness;
 } typedef color_options;
 
-struct mouse_color {
-	color_options *prev_color;
-	uint64_t new_color;
-} typedef mouse_color;
-
-/**
- * A function to set the LED settings for the mouse update thread.
- * 
- * @param app Gtk color chooser
- * @param color The color to set
- * @param data Mouse data object
- */
-void set_color(GtkColorChooser *self, GdkRGBA *color, void *data);
-
 /**
  * Changes the LED settings for the mouse.
  * 
