@@ -1,5 +1,5 @@
 CC       = gcc
-CFLAGS   = $$(pkg-config --cflags gtk4) -Wall -Werror
+CFLAGS   = $$(pkg-config --cflags gtk4) -Wall -Werror -Wno-deprecated-declarations -std=c99
 LDLIBS  = -lm -lhidapi-hidraw $$(pkg-config --libs gtk4)
 OBJFILES = build/buttons.o build/main.o build/mouse.o build/rgb.o 
 TARGET   = bin/main

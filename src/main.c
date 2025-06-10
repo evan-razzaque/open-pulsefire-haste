@@ -35,56 +35,63 @@ enum MOUSE_STATE {
 	g_signal_connect(gtk_builder_get_object(builder, widget_name), detailed_signal, G_CALLBACK(c_handler), data);
 
 
-void save_mouse_settings(GtkApplication *app, void *data) {
-	mouse_data *mouse = (mouse_data*) data;
-	mouse->state = SAVE;
-}
-
-void close_application(GtkApplication *app, void *data) {
-	GtkWindow *window = (GtkWindow*) data;
-
-	printf("window closed\n");
-	gtk_window_close(window);
-}
-
-struct battery_indicator {
+struct widget_data {
 	mouse_data *mouse;
 	GtkLabel *label_battery;
-} typedef battery_indicator;
+	GtkColorChooser *color_chooser;
+} typedef widget_data;
 
-int update_battery_display(void* data) {
-	battery_indicator *mouse_battery = (battery_indicator*) data;
-	mouse_data *mouse = mouse_battery->mouse;
-	GtkLabel *label_battery = mouse_battery->label_battery;
-
-	char battery[3];
+int window_update_loop(void* _data) {
+	widget_data *data = (widget_data*) _data;
+	mouse_data *mouse = data->mouse;
+	
+	char battery[4];
 	sprintf(battery, "%d", mouse->battery_level);
-
-	const char *b = battery;
-	gtk_label_set_text(label_battery, b);
+	
+	gtk_label_set_text(data->label_battery, battery);
+	
+	GdkRGBA color = {};
+	gtk_color_chooser_get_rgba(data->color_chooser, &color);
+	
+	mouse->led->red = (byte) (color.red * 255);
+	mouse->led->green = (byte) (color.green * 255);
+	mouse->led->blue = (byte) (color.blue * 255);
 	
 	return G_SOURCE_CONTINUE;
 }
 
+void save_mouse_settings(GtkWidget *widget, void *mouse) {
+	((mouse_data*) mouse)->state = SAVE;
+}
+
+void update_brightness(GtkRange *brightness, void *data) {
+	((mouse_data*) data)->led->brightness = (int) gtk_range_get_value(brightness);
+}
+
+void close_application(GtkWindow *window, void *data) {
+	printf("window closed\n");
+	gtk_window_close(window);
+}
+
 void activate(GtkApplication *app, void *data) {
 	mouse_data *mouse = (mouse_data*) data;
-
-	GtkBuilder *builder = gtk_builder_new_from_file("ui/window.ui");
-	GtkWidget *window = GTK_WIDGET(gtk_builder_get_object(builder, "window"));
-
-	g_signal_connect(GTK_WINDOW(window), "close-request", G_CALLBACK(close_application), GTK_WINDOW(window));
 	
-	widget_add_event(builder, "ledColor", "color-activated", set_color, mouse);
+	GtkBuilder *builder = gtk_builder_new_from_file("ui/window.ui");
+	GtkWindow *window = GTK_WINDOW(GTK_WIDGET(gtk_builder_get_object(builder, "window")));
+	
+	g_signal_connect(window, "close-request", G_CALLBACK(close_application), NULL);
 	widget_add_event(builder, "buttonSave", "clicked", save_mouse_settings, mouse);
+	widget_add_event(builder, "scaleBrightness", "value-changed", update_brightness, mouse);
 
-	battery_indicator *battery_data = malloc(sizeof(battery_indicator));
-	battery_data->mouse = mouse;
-	battery_data->label_battery = GTK_LABEL(GTK_WIDGET(gtk_builder_get_object(builder, "labelBattery")));
+	widget_data *widget_data = malloc(sizeof(widget_data));
+	widget_data->mouse = mouse;
+	widget_data->label_battery = GTK_LABEL(GTK_WIDGET(gtk_builder_get_object(builder, "labelBattery")));
+	widget_data->color_chooser = GTK_COLOR_CHOOSER(GTK_WIDGET(gtk_builder_get_object(builder, "colorChooserLed")));
 
-	g_timeout_add(10, update_battery_display, battery_data);
+	g_timeout_add(10, window_update_loop, widget_data);
 
-	gtk_window_set_application(GTK_WINDOW(window), app);
-	gtk_window_present(GTK_WINDOW(window));
+	gtk_window_set_application(window, app);
+	gtk_window_present(window);
 }
 
 void update_battery_level(mouse_data *mouse) {
@@ -159,12 +166,11 @@ void* mouse_update_loop(void *data) {
 	return NULL;
 }
 
-GMutex mutex;
-
 int main() {
 	int res;
 	CONNECTION_TYPE connection_type;
-
+	
+	GMutex mutex;
 	g_mutex_init(&mutex);
 	
 	res = hid_init();
