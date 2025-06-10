@@ -68,7 +68,7 @@ int window_update_loop(void* _data) {
 	return G_SOURCE_CONTINUE;
 }
 
-void save_mouse_settings(GtkWidget *widget, void *mouse) {
+void save_mouse_settings(GtkWidget *self, void *mouse) {
 	((mouse_data*) mouse)->state = SAVE;
 }
 
@@ -84,6 +84,17 @@ void update_brightness(GtkRange *brightness, void *data) {
 	((mouse_data*) data)->led->brightness = (int) gtk_range_get_value(brightness);
 }
 
+int key_pressed_display(GtkEventControllerKey *self, guint keyval, guint keycode, GdkModifierType state, GtkWidget* data) {
+	GtkLabel *label_pressed_key = GTK_LABEL(data);
+
+	char key_press_info[64];
+
+	sprintf(key_press_info, "Value: %u, Code: %u, Modfifier: %d", keyval, keycode, state);
+	gtk_label_set_text(label_pressed_key, key_press_info);
+
+	return TRUE;
+}
+
 void close_application(GtkWindow *window, void *data) {
 	printf("window closed\n");
 	gtk_window_close(window);
@@ -94,8 +105,14 @@ void activate(GtkApplication *app, void *data) {
 	
 	GtkBuilder *builder = gtk_builder_new_from_file("ui/window.ui");
 	GtkWindow *window = GTK_WINDOW(GTK_WIDGET(gtk_builder_get_object(builder, "window")));
+	GtkLabel *label_pressed_key = GTK_LABEL(GTK_WIDGET(gtk_builder_get_object(builder, "labelPressedKey")));
 	
+	GtkEventController *event_key_controller = GTK_EVENT_CONTROLLER(gtk_builder_get_object(builder, "eventKeyController"));
+	gtk_widget_add_controller(GTK_WIDGET(window), event_key_controller);
+
+	g_signal_connect(event_key_controller, "key-pressed", G_CALLBACK(key_pressed_display), label_pressed_key);
 	g_signal_connect(window, "close-request", G_CALLBACK(close_application), NULL);
+
 	widget_add_event(builder, "buttonSave", "clicked", save_mouse_settings, mouse);
 	widget_add_event(builder, "scaleBrightness", "value-changed", update_brightness, mouse);
 
@@ -108,6 +125,28 @@ void activate(GtkApplication *app, void *data) {
 
 	gtk_window_set_application(window, app);
 	gtk_window_present(window);
+}
+
+/**
+ * Verifies whether the expected mouse type is the same as
+ * the actual mouse type.
+ * 
+ * @param mouse Mouse data object
+ * @return TRUE if expected == actual, FALSE otherwise
+ */
+bool verify_mouse_type(mouse_data *mouse) {
+	byte data_buffer[PACKET_SIZE] = {};
+	mouse_read(mouse->dev, REPORT_BYTE_CONNECTION, data_buffer);
+	
+	CONNECTION_TYPE expected_connection = mouse->type;
+	get_devices(&mouse->type);
+	
+	if (expected_connection != mouse->type) {
+		mouse->state = DISCONNECTED;
+		return FALSE;
+	}
+
+	return TRUE;
 }
 
 void update_battery_level(mouse_data *mouse) {
@@ -129,36 +168,17 @@ void* mouse_update_loop(void *data) {
 			res = save_settings(mouse->dev, mouse->led);
 			mouse->state = UPDATE;
 			break;
-		case DISCONNECTED:
-			if (mouse->dev != NULL) {
-				hid_close(mouse->dev);
-				mouse->dev = NULL;
-			}
-			
+		case DISCONNECTED:			
 			mouse->dev = open_device(&mouse->type);
 			if (mouse->dev) mouse->state = UPDATE;
 			
 			g_usleep(1000 * 2000);
 			break;
 		case UPDATE:
-			/**
-			 * If the user plugs in the mouse cable with the wireless dongle plugged in,
-			 * the mouse will switch to wired. However, the wireless device is still available,
-			 * but not active, so sending packets to it will have no effect. Thus, we check every second
-			 * for to see if the expected connection type is different the actual connection type.
-			 */
 			if (poll_mouse_type == 9) {
-				byte data_buffer[PACKET_SIZE] = {};
-				mouse_read(mouse->dev, REPORT_BYTE_CONNECTION, data_buffer);
-				
-				CONNECTION_TYPE expected_connection = mouse->type;
-				get_devices(&mouse->type);
-				
-				if (expected_connection != mouse->type) {
-					mouse->state = DISCONNECTED;
-					continue;
-				}
+				bool connection_correct = verify_mouse_type(mouse);
 
+				if (!connection_correct) continue;
 				update_battery_level(mouse);
 			}
 			
@@ -173,12 +193,15 @@ void* mouse_update_loop(void *data) {
 		if (res < 0) {
 			printf("%d\n", res);
 			res = 0;
+			hid_close(mouse->dev);
+			mouse->dev = NULL;
 			mouse->state = DISCONNECTED;
 		}
 	}
 	
-	hid_close(mouse->dev);
+	if (mouse->dev) hid_close(mouse->dev);
 	printf("mouse closed\n");
+	g_thread_exit(NULL);
 	return NULL;
 }
 
