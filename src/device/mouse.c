@@ -73,6 +73,14 @@ int mouse_read(hid_device *dev, REPORT_BYTE reportType, byte *data) {
 	return res;
 }
 
+int get_battery_level(hid_device* dev) {
+	byte data[PACKET_SIZE] = {};
+	int res = mouse_read(dev, REPORT_BYTE_HEARTBEAT, data);
+
+	if (res < 0) return -1;
+	return (int) data[REPORT_INDEX_BATTERY];
+}
+
 int save_settings(hid_device *dev, color_options *color) {
 	// byte d1[PACKET_SIZE] = {REPORT_BYTE(SAVE_SETTINGS), 0x01, 0x00, 0x3c, color->red, color->green, color->blue};
 	// mouse_write(dev, d1);

@@ -50,6 +50,10 @@ enum REPORT_BYTE {
     REPORT_BYTE_ONBOARD_LED_SETTINGS = 0x52
 } typedef REPORT_BYTE;
 
+enum REPORT_INDEX {
+    REPORT_INDEX_BATTERY = 0x04
+} typedef REPORT_INDEX;
+
 /**
  * A helper function to print packet data
  * 
@@ -91,6 +95,14 @@ int mouse_write(hid_device *dev, byte *data);
  * @return the actual number of bytes read or -1 on error
  */
 int mouse_read(hid_device *dev, REPORT_BYTE reportType, byte *data);
+
+/**
+ * Returns the battery level of the mouse
+ * 
+ * @param dev The mouse device handle
+ * @return the battery level of the mouse
+ */
+int get_battery_level(hid_device* dev);
 
 /**
  * Saves the mouse settings to its on-board memory

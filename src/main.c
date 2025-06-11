@@ -29,13 +29,10 @@
 
 enum MOUSE_STATE {
 	UPDATE,
-	SAVE,
-	DISCONNECTED,
-	CLOSED,
+	CLOSED
 } typedef MOUSE_STATE;
 
 struct mouse_data {
-	GMutex *mutex;
 	hid_device *dev;
 	color_options *led;
 	CONNECTION_TYPE type;
@@ -43,41 +40,52 @@ struct mouse_data {
 	MOUSE_STATE state;
 } typedef mouse_data;
 
-struct widget_data {
+GMutex mutex;
+
+void save_mouse_settings(GtkWidget *self, void *_mouse) {
+	g_mutex_lock(&mutex);
+	
+	mouse_data *mouse = _mouse;
+	save_settings(mouse->dev, mouse->led);
+
+	g_mutex_unlock(&mutex);
+}
+
+struct mouse_battery_data {
 	mouse_data *mouse;
 	GtkLabel *label_battery;
-	GtkColorChooser *color_chooser;
-} typedef widget_data;
+} typedef mouse_battery_data;
 
-int window_update_loop(void* _data) {
-	widget_data *data = (widget_data*) _data;
-	mouse_data *mouse = data->mouse;
-	
-	char battery[4];
-	sprintf(battery, "%d", mouse->battery_level);
-	
+int update_battery_display(void *_data) {
+	mouse_battery_data *data = _data;
+	char battery[5];
+
+	g_mutex_lock(&mutex);
+	sprintf(battery, "%d%%", get_battery_level(data->mouse->dev));
+	g_mutex_unlock(&mutex);
+
 	gtk_label_set_text(data->label_battery, battery);
-	
-	GdkRGBA color = {};
-	gtk_color_chooser_get_rgba(data->color_chooser, &color);
-	
-	mouse->led->red = (byte) (color.red * 255);
-	mouse->led->green = (byte) (color.green * 255);
-	mouse->led->blue = (byte) (color.blue * 255);
 	
 	return G_SOURCE_CONTINUE;
 }
 
-void save_mouse_settings(GtkWidget *self, void *mouse) {
-	((mouse_data*) mouse)->state = SAVE;
-}
+struct mouse_color_data {
+	mouse_data *mouse;
+	GtkColorChooser *colorChooser;
+} typedef mouse_color_data;
 
-void set_color(GtkColorChooser *self, GdkRGBA *color, void *data) {
-	mouse_data *mouse = (mouse_data*) data;
+int update_color(void *_data) {
+	mouse_color_data *data = _data;
+	mouse_data *mouse = data->mouse;
 	
-	mouse->led->red = (byte) (color->red * 255);
-	mouse->led->green = (byte) (color->green * 255);
-	mouse->led->blue = (byte) (color->blue * 255);
+	GdkRGBA color = {};
+	gtk_color_chooser_get_rgba(data->colorChooser, &color);
+
+	mouse->led->red = (byte) (color.red * 255);
+	mouse->led->green = (byte) (color.green * 255);
+	mouse->led->blue = (byte) (color.blue * 255);
+
+	return G_SOURCE_CONTINUE;
 }
 
 void update_brightness(GtkRange *brightness, void *data) {
@@ -105,10 +113,18 @@ void activate(GtkApplication *app, void *data) {
 	
 	GtkBuilder *builder = gtk_builder_new_from_file("ui/window.ui");
 	GtkWindow *window = GTK_WINDOW(GTK_WIDGET(gtk_builder_get_object(builder, "window")));
+	GtkLabel *label_battery = GTK_LABEL(GTK_WIDGET(gtk_builder_get_object(builder, "labelBattery")));
 	GtkLabel *label_pressed_key = GTK_LABEL(GTK_WIDGET(gtk_builder_get_object(builder, "labelPressedKey")));
+	GtkColorChooser *color_chooser = GTK_COLOR_CHOOSER(GTK_WIDGET(gtk_builder_get_object(builder, "colorChooserLed")));
 	
 	GtkEventController *event_key_controller = GTK_EVENT_CONTROLLER(gtk_builder_get_object(builder, "eventKeyController"));
 	gtk_widget_add_controller(GTK_WIDGET(window), event_key_controller);
+
+	mouse_color_data *color_data = malloc(sizeof(mouse_color_data));
+	mouse_battery_data *battery_data =  malloc(sizeof(mouse_battery_data));
+
+	*color_data = (mouse_color_data) {.mouse = mouse, color_chooser = color_chooser};
+	*battery_data = (mouse_battery_data) {.mouse = mouse, .label_battery = label_battery};
 
 	g_signal_connect(event_key_controller, "key-pressed", G_CALLBACK(key_pressed_display), label_pressed_key);
 	g_signal_connect(window, "close-request", G_CALLBACK(close_application), NULL);
@@ -116,37 +132,11 @@ void activate(GtkApplication *app, void *data) {
 	widget_add_event(builder, "buttonSave", "clicked", save_mouse_settings, mouse);
 	widget_add_event(builder, "scaleBrightness", "value-changed", update_brightness, mouse);
 
-	widget_data *widget_data = malloc(sizeof(widget_data));
-	widget_data->mouse = mouse;
-	widget_data->label_battery = GTK_LABEL(GTK_WIDGET(gtk_builder_get_object(builder, "labelBattery")));
-	widget_data->color_chooser = GTK_COLOR_CHOOSER(GTK_WIDGET(gtk_builder_get_object(builder, "colorChooserLed")));
-
-	g_timeout_add(10, window_update_loop, widget_data);
+	g_timeout_add(10, update_color, color_data);
+	g_timeout_add(2000, update_battery_display, battery_data);
 
 	gtk_window_set_application(window, app);
 	gtk_window_present(window);
-}
-
-/**
- * Verifies whether the expected mouse type is the same as
- * the actual mouse type.
- * 
- * @param mouse Mouse data object
- * @return TRUE if expected == actual, FALSE otherwise
- */
-bool verify_mouse_type(mouse_data *mouse) {
-	byte data_buffer[PACKET_SIZE] = {};
-	mouse_read(mouse->dev, REPORT_BYTE_CONNECTION, data_buffer);
-	
-	CONNECTION_TYPE expected_connection = mouse->type;
-	get_devices(&mouse->type);
-	
-	if (expected_connection != mouse->type) {
-		mouse->state = DISCONNECTED;
-		return FALSE;
-	}
-
-	return TRUE;
 }
 
 void update_battery_level(mouse_data *mouse) {
@@ -156,47 +146,38 @@ void update_battery_level(mouse_data *mouse) {
 	mouse->battery_level = data[4];
 }
 
+void reconnect_mouse(mouse_data *mouse) {
+	hid_close(mouse->dev);
+	mouse->dev = NULL;
+
+	while (mouse->dev == NULL) {
+		g_usleep(1000 * 2000);
+		mouse->dev = open_device(NULL);
+	}
+	
+	return;
+}
+
 void* mouse_update_loop(void *data) {
 	mouse_data *mouse = (mouse_data*) data;
 	
 	int res;
     int poll_mouse_type = 0;
 	
-	while (mouse->state != CLOSED) {
-		switch (mouse->state) {
-		case SAVE:
-			res = save_settings(mouse->dev, mouse->led);
-			mouse->state = UPDATE;
-			break;
-		case DISCONNECTED:			
-			mouse->dev = open_device(&mouse->type);
-			if (mouse->dev) mouse->state = UPDATE;
-			
-			g_usleep(1000 * 2000);
-			break;
-		case UPDATE:
-			if (poll_mouse_type == 9) {
-				bool connection_correct = verify_mouse_type(mouse);
-
-				if (!connection_correct) continue;
-				update_battery_level(mouse);
-			}
-			
-			res = change_color(mouse->dev, mouse->led);
-            poll_mouse_type = (poll_mouse_type + 1) % 10;
-			g_usleep(1000 * 100);
-			break;
-		default:
-			break;
-		}
+	while (mouse->state != CLOSED) {	
+		g_mutex_lock(&mutex);
+		
+		res = change_color(mouse->dev, mouse->led);
+		poll_mouse_type = (poll_mouse_type + 1) % 10;
 		
 		if (res < 0) {
 			printf("%d\n", res);
 			res = 0;
-			hid_close(mouse->dev);
-			mouse->dev = NULL;
-			mouse->state = DISCONNECTED;
+			reconnect_mouse(mouse);
 		}
+		
+		g_mutex_unlock(&mutex);
+		g_usleep(1000 * 100);
 	}
 	
 	if (mouse->dev) hid_close(mouse->dev);
@@ -209,7 +190,6 @@ int main() {
 	int res;
 	CONNECTION_TYPE connection_type;
 	
-	GMutex mutex;
 	g_mutex_init(&mutex);
 	
 	res = hid_init();
@@ -224,7 +204,6 @@ int main() {
 		.dev = dev,
 		.led = &color,
 		.type = connection_type,
-		.mutex = &mutex
 	};
 	
 	GtkApplication *app;
@@ -240,6 +219,7 @@ int main() {
 	mouse.state = CLOSED;
 
 	g_thread_join(update_thread);
+	g_thread_unref(update_thread);
 
 	hid_exit();
 	return status;
