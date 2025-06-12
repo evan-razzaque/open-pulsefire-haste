@@ -2,7 +2,7 @@
 <!-- Created with Cambalache 0.96.1 -->
 <interface>
   <!-- interface-name window.ui -->
-  <requires lib="gtk" version="4.0"/>
+  <requires lib="gtk" version="4.18"/>
   <requires lib="gtk+" version="4.0"/>
   <object class="GtkWindow" id="window">
     <property name="can-focus">False</property>
@@ -40,9 +40,31 @@
               <object class="GtkLabel" id="labelPressedKey">
                 <property name="halign">center</property>
                 <property name="justify">center</property>
-                <property name="label">Test</property>
+                <property name="label">Key event test</property>
                 <property name="valign">center</property>
                 <property name="vexpand">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="halign">start</property>
+                <property name="label">Mouse 5</property>
+                <property name="tooltip-text">Upper side button</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkDropDown" id="dropdownMouseForward">
+                <property name="model">
+                  <object class="GtkStringList">
+                    <property name="strings">Left Click
+Right Click
+Middle Click
+Back
+Forward
+DPI Switch</property>
+                  </object>
+                </property>
+                <property name="selected">4</property>
               </object>
             </child>
             <child>

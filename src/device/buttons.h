@@ -16,7 +16,7 @@ enum MOUSE_BUTTON {
 } typedef MOUSE_BUTTON;
 
 /**
- * An enum for mouse actions. Each member is composed of the type of action and the action itself.
+ * An enum for mouse actions. Each member is a uint16_t composed of the type of action (mouse, keyboard, etc) and the action itself.
  * Format (in hex bytes): <type> <action>
  */
 enum MOUSE_ACTION {
@@ -27,6 +27,7 @@ enum MOUSE_ACTION {
     MIDDLE_CLICK = 0x0103,
     BACK         = 0x0104,
     FORWARD      = 0x0105,
+    DPI_SWITCH   = 0x0708,
 
     KEY_A        = 0x0204, // TODO: add special keys
 
@@ -36,9 +37,8 @@ enum MOUSE_ACTION {
     NEXT         = 0x0303,
     MUTE         = 0x0304,
     VOLUME_DOWN  = 0x0305,
-    VOLUME_UP    = 0x0306,
+    VOLUME_UP    = 0x0306
     
-    DPI_SWITCH   = 0x0708
 } typedef MOUSE_ACTION;
 
 /**

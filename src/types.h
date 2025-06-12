@@ -30,21 +30,26 @@ struct app_widgets {
 	GtkEventController *event_key_controller;
 } typedef app_widgets;
 
-struct mouse_color_data {
+struct config_color_data {
 	color_options *mouse_led;
 	GtkColorChooser *color_chooser;
-} typedef mouse_color_data;
+} typedef config_color_data;
 
 struct mouse_battery_data {
 	mouse_data *mouse;
 	GtkLabel *label_battery;
 } typedef mouse_battery_data;
 
+struct mouse_action_values {
+	uint16_t mouse[6];
+	uint16_t media[7];
+} typedef mouse_action_values;
+
 struct app_data {
 	mouse_data *mouse;
 	app_widgets *widgets;
-	mouse_color_data color_data;
+	mouse_action_values *action_values;
+	config_color_data color_data;
 } typedef app_data;
-
 
 #endif

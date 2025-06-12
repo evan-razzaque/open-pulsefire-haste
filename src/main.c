@@ -10,8 +10,8 @@
 #include "device/rgb.h"
 #include "device/buttons.h"
 
-#include "mouse_led.h"
-#include "mouse_buttons.h"
+#include "config_led.h"
+#include "config_buttons.h"
 
 /**
  * Used for debugging purposes.
@@ -71,8 +71,8 @@ void activate(GtkApplication *app, void *_data) {
 
 	data->widgets->window = window;
 	
-	app_mouse_led_init(builder, data);
-	app_mouse_buttons_init(builder, data);
+	app_config_led_init(builder, data);
+	app_config_buttons_init(builder, data);
 
 	mouse_battery_data *battery_data =  malloc(sizeof(mouse_battery_data));
 	*battery_data = (mouse_battery_data) {.mouse = mouse, .label_battery = label_battery};
@@ -142,24 +142,26 @@ int main() {
 	mouse_data mouse = {.dev = dev, .led = &color, .type = connection_type};
 
 	app_widgets widgets = {};
+	mouse_action_values action_values = {};
+	add_action_values(&action_values);
 
-	app_data data = {.mouse = &mouse, .widgets = &widgets};
+	app_data data = {.mouse = &mouse, .widgets = &widgets, .action_values = &action_values};
 	
 	GtkApplication *app;
 	int status;
 	
 	app = gtk_application_new("org.gtk.pulsefire-haste", G_APPLICATION_DEFAULT_FLAGS);
 	g_signal_connect(app, "activate", G_CALLBACK(activate), &data);
-
+	
 	GThread *update_thread = g_thread_new("mouse_update_loop", mouse_update_loop, &mouse);
 	status = g_application_run(G_APPLICATION(app), 0, NULL);
-
+	
 	g_object_unref(app);
 	mouse.state = CLOSED;
-
+	
 	g_thread_join(update_thread);
 	g_thread_unref(update_thread);
-
+	
 	hid_exit();
 	return status;
 }

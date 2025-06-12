@@ -1,5 +1,5 @@
-#ifndef MOUSE_LED_H
-#define MOUSE_LED_H
+#ifndef CONFIG_LED_H
+#define CONFIG_LED_H
 
 #include <gtk/gtk.h>
 
@@ -11,7 +11,7 @@
  * @param builder GtkBuilder object to obtain widgets
  * @param data Application wide data structure
  */
-void app_mouse_led_init(GtkBuilder *builder, app_data *data);
+void app_config_led_init(GtkBuilder *builder, app_data *data);
 
 int update_color(void *data);
 

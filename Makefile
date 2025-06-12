@@ -1,7 +1,7 @@
 CC       = gcc
-CFLAGS   = $$(pkg-config --cflags gtk4) -Wall -Wno-deprecated-declarations -std=c99
+CFLAGS   = $$(pkg-config --cflags gtk4) -Wall -Werror -Wno-deprecated-declarations -std=c99
 LDLIBS  = -lm -lhidapi-hidraw $$(pkg-config --libs gtk4)
-OBJFILES = build/buttons.o build/main.o build/mouse.o build/rgb.o build/mouse_led.o build/mouse_buttons.o
+OBJFILES = build/buttons.o build/main.o build/mouse.o build/rgb.o build/config_led.o build/config_buttons.o
 TARGET   = bin/main
 
 ifeq ($(OS),Windows_NT)
@@ -32,11 +32,11 @@ build/rgb.o: src/device/rgb.c src/device/rgb.h
 	@mkdir -p build
 	$(CC) -c $(CFLAGS) $< -o $@
 
-build/mouse_led.o: src/mouse_led.c src/mouse_led.h
+build/config_led.o: src/config_led.c src/config_led.h
 	@mkdir -p build
 	$(CC) -c $(CFLAGS) $< -o $@
 
-build/mouse_buttons.o: src/mouse_buttons.c src/mouse_buttons.h
+build/config_buttons.o: src/config_buttons.c src/config_buttons.h
 	@mkdir -p build
 	$(CC) -c $(CFLAGS) $< -o $@
 
