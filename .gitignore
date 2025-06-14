@@ -1,4 +1,8 @@
-.vscode
+# Application
 bin
 main
 build
+
+# Config
+.vscode
+gtk_settings.ini

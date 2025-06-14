@@ -47,10 +47,13 @@ int update_battery_display(mouse_battery_data *battery_data) {
 	char battery[5];
 
 	g_mutex_lock(&mutex);
-	sprintf(battery, "%d%%", get_battery_level(battery_data->mouse->dev));
+
+	int res = get_battery_level(battery_data->mouse->dev);
+	sprintf(battery, "%d%%", res);
+	
 	g_mutex_unlock(&mutex);
 
-	gtk_label_set_text(battery_data->label_battery, battery);
+	if (res > 0) gtk_label_set_text(battery_data->label_battery, battery);
 	
 	return G_SOURCE_CONTINUE;
 }
@@ -98,13 +101,11 @@ void reconnect_mouse(mouse_data *mouse) {
 
 void* mouse_update_loop(mouse_data *mouse) {	
 	int res;
-    int poll_mouse_type = 0;
 	
-	while (mouse->state != CLOSED) {	
+	while (mouse->state != CLOSED) {
 		g_mutex_lock(&mutex);
-		
+
 		res = change_color(mouse->dev, mouse->led);
-		poll_mouse_type = (poll_mouse_type + 1) % 10;
 		
 		if (res < 0) {
 			printf("%d\n", res);
@@ -139,16 +140,11 @@ int main() {
 
 	app_widgets widgets = {};
 
-	mouse_action_values action_values = {};
-	fill_actions_array(&action_values);
-	add_action_values(&action_values);
-
 	app_data data = {
 		.mouse = &mouse,
 		.widgets = &widgets,
 		.button_data = {
 			.dev = dev,
-			.action_values = &action_values,
 			.buttons = {0, 1, 2, 3, 4, 5},
 		},
 	};

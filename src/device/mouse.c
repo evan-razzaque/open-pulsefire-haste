@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <hidapi/hidapi.h>
+#include <unistd.h>
 
 #include "mouse.h"
 
@@ -59,25 +60,29 @@ int mouse_read(hid_device *dev, REPORT_BYTE reportType, byte *data) {
 	byte temp[PACKET_SIZE] = {REPORT_BYTE(reportType)};
 	
 	res = hid_write(dev, temp, PACKET_SIZE);
-
+	
 	if (res < 0) {
 		printf("Error: %S\n", hid_error(dev));
 		return res;
 	}
+	
+	int i = 0;
 
 	do {
-		res = hid_read(dev, data, PACKET_SIZE);
-		if (res < 0) break;
-	} while (data[FIRST_BYTE] != reportType);
+		res = hid_read_timeout(dev, data, PACKET_SIZE, 100);
+		if (res <= 0) break;
+		i++;
+	} while (data[0] != reportType);
 
 	return res;
 }
 
 int get_battery_level(hid_device* dev) {
 	byte data[PACKET_SIZE] = {};
+	memset(data, 0, PACKET_SIZE);
 	int res = mouse_read(dev, REPORT_BYTE_HEARTBEAT, data);
 
-	if (res < 0) return -1;
+	if (res <= 0) return -1;
 	return (int) data[REPORT_INDEX_BATTERY];
 }
 

@@ -23,9 +23,8 @@ void app_config_buttons_init(GtkBuilder *builder, app_data *data) {
 void set_mouse_button(GtkMenuButton *self, GParamSpec *param_spec, app_data *data) {
 	if (!gtk_menu_button_get_active(self)) return;
 	
-	printf("button request\n");
 	int *button = g_object_get_data(G_OBJECT(self), "button");
-	printf("button response\n");
+	
 	data->button_data.button = *button;
 }
 
