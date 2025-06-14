@@ -2,11 +2,12 @@
 <!-- Created with Cambalache 0.96.1 -->
 <interface>
   <!-- interface-name window.ui -->
+  <requires lib="gio" version="2.0"/>
   <requires lib="gtk" version="4.18"/>
   <requires lib="gtk+" version="4.0"/>
   <object class="GtkWindow" id="window">
     <property name="can-focus">False</property>
-    <property name="default-height">400</property>
+    <property name="default-height">600</property>
     <property name="default-width">800</property>
     <property name="destroy-with-parent">True</property>
     <property name="title">HyperX Pulsefire Haste</property>
@@ -38,33 +39,122 @@
             </child>
             <child>
               <object class="GtkLabel" id="labelPressedKey">
-                <property name="halign">center</property>
+                <property name="halign">start</property>
                 <property name="justify">center</property>
-                <property name="label">Key event test</property>
-                <property name="valign">center</property>
+                <property name="label">Key event testing</property>
+                <property name="valign">start</property>
                 <property name="vexpand">True</property>
               </object>
             </child>
             <child>
-              <object class="GtkLabel">
-                <property name="halign">start</property>
-                <property name="label">Mouse 5</property>
-                <property name="tooltip-text">Upper side button</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkDropDown" id="dropdownMouseForward">
-                <property name="model">
-                  <object class="GtkStringList">
-                    <property name="strings">Left Click
-Right Click
-Middle Click
-Back
-Forward
-DPI Switch</property>
+              <object class="GtkBox">
+                <property name="orientation">vertical</property>
+                <property name="spacing">15</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="halign">start</property>
+                        <property name="label">Left Mouse Button</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkMenuButton" id="menuButtonLeft">
+                        <property name="label">Left Click</property>
+                      </object>
+                    </child>
                   </object>
-                </property>
-                <property name="selected">4</property>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="halign">start</property>
+                        <property name="label">Right Mouse Button</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkMenuButton" id="menuButtonRight">
+                        <property name="label">Right Click</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="halign">start</property>
+                        <property name="label">Middle Mouse Button</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkMenuButton" id="menuButtonMiddle">
+                        <property name="label">Middle Click</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="halign">start</property>
+                        <property name="label">Side Back Mouse Button</property>
+                        <property name="tooltip-text">Lower side button</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkMenuButton" id="menuButtonBack">
+                        <property name="label">Back</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="halign">start</property>
+                        <property name="label">Side Forward Mouse Button</property>
+                        <property name="tooltip-text">Upper side button</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkMenuButton" id="menuButtonForward">
+                        <property name="label">Forward</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="halign">start</property>
+                        <property name="label">DPI Button</property>
+                        <property name="tooltip-text">Below scroll wheel</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkMenuButton" id="menuButtonDPI">
+                        <property name="label">DPI Toggle</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
               </object>
             </child>
             <child>
@@ -154,4 +244,125 @@ DPI Switch</property>
     <property name="value">100.0</property>
   </object>
   <object class="GtkEventControllerKey" id="eventKeyController"/>
+  <menu id="menuModelActions">
+    <submenu>
+      <attribute name="label">Mouse Actions</attribute>
+      <item>
+        <attribute name="action">app.change-binding</attribute>
+        <attribute name="label">Left Click</attribute>
+        <attribute name="target">0101|Left Click</attribute>
+      </item>
+      <item>
+        <attribute name="action">app.change-binding</attribute>
+        <attribute name="label">Right Click</attribute>
+        <attribute name="target">0102|Right Click</attribute>
+      </item>
+      <item>
+        <attribute name="action">app.change-binding</attribute>
+        <attribute name="label">Middle Click</attribute>
+        <attribute name="target">0103|Middle Click</attribute>
+      </item>
+      <item>
+        <attribute name="action">app.change-binding</attribute>
+        <attribute name="label">Back</attribute>
+        <attribute name="target">0104|Back</attribute>
+      </item>
+      <item>
+        <attribute name="action">app.change-binding</attribute>
+        <attribute name="label">Forward</attribute>
+        <attribute name="target">0105|Forward</attribute>
+      </item>
+      <item>
+        <attribute name="action">app.change-binding</attribute>
+        <attribute name="label">DPI Toggle</attribute>
+        <attribute name="target">0708|DPI Toggle</attribute>
+      </item>
+    </submenu>
+    <submenu>
+      <attribute name="label">Media Actions</attribute>
+      <item>
+        <attribute name="action">app.change-binding</attribute>
+        <attribute name="label">Play/Pause</attribute>
+        <attribute name="target">0300|Play/Pause</attribute>
+      </item>
+      <item>
+        <attribute name="action">app.change-binding</attribute>
+        <attribute name="label">Stop</attribute>
+        <attribute name="target">0301|Stop</attribute>
+      </item>
+      <item>
+        <attribute name="action">app.change-binding</attribute>
+        <attribute name="label">Previous</attribute>
+        <attribute name="target">0302|Previous</attribute>
+      </item>
+      <item>
+        <attribute name="action">app.change-binding</attribute>
+        <attribute name="label">Next</attribute>
+        <attribute name="target">0303|Next</attribute>
+      </item>
+      <item>
+        <attribute name="action">app.change-binding</attribute>
+        <attribute name="label">Volume mute</attribute>
+        <attribute name="target">0304|Volume mute</attribute>
+      </item>
+      <item>
+        <attribute name="action">app.change-binding</attribute>
+        <attribute name="label">Volume down</attribute>
+        <attribute name="target">0305|Volume down</attribute>
+      </item>
+      <item>
+        <attribute name="action">app.change-binding</attribute>
+        <attribute name="label">Volume up</attribute>
+        <attribute name="target">0306|Volume up</attribute>
+      </item>
+    </submenu>
+    <submenu>
+      <attribute name="label">Windows Shortcuts</attribute>
+      <item>
+        <attribute name="action">app.change-binding</attribute>
+        <attribute name="label">Launch Task Mananger</attribute>
+        <attribute name="target">0501|Launch Task Mananger</attribute>
+      </item>
+      <item>
+        <attribute name="action">app.change-binding</attribute>
+        <attribute name="label">Open System Utility</attribute>
+        <attribute name="target">0502|Open System Utility</attribute>
+      </item>
+      <item>
+        <attribute name="action">app.change-binding</attribute>
+        <attribute name="label">Show desktop</attribute>
+        <attribute name="target">0503|Show desktop</attribute>
+      </item>
+      <item>
+        <attribute name="action">app.change-binding</attribute>
+        <attribute name="label">Cycle apps</attribute>
+        <attribute name="target">0504|Cycle apps</attribute>
+      </item>
+      <item>
+        <attribute name="action">app.change-binding</attribute>
+        <attribute name="label">Close apps</attribute>
+        <attribute name="target">0505|Close apps</attribute>
+      </item>
+      <item>
+        <attribute name="action">app.change-binding</attribute>
+        <attribute name="label">Cut</attribute>
+        <attribute name="target">0506|Cut</attribute>
+      </item>
+      <item>
+        <attribute name="action">app.change-binding</attribute>
+        <attribute name="label">Copy</attribute>
+        <attribute name="target">0507|Copy</attribute>
+      </item>
+      <item>
+        <attribute name="action">app.change-binding</attribute>
+        <attribute name="label">Paste</attribute>
+        <attribute name="target">0508|Paste</attribute>
+      </item>
+    </submenu>
+    <item>
+      <attribute name="action">app.change-binding</attribute>
+      <attribute name="label">Disabled</attribute>
+      <attribute name="target">0000|Disabled</attribute>
+    </item>
+  </menu>
 </interface>

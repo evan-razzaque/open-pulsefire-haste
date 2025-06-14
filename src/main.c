@@ -34,11 +34,10 @@
 GMutex mutex;
 
 void save_mouse_settings(GtkWidget *self, void *_mouse) {
-	g_mutex_lock(&mutex);
-	
 	mouse_data *mouse = _mouse;
+	
+	g_mutex_lock(&mutex);
 	save_settings(mouse->dev, mouse->led);
-
 	g_mutex_unlock(&mutex);
 }
 
@@ -74,13 +73,12 @@ void activate(GtkApplication *app, void *_data) {
 	app_config_led_init(builder, data);
 	app_config_buttons_init(builder, data);
 
-	mouse_battery_data *battery_data =  malloc(sizeof(mouse_battery_data));
-	*battery_data = (mouse_battery_data) {.mouse = mouse, .label_battery = label_battery};
+	data->battery_data = (mouse_battery_data) {.mouse = mouse, .label_battery = label_battery};
 	
 	g_signal_connect(window, "close-request", G_CALLBACK(close_application), NULL);
 	widget_add_event(builder, "buttonSave", "clicked", save_mouse_settings, mouse);
 
-	g_timeout_add(2000, update_battery_display, battery_data);
+	g_timeout_add(2000, update_battery_display, &data->battery_data);
 
 	gtk_window_set_application(window, app);
 	gtk_window_present(window);
@@ -139,18 +137,30 @@ int main() {
 	HID_ERROR(!dev, NULL);
 
 	color_options color = {.red = 0xff, .blue = 0xff, .brightness = 0x64};
-	mouse_data mouse = {.dev = dev, .led = &color, .type = connection_type};
+	mouse_data mouse = {.mutex = &mutex, .dev = dev, .led = &color, .type = connection_type};
 
 	app_widgets widgets = {};
+
 	mouse_action_values action_values = {};
+	fill_actions_array(&action_values);
 	add_action_values(&action_values);
 
-	app_data data = {.mouse = &mouse, .widgets = &widgets, .action_values = &action_values};
+	app_data data = {
+		.mouse = &mouse,
+		.widgets = &widgets,
+		.button_data = {
+			.dev = dev,
+			.action_values = &action_values,
+			.buttons = {0, 1, 2, 3, 4, 5},
+		},
+	};
 	
 	GtkApplication *app;
 	int status;
-	
+
 	app = gtk_application_new("org.gtk.pulsefire-haste", G_APPLICATION_DEFAULT_FLAGS);
+	widgets.app = app;
+
 	g_signal_connect(app, "activate", G_CALLBACK(activate), &data);
 	
 	GThread *update_thread = g_thread_new("mouse_update_loop", mouse_update_loop, &mouse);
