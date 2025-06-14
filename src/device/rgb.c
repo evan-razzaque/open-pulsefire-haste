@@ -14,9 +14,9 @@ int change_color(hid_device *dev, color_options *options) {
 	}
 	
 	float multiplier = options->brightness / 100.0;
-	byte red = (byte) (options->red * multiplier);
-	byte green = (byte) (options->green * multiplier);
-	byte blue = (byte) (options->blue * multiplier);
+	byte red = options->red * multiplier;
+	byte green = options->green * multiplier;
+	byte blue = options->blue * multiplier;
 
 	byte data[PACKET_SIZE] = {
 		REPORT_BYTE(SEND_BYTE_LED), 0x00, 0x00, 0x08,

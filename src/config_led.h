@@ -13,9 +13,9 @@
  */
 void app_config_led_init(GtkBuilder *builder, app_data *data);
 
-int update_color(void *data);
+int update_color(config_color_data *data);
 
-void update_brightness(GtkRange *range_brightness, void *mouse_led_brightness);
+void update_brightness(GtkRange *range_brightness, byte *mouse_led_brightness);
 
 #endif
 

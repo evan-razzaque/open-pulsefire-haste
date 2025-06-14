@@ -33,9 +33,7 @@
 
 GMutex mutex;
 
-void save_mouse_settings(GtkWidget *self, void *_mouse) {
-	mouse_data *mouse = _mouse;
-
+void save_mouse_settings(GtkWidget *self, mouse_data *mouse) {
 	gtk_widget_set_sensitive(self, FALSE);
 	
 	g_mutex_lock(&mutex);
@@ -45,27 +43,25 @@ void save_mouse_settings(GtkWidget *self, void *_mouse) {
 	gtk_widget_set_sensitive(self, TRUE);
 }
 
-int update_battery_display(void *_data) {
-	mouse_battery_data *data = _data;
+int update_battery_display(mouse_battery_data *battery_data) {
 	char battery[5];
 
 	g_mutex_lock(&mutex);
-	sprintf(battery, "%d%%", get_battery_level(data->mouse->dev));
+	sprintf(battery, "%d%%", get_battery_level(battery_data->mouse->dev));
 	g_mutex_unlock(&mutex);
 
-	gtk_label_set_text(data->label_battery, battery);
+	gtk_label_set_text(battery_data->label_battery, battery);
 	
 	return G_SOURCE_CONTINUE;
 }
 
-void close_application(GtkWindow *window, void *data) {
+void close_application(GtkWindow *window, app_data *data) {
 	printf("window closed\n");
 	gtk_window_close(window);
 	gtk_window_destroy(window);
 }
 
-void activate(GtkApplication *app, void *_data) {
-	app_data *data = _data;
+void activate(GtkApplication *app, app_data *data) {
 	mouse_data *mouse = data->mouse;
 	
 	GtkBuilder *builder = gtk_builder_new_from_file("ui/window.ui");
@@ -79,10 +75,10 @@ void activate(GtkApplication *app, void *_data) {
 
 	data->battery_data = (mouse_battery_data) {.mouse = mouse, .label_battery = label_battery};
 	
-	g_signal_connect(window, "close-request", G_CALLBACK(close_application), NULL);
+	g_signal_connect(window, "close-request", G_CALLBACK(close_application), data);
 	widget_add_event(builder, "buttonSave", "clicked", save_mouse_settings, mouse);
 
-	g_timeout_add(2000, update_battery_display, &data->battery_data);
+	g_timeout_add(2000, G_SOURCE_FUNC(update_battery_display), &data->battery_data);
 
 	gtk_window_set_application(window, app);
 	gtk_window_present(window);
@@ -100,9 +96,7 @@ void reconnect_mouse(mouse_data *mouse) {
 	return;
 }
 
-void* mouse_update_loop(void *data) {
-	mouse_data *mouse = (mouse_data*) data;
-	
+void* mouse_update_loop(mouse_data *mouse) {	
 	int res;
     int poll_mouse_type = 0;
 	
@@ -167,7 +161,7 @@ int main() {
 
 	g_signal_connect(app, "activate", G_CALLBACK(activate), &data);
 	
-	GThread *update_thread = g_thread_new("mouse_update_loop", mouse_update_loop, &mouse);
+	GThread *update_thread = g_thread_new("mouse_update_loop", (GThreadFunc) mouse_update_loop, &mouse);
 	status = g_application_run(G_APPLICATION(app), 0, NULL);
 	
 	g_object_unref(app);

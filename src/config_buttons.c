@@ -20,6 +20,15 @@ void app_config_buttons_init(GtkBuilder *builder, app_data *data) {
     g_signal_connect(data->widgets->event_key_controller, "key-pressed", G_CALLBACK(key_pressed_display), data->widgets->label_pressed_key);
 }
 
+void set_mouse_button(GtkMenuButton *self, GParamSpec *param_spec, app_data *data) {
+	if (!gtk_menu_button_get_active(self)) return;
+	
+	printf("button request\n");
+	int *button = g_object_get_data(G_OBJECT(self), "button");
+	printf("button response\n");
+	data->button_data.button = *button;
+}
+
 void change_mouse_binding(GSimpleAction *action, GVariant *mapping_data, app_data *data) {
 	uint64_t size = 65;
 
@@ -38,14 +47,7 @@ void change_mouse_binding(GSimpleAction *action, GVariant *mapping_data, app_dat
 	assign_button(data->mouse->dev, data->button_data.button, action_value);
 	g_mutex_unlock(data->mouse->mutex);
 
-	gtk_menu_button_set_label(data->widgets->menu_button_bindings[data->button_data.button], action_name);
-}
-
-void set_mouse_button(GtkMenuButton *self, GParamSpec *param_spec, app_data *data) {
-	if (!gtk_menu_button_get_active(self)) return;
-	
-	int *button = (int*) g_object_get_data(G_OBJECT(self), "button");
-	data->button_data.button = *button;
+	gtk_menu_button_set_label(data->widgets->menu_button_bindings[data->button_data.button], action_name); 
 }
 
 void set_menu_buttons_model(GtkBuilder *builder, GtkMenuButton *menu_buttons[]) {
@@ -68,34 +70,6 @@ void store_action_menu_buttons(GtkBuilder *builder, app_data *data) {
 		g_signal_connect(data->widgets->menu_button_bindings[i], "notify::active", G_CALLBACK(set_mouse_button), data);
 		g_object_set_data(G_OBJECT(data->widgets->menu_button_bindings[i]), "button", &data->button_data.buttons[i]);
 	}
-}
-
-void add_action_values(mouse_action_values *action_values) {
-	action_values->disabled[0] = DISABLED;
-
-	action_values->mouse[0] = LEFT_CLICK;
-	action_values->mouse[1] = RIGHT_CLICK;
-	action_values->mouse[2] = MIDDLE_CLICK;
-	action_values->mouse[3] = BACK;
-	action_values->mouse[4] = FORWARD;
-	action_values->mouse[5] = DPI_SWITCH;
-
-	action_values->media[0] = PLAY_PAUSE;
-	action_values->media[1] = STOP;
-	action_values->media[2] = PREVIOUS;
-	action_values->media[3] = NEXT;
-	action_values->media[4] = MUTE;
-	action_values->media[5] = VOLUME_DOWN;
-	action_values->media[6] = VOLUME_UP;
-
-	action_values->windows_shortcut[0] = TASK_MANAGER;
-	action_values->windows_shortcut[1] = SYSTEM_UTILITY;
-	action_values->windows_shortcut[2] = SHOW_DESKTOP;
-	action_values->windows_shortcut[3] = CYCLE_APPS;
-	action_values->windows_shortcut[4] = CLOSE_APPS;
-	action_values->windows_shortcut[5] = CUT;
-	action_values->windows_shortcut[6] = COPY;
-	action_values->windows_shortcut[7] = PASTE;
 }
 
 int key_pressed_display(GtkEventControllerKey *self, guint keyval, guint keycode, GdkModifierType state, GtkWidget* data) {

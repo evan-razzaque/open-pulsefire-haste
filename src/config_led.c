@@ -11,12 +11,11 @@ void app_config_led_init(GtkBuilder *builder, app_data *data) {
 
     data->color_data = (config_color_data) {.mouse_led = data->mouse->led, .color_chooser = data->widgets->color_chooser};
 
-    g_timeout_add(10, update_color, &data->color_data);
+    g_timeout_add(10, G_SOURCE_FUNC(update_color), &data->color_data);
     g_signal_connect(data->widgets->range_brightness, "value-changed", G_CALLBACK(update_brightness), &(data->mouse->led->brightness));
 }
 
-int update_color(void *data) {
-    config_color_data *color_data = data;
+int update_color(config_color_data *color_data) {
 	color_options *mouse_led = color_data->mouse_led;
     
 	GdkRGBA color = {};
@@ -29,6 +28,6 @@ int update_color(void *data) {
 	return G_SOURCE_CONTINUE;
 }
 
-void update_brightness(GtkRange *range_brightness, void *mouse_led_brightness) {
-    *((byte*) mouse_led_brightness) = (int) gtk_range_get_value(range_brightness);
+void update_brightness(GtkRange *range_brightness, byte *mouse_led_brightness) {
+    *mouse_led_brightness = gtk_range_get_value(range_brightness);
 }
