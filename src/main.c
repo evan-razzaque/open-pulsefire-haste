@@ -35,10 +35,14 @@ GMutex mutex;
 
 void save_mouse_settings(GtkWidget *self, void *_mouse) {
 	mouse_data *mouse = _mouse;
+
+	gtk_widget_set_sensitive(self, FALSE);
 	
 	g_mutex_lock(&mutex);
 	save_settings(mouse->dev, mouse->led);
 	g_mutex_unlock(&mutex);
+
+	gtk_widget_set_sensitive(self, TRUE);
 }
 
 int update_battery_display(void *_data) {
