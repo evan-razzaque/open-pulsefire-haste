@@ -14,26 +14,18 @@
 void app_config_buttons_init(GtkBuilder *builder, app_data *data);
 
 /**
- * @brief Stores the menu buttons used to re-assign each mouse button.
+ * @brief Sets up the menu buttons used for re-assigning each mouse button.
  * 
  * @param builder GtkBuilder object to obtain widgets
  * @param data Application wide data structure
  */
-void store_action_menu_buttons(GtkBuilder *builder, app_data *data);
+void setup_action_menu_buttons(GtkBuilder *builder, app_data *data);
 
-/**
- * @brief Set the menu buttons model object
- * 
- * @param builder GtkBuilder object to obtain widgets
- * @param menu_buttons The menu buttons
- *
- */
-void set_menu_buttons_model(GtkBuilder *builder, GtkMenuButton *menu_buttons[]);
 
 /**
  * Testing function for keyboard events.
  */
-int key_pressed_display(GtkEventControllerKey *self, guint keyval, guint keycode, GdkModifierType state, GtkWidget* data);
+int key_pressed_display(GtkEventControllerKey *self, guint keyval, guint keycode, GdkModifierType state, app_data* data);
 
 /**
  * @brief Sets the mouse button to be re-assigned.

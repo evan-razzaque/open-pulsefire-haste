@@ -62,6 +62,7 @@ void close_application(GtkWindow *window, app_data *data) {
 	printf("window closed\n");
 	gtk_window_close(window);
 	gtk_window_destroy(window);
+	gtk_window_destroy(data->widgets->test_window);
 }
 
 void activate(GtkApplication *app, app_data *data) {
@@ -135,10 +136,11 @@ int main() {
 	hid_device *dev = open_device(&connection_type);
 	HID_ERROR(!dev, NULL);
 
-	color_options color = {.red = 0xff, .blue = 0xff, .brightness = 0x64};
+	color_options color = {.red = 0xff, .brightness = 0x64};
 	mouse_data mouse = {.mutex = &mutex, .dev = dev, .led = &color, .type = connection_type};
 
 	app_widgets widgets = {};
+	
 
 	app_data data = {
 		.mouse = &mouse,
@@ -146,6 +148,16 @@ int main() {
 		.button_data = {
 			.dev = dev,
 			.buttons = {0, 1, 2, 3, 4, 5},
+			// TODO: Read buttons from file
+			.bindings = {
+				.left = LEFT_CLICK,
+				.right = RIGHT_CLICK,
+				.middle = MIDDLE_CLICK,
+				.back = BACK,
+				.forward = FORWARD,
+				.dpi = DPI_TOGGLE
+			},
+			.keyboard_keys = KEYBOARD_MAP()
 		},
 	};
 	

@@ -38,15 +38,6 @@
               </object>
             </child>
             <child>
-              <object class="GtkLabel" id="labelPressedKey">
-                <property name="halign">start</property>
-                <property name="justify">center</property>
-                <property name="label">Key event testing</property>
-                <property name="valign">start</property>
-                <property name="vexpand">True</property>
-              </object>
-            </child>
-            <child>
               <object class="GtkBox">
                 <property name="orientation">vertical</property>
                 <property name="spacing">15</property>
@@ -62,6 +53,7 @@
                     </child>
                     <child>
                       <object class="GtkMenuButton" id="menuButtonLeft">
+                        <property name="halign">baseline-fill</property>
                         <property name="label">Left Click</property>
                       </object>
                     </child>
@@ -364,5 +356,31 @@
       <attribute name="label">Disabled</attribute>
       <attribute name="target">0000|Disabled</attribute>
     </item>
+    <item>
+      <attribute name="action">app.show-test-window</attribute>
+      <attribute name="label">Keyboard</attribute>
+    </item>
   </menu>
+  <object class="GtkWindow" id="windowTest">
+    <property name="child">
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+        <child>
+          <object class="GtkLabel" id="labelPressedKey">
+            <property name="halign">start</property>
+            <property name="justify">center</property>
+            <property name="label">Key event testing</property>
+            <property name="valign">start</property>
+            <property name="vexpand">True</property>
+          </object>
+        </child>
+      </object>
+    </property>
+    <property name="default-height">200</property>
+    <property name="default-width">300</property>
+    <property name="destroy-with-parent">True</property>
+    <property name="hide-on-close">True</property>
+    <property name="resizable">False</property>
+    <property name="title">Keyboard Action</property>
+  </object>
 </interface>

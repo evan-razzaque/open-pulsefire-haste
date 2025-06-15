@@ -26,6 +26,7 @@ struct mouse_data {
 struct app_widgets {
 	GtkApplication *app;
 	GtkWindow *window;
+	GtkWindow *test_window;
 	GtkLabel *label_battery;
 	GtkLabel *label_pressed_key;
 	GtkColorChooser *color_chooser;
@@ -44,10 +45,21 @@ struct config_color_data {
 	GtkColorChooser *color_chooser;
 } typedef config_color_data;
 
+struct mouse_bindings {
+	uint16_t left;
+	uint16_t right;
+	uint16_t middle;
+	uint16_t back;
+	uint16_t forward;
+	uint16_t dpi;
+} typedef mouse_bindings;
+
 struct config_button_data {
 	hid_device *dev;
 	MOUSE_BUTTON button;
 	MOUSE_BUTTON buttons[6];
+	mouse_bindings bindings;
+	uint16_t keyboard_keys[(1 << 16)];
 } typedef config_button_data;
 
 struct app_data {
