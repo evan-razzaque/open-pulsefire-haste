@@ -53,8 +53,8 @@
                     </child>
                     <child>
                       <object class="GtkMenuButton" id="menuButtonLeft">
-                        <property name="halign">baseline-fill</property>
                         <property name="label">Left Click</property>
+                        <property name="tooltip-text">Left Click</property>
                       </object>
                     </child>
                   </object>
@@ -72,6 +72,7 @@
                     <child>
                       <object class="GtkMenuButton" id="menuButtonRight">
                         <property name="label">Right Click</property>
+                        <property name="tooltip-text">Right Click</property>
                       </object>
                     </child>
                   </object>
@@ -89,6 +90,7 @@
                     <child>
                       <object class="GtkMenuButton" id="menuButtonMiddle">
                         <property name="label">Middle Click</property>
+                        <property name="tooltip-text">Middle Click</property>
                       </object>
                     </child>
                   </object>
@@ -107,6 +109,7 @@
                     <child>
                       <object class="GtkMenuButton" id="menuButtonBack">
                         <property name="label">Back</property>
+                        <property name="tooltip-text">Back</property>
                       </object>
                     </child>
                   </object>
@@ -125,6 +128,7 @@
                     <child>
                       <object class="GtkMenuButton" id="menuButtonForward">
                         <property name="label">Forward</property>
+                        <property name="tooltip-text">Forward</property>
                       </object>
                     </child>
                   </object>
@@ -143,6 +147,7 @@
                     <child>
                       <object class="GtkMenuButton" id="menuButtonDPI">
                         <property name="label">DPI Toggle</property>
+                        <property name="tooltip-text">DPI Toggle</property>
                       </object>
                     </child>
                   </object>
@@ -238,7 +243,7 @@
   <object class="GtkEventControllerKey" id="eventKeyController"/>
   <menu id="menuModelActions">
     <submenu>
-      <attribute name="label">Mouse Actions</attribute>
+      <attribute name="label">Mouse Action</attribute>
       <item>
         <attribute name="action">app.change-binding</attribute>
         <attribute name="label">Left Click</attribute>
@@ -270,8 +275,12 @@
         <attribute name="target">0708|DPI Toggle</attribute>
       </item>
     </submenu>
+    <item>
+      <attribute name="action">app.show-test-window</attribute>
+      <attribute name="label">Keyboard Action</attribute>
+    </item>
     <submenu>
-      <attribute name="label">Media Actions</attribute>
+      <attribute name="label">Media Action</attribute>
       <item>
         <attribute name="action">app.change-binding</attribute>
         <attribute name="label">Play/Pause</attribute>
@@ -309,78 +318,122 @@
       </item>
     </submenu>
     <submenu>
-      <attribute name="label">Windows Shortcuts</attribute>
-      <item>
-        <attribute name="action">app.change-binding</attribute>
-        <attribute name="label">Launch Task Mananger</attribute>
-        <attribute name="target">0501|Launch Task Mananger</attribute>
-      </item>
-      <item>
-        <attribute name="action">app.change-binding</attribute>
-        <attribute name="label">Open System Utility</attribute>
-        <attribute name="target">0502|Open System Utility</attribute>
-      </item>
-      <item>
-        <attribute name="action">app.change-binding</attribute>
-        <attribute name="label">Show desktop</attribute>
-        <attribute name="target">0503|Show desktop</attribute>
-      </item>
-      <item>
-        <attribute name="action">app.change-binding</attribute>
-        <attribute name="label">Cycle apps</attribute>
-        <attribute name="target">0504|Cycle apps</attribute>
-      </item>
-      <item>
-        <attribute name="action">app.change-binding</attribute>
-        <attribute name="label">Close apps</attribute>
-        <attribute name="target">0505|Close apps</attribute>
-      </item>
-      <item>
-        <attribute name="action">app.change-binding</attribute>
-        <attribute name="label">Cut</attribute>
-        <attribute name="target">0506|Cut</attribute>
-      </item>
-      <item>
-        <attribute name="action">app.change-binding</attribute>
-        <attribute name="label">Copy</attribute>
-        <attribute name="target">0507|Copy</attribute>
-      </item>
-      <item>
-        <attribute name="action">app.change-binding</attribute>
-        <attribute name="label">Paste</attribute>
-        <attribute name="target">0508|Paste</attribute>
-      </item>
+      <attribute name="label">Shortcut</attribute>
+      <section>
+        <item>
+          <attribute name="action">app.change-binding</attribute>
+          <attribute name="label">Show desktop</attribute>
+          <attribute name="target">0503|Show desktop</attribute>
+        </item>
+        <item>
+          <attribute name="action">app.change-binding</attribute>
+          <attribute name="label">Close window</attribute>
+          <attribute name="target">0505|Close window</attribute>
+        </item>
+        <item>
+          <attribute name="action">app.change-binding</attribute>
+          <attribute name="label">Cut</attribute>
+          <attribute name="target">0506|Cut</attribute>
+        </item>
+        <item>
+          <attribute name="action">app.change-binding</attribute>
+          <attribute name="label">Copy</attribute>
+          <attribute name="target">0507|Copy</attribute>
+        </item>
+        <item>
+          <attribute name="action">app.change-binding</attribute>
+          <attribute name="label">Paste</attribute>
+          <attribute name="target">0508|Paste</attribute>
+        </item>
+      </section>
+      <section>
+        <attribute name="label">Windows Only</attribute>
+        <item>
+          <attribute name="action">app.change-binding</attribute>
+          <attribute name="label">Launch Task Manager</attribute>
+          <attribute name="target">0501|Launch Task Mananger</attribute>
+        </item>
+        <item>
+          <attribute name="action">app.change-binding</attribute>
+          <attribute name="label">Open System Utility</attribute>
+          <attribute name="target">0502|Open System Utility</attribute>
+        </item>
+        <item>
+          <attribute name="action">app.change-binding</attribute>
+          <attribute name="label">Cycle apps</attribute>
+          <attribute name="target">0504|Cycle apps</attribute>
+        </item>
+      </section>
     </submenu>
     <item>
       <attribute name="action">app.change-binding</attribute>
       <attribute name="label">Disabled</attribute>
       <attribute name="target">0000|Disabled</attribute>
     </item>
-    <item>
-      <attribute name="action">app.show-test-window</attribute>
-      <attribute name="label">Keyboard</attribute>
-    </item>
   </menu>
   <object class="GtkWindow" id="windowTest">
     <property name="child">
       <object class="GtkBox">
+        <property name="css-classes">keyboard</property>
+        <property name="homogeneous">True</property>
+        <property name="margin-bottom">5</property>
+        <property name="margin-end">5</property>
+        <property name="margin-start">5</property>
+        <property name="margin-top">5</property>
         <property name="orientation">vertical</property>
         <child>
-          <object class="GtkLabel" id="labelPressedKey">
-            <property name="halign">start</property>
-            <property name="justify">center</property>
-            <property name="label">Key event testing</property>
-            <property name="valign">start</property>
-            <property name="vexpand">True</property>
+          <object class="GtkBox">
+            <property name="css-classes">button-binding</property>
+            <property name="homogeneous">True</property>
+            <property name="margin-top">10</property>
+            <child>
+              <object class="GtkLabel" id="labelSelectedButton">
+                <property name="halign">end</property>
+                <property name="justify">right</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="justify">center</property>
+                <property name="label">---&gt;</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel" id="labelPressedKey">
+                <property name="halign">start</property>
+                <property name="vexpand">True</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox">
+            <property name="homogeneous">True</property>
+            <property name="spacing">5</property>
+            <child>
+              <object class="GtkButton" id="buttonKeybindCancel">
+                <property name="focusable">False</property>
+                <property name="label">Cancel</property>
+                <property name="valign">end</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="buttonKeybindConfirm">
+                <property name="focusable">False</property>
+                <property name="label">Confirm</property>
+                <property name="valign">end</property>
+              </object>
+            </child>
           </object>
         </child>
       </object>
     </property>
-    <property name="default-height">200</property>
+    <property name="default-height">150</property>
     <property name="default-width">300</property>
     <property name="destroy-with-parent">True</property>
     <property name="hide-on-close">True</property>
     <property name="resizable">False</property>
     <property name="title">Keyboard Action</property>
+    <property name="transient-for">window</property>
   </object>
 </interface>

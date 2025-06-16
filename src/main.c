@@ -3,7 +3,6 @@
 #include <stdint.h>
 #include <hidapi/hidapi.h>
 #include <gtk/gtk.h>
-#include <gtk/gtkapplication.h>
 
 #include "types.h"
 #include "device/mouse.h"
@@ -84,6 +83,10 @@ void activate(GtkApplication *app, app_data *data) {
 
 	g_timeout_add(2000, G_SOURCE_FUNC(update_battery_display), &data->battery_data);
 
+	GtkCssProvider *provider = gtk_css_provider_new();
+	gtk_css_provider_load_from_path(provider, "ui/window.css");
+	gtk_style_context_add_provider_for_display(gtk_widget_get_display(GTK_WIDGET(window)), GTK_STYLE_PROVIDER(provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+	
 	gtk_window_set_application(window, app);
 	gtk_window_present(window);
 }
@@ -150,14 +153,15 @@ int main() {
 			.buttons = {0, 1, 2, 3, 4, 5},
 			// TODO: Read buttons from file
 			.bindings = {
-				.left = LEFT_CLICK,
-				.right = RIGHT_CLICK,
-				.middle = MIDDLE_CLICK,
-				.back = BACK,
-				.forward = FORWARD,
-				.dpi = DPI_TOGGLE
+				LEFT_CLICK,
+				RIGHT_CLICK,
+				MIDDLE_CLICK,
+				BACK,
+				FORWARD,
+				DPI_TOGGLE
 			},
-			.keyboard_keys = KEYBOARD_MAP()
+			.keyboard_keys = KEYBOARD_MAP(),
+			.key_names = KEY_NAMES()
 		},
 	};
 	

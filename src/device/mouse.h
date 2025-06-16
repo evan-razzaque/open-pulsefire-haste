@@ -23,6 +23,7 @@
 #endif
 
 #define FIRST_BYTE (PACKET_SIZE - TRUE_PACKET_SIZE)
+#define BUTTON_COUNT 6
 
 typedef uint8_t byte;
 

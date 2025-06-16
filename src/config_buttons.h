@@ -41,9 +41,9 @@ void set_mouse_button(GtkMenuButton *self, GParamSpec *param_spec, app_data *dat
  * 
  * @param action The action instance
  * @param mapping_data GVariant instance containing the activated menu item's target value.
- * The value is a string containing a SIMPLE_MOUSE_ACTION (see device/buttons.h) and the name of the action, seperated by a '|'.
+ * The value is a string containing a SIMPLE_MOUSE_ACTION and the name of the action, seperated by a '|'.
  * @param data Application wide data structure
  */
-void change_mouse_binding(GSimpleAction *action, GVariant *mapping_data, app_data *data);
+void change_mouse_simple_binding(GSimpleAction *action, GVariant *mapping_data, app_data *data);
 
 #endif
