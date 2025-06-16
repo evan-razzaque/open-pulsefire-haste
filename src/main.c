@@ -9,8 +9,8 @@
 #include "device/rgb.h"
 #include "device/buttons.h"
 
-#include "config_led.h"
-#include "config_buttons.h"
+#include "hid_keyboard_map.h"
+#include "mouse_config.h"
 
 /**
  * Used for debugging purposes.
@@ -32,6 +32,12 @@
 
 GMutex mutex;
 
+/**
+ * @brief Saves the settings to the mouse.
+ * 
+ * @param self The save button
+ * @param mouse mouse_data instance
+ */
 void save_mouse_settings(GtkWidget *self, mouse_data *mouse) {
 	gtk_widget_set_sensitive(self, FALSE);
 	
@@ -42,6 +48,12 @@ void save_mouse_settings(GtkWidget *self, mouse_data *mouse) {
 	gtk_widget_set_sensitive(self, TRUE);
 }
 
+/**
+ * @brief Updates the mouse battery display.
+ * 
+ * @param battery_data mouse_battery_data instance
+ * @return 
+ */
 int update_battery_display(mouse_battery_data *battery_data) {
 	char battery[5];
 
@@ -57,13 +69,24 @@ int update_battery_display(mouse_battery_data *battery_data) {
 	return G_SOURCE_CONTINUE;
 }
 
+/**
+ * @brief Destroys all windows when the main window is closed.
+ * 
+ * @param window The main application window
+ * @param data Application wide data structure
+ */
 void close_application(GtkWindow *window, app_data *data) {
 	printf("window closed\n");
-	gtk_window_close(window);
 	gtk_window_destroy(window);
-	gtk_window_destroy(data->widgets->test_window);
+	gtk_window_destroy(data->widgets->window_keyboard_action);
 }
 
+/**
+ * @brief A function to setup and activate the application.
+ * 
+ * @param app GtkApplication instance
+ * @param data Application wide data structure
+ */
 void activate(GtkApplication *app, app_data *data) {
 	mouse_data *mouse = data->mouse;
 	
@@ -91,6 +114,11 @@ void activate(GtkApplication *app, app_data *data) {
 	gtk_window_present(window);
 }
 
+/**
+ * @brief A function to periodically attempt to connect to the mouse when disconnected.
+ * 
+ * @param mouse mouse_data instance
+ */
 void reconnect_mouse(mouse_data *mouse) {
 	hid_close(mouse->dev);
 	mouse->dev = NULL;
@@ -103,6 +131,12 @@ void reconnect_mouse(mouse_data *mouse) {
 	return;
 }
 
+/**
+ * @brief Updates the mouse led settings, which allows every other setting to be preserved while the application is running.
+ * 
+ * @param mouse mouse_data instance
+ * @return Unused
+ */
 void* mouse_update_loop(mouse_data *mouse) {	
 	int res;
 	
@@ -127,6 +161,11 @@ void* mouse_update_loop(mouse_data *mouse) {
 	return NULL;
 }
 
+/**
+ * @brief Opens the mouse device handle and mouse update thread, sets up application data, and initializes GTK.
+ * 
+ * @return exit status 
+ */
 int main() {
 	int res;
 	CONNECTION_TYPE connection_type;

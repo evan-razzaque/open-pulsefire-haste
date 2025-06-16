@@ -6,6 +6,9 @@
 
 typedef uint8_t byte;
 
+/**
+ * @brief Color options for the mouse led.
+ */
 struct color_options {
 	byte red; 
 	byte green; 

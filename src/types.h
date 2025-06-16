@@ -8,13 +8,16 @@
 #include "device/rgb.h"
 #include "device/mouse.h"
 #include "device/buttons.h"
-#include "hid_keyboard_map.h"
 
 enum MOUSE_STATE {
 	UPDATE,
 	CLOSED
 } typedef MOUSE_STATE;
 
+/**
+ * @brief All the data required to interact with the mouse.
+ * 
+ */
 struct mouse_data {
 	GMutex *mutex;
 	hid_device *dev;
@@ -24,10 +27,14 @@ struct mouse_data {
 	int battery_level;
 } typedef mouse_data;
 
+/**
+ * @brief The application widgets being shared across the entire application.
+ * 
+ */
 struct app_widgets {
 	GtkApplication *app;
 	GtkWindow *window;
-	GtkWindow *test_window;
+	GtkWindow *window_keyboard_action;
 	GtkLabel *label_battery;
 	GtkLabel *label_selected_button, *label_pressed_key;
 	GtkColorChooser *color_chooser;
@@ -37,16 +44,28 @@ struct app_widgets {
 	GtkPopover *activePopover;
 } typedef app_widgets;
 
+/**
+ * @brief A struct to store battery data for the mosue.
+ * 
+ */
 struct mouse_battery_data {
 	mouse_data *mouse;
 	GtkLabel *label_battery;
 } typedef mouse_battery_data;
 
+/**
+ * @brief A struct to store color config for the mouse.
+ * 
+ */
 struct config_color_data {
 	color_options *mouse_led;
 	GtkColorChooser *color_chooser;
 } typedef config_color_data;
 
+/**
+ * @brief A struct to store button config for the mouse.
+ * 
+ */
 struct config_button_data {
 	hid_device *dev;
 	MOUSE_BUTTON selected_button;
@@ -57,9 +76,12 @@ struct config_button_data {
 	const byte keyboard_keys[1 << 16];
 	const char *key_names[256];
 	uint16_t current_keyboard_action;
-
 } typedef config_button_data;
 
+/**
+ * @brief A struct used to store all the variables and structs needed in the application. 
+ * This includes mouse data, application widgets, and mouse config.
+ */
 struct app_data {
 	mouse_data *mouse;
 	app_widgets *widgets;
