@@ -8,6 +8,7 @@
 #include "device/rgb.h"
 #include "device/mouse.h"
 #include "device/buttons.h"
+#include "hid_keyboard_map.h"
 
 enum MOUSE_STATE {
 	UPDATE,
@@ -33,6 +34,7 @@ struct app_widgets {
     GtkRange *range_brightness;
 	GtkEventController *event_key_controller;
 	GtkMenuButton *menu_button_bindings[6]; // Menu buttons for each mouse button binding
+	GtkPopover *activePopover;
 } typedef app_widgets;
 
 struct mouse_battery_data {

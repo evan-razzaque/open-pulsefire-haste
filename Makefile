@@ -15,7 +15,7 @@ $(TARGET) : $(OBJFILES)
 	@mkdir -p bin
 	$(CC) -o $(TARGET) $(OBJFILES) $(LDLIBS) $(LDFLAGS)
 
-$(OBJFILES) : src/types.h
+$(OBJFILES) : src/types.h src/hid_keyboard_map.h
 
 build/buttons.o: src/device/buttons.c src/device/buttons.h
 	@mkdir -p build

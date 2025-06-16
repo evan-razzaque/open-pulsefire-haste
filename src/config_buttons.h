@@ -25,7 +25,7 @@ void setup_action_menu_buttons(GtkBuilder *builder, app_data *data);
 /**
  * Testing function for keyboard events.
  */
-int key_pressed_display(GtkEventControllerKey *self, guint keyval, guint keycode, GdkModifierType state, app_data* data);
+int set_keyboard_action(GtkEventControllerKey *self, guint keyval, guint keycode, GdkModifierType state, app_data* data);
 
 /**
  * @brief Sets the mouse button to be re-assigned.
