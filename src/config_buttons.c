@@ -130,8 +130,6 @@ void change_mouse_simple_binding(GSimpleAction *action, GVariant *mapping_data, 
 	strncpy(action_name, menu_item_value + 5, 25);
 	
 	uint16_t action_value = (uint16_t) strtol(hex_value, NULL, 16);
-	
-	printf("Button: %d, Value: %.4x, Name: %s\n", data->button_data.selected_button, action_value, action_name);
 
 	change_mouse_binding(
 		data->mouse,
@@ -157,7 +155,6 @@ static int set_keyboard_action(GtkEventControllerKey *self, guint keyval, guint 
 	
 	byte hid_usage_id = data->button_data.keyboard_keys[tolower(keyval)];
 	data->button_data.current_keyboard_action = 0x0200 + hid_usage_id;
-	printf("%.4x\n", data->button_data.current_keyboard_action);
 	
 	const char *key_name = data->button_data.key_names[hid_usage_id];
 	gtk_label_set_text(label_pressed_key, key_name);
