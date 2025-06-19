@@ -35,6 +35,33 @@
     [GDK_KEY_y]            = 0x1C,\
     [GDK_KEY_z]            = 0x1D,\
     \
+    [GDK_KEY_A]            = 0x04,\
+    [GDK_KEY_B]            = 0x05,\
+    [GDK_KEY_C]            = 0x06,\
+    [GDK_KEY_D]            = 0x07,\
+    [GDK_KEY_E]            = 0x08,\
+    [GDK_KEY_F]            = 0x09,\
+    [GDK_KEY_G]            = 0x0A,\
+    [GDK_KEY_h]            = 0x0B,\
+    [GDK_KEY_I]            = 0x0C,\
+    [GDK_KEY_J]            = 0x0D,\
+    [GDK_KEY_K]            = 0x0E,\
+    [GDK_KEY_L]            = 0x0F,\
+    [GDK_KEY_m]            = 0x10,\
+    [GDK_KEY_N]            = 0x11,\
+    [GDK_KEY_O]            = 0x12,\
+    [GDK_KEY_P]            = 0x13,\
+    [GDK_KEY_Q]            = 0x14,\
+    [GDK_KEY_R]            = 0x15,\
+    [GDK_KEY_S]            = 0x16,\
+    [GDK_KEY_T]            = 0x17,\
+    [GDK_KEY_U]            = 0x18,\
+    [GDK_KEY_V]            = 0x19,\
+    [GDK_KEY_W]            = 0x1A,\
+    [GDK_KEY_X]            = 0x1B,\
+    [GDK_KEY_Y]            = 0x1C,\
+    [GDK_KEY_Z]            = 0x1D,\
+    \
     [GDK_KEY_1]            = 0x1E,\
     [GDK_KEY_2]            = 0x1F,\
     [GDK_KEY_3]            = 0x20,\

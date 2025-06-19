@@ -151,11 +151,10 @@ void change_mouse_simple_binding(GSimpleAction *action, GVariant *mapping_data, 
  * @return return value that tells gtk to stop other handlers from being invoked after the key press.
  */
 static int set_keyboard_action(GtkEventControllerKey *self, guint keyval, guint keycode, GdkModifierType state, app_data* data) {
+	if (keyval > 0xffff) return TRUE; // Bounds check for keyboard_keys
 	GtkLabel *label_pressed_key = data->widgets->label_pressed_key;
 	
-	printf("hid usage id: %.4x\n", data->button_data.keyboard_keys[tolower(keyval)]);
-	printf("keyval: %.4x\n", keyval);
-	byte hid_usage_id = data->button_data.keyboard_keys[tolower(keyval)];
+	byte hid_usage_id = data->button_data.keyboard_keys[keyval];
 	data->button_data.current_keyboard_action = 0x0200 + hid_usage_id;
 	
 	const char *key_name = data->button_data.key_names[hid_usage_id];
