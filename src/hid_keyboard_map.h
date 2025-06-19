@@ -42,7 +42,7 @@
     [GDK_KEY_E]            = 0x08,\
     [GDK_KEY_F]            = 0x09,\
     [GDK_KEY_G]            = 0x0A,\
-    [GDK_KEY_h]            = 0x0B,\
+    [GDK_KEY_H]            = 0x0B,\
     [GDK_KEY_I]            = 0x0C,\
     [GDK_KEY_J]            = 0x0D,\
     [GDK_KEY_K]            = 0x0E,\
@@ -184,9 +184,11 @@
     [GDK_KEY_Control_L]    = 0xE0,\
     [GDK_KEY_Shift_L]      = 0xE1,\
     [GDK_KEY_Alt_L]        = 0xE2,\
+    [GDK_KEY_Super_L]      = 0xE3,\
     [GDK_KEY_Control_R]    = 0xE4,\
     [GDK_KEY_Shift_R]      = 0xE5,\
-    [GDK_KEY_Alt_R]        = 0xE6\
+    [GDK_KEY_Alt_R]        = 0xE6,\
+    [GDK_KEY_Super_R]      = 0xE7\
 }
 
 /**
@@ -292,9 +294,11 @@
     [0xE0] = "L-CTRL",\
     [0xE1] = "L-SHIFT",\
     [0xE2] = "L-ALT",\
+    [0xE3] = "L-Win",\
     [0xE4] = "R-CTRL",\
     [0xE5] = "R-SHIFT",\
-    [0xE6] = "R-ALT"\
+    [0xE6] = "R-ALT",\
+    [0xE7] = "R-Win"\
 }
 
 #endif

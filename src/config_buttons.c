@@ -20,7 +20,7 @@
  */
 static void change_mouse_binding(mouse_data *mouse, MOUSE_BUTTON button, uint16_t action, GtkMenuButton *menu_button_active, const char *action_name) {
 	g_mutex_lock(mouse->mutex);
-	assign_button(mouse->dev, button, action);
+	assign_button_action(mouse->dev, button, action);
 	g_mutex_unlock(mouse->mutex);
 
 	gtk_menu_button_set_label(menu_button_active, action_name);
@@ -89,7 +89,7 @@ static void apply_button_bindings(hid_device *dev, GMutex *mutex, uint16_t *bind
 	g_mutex_lock(mutex);
 
 	for (int i = 0; i < BUTTON_COUNT; i++) {
-		assign_button(dev, i, bindings[i]);
+		assign_button_action(dev, i, bindings[i]);
 	}
 
 	g_mutex_unlock(mutex);
@@ -154,6 +154,8 @@ static int set_keyboard_action(GtkEventControllerKey *self, guint keyval, guint 
 	if (keyval > 0xffff) return TRUE; // Bounds check for keyboard_keys
 	GtkLabel *label_pressed_key = data->widgets->label_pressed_key;
 	
+	printf("%.16x\n", keyval);
+
 	byte hid_usage_id = data->button_data.keyboard_keys[keyval];
 	data->button_data.current_keyboard_action = 0x0200 + hid_usage_id;
 	

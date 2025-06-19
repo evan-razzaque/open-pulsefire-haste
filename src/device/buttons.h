@@ -17,16 +17,6 @@ enum MOUSE_BUTTON {
 } typedef MOUSE_BUTTON;
 
 /**
- * Change a binding for a mouse button.
- * 
- * @param dev The mouse device handle
- * @param options The mouse button to re-assign
- * @param action The action to assign to the button
- * @return the number of bytes written or -1 on error
- */
-int assign_button(hid_device *dev, MOUSE_BUTTON button, uint16_t action);
-
-/**
  * An enum for simple mouse actions (mouse, media, and windows shortcut).
  * Each member is a uint16_t composed of the type of action and the action itself.
  * Format (in hex bytes): <type> <action>
@@ -59,5 +49,42 @@ enum SIMPLE_MOUSE_ACTION {
     PASTE          = 0x0508,
 
 } typedef SIMPLE_MOUSE_ACTION;
+
+enum MACRO_EVENT_TYPE {
+    MACRO_EVENT_TYPE_KEYBOARD = 0x1a,
+    MACRO_EVENT_TYPE_MOUSE    = 0x25
+} typedef MACRO_EVENT_TYPE;
+
+enum MACRO_REPEAT_MODE {
+    MACRO_REPEAT_MODE_ONCE = 0x00,
+    MACRO_REPEAT_MODE_TOGGLE_REPEAT = 0x02,
+    MACRO_REPEAT_MODE_HOLD_REPEAT = 0x03,
+} typedef MACRO_REPEAT_MODE;
+
+struct macro_key_event {
+    byte modifier_keys;
+    byte keys[5];
+    uint16_t delay_next_action;
+} typedef macro_key_event;
+
+/**
+ * Change a binding for a mouse button.
+ * 
+ * @param dev The mouse device handle
+ * @param options The mouse button to re-assign
+ * @param action The action to assign to the button
+ * @return the number of bytes written or -1 on error
+ */
+int assign_button_action(hid_device *dev, MOUSE_BUTTON button, uint16_t action);
+
+/**
+ * Assign a macro to a mouse button.
+ * 
+ * @param dev The mouse device handle
+ * @param options The mouse button to re-assign
+ * @param action The action to assign to the button
+ * @return the number of bytes written or -1 on error
+ */
+int assign_button_macro(hid_device *dev, MOUSE_BUTTON button);
 
 #endif
