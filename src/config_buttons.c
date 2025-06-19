@@ -153,6 +153,8 @@ void change_mouse_simple_binding(GSimpleAction *action, GVariant *mapping_data, 
 static int set_keyboard_action(GtkEventControllerKey *self, guint keyval, guint keycode, GdkModifierType state, app_data* data) {
 	GtkLabel *label_pressed_key = data->widgets->label_pressed_key;
 	
+	printf("hid usage id: %.4x\n", data->button_data.keyboard_keys[tolower(keyval)]);
+	printf("keyval: %.4x\n", keyval);
 	byte hid_usage_id = data->button_data.keyboard_keys[tolower(keyval)];
 	data->button_data.current_keyboard_action = 0x0200 + hid_usage_id;
 	
