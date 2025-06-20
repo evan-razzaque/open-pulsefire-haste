@@ -1,13 +1,13 @@
 CC              = gcc
 CFLAGS          = $$(pkg-config --cflags gtk4) -Wall -Werror -Wno-deprecated-declarations -std=c99
-LDLIBS          = -lhidapi-hidraw $$(pkg-config --libs gtk4)
+LDLIBS          = -lm -lhidapi-hidraw $$(pkg-config --libs gtk4)
 DEVICE_OBJFILES = build/buttons.o build/mouse.o build/rgb.o   
 APP_OBJFILES    = build/main.o build/config_led.o build/config_buttons.o
 OBJFILES        = $(DEVICE_OBJFILES) $(APP_OBJFILES)
 TARGET          = bin/main
 
 ifeq ($(OS),Windows_NT)
-	LDLIBS = -lhidapi $$(pkg-config --libs gtk4) -I /mingw64/include/hidapi
+	LDLIBS = -lm -lhidapi $$(pkg-config --libs gtk4) -I /mingw64/include/hidapi
 endif
 
 all: $(TARGET)

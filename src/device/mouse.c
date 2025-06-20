@@ -8,6 +8,7 @@
 
 void print_data(byte *data) {
 	for (int i = 0; i < PACKET_SIZE; i++) {
+		if (i % 16 == 0) printf("\n");
 		printf("%.2x ", data[i]);
 	}
 

@@ -52,7 +52,7 @@ void save_mouse_settings(GtkWidget *self, mouse_data *mouse) {
  * @brief Updates the mouse battery display.
  * 
  * @param battery_data mouse_battery_data instance
- * @return 
+ * @return value indicating to leave this in the gtk main loop
  */
 int update_battery_display(mouse_battery_data *battery_data) {
 	char battery[5];
@@ -182,7 +182,6 @@ int main() {
 	mouse_data mouse = {.mutex = &mutex, .dev = dev, .led = &color, .type = connection_type};
 
 	app_widgets widgets = {};
-	
 
 	app_data data = {
 		.mouse = &mouse,
@@ -214,7 +213,7 @@ int main() {
 	
 	GThread *update_thread = g_thread_new("mouse_update_loop", (GThreadFunc) mouse_update_loop, &mouse);
 	status = g_application_run(G_APPLICATION(app), 0, NULL);
-	
+
 	g_object_unref(app);
 	mouse.state = CLOSED;
 	

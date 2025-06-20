@@ -7,6 +7,25 @@
 
 typedef uint8_t byte;
 
+#define MACRO_EVENT_SIZE (10)
+
+/**
+ * @brief Every macro data packet seems to have a sum byte after the button byte that alternates between adding 1 and 2 each packet.
+ * Another way of thinking about it is half of the numbers in the sum are 1 and half are 2.
+ * 
+ * Thus, we get the following formula: x / 2 + (2*x) / 2. Which is simplified to (3*x) / 2. Note that this is int division, so there would be no fractional part.
+ * 
+ * For example, the sum bytes for 6 packets would be: 0x00, 0x01, 0x03, 0x04, 0x06, 0x07
+ */
+#define MACRO_PACKET_SUM(x) (3*(x)) / 2
+
+/**
+ * @brief The event count byte in odd macro data packets have 0x80 added to it.
+ * 
+ */
+#define MACRO_PACKET_EVENT_COUNT(x) (((x) % 2) * 0x80)
+
+
 enum MOUSE_BUTTON {
 	MOUSE_BUTTON_LEFT,
 	MOUSE_BUTTON_RIGHT,
@@ -22,33 +41,40 @@ enum MOUSE_BUTTON {
  * Format (in hex bytes): <type> <action>
  */
 enum SIMPLE_MOUSE_ACTION {
-    DISABLED       = 0x0000,
-    
-    LEFT_CLICK     = 0x0101,
-    RIGHT_CLICK    = 0x0102,
-    MIDDLE_CLICK   = 0x0103,
-    BACK           = 0x0104,
-    FORWARD        = 0x0105,
-    DPI_TOGGLE     = 0x0708,
+    DISABLED            = 0x0000,
 
-    PLAY_PAUSE     = 0x0300,
-    STOP           = 0x0301,
-    PREVIOUS       = 0x0302,
-    NEXT           = 0x0303,
-    MUTE           = 0x0304,
-    VOLUME_DOWN    = 0x0305,
-    VOLUME_UP      = 0x0306,
-    
-    TASK_MANAGER   = 0x0501,
-    SYSTEM_UTILITY = 0x0502,
-    SHOW_DESKTOP   = 0x0503,
-    CYCLE_APPS     = 0x0504,
-    CLOSE_APPS     = 0x0505,
-    CUT            = 0x0506,
-    COPY           = 0x0507,
-    PASTE          = 0x0508,
+    LEFT_CLICK          = 0x0101,
+    RIGHT_CLICK         = 0x0102,
+    MIDDLE_CLICK        = 0x0103,
+    BACK                = 0x0104,
+    FORWARD             = 0x0105,
+    DPI_TOGGLE          = 0x0708,
+
+    PLAY_PAUSE          = 0x0300,
+    STOP                = 0x0301,
+    PREVIOUS            = 0x0302,
+    NEXT                = 0x0303,
+    MUTE                = 0x0304,
+    VOLUME_DOWN         = 0x0305,
+    VOLUME_UP           = 0x0306,
+
+    TASK_MANAGER        = 0x0501,
+    SYSTEM_UTILITY      = 0x0502,
+    SHOW_DESKTOP        = 0x0503,
+    CYCLE_APPS          = 0x0504,
+    CLOSE_APPS          = 0x0505,
+    CUT                 = 0x0506,
+    COPY                = 0x0507,
+    PASTE               = 0x0508,
 
 } typedef SIMPLE_MOUSE_ACTION;
+
+enum MACRO_BINDING {
+    MACRO_BINDING_MIDDLE  = 0x0402,
+    MACRO_BINDING_BACK    = 0x0403,
+    MACRO_BINDING_FORWARD = 0x0404,
+    MACRO_BINDING_DPI     = 0x0405
+} typedef MACRO_BINDING;
 
 enum MACRO_EVENT_TYPE {
     MACRO_EVENT_TYPE_KEYBOARD = 0x1a,
@@ -62,16 +88,36 @@ enum MACRO_REPEAT_MODE {
 } typedef MACRO_REPEAT_MODE;
 
 struct macro_key_event {
+    byte event_type;
     byte modifier_keys;
     byte keys[5];
+    byte _padding;
     uint16_t delay_next_action;
-} typedef macro_key_event;
+} __attribute__((__packed__)) typedef macro_key_event;
+
+struct macro_partial_mouse_event {
+    byte event_type;
+    byte action;
+    byte _padding;
+    uint16_t delay_next_action;
+} __attribute__((__packed__)) typedef macro_partial_mouse_event;
+
+struct macro_mouse_event {
+    macro_partial_mouse_event down;
+    macro_partial_mouse_event up;
+} __attribute__((__packed__)) typedef macro_mouse_event;
+
+union marcro_event {
+    byte event_data[10];
+    macro_key_event key_event;
+    macro_mouse_event macro_mouse_event;
+} typedef macro_event;
 
 /**
  * Change a binding for a mouse button.
  * 
  * @param dev The mouse device handle
- * @param options The mouse button to re-assign
+ * @param button The mouse button to re-assign
  * @param action The action to assign to the button
  * @return the number of bytes written or -1 on error
  */
@@ -81,10 +127,12 @@ int assign_button_action(hid_device *dev, MOUSE_BUTTON button, uint16_t action);
  * Assign a macro to a mouse button.
  * 
  * @param dev The mouse device handle
- * @param options The mouse button to re-assign
- * @param action The action to assign to the button
+ * @param binding The mouse button to re-assign
+ * @param repeat_mode The repeat behavior of the macro
+ * @param events The macro events
+ * @param event_count The number of events
  * @return the number of bytes written or -1 on error
  */
-int assign_button_macro(hid_device *dev, MOUSE_BUTTON button);
+int assign_button_macro(hid_device *dev, MACRO_BINDING binding,  MACRO_REPEAT_MODE repeat_mode, macro_event *events, int event_count);
 
 #endif
