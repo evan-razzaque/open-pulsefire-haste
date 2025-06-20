@@ -193,17 +193,17 @@ static void setup_action_menu_buttons(GtkBuilder *builder, app_data *data) {
 void app_config_buttons_init(GtkBuilder *builder, app_data *data) {
 	apply_button_bindings(data->mouse->dev, data->mouse->mutex, data->button_data.bindings);
 
-	macro_event events[6] = {
-		(macro_event) {.key_event = {.event_type = MACRO_EVENT_TYPE_KEYBOARD, .keys = {0x04, 0x05}, .delay_next_action = 0x0020}},
+	macro_event events[3] = {
+		(macro_event) {.mouse_event = {
+			.down = {.event_type = MACRO_EVENT_TYPE_MOUSE, .action = 0x01, .delay_next_action = 0x01},
+			.up =  {.event_type = MACRO_EVENT_TYPE_MOUSE, .delay_next_action = 0x01},
+		}},
+		(macro_event) {.key_event = {.event_type = MACRO_EVENT_TYPE_KEYBOARD, .keys = {0x04, 0x05, 0x06, 0x07, 0x08, 0x09}, .delay_next_action = 0x0020}},
 		(macro_event) {.key_event = {.event_type = MACRO_EVENT_TYPE_KEYBOARD, .keys = {0x00}, .delay_next_action = 0x0040}},
-		(macro_event) {.key_event = {.event_type = MACRO_EVENT_TYPE_KEYBOARD, .keys = {0x05}, .delay_next_action = 0x0020}},
-		(macro_event) {.key_event = {.event_type = MACRO_EVENT_TYPE_KEYBOARD, .keys = {0x00}, .delay_next_action = 0x0040}},
-		(macro_event) {.key_event = {.event_type = MACRO_EVENT_TYPE_KEYBOARD, .keys = {0x06}, .delay_next_action = 0x0020}},
-		(macro_event) {.key_event = {.event_type = MACRO_EVENT_TYPE_KEYBOARD, .keys = {0x00}, .delay_next_action = 0x0040}}
 	};
 
 	g_mutex_lock(data->mouse->mutex);
-	assign_button_macro(data->mouse->dev, MACRO_BINDING_FORWARD, MACRO_REPEAT_MODE_ONCE, events, 6);
+	assign_button_macro(data->mouse->dev, MACRO_BINDING_FORWARD, MACRO_REPEAT_MODE_ONCE, events, 4);
 	g_mutex_unlock(data->mouse->mutex);
 
 	data->widgets->window_keyboard_action = GTK_WINDOW(GTK_WIDGET(gtk_builder_get_object(builder, "windowTest")));

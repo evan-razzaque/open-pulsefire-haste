@@ -7,6 +7,10 @@
 
 typedef uint8_t byte;
 
+/**
+ * @brief The size of a generic macro event (in bytes).
+ * 
+ */
 #define MACRO_EVENT_SIZE (10)
 
 /**
@@ -24,7 +28,6 @@ typedef uint8_t byte;
  * 
  */
 #define MACRO_PACKET_EVENT_COUNT(x) (((x) % 2) * 0x80)
-
 
 enum MOUSE_BUTTON {
 	MOUSE_BUTTON_LEFT,
@@ -87,30 +90,45 @@ enum MACRO_REPEAT_MODE {
     MACRO_REPEAT_MODE_HOLD_REPEAT = 0x03,
 } typedef MACRO_REPEAT_MODE;
 
+/**
+ * @brief A struct of a keyboard event.
+ * 
+ */
 struct macro_key_event {
     byte event_type;
     byte modifier_keys;
-    byte keys[5];
-    byte _padding;
+    byte keys[6];
     uint16_t delay_next_action;
 } __attribute__((__packed__)) typedef macro_key_event;
 
-struct macro_partial_mouse_event {
+/**
+ * @brief A struct for a mouse event
+ * 
+ */
+struct macro_mouse_event {
     byte event_type;
     byte action;
     byte _padding;
     uint16_t delay_next_action;
-} __attribute__((__packed__)) typedef macro_partial_mouse_event;
-
-struct macro_mouse_event {
-    macro_partial_mouse_event down;
-    macro_partial_mouse_event up;
 } __attribute__((__packed__)) typedef macro_mouse_event;
 
+/**
+ * @brief A struct for a pair of mouse events
+ * 
+ */
+struct macro_mouse_event_pair {
+    macro_mouse_event down;
+    macro_mouse_event up;
+} __attribute__((__packed__)) typedef macro_mouse_event_pair;
+
+/**
+ * @brief A union for a generic macro event.
+ * 
+ */
 union marcro_event {
     byte event_data[10];
     macro_key_event key_event;
-    macro_mouse_event macro_mouse_event;
+    macro_mouse_event_pair mouse_event;
 } typedef macro_event;
 
 /**
