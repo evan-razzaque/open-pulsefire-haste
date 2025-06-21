@@ -21,7 +21,7 @@ typedef uint8_t byte;
  * 
  * For example, the sum bytes for 6 packets would be: 0x00, 0x01, 0x03, 0x04, 0x06, 0x07
  */
-#define MACRO_PACKET_SUM(x) (3*(x)) / 2
+#define MACRO_PACKET_SUM(x) ((3*(x)) / 2)
 
 /**
  * @brief The event count byte in odd macro data packets have 0x80 added to it.
@@ -107,7 +107,7 @@ struct macro_key_event {
  */
 struct macro_mouse_event {
     byte event_type;
-    byte action;
+    byte button;
     byte _padding;
     uint16_t delay_next_action;
 } __attribute__((__packed__)) typedef macro_mouse_event;
