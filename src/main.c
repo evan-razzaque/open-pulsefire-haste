@@ -89,6 +89,9 @@ void close_application(GtkWindow *window, app_data *data) {
  */
 void activate(GtkApplication *app, app_data *data) {
 	mouse_data *mouse = data->mouse;
+
+	GtkSettings *settings = gtk_settings_get_default();
+	g_object_set(settings, "gtk-application-prefer-dark-theme", TRUE, NULL);
 	
 	GtkBuilder *builder = gtk_builder_new_from_file("ui/window.ui");
 	GtkWindow *window = GTK_WINDOW(GTK_WIDGET(gtk_builder_get_object(builder, "window")));
@@ -105,9 +108,6 @@ void activate(GtkApplication *app, app_data *data) {
 	widget_add_event(builder, "buttonSave", "clicked", save_mouse_settings, mouse);
 
 	g_timeout_add(2000, G_SOURCE_FUNC(update_battery_display), &data->battery_data);
-
-	GtkSettings *settings = gtk_settings_get_default();
-	g_object_set(settings, "gtk-theme-name", "Default", NULL);
 
 	GtkCssProvider *provider = gtk_css_provider_new();
 	gtk_css_provider_load_from_path(provider, "ui/window.css");
@@ -206,9 +206,10 @@ int main() {
 		},
 	};
 	
+	
 	GtkApplication *app;
 	int status;
-
+	
 	app = gtk_application_new("org.gtk.pulsefire-haste", G_APPLICATION_DEFAULT_FLAGS);
 	widgets.app = app;
 
