@@ -35,13 +35,15 @@ struct app_widgets {
 	GtkApplication *app;
 	GtkWindow *window;
 	GtkWindow *window_keyboard_action;
+	GtkOverlay *overlay;
 	GtkLabel *label_battery;
 	GtkLabel *label_selected_button, *label_pressed_key;
 	GtkColorChooser *color_chooser;
     GtkRange *range_brightness;
 	GtkEventController *event_key_controller;
 	GtkMenuButton *menu_button_bindings[6]; // Menu buttons for each mouse button binding
-	GtkPopover *activePopover;
+	GtkPopover *active_popover;
+	GtkBox *box_macro;
 } typedef app_widgets;
 
 /**

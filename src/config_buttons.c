@@ -119,7 +119,7 @@ static void set_mouse_button(GtkMenuButton *self, GParamSpec *param_spec, app_da
  * The value is a string containing a SIMPLE_MOUSE_ACTION and the name of the action, seperated by a '|'.
  * @param data Application wide data structure
  */
-void change_mouse_simple_binding(GSimpleAction *action, GVariant *mapping_data, app_data *data) {
+static void change_mouse_simple_binding(GSimpleAction *action, GVariant *mapping_data, app_data *data) {
 	uint64_t size = 65;
 
 	const char *menu_item_value = g_variant_get_string(mapping_data, &size);
@@ -154,7 +154,8 @@ static int set_keyboard_action(GtkEventControllerKey *self, guint keyval, guint 
 	if (keyval > 0xffff) return TRUE; // Bounds check for keyboard_keys
 	GtkLabel *label_pressed_key = data->widgets->label_pressed_key;
 	
-	printf("%.16x\n", keyval);
+	printf("0x%.4x\n", keyval);
+	printf("%.32b\n", state);
 
 	byte hid_usage_id = data->button_data.keyboard_keys[keyval];
 	data->button_data.current_keyboard_action = 0x0200 + hid_usage_id;
@@ -163,6 +164,14 @@ static int set_keyboard_action(GtkEventControllerKey *self, guint keyval, guint 
 	gtk_label_set_text(label_pressed_key, key_name);
 	
 	return TRUE;
+}
+
+static void open_macro_overlay(GSimpleAction *action, GVariant *variant, app_data *data) {
+	gtk_overlay_add_overlay(data->widgets->overlay, GTK_WIDGET(data->widgets->box_macro));
+}
+
+static void close_macro_overlay(GtkButton *self, app_data *data) {
+	gtk_overlay_remove_overlay(data->widgets->overlay, GTK_WIDGET(data->widgets->box_macro));
 }
 
 /**
@@ -193,17 +202,15 @@ static void setup_action_menu_buttons(GtkBuilder *builder, app_data *data) {
 void app_config_buttons_init(GtkBuilder *builder, app_data *data) {
 	apply_button_bindings(data->mouse->dev, data->mouse->mutex, data->button_data.bindings);
 
-	macro_event events[3] = {
-		(macro_event) {.mouse_event = {
-			.down = {.event_type = MACRO_EVENT_TYPE_MOUSE, .action = 0x01, .delay_next_action = 0x01},
-			.up =  {.event_type = MACRO_EVENT_TYPE_MOUSE, .delay_next_action = 0x01},
-		}},
-		(macro_event) {.key_event = {.event_type = MACRO_EVENT_TYPE_KEYBOARD, .keys = {0x04, 0x05, 0x06, 0x07, 0x08, 0x09}, .delay_next_action = 0x0020}},
-		(macro_event) {.key_event = {.event_type = MACRO_EVENT_TYPE_KEYBOARD, .keys = {0x00}, .delay_next_action = 0x0040}},
-	};
+	macro_event events[52] = {};
+
+	for (int i = 0; i < 26; i++) {
+		events[i * 2] = (macro_event) {.key_event = {.event_type = MACRO_EVENT_TYPE_KEYBOARD, .keys = {0x04 + i}, .delay_next_action = 0x50}};
+		events[i * 2 + 1] = (macro_event) {.key_event = {.event_type = MACRO_EVENT_TYPE_KEYBOARD, .delay_next_action = 0x50}};
+	}
 
 	g_mutex_lock(data->mouse->mutex);
-	assign_button_macro(data->mouse->dev, MACRO_BINDING_FORWARD, MACRO_REPEAT_MODE_ONCE, events, 4);
+	assign_button_macro(data->mouse->dev, MACRO_BINDING_FORWARD, MACRO_REPEAT_MODE_ONCE, events, 52);
 	g_mutex_unlock(data->mouse->mutex);
 
 	data->widgets->window_keyboard_action = GTK_WINDOW(GTK_WIDGET(gtk_builder_get_object(builder, "windowTest")));
@@ -215,6 +222,9 @@ void app_config_buttons_init(GtkBuilder *builder, app_data *data) {
 	gtk_widget_add_controller(GTK_WIDGET(data->widgets->window_keyboard_action), data->widgets->event_key_controller);
 	g_signal_connect(data->widgets->window_keyboard_action, "close-request", G_CALLBACK(clear_key_pressed_label), data->widgets->label_pressed_key);
     g_signal_connect(data->widgets->event_key_controller, "key-pressed", G_CALLBACK(set_keyboard_action), data);
+
+	data->widgets->overlay = GTK_OVERLAY(GTK_WIDGET(gtk_builder_get_object(builder, "overlayMain")));
+	data->widgets->box_macro = GTK_BOX(GTK_WIDGET(gtk_builder_get_object(builder, "boxMacro")));
 	
 	setup_action_menu_buttons(builder, data);
 	
@@ -225,7 +235,12 @@ void app_config_buttons_init(GtkBuilder *builder, app_data *data) {
 	GSimpleAction *action_change_binding = g_simple_action_new("change-binding", G_VARIANT_TYPE_STRING);
 	g_action_map_add_action(G_ACTION_MAP(data->widgets->app), G_ACTION(action_change_binding));	
 	g_signal_connect(action_change_binding, "activate", G_CALLBACK(change_mouse_simple_binding), data);
+
+	GSimpleAction *action_add_macro = g_simple_action_new("add-macro", NULL);
+	g_action_map_add_action(G_ACTION_MAP(data->widgets->app), G_ACTION(action_add_macro));	
+	g_signal_connect(action_add_macro, "activate", G_CALLBACK(open_macro_overlay), data);
 	
 	widget_add_event(builder, "buttonKeybindConfirm", "clicked", confirm_keyboard_action_binding, data);
 	widget_add_event(builder, "buttonKeybindCancel", "clicked", close_keyboard_actions_window, data);
+	widget_add_event(builder, "buttonMacroCancel", "clicked", close_macro_overlay, data);
 }

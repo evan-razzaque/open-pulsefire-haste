@@ -2,6 +2,7 @@
 bin
 main
 build
+profiles
 
 # Config
 .vscode

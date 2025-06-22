@@ -106,6 +106,9 @@ void activate(GtkApplication *app, app_data *data) {
 
 	g_timeout_add(2000, G_SOURCE_FUNC(update_battery_display), &data->battery_data);
 
+	GtkSettings *settings = gtk_settings_get_default();
+	g_object_set(settings, "gtk-theme-name", "Default", NULL);
+
 	GtkCssProvider *provider = gtk_css_provider_new();
 	gtk_css_provider_load_from_path(provider, "ui/window.css");
 	gtk_style_context_add_provider_for_display(gtk_widget_get_display(GTK_WIDGET(window)), GTK_STYLE_PROVIDER(provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);

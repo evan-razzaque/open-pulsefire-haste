@@ -291,14 +291,14 @@
     [0x62] = "Keypad 0",\
     [0x63] = "Keypad Decimal",\
     [0x64] = "Menu",\
-    [0xE0] = "L-CTRL",\
-    [0xE1] = "L-SHIFT",\
-    [0xE2] = "L-ALT",\
-    [0xE3] = "L-Win",\
-    [0xE4] = "R-CTRL",\
-    [0xE5] = "R-SHIFT",\
-    [0xE6] = "R-ALT",\
-    [0xE7] = "R-Win"\
+    [0xE0] = "LCtrl",\
+    [0xE1] = "LShift",\
+    [0xE2] = "LAlt",\
+    [0xE3] = "LWin",\
+    [0xE4] = "RCtrl",\
+    [0xE5] = "RShift",\
+    [0xE6] = "RAlt",\
+    [0xE7] = "RWin"\
 }
 
 #endif
