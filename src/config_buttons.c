@@ -202,15 +202,13 @@ static void setup_action_menu_buttons(GtkBuilder *builder, app_data *data) {
 void app_config_buttons_init(GtkBuilder *builder, app_data *data) {
 	apply_button_bindings(data->mouse->dev, data->mouse->mutex, data->button_data.bindings);
 
-	macro_event events[52] = {};
-
-	for (int i = 0; i < 26; i++) {
-		events[i * 2] = (macro_event) {.key_event = {.event_type = MACRO_EVENT_TYPE_KEYBOARD, .keys = {0x04 + i}, .delay_next_action = 0x50}};
-		events[i * 2 + 1] = (macro_event) {.key_event = {.event_type = MACRO_EVENT_TYPE_KEYBOARD, .delay_next_action = 0x50}};
-	}
+	macro_event events[2] = {
+		KEYBOARD_EVENT_DOWN(L_SHIFT, 50, 0x04, 0x05, 0x06),
+		KEYBOARD_EVENT_UP(50),
+	};
 
 	g_mutex_lock(data->mouse->mutex);
-	assign_button_macro(data->mouse->dev, MACRO_BINDING_FORWARD, MACRO_REPEAT_MODE_ONCE, events, 52);
+	assign_button_macro(data->mouse->dev, MACRO_BINDING_FORWARD, MACRO_REPEAT_MODE_ONCE, events, 2);
 	g_mutex_unlock(data->mouse->mutex);
 
 	data->widgets->window_keyboard_action = GTK_WINDOW(GTK_WIDGET(gtk_builder_get_object(builder, "windowTest")));
