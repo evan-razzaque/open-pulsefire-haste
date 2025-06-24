@@ -6,8 +6,6 @@
 #include "device/rgb.h"
 #include "mouse_config.h"
 
-
-
 /**
  * @brief Re-binds a mouse button.
  * 

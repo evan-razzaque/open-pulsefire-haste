@@ -7,7 +7,7 @@
 #include "mouse.h"
 #include "buttons.h"
 
-#define min(a, b) (((a) < (b))? (a) : (b))
+#define MIN(a, b) (((a) < (b))? (a) : (b))
 
 int assign_button_action(hid_device *dev, MOUSE_BUTTON button, uint16_t action) {
 	byte type = action >> 8;
@@ -41,14 +41,14 @@ int assign_button_macro(hid_device *dev, MACRO_BINDING binding, MACRO_REPEAT_MOD
 	// Macro data packets
 	for (int p = 0; p < packet_count; p++) {
 		data[FIRST_BYTE + 2] = MACRO_PACKET_SUM(p);
-		data[FIRST_BYTE + 3] = min(events_remaining, 6) + MACRO_PACKET_EVENT_COUNT(p);
+		data[FIRST_BYTE + 3] = MIN(events_remaining, 6) + MACRO_PACKET_EVENT_COUNT(p);
 		
 		int offset = FIRST_BYTE + 4;
 		
 		// Macro events
 		for (int j = 6; j > 0 && events_remaining > 0;) {
 			/**
-			 * Since the first byte of a generic macro event is the macro type,
+			 * Since the first byte of a macro event is the macro type,
 			 * and MACRO_EVENT_TYPE_KEYBOARD = 0x1a and MACRO_EVENT_TYPE_MOUSE = 0x25,
 			 * we can shift the byte right 4 bits to obtain the actual number of events.
 			 */

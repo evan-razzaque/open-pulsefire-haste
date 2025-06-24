@@ -458,10 +458,16 @@
       <object class="GtkBox">
         <property name="orientation">vertical</property>
         <child>
-          <object class="GtkLabel">
+          <object class="GtkLabel" id="labelMacroEvents">
+            <property name="css-classes">macro-events</property>
+            <property name="halign">center</property>
             <property name="hexpand">True</property>
-            <property name="label">Macro events go here...</property>
+            <property name="margin-bottom">50</property>
+            <property name="margin-top">50</property>
+            <property name="valign">start</property>
             <property name="vexpand">True</property>
+            <property name="width-chars">60</property>
+            <property name="wrap">True</property>
           </object>
         </child>
         <child>
@@ -488,4 +494,5 @@
       </object>
     </child>
   </object>
+  <object class="GtkEventControllerKey" id="macroKeyController"/>
 </interface>

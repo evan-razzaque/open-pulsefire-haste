@@ -15,6 +15,15 @@ enum MOUSE_STATE {
 } typedef MOUSE_STATE;
 
 /**
+ * @brief An enum for macro event pressed/released states.
+ * 
+ */
+typedef enum MACRO_ACTION_TYPE {
+	MACRO_ACTION_TYPE_UP   = 0x00,
+	MACRO_ACTION_TYPE_DOWN = 0x01
+} MACRO_ACTION_TYPE;
+
+/**
  * @brief All the data required to interact with the mouse.
  * 
  */
@@ -37,13 +46,16 @@ struct app_widgets {
 	GtkWindow *window_keyboard_action;
 	GtkOverlay *overlay;
 	GtkLabel *label_battery;
+
 	GtkLabel *label_selected_button, *label_pressed_key;
 	GtkColorChooser *color_chooser;
     GtkRange *range_brightness;
 	GtkEventController *event_key_controller;
 	GtkMenuButton *menu_button_bindings[6]; // Menu buttons for each mouse button binding
-	GtkPopover *active_popover;
+
 	GtkBox *box_macro;
+	GtkEventController *macro_mouse_events, *macro_key_events;
+	GtkLabel *label_macro_events;
 } typedef app_widgets;
 
 /**
@@ -81,6 +93,24 @@ struct config_button_data {
 } typedef config_button_data;
 
 /**
+ * @brief A struct for storing a single button event for a macro.
+ * 
+ */
+struct generic_macro_event {
+	MACRO_EVENT_TYPE event_type;
+	MACRO_ACTION_TYPE action_type;
+	byte action;
+	int delay_next_action;
+} typedef generic_macro_event;
+
+struct config_macro_data {
+	bool recording_macro;
+	generic_macro_event *events;
+	int event_index;
+	int event_array_size;
+} typedef config_macro_data;
+
+/**
  * @brief A struct used to store all the variables and structs needed in the application. 
  * This includes mouse data, application widgets, and mouse config.
  */
@@ -90,6 +120,7 @@ struct app_data {
 	mouse_battery_data battery_data;
 	config_color_data color_data;
 	config_button_data button_data;
+	config_macro_data macro_data;
 } typedef app_data;
 
 #endif

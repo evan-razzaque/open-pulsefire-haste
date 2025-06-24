@@ -210,6 +210,10 @@ int main() {
 			.keyboard_keys = KEYBOARD_MAP(),
 			.key_names = KEY_NAMES()
 		},
+		.macro_data = {
+			.recording_macro = 0,
+			.event_index = 0
+		}
 	};
 	
 	

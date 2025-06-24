@@ -9,3 +9,9 @@ overlay {
 box.macro {
 	background-color: inherit;
 }
+
+label.macro-events {
+	margin: 10px;
+	font-family: monospace;
+	font-size: 16px;
+}

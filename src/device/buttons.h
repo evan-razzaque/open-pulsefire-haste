@@ -8,7 +8,7 @@
 typedef uint8_t byte;
 
 /**
- * @brief The size of a generic macro event (in bytes).
+ * @brief The size of a macro event (in bytes).
  * 
  */
 #define MACRO_EVENT_SIZE (10)
@@ -133,14 +133,14 @@ struct macro_mouse_event_pair {
 } __attribute__((__packed__)) typedef macro_mouse_event_pair;
 
 /**
- * @brief A union for a generic macro event.
+ * @brief A union for a macro event.
  * 
  */
 union marcro_event {
     byte event_data[10];
     macro_key_event key_event;
     macro_mouse_event_pair mouse_event;
-} typedef macro_event;
+} __attribute__((__packed__)) typedef macro_event;
 
 /**
  * Change a binding for a mouse button.
