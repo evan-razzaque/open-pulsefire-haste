@@ -6,6 +6,9 @@
 #include "device/buttons.h"
 #include "device/rgb.h"
 
+#define widget_add_event(builder, widget_name, detailed_signal, c_handler, data)\
+	g_signal_connect(gtk_builder_get_object(builder, widget_name), detailed_signal, G_CALLBACK(c_handler), data);
+
 /**
  * Convieniece macro for a key(s) down event
  *
@@ -54,5 +57,13 @@ void app_config_led_init(GtkBuilder *builder, app_data *data);
  * @param data Application wide data structure
  */
 void app_config_buttons_init(GtkBuilder *builder, app_data *data);
+
+/**
+ * Init for macros.
+ * 
+ * @param builder GtkBuilder object to obtain widgets
+ * @param data Application wide data structure
+ */
+void app_config_macro_init(GtkBuilder *builder, app_data *data);
 
 #endif

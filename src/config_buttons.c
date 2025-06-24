@@ -6,8 +6,7 @@
 #include "device/rgb.h"
 #include "mouse_config.h"
 
-#define widget_add_event(builder, widget_name, detailed_signal, c_handler, data)\
-	g_signal_connect(gtk_builder_get_object(builder, widget_name), detailed_signal, G_CALLBACK(c_handler), data);
+
 
 /**
  * @brief Re-binds a mouse button.
@@ -166,14 +165,6 @@ static int set_keyboard_action(GtkEventControllerKey *self, guint keyval, guint 
 	return TRUE;
 }
 
-static void open_macro_overlay(GSimpleAction *action, GVariant *variant, app_data *data) {
-	gtk_overlay_add_overlay(data->widgets->overlay, GTK_WIDGET(data->widgets->box_macro));
-}
-
-static void close_macro_overlay(GtkButton *self, app_data *data) {
-	gtk_overlay_remove_overlay(data->widgets->overlay, GTK_WIDGET(data->widgets->box_macro));
-}
-
 /**
  * @brief Sets up the menu buttons used for re-assigning each mouse button.
  * 
@@ -202,15 +193,6 @@ static void setup_action_menu_buttons(GtkBuilder *builder, app_data *data) {
 void app_config_buttons_init(GtkBuilder *builder, app_data *data) {
 	apply_button_bindings(data->mouse->dev, data->mouse->mutex, data->button_data.bindings);
 
-	macro_event events[2] = {
-		KEYBOARD_EVENT_DOWN(L_SHIFT, 50, 0x04, 0x05, 0x06),
-		KEYBOARD_EVENT_UP(50),
-	};
-
-	g_mutex_lock(data->mouse->mutex);
-	assign_button_macro(data->mouse->dev, MACRO_BINDING_FORWARD, MACRO_REPEAT_MODE_ONCE, events, 2);
-	g_mutex_unlock(data->mouse->mutex);
-
 	data->widgets->window_keyboard_action = GTK_WINDOW(GTK_WIDGET(gtk_builder_get_object(builder, "windowTest")));
     data->widgets->event_key_controller = GTK_EVENT_CONTROLLER(gtk_builder_get_object(builder, "eventKeyController"));
 	data->widgets->label_selected_button = GTK_LABEL(GTK_WIDGET(gtk_builder_get_object(builder, "labelSelectedButton")));
@@ -222,7 +204,6 @@ void app_config_buttons_init(GtkBuilder *builder, app_data *data) {
     g_signal_connect(data->widgets->event_key_controller, "key-pressed", G_CALLBACK(set_keyboard_action), data);
 
 	data->widgets->overlay = GTK_OVERLAY(GTK_WIDGET(gtk_builder_get_object(builder, "overlayMain")));
-	data->widgets->box_macro = GTK_BOX(GTK_WIDGET(gtk_builder_get_object(builder, "boxMacro")));
 	
 	setup_action_menu_buttons(builder, data);
 	
@@ -234,11 +215,6 @@ void app_config_buttons_init(GtkBuilder *builder, app_data *data) {
 	g_action_map_add_action(G_ACTION_MAP(data->widgets->app), G_ACTION(action_change_binding));	
 	g_signal_connect(action_change_binding, "activate", G_CALLBACK(change_mouse_simple_binding), data);
 
-	GSimpleAction *action_add_macro = g_simple_action_new("add-macro", NULL);
-	g_action_map_add_action(G_ACTION_MAP(data->widgets->app), G_ACTION(action_add_macro));	
-	g_signal_connect(action_add_macro, "activate", G_CALLBACK(open_macro_overlay), data);
-	
 	widget_add_event(builder, "buttonKeybindConfirm", "clicked", confirm_keyboard_action_binding, data);
 	widget_add_event(builder, "buttonKeybindCancel", "clicked", close_keyboard_actions_window, data);
-	widget_add_event(builder, "buttonMacroCancel", "clicked", close_macro_overlay, data);
 }

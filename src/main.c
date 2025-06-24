@@ -91,7 +91,12 @@ void activate(GtkApplication *app, app_data *data) {
 	mouse_data *mouse = data->mouse;
 
 	GtkSettings *settings = gtk_settings_get_default();
-	g_object_set(settings, "gtk-application-prefer-dark-theme", TRUE, NULL);
+	g_object_set(settings, 
+		"gtk-application-prefer-dark-theme", TRUE, 
+		"gtk-enable-animations", 0,
+		"gtk-theme-name", "Adwaita",
+		NULL
+	);
 	
 	GtkBuilder *builder = gtk_builder_new_from_file("ui/window.ui");
 	GtkWindow *window = GTK_WINDOW(GTK_WIDGET(gtk_builder_get_object(builder, "window")));
@@ -101,6 +106,7 @@ void activate(GtkApplication *app, app_data *data) {
 	
 	app_config_led_init(builder, data);
 	app_config_buttons_init(builder, data);
+	app_config_macro_init(builder, data);
 
 	data->battery_data = (mouse_battery_data) {.mouse = mouse, .label_battery = label_battery};
 	
