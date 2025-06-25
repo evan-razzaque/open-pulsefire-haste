@@ -42,6 +42,22 @@
         .up = {.event_type = MACRO_EVENT_TYPE_MOUSE, .delay_next_action = delay}\
     }}
 
+#define MOUSE_MAP() {\
+    [1] = 0x01,\
+    [3] = 0x02,\
+    [2] = 0x04,\
+    [8] = 0x08,\
+    [9] = 0x10\
+}
+
+#define MOUSE_BUTTON_NAMES() {\
+    [0x01] = "Left Click",\
+    [0x02] = "Right Click",\
+    [0x04] = "Middle Click",\
+    [0x08] = "Mouse 4",\
+    [0x10] = "Mouse 5"\
+}
+
 /**
  * Init for mouse led settings.
  * 

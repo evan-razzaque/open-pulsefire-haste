@@ -3,7 +3,7 @@
 <!-- Created with Cambalache 0.96.1 -->
 <cambalache-project version="0.96.0" target_tk="gtk-4.0">
   <css filename="window.css" is_global="0"/>
-  <ui filename="window.ui" sha256="170cc35fdadc56634e776309b337e16be4698585b57a6b1ac6ec428886cc0716">
+  <ui filename="window.ui" sha256="222ca0e2a1b4c39320e6fa2f8944a202e9fe5af94eb1ef33f05b2d02bcb1fd68">
     <css-provider>window.css</css-provider>
   </ui>
 </cambalache-project>

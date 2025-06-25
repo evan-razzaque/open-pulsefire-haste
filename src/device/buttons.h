@@ -29,6 +29,28 @@ typedef uint8_t byte;
  */
 #define MACRO_PACKET_EVENT_COUNT(x) (((x) % 2) * 0x80)
 
+enum MODIFIER_KEY {
+    L_CTRL	= 0b00000001,
+    L_SHIFT	= 0b00000010,
+    L_ALT	= 0b00000100,
+    L_WIN	= 0b00001000,
+    R_CTRL	= 0b00010000,
+    R_SHIFT	= 0b00100000,
+    R_ALT	= 0b01000000,
+    R_WIN	= 0b10000000,
+} typedef MODIFIER_KEY;
+
+#define MACRO_MODIFIER_MAP() {\
+    [0xE0] = L_CTRL,\
+    [0xE1] = L_SHIFT,\
+    [0xE2] = L_ALT,\
+    [0xE3] = L_WIN,\
+    [0xE4] = R_CTRL,\
+    [0xE5] = R_SHIFT,\
+    [0xE6] = R_ALT,\
+    [0xE7] = R_WIN,\
+}
+
 enum MOUSE_BUTTON {
 	MOUSE_BUTTON_LEFT,
 	MOUSE_BUTTON_RIGHT,
@@ -71,17 +93,6 @@ enum SIMPLE_MOUSE_ACTION {
     PASTE               = 0x0508,
 
 } typedef SIMPLE_MOUSE_ACTION;
-
-enum MODIFIER_KEY {
-    L_CTRL	= 0b00000001,
-    L_SHIFT	= 0b00000010,
-    L_ALT	= 0b00000100,
-    L_WIN	= 0b00001000,
-    R_CTRL	= 0b00010000,
-    R_SHIFT	= 0b00100000,
-    R_ALT	= 0b01000000,
-    R_WIN	= 0b10000000,
-} typedef MODIFIER_KEY;
 
 enum MACRO_BINDING {
     MACRO_BINDING_MIDDLE  = 0x0402,

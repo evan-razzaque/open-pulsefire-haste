@@ -103,11 +103,23 @@ struct generic_macro_event {
 	int delay_next_action;
 } typedef generic_macro_event;
 
+struct mouse_macro {
+	generic_macro_event *events;
+	int event_count;
+} typedef mouse_macro;
+
 struct config_macro_data {
+	byte modifier_map[256];
+	byte mouse_buttons[10];
+	const char *mouse_button_names[32];
+
 	bool recording_macro;
 	generic_macro_event *events;
 	int event_index;
 	int event_array_size;
+
+	mouse_macro *macros;
+	int macro_count;
 } typedef config_macro_data;
 
 /**

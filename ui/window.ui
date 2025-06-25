@@ -495,4 +495,5 @@
     </child>
   </object>
   <object class="GtkEventControllerKey" id="macroKeyController"/>
+  <object class="GtkGestureClick" id="gestureMouseEvent"/>
 </interface>

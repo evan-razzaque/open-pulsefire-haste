@@ -1,6 +1,6 @@
 CC              = gcc
 LDLIBS          = -lm -lhidapi-hidraw $$(pkg-config --libs gtk4)
-DEVICE_OBJFILES = build/buttons.o build/mouse.o build/rgb.o   
+DEVICE_OBJFILES = build/buttons.o build/mouse.o build/rgb.o
 APP_OBJFILES    = build/main.o build/config_led.o build/config_buttons.o build/config_macro.o
 OBJFILES        = $(DEVICE_OBJFILES) $(APP_OBJFILES)
 TARGET          = bin/main
