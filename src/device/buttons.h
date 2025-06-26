@@ -171,12 +171,12 @@ int assign_button_action(hid_device *dev, MOUSE_BUTTON button, uint16_t action);
  * Assign a macro to a mouse button.
  * 
  * @param dev The mouse device handle
- * @param binding The mouse button to re-assign
+ * @param button The mouse button to re-assign
  * @param repeat_mode The repeat behavior of the macro
  * @param events The macro events
  * @param event_count The number of events
  * @return the number of bytes written or -1 on error
  */
-int assign_button_macro(hid_device *dev, MACRO_BINDING binding,  MACRO_REPEAT_MODE repeat_mode, macro_event *events, int event_count);
+int assign_button_macro(hid_device *dev, MOUSE_BUTTON button,  MACRO_REPEAT_MODE repeat_mode, macro_event *events, int event_count);
 
 #endif
