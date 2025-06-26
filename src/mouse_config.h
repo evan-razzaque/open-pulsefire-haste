@@ -58,6 +58,13 @@
     [0x10] = "Mouse 5"\
 }
 
+enum GENERIC_EVENT_ACTION_TYPES {
+    KEY_DOWN   = 0x1a01,
+    KEY_UP     = 0x1a00,
+    MOUSE_DOWN = 0x2501,
+    MOUSE_UP   = 0x2500
+} typedef GENERIC_EVENT_ACTION_TYPES;
+
 /**
  * Init for mouse led settings.
  * 

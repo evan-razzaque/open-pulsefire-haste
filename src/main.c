@@ -76,9 +76,18 @@ int update_battery_display(mouse_battery_data *battery_data) {
  * @param data Application wide data structure
  */
 void close_application(GtkWindow *window, app_data *data) {
+	// TODO: Save macros to file
+	for (int i = 0; i < data->macro_data.macro_count; i++) {
+		free(data->macro_data.macros[i].events);
+		free(data->macro_data.macros[i].macro_name);
+	}
+
+	free(data->macro_data.macros);
+
 	printf("window closed\n");
 	gtk_window_destroy(window);
 	gtk_window_destroy(data->widgets->window_keyboard_action);
+	gtk_window_destroy(data->macro_data.window_rename_macro);
 }
 
 /**
@@ -214,9 +223,11 @@ int main() {
 			.modifier_map = MACRO_MODIFIER_MAP(),
 			.mouse_buttons = MOUSE_MAP(),
 			.mouse_button_names = MOUSE_BUTTON_NAMES(),
-			.recording_macro = 0,
-			.event_index = 0,
-			.macro_count = 0
+
+			.macros = malloc(sizeof(mouse_macro) * 2),
+			.macro_array_size = 2,
+			.macro_count = 0,
+			.recording_macro = 0
 		}
 	};
 	

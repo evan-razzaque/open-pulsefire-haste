@@ -105,7 +105,9 @@ struct generic_macro_event {
 
 struct mouse_macro {
 	generic_macro_event *events;
-	int event_count;
+	int generic_event_count;
+	int generic_event_array_size;
+	char* macro_name;
 } typedef mouse_macro;
 
 struct config_macro_data {
@@ -113,13 +115,18 @@ struct config_macro_data {
 	byte mouse_buttons[10];
 	const char *mouse_button_names[32];
 
-	bool recording_macro;
-	generic_macro_event *events;
-	int event_index;
-	int event_array_size;
-
 	mouse_macro *macros;
 	int macro_count;
+	int macro_array_size;
+	bool recording_macro;
+
+	GtkGesture *gesture_macro_mouse_events;
+	GtkGesture *gesture_button_confirm_macro;
+	GtkButton *button_confirm_macro;
+	GMenu *menu_macros;
+	GtkLabel *label_macro_name;
+	GtkWindow *window_rename_macro;
+	GtkEditable *editable_macro_name;
 } typedef config_macro_data;
 
 /**

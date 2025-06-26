@@ -15,3 +15,7 @@ label.macro-events {
 	font-family: monospace;
 	font-size: 16px;
 }
+
+label.macro-name {
+	font-size: 20px;
+}

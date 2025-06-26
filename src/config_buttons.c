@@ -100,6 +100,8 @@ static void apply_button_bindings(hid_device *dev, GMutex *mutex, uint16_t *bind
  * @param data Application wide data structure
  */
 static void set_mouse_button(GtkMenuButton *self, GParamSpec *param_spec, app_data *data) {
+	// This callback (notify::active) is fired on focus and blur,
+	// so we make sure the menu button is focused to prevent unnecessary operations.
 	if (!gtk_menu_button_get_active(self)) return;
 	
 	int *button = g_object_get_data(G_OBJECT(self), "button");

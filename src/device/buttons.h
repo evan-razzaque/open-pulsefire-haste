@@ -8,8 +8,12 @@
 typedef uint8_t byte;
 
 /**
- * @brief The size of a macro event (in bytes).
- * 
+ * The type byte for macro when re-assigning a button.
+ */
+#define MOUSE_ACTION_TYPE_MACRO (0x04)
+
+/**
+ * The size of a macro event (in bytes).
  */
 #define MACRO_EVENT_SIZE (10)
 
