@@ -13,14 +13,15 @@
     <property name="title">HyperX Pulsefire Haste</property>
     <child>
       <object class="GtkOverlay" id="overlayMain">
-        <property name="child">gridMain</property>
+        <property name="height-request">550</property>
+        <property name="width-request">800</property>
         <child>
-          <object class="GtkGrid" id="gridMain">
-            <property name="column-homogeneous">True</property>
-            <property name="margin-bottom">10</property>
-            <property name="margin-end">10</property>
-            <property name="margin-start">10</property>
-            <property name="margin-top">10</property>
+          <object class="GtkBox">
+            <property name="homogeneous">True</property>
+            <property name="margin-bottom">5</property>
+            <property name="margin-end">5</property>
+            <property name="margin-start">5</property>
+            <property name="margin-top">5</property>
             <child>
               <object class="GtkBox">
                 <property name="halign">start</property>
@@ -191,10 +192,6 @@
                     </child>
                   </object>
                 </child>
-                <layout>
-                  <property name="column">0</property>
-                  <property name="row">0</property>
-                </layout>
               </object>
             </child>
             <child>
@@ -229,10 +226,6 @@
                     <property name="vexpand">True</property>
                   </object>
                 </child>
-                <layout>
-                  <property name="column">0</property>
-                  <property name="row">0</property>
-                </layout>
               </object>
             </child>
           </object>
