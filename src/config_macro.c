@@ -97,6 +97,7 @@ static void open_macro_overlay(GSimpleAction *action, GVariant *variant, app_dat
     macro->generic_event_array_size = 2;
     macro->events = malloc(sizeof(generic_macro_event) * macro->generic_event_array_size);
     macro->generic_event_count = 0;
+    macro->macro_name = NULL;
     
     gtk_label_set_text(data->macro_data.label_macro_name, "New Macro");
 	gtk_overlay_add_overlay(data->widgets->overlay, GTK_WIDGET(data->widgets->box_macro));
