@@ -259,7 +259,7 @@ static void select_macro(GSimpleAction *action, GVariant *macro_index, app_data 
     uint32_t index = g_variant_get_uint32(macro_index);
     mouse_macro macro = data->macro_data.macros[index];
 
-    macro_event events[macro.generic_event_count];
+    macro_event *events = malloc(sizeof(macro_event) * macro.generic_event_count);
     int event_count = parse_macro(macro, events, data->macro_data.modifier_map);
 
     g_mutex_lock(data->mouse->mutex);
@@ -271,6 +271,8 @@ static void select_macro(GSimpleAction *action, GVariant *macro_index, app_data 
         event_count
     );
     g_mutex_unlock(data->mouse->mutex);
+
+    free(events);
 
     GtkMenuButton *menu_button_active = data->widgets->menu_button_bindings[data->button_data.selected_button];
     gtk_menu_button_set_label(menu_button_active, data->macro_data.macros[index].macro_name);
