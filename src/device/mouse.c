@@ -89,9 +89,7 @@ int get_battery_level(hid_device* dev) {
 int set_polling_rate(hid_device *dev, byte polling_rate_value) {
 	byte data[PACKET_SIZE] = {SEND_BYTE_POLLING_RATE, 0x00, 0x00, 0x01, polling_rate_value};
 
-	int res = mouse_write(dev, data);
-	print_data(data);
-	return res;
+	return mouse_write(dev, data);
 }
 
 int save_settings(hid_device *dev, color_options *color) {
