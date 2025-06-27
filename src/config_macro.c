@@ -305,15 +305,6 @@ static void setup_event_controllers(app_data *data) {
 }
 
 void app_config_macro_init(GtkBuilder *builder, app_data *data) {
-    // macro_event events[2] = {
-    //     KEYBOARD_EVENT_DOWN(0, 50, 0x04, 0x16, 0x05),
-    //     KEYBOARD_EVENT_UP(50),
-    // };
-
-    // g_mutex_lock(data->mouse->mutex);
-    // assign_button_macro(data->mouse->dev, MACRO_BINDING_FORWARD, MACRO_REPEAT_MODE_ONCE, events, 2);
-    // g_mutex_unlock(data->mouse->mutex);
-
     get_macro_data_widgets(builder, data);
     setup_event_controllers(data);
 

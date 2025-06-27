@@ -8,20 +8,20 @@
   <object class="GtkWindow" id="window">
     <property name="can-focus">False</property>
     <property name="default-height">550</property>
-    <property name="default-width">800</property>
+    <property name="default-width">900</property>
     <property name="destroy-with-parent">True</property>
     <property name="title">HyperX Pulsefire Haste</property>
     <child>
       <object class="GtkOverlay" id="overlayMain">
         <property name="height-request">550</property>
-        <property name="width-request">800</property>
+        <property name="width-request">900</property>
         <child>
           <object class="GtkBox">
-            <property name="homogeneous">True</property>
             <property name="margin-bottom">5</property>
             <property name="margin-end">5</property>
             <property name="margin-start">5</property>
             <property name="margin-top">5</property>
+            <property name="spacing">20</property>
             <child>
               <object class="GtkBox">
                 <property name="halign">start</property>
@@ -57,7 +57,9 @@
                         </child>
                         <child>
                           <object class="GtkMenuButton" id="menuButtonLeft">
+                            <property name="direction">right</property>
                             <property name="label">Left Click</property>
+                            <property name="menu-model">menuModelActions</property>
                             <property name="tooltip-text">Left Click</property>
                           </object>
                         </child>
@@ -75,7 +77,9 @@
                         </child>
                         <child>
                           <object class="GtkMenuButton" id="menuButtonRight">
+                            <property name="direction">right</property>
                             <property name="label">Right Click</property>
+                            <property name="menu-model">menuModelActions</property>
                             <property name="tooltip-text">Right Click</property>
                           </object>
                         </child>
@@ -93,7 +97,9 @@
                         </child>
                         <child>
                           <object class="GtkMenuButton" id="menuButtonMiddle">
+                            <property name="direction">right</property>
                             <property name="label">Middle Click</property>
+                            <property name="menu-model">menuModelActions</property>
                             <property name="tooltip-text">Middle Click</property>
                           </object>
                         </child>
@@ -112,7 +118,9 @@
                         </child>
                         <child>
                           <object class="GtkMenuButton" id="menuButtonBack">
+                            <property name="direction">right</property>
                             <property name="label">Back</property>
+                            <property name="menu-model">menuModelActions</property>
                             <property name="tooltip-text">Back</property>
                           </object>
                         </child>
@@ -131,7 +139,9 @@
                         </child>
                         <child>
                           <object class="GtkMenuButton" id="menuButtonForward">
+                            <property name="direction">right</property>
                             <property name="label">Forward</property>
+                            <property name="menu-model">menuModelActions</property>
                             <property name="tooltip-text">Forward</property>
                           </object>
                         </child>
@@ -150,7 +160,9 @@
                         </child>
                         <child>
                           <object class="GtkMenuButton" id="menuButtonDPI">
+                            <property name="direction">right</property>
                             <property name="label">DPI Toggle</property>
+                            <property name="menu-model">menuModelActions</property>
                             <property name="tooltip-text">DPI Toggle</property>
                           </object>
                         </child>
@@ -196,11 +208,72 @@
             </child>
             <child>
               <object class="GtkBox">
+                <property name="halign">start</property>
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label">Polling Rate</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="pollingRate0">
+                    <property name="label">125 hz</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label">0</property>
+                    <property name="visible">False</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="pollingRate1">
+                    <property name="group">pollingRate0</property>
+                    <property name="label">250 hz</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label">1</property>
+                    <property name="visible">False</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="pollingRate2">
+                    <property name="group">pollingRate0</property>
+                    <property name="label">500 hz</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label">2</property>
+                    <property name="visible">False</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="pollingRate3">
+                    <property name="active">True</property>
+                    <property name="group">pollingRate0</property>
+                    <property name="label">1000 hz</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label">3</property>
+                    <property name="visible">False</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkBox">
                 <property name="halign">end</property>
+                <property name="hexpand">True</property>
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkColorChooserWidget" id="colorChooserLed">
                     <property name="halign">end</property>
+                    <property name="rgba">rgb(255,0,0)</property>
                     <property name="show-editor">True</property>
                     <property name="use-alpha">False</property>
                   </object>

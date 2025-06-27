@@ -79,12 +79,19 @@ int mouse_read(hid_device *dev, REPORT_BYTE reportType, byte *data) {
 }
 
 int get_battery_level(hid_device* dev) {
-	byte data[PACKET_SIZE] = {};
-	memset(data, 0, PACKET_SIZE);
+	byte data[PACKET_SIZE] = {0};
 	int res = mouse_read(dev, REPORT_BYTE_HEARTBEAT, data);
 
 	if (res <= 0) return -1;
 	return (int) data[REPORT_INDEX_BATTERY];
+}
+
+int set_polling_rate(hid_device *dev, byte polling_rate_value) {
+	byte data[PACKET_SIZE] = {SEND_BYTE_POLLING_RATE, 0x00, 0x00, 0x01, polling_rate_value};
+
+	int res = mouse_write(dev, data);
+	print_data(data);
+	return res;
 }
 
 int save_settings(hid_device *dev, color_options *color) {

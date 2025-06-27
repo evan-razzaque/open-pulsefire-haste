@@ -1,7 +1,7 @@
 CC              = gcc
 LDLIBS          = -lm -lhidapi-hidraw $$(pkg-config --libs gtk4)
 DEVICE_OBJFILES = build/buttons.o build/mouse.o build/rgb.o
-APP_OBJFILES    = build/main.o build/config_led.o build/config_buttons.o build/config_macro.o
+APP_OBJFILES    = build/main.o build/config_led.o build/config_buttons.o build/config_macro.o build/config_sensor.o
 OBJFILES        = $(DEVICE_OBJFILES) $(APP_OBJFILES)
 TARGET          = bin/main
 
@@ -17,7 +17,7 @@ $(TARGET) : $(OBJFILES)
 	@mkdir -p bin
 	$(CC) -o $(TARGET) $(OBJFILES) $(LDLIBS) $(LDFLAGS)
 
-$(APP_OBJFILES) : src/types.h
+$(APP_OBJFILES) : src/types.h src/mouse_config.h
 
 # Device
 
@@ -36,19 +36,23 @@ build/rgb.o: src/device/rgb.c src/device/rgb.h
 
 # Application
 
-build/main.o: src/main.c src/hid_keyboard_map.h src/mouse_config.h
+build/main.o: src/main.c src/hid_keyboard_map.h
 	@mkdir -p build
 	$(CC) -c $(CFLAGS) $< -o $@
 
-build/config_led.o: src/config_led.c src/mouse_config.h
+build/config_led.o: src/config_led.c
 	@mkdir -p build
 	$(CC) -c $(CFLAGS) $< -o $@
 
-build/config_buttons.o: src/config_buttons.c src/mouse_config.h
+build/config_buttons.o: src/config_buttons.c
 	@mkdir -p build
 	$(CC) -c $(CFLAGS) $< -o $@
 
-build/config_macro.o: src/config_macro.c src/mouse_config.h
+build/config_macro.o: src/config_macro.c
+	@mkdir -p build
+	$(CC) -c $(CFLAGS) $< -o $@
+
+build/config_sensor.o: src/config_sensor.c
 	@mkdir -p build
 	$(CC) -c $(CFLAGS) $< -o $@
 

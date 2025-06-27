@@ -116,6 +116,7 @@ void activate(GtkApplication *app, app_data *data) {
 	app_config_led_init(builder, data);
 	app_config_buttons_init(builder, data);
 	app_config_macro_init(builder, data);
+	app_config_sensor_init(builder, data);
 
 	data->battery_data = (mouse_battery_data) {.mouse = mouse, .label_battery = label_battery};
 	

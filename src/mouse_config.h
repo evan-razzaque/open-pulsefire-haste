@@ -89,4 +89,12 @@ void app_config_buttons_init(GtkBuilder *builder, app_data *data);
  */
 void app_config_macro_init(GtkBuilder *builder, app_data *data);
 
+/**
+ * Init for mouse sensor related settings.
+ * 
+ * @param builder GtkBuilder object to obtain widgets
+ * @param data Application wide data structure
+ */
+void app_config_sensor_init(GtkBuilder *builder, app_data *data);
+
 #endif

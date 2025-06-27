@@ -172,7 +172,6 @@ static int set_keyboard_action(GtkEventControllerKey *self, guint keyval, guint 
  * @param data Application wide data structure
  */
 static void setup_action_menu_buttons(GtkBuilder *builder, app_data *data) {
-	GMenuModel *menu_model_actions = G_MENU_MODEL(gtk_builder_get_object(builder, "menuModelActions"));
 	GtkMenuButton **menu_buttons = data->widgets->menu_button_bindings;
 
 	menu_buttons[0] = GTK_MENU_BUTTON(GTK_WIDGET(gtk_builder_get_object(builder, "menuButtonLeft")));
@@ -185,8 +184,6 @@ static void setup_action_menu_buttons(GtkBuilder *builder, app_data *data) {
 	for (int i = 0; i < BUTTON_COUNT; i++) {
 		g_signal_connect(menu_buttons[i], "notify::active", G_CALLBACK(set_mouse_button), data);
 		g_object_set_data(G_OBJECT(menu_buttons[i]), "button", &data->button_data.buttons[i]);
-		gtk_menu_button_set_menu_model(menu_buttons[i], menu_model_actions);
-		gtk_widget_set_hexpand(GTK_WIDGET(menu_buttons[i]), 1);
 	}
 }
 
