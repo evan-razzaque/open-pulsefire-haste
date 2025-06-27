@@ -60,10 +60,11 @@ static void add_macro_event(MACRO_EVENT_TYPE event_type, byte action, MACRO_ACTI
     macro->events[macro->generic_event_count++] = event;
 
     const char* old_macro_string = gtk_label_get_text(data->widgets->label_macro_events);
-    char macro_string[strlen(old_macro_string) + 40];
+    char *macro_string = malloc(sizeof(char) * (strlen(old_macro_string) + 40));
 
     sprintf(macro_string, "%s  %d  <%s - %d>", old_macro_string, delay, (event_type == MACRO_EVENT_TYPE_KEYBOARD)? data->button_data.key_names[action] : data->macro_data.mouse_button_names[action], action_type);
     gtk_label_set_text(data->widgets->label_macro_events, macro_string);
+    free(macro_string);
 }
 
 static void append_macro_key_pressed(GtkEventControllerKey *self, guint keyval, guint keycode, GdkModifierType state, app_data* data) {
@@ -87,7 +88,6 @@ static void append_macro_mouse_released(GtkGesture* self, int n_press, double x,
 static void toggle_macro_recording(GtkButton* self, app_data *data) {
     bool is_recording = data->macro_data.recording_macro;
     data->macro_data.recording_macro = !is_recording;
-    gtk_window_close(data->macro_data.window_rename_macro);
 }
 
 static void open_macro_overlay(GSimpleAction *action, GVariant *variant, app_data *data) {
@@ -99,7 +99,7 @@ static void open_macro_overlay(GSimpleAction *action, GVariant *variant, app_dat
     macro->generic_event_count = 0;
     macro->macro_name = NULL;
     
-    gtk_label_set_text(data->macro_data.label_macro_name, "New Macro");
+    gtk_editable_set_text(data->macro_data.editable_macro_name, "New Macro");
 	gtk_overlay_add_overlay(data->widgets->overlay, GTK_WIDGET(data->widgets->box_macro));
 }
 
@@ -112,7 +112,6 @@ static void close_macro_overlay(GtkButton *self, app_data *data) {
 
     gtk_label_set_text(data->widgets->label_macro_events, "");
 	gtk_overlay_remove_overlay(data->widgets->overlay, GTK_WIDGET(data->widgets->box_macro));
-    gtk_window_close(data->macro_data.window_rename_macro);
 }
 
 static void save_recorded_macro(GtkGesture* self, int n_press, double x, double y, app_data *data) {
@@ -132,33 +131,6 @@ static void save_recorded_macro(GtkGesture* self, int n_press, double x, double 
 
     gtk_label_set_text(data->widgets->label_macro_events, "");
 	gtk_overlay_remove_overlay(data->widgets->overlay, GTK_WIDGET(data->widgets->box_macro));
-    gtk_window_close(data->macro_data.window_rename_macro);
-}
-
-static void rename_macro(GtkButton* self, app_data *data) {
-    gtk_editable_label_start_editing(GTK_EDITABLE_LABEL(data->macro_data.editable_macro_name));
-    gtk_editable_set_text(data->macro_data.editable_macro_name, gtk_label_get_text(data->macro_data.label_macro_name));
-    gtk_editable_select_region(data->macro_data.editable_macro_name, 0, -1);
-
-    gtk_window_present(data->macro_data.window_rename_macro);
-}
-
-static void cancel_macro_rename(GtkButton* self, app_data *data) {
-    gtk_editable_set_text(data->macro_data.editable_macro_name, gtk_label_get_text(data->macro_data.label_macro_name));
-    gtk_window_close(data->macro_data.window_rename_macro);
-}
-
-static void confirm_macro_rename(GtkButton* self, app_data *data) {
-    char *new_macro_name = (char*) gtk_editable_get_chars(data->macro_data.editable_macro_name, 0, -1);
-    gtk_label_set_text(data->macro_data.label_macro_name, new_macro_name);
-    
-    data->macro_data.macros[data->macro_data.macro_count].macro_name = new_macro_name;
-
-    for (int i = 0; i < data->macro_data.macro_count + 1; i++) {
-        printf("%s\n", data->macro_data.macros[data->macro_data.macro_count].macro_name);
-    }
-
-    gtk_window_close(data->macro_data.window_rename_macro);
 }
 
 /**
@@ -288,8 +260,6 @@ void get_macro_data_widgets(GtkBuilder *builder, app_data *data) {
     data->macro_data.button_confirm_macro = GTK_BUTTON(GTK_WIDGET(gtk_builder_get_object(builder, "buttonMacroSave")));
 
     data->macro_data.menu_macros = G_MENU(gtk_builder_get_object(builder, "menuMacros"));
-    data->macro_data.label_macro_name = GTK_LABEL(GTK_WIDGET(gtk_builder_get_object(builder, "labelMacroName")));
-    data->macro_data.window_rename_macro = GTK_WINDOW(GTK_WIDGET(gtk_builder_get_object(builder, "windowMacroRename")));
     data->macro_data.editable_macro_name = GTK_EDITABLE(gtk_builder_get_object(builder, "editableMacroName"));
 }
 
@@ -310,8 +280,6 @@ void app_config_macro_init(GtkBuilder *builder, app_data *data) {
     get_macro_data_widgets(builder, data);
     setup_event_controllers(data);
 
-    gtk_window_set_application(data->macro_data.window_rename_macro, data->widgets->app);
-
     GSimpleAction *action_add_macro = g_simple_action_new("add-macro", NULL);
 	g_action_map_add_action(G_ACTION_MAP(data->widgets->app), G_ACTION(action_add_macro));	
 	g_signal_connect(action_add_macro, "activate", G_CALLBACK(open_macro_overlay), data);
@@ -319,10 +287,6 @@ void app_config_macro_init(GtkBuilder *builder, app_data *data) {
     GSimpleAction *action_select_macro = g_simple_action_new("select-macro", G_VARIANT_TYPE_UINT32);
 	g_action_map_add_action(G_ACTION_MAP(data->widgets->app), G_ACTION(action_select_macro));	
 	g_signal_connect(action_select_macro, "activate", G_CALLBACK(select_macro), data);
-
-    widget_add_event(builder, "buttonRenameMacro", "clicked", rename_macro, data);
-    widget_add_event(builder, "buttonCancelMacroRename", "clicked", cancel_macro_rename, data);
-    widget_add_event(builder, "buttonConfirmMacroRename", "clicked", confirm_macro_rename, data);
 
     widget_add_event(builder, "buttonRecord", "clicked", toggle_macro_recording, data);
     widget_add_event(builder, "buttonMacroCancel", "clicked", close_macro_overlay, data);

@@ -526,39 +526,43 @@
         <property name="orientation">vertical</property>
         <child>
           <object class="GtkBox">
+            <property name="orientation">vertical</property>
             <property name="spacing">10</property>
             <child>
-              <object class="GtkLabel" id="labelMacroName">
+              <object class="GtkEditableLabel" id="editableMacroName">
                 <property name="css-classes">macro-name</property>
-                <property name="label">New Macro</property>
+                <property name="margin-bottom">10</property>
+                <property name="margin-top">10</property>
+                <property name="valign">start</property>
               </object>
             </child>
             <child>
-              <object class="GtkButton" id="buttonRenameMacro">
-                <property name="icon-name">document-edit-symbolic</property>
+              <object class="GtkButton" id="buttonRecord">
+                <property name="halign">start</property>
+                <property name="label">Record</property>
+                <property name="margin-top">5</property>
+                <property name="valign">end</property>
               </object>
             </child>
           </object>
         </child>
         <child>
-          <object class="GtkButton" id="buttonRecord">
-            <property name="halign">start</property>
-            <property name="label">Record</property>
-            <property name="margin-top">5</property>
-          </object>
-        </child>
-        <child>
-          <object class="GtkLabel" id="labelMacroEvents">
-            <property name="css-classes">macro-events</property>
-            <property name="halign">center</property>
-            <property name="hexpand">True</property>
-            <property name="margin-bottom">5</property>
-            <property name="margin-top">5</property>
-            <property name="valign">start</property>
+          <object class="GtkBox">
             <property name="vexpand">True</property>
-            <property name="width-chars">60</property>
-            <property name="wrap">True</property>
-            <property name="xalign">0.0</property>
+            <child>
+              <object class="GtkLabel" id="labelMacroEvents">
+                <property name="css-classes">macro-events</property>
+                <property name="halign">center</property>
+                <property name="hexpand">True</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-top">5</property>
+                <property name="valign">start</property>
+                <property name="vexpand">True</property>
+                <property name="width-chars">60</property>
+                <property name="wrap">True</property>
+                <property name="xalign">0.0</property>
+              </object>
+            </child>
           </object>
         </child>
         <child>
@@ -586,44 +590,6 @@
     </child>
   </object>
   <object class="GtkEventControllerKey" id="macroKeyController"/>
-  <object class="GtkWindow" id="windowMacroRename">
-    <property name="destroy-with-parent">True</property>
-    <property name="hide-on-close">True</property>
-    <property name="transient-for">window</property>
-    <child>
-      <object class="GtkBox">
-        <property name="orientation">vertical</property>
-        <child>
-          <object class="GtkEditableLabel" id="editableMacroName">
-            <property name="margin-bottom">10</property>
-            <property name="margin-top">10</property>
-            <property name="text">New Macro</property>
-            <property name="vexpand">True</property>
-          </object>
-        </child>
-        <child>
-          <object class="GtkBox">
-            <property name="homogeneous">True</property>
-            <property name="margin-bottom">5</property>
-            <property name="margin-end">5</property>
-            <property name="margin-start">5</property>
-            <property name="margin-top">5</property>
-            <property name="spacing">5</property>
-            <child>
-              <object class="GtkButton" id="buttonCancelMacroRename">
-                <property name="label">Cancel</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton" id="buttonConfirmMacroRename">
-                <property name="label">Confirm</property>
-              </object>
-            </child>
-          </object>
-        </child>
-      </object>
-    </child>
-  </object>
   <object class="GtkGestureClick" id="gestureButtonConfirmMacro">
     <property name="button">0</property>
   </object>

@@ -87,7 +87,6 @@ void close_application(GtkWindow *window, app_data *data) {
 	printf("window closed\n");
 	gtk_window_destroy(window);
 	gtk_window_destroy(data->widgets->window_keyboard_action);
-	gtk_window_destroy(data->macro_data.window_rename_macro);
 }
 
 /**
