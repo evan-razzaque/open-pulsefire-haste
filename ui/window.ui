@@ -6,7 +6,6 @@
   <requires lib="gtk" version="4.18"/>
   <requires lib="gtk+" version="4.0"/>
   <object class="GtkWindow" id="window">
-    <property name="can-focus">False</property>
     <property name="default-height">550</property>
     <property name="default-width">900</property>
     <property name="destroy-with-parent">True</property>
@@ -267,11 +266,13 @@
             </child>
             <child>
               <object class="GtkBox">
+                <property name="focusable">True</property>
                 <property name="halign">end</property>
                 <property name="hexpand">True</property>
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkColorChooserWidget" id="colorChooserLed">
+                    <property name="focusable">True</property>
                     <property name="halign">end</property>
                     <property name="rgba">rgb(255,0,0)</property>
                     <property name="show-editor">True</property>
