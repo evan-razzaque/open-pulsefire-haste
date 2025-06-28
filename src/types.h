@@ -56,6 +56,8 @@ struct app_widgets {
 	GtkBox *box_macro;
 	GtkEventController *macro_mouse_events, *macro_key_events;
 	GtkLabel *label_macro_events;
+
+	GtkAlertDialog *alert;
 } typedef app_widgets;
 
 /**

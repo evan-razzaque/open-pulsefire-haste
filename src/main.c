@@ -199,7 +199,7 @@ int main() {
 	color_options color = {.red = 0xff, .brightness = 0x64};
 	mouse_data mouse = {.mutex = &mutex, .dev = dev, .led = &color, .type = connection_type};
 
-	app_widgets widgets = {};
+	app_widgets widgets = {.alert = gtk_alert_dialog_new(" ")};
 
 	app_data data = {
 		.mouse = &mouse,

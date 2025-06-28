@@ -219,11 +219,7 @@ static int parse_macro(mouse_macro macro, macro_event *events, byte *modifier_ma
         }
     }
 
-    if (is_mouse_down || keys_down_count > 0) {
-        printf("Invalid macro\n");
-        return -1;
-    }
-
+    if (is_mouse_down || keys_down_count > 0) return -1;
     return event_count;
 }
 
