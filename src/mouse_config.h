@@ -6,6 +6,12 @@
 #include "device/buttons.h"
 #include "device/rgb.h"
 
+/**
+ * @brief Used to cast function pointers to GAction callbacks.
+ * 
+ */
+typedef void (*g_action)(GSimpleAction*, GVariant*, gpointer);
+
 #define widget_add_event(builder, widget_name, detailed_signal, c_handler, data)\
 	g_signal_connect(gtk_builder_get_object(builder, widget_name), detailed_signal, G_CALLBACK(c_handler), data);
 

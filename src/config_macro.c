@@ -280,13 +280,12 @@ void app_config_macro_init(GtkBuilder *builder, app_data *data) {
     get_macro_data_widgets(builder, data);
     setup_event_controllers(data);
 
-    GSimpleAction *action_add_macro = g_simple_action_new("add-macro", NULL);
-	g_action_map_add_action(G_ACTION_MAP(data->widgets->app), G_ACTION(action_add_macro));	
-	g_signal_connect(action_add_macro, "activate", G_CALLBACK(open_macro_overlay), data);
+    const GActionEntry entries[] = {
+        {.name = "add-macro", .activate = (g_action) open_macro_overlay},
+        {.name = "select-macro", .activate = (g_action) select_macro, .parameter_type = (const char*) G_VARIANT_TYPE_UINT32}
+    };
 
-    GSimpleAction *action_select_macro = g_simple_action_new("select-macro", G_VARIANT_TYPE_UINT32);
-	g_action_map_add_action(G_ACTION_MAP(data->widgets->app), G_ACTION(action_select_macro));	
-	g_signal_connect(action_select_macro, "activate", G_CALLBACK(select_macro), data);
+	g_action_map_add_action_entries(G_ACTION_MAP(data->widgets->app), entries, G_N_ELEMENTS(entries), data);
 
     widget_add_event(builder, "buttonRecord", "clicked", toggle_macro_recording, data);
     widget_add_event(builder, "buttonMacroCancel", "clicked", close_macro_overlay, data);

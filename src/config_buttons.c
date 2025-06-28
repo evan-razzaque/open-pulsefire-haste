@@ -152,9 +152,6 @@ static void change_mouse_simple_binding(GSimpleAction *action, GVariant *mapping
 static int set_keyboard_action(GtkEventControllerKey *self, guint keyval, guint keycode, GdkModifierType state, app_data* data) {
 	if (keyval > 0xffff) return TRUE; // Bounds check for keyboard_keys
 	GtkLabel *label_pressed_key = data->widgets->label_pressed_key;
-	
-	printf("0x%.4x\n", keyval);
-	printf("%.32b\n", state);
 
 	byte hid_usage_id = data->button_data.keyboard_keys[keyval];
 	data->button_data.current_keyboard_action = 0x0200 + hid_usage_id;
@@ -204,13 +201,12 @@ void app_config_buttons_init(GtkBuilder *builder, app_data *data) {
 	
 	setup_action_menu_buttons(builder, data);
 	
-	GSimpleAction *action_show_test_window = g_simple_action_new("show-test-window", NULL);
-	g_action_map_add_action(G_ACTION_MAP(data->widgets->app), G_ACTION(action_show_test_window));	
-	g_signal_connect(action_show_test_window, "activate", G_CALLBACK(show_keyboard_actions_window), data);
+	const GActionEntry entries[] = {
+        {.name = "show-test-window", .activate = (g_action) show_keyboard_actions_window},
+        {.name = "change-binding", .activate = (g_action) change_mouse_simple_binding, .parameter_type = (const char*) G_VARIANT_TYPE_STRING}
+    };
 
-	GSimpleAction *action_change_binding = g_simple_action_new("change-binding", G_VARIANT_TYPE_STRING);
-	g_action_map_add_action(G_ACTION_MAP(data->widgets->app), G_ACTION(action_change_binding));	
-	g_signal_connect(action_change_binding, "activate", G_CALLBACK(change_mouse_simple_binding), data);
+	g_action_map_add_action_entries(G_ACTION_MAP(data->widgets->app), entries, G_N_ELEMENTS(entries), data);
 
 	widget_add_event(builder, "buttonKeybindConfirm", "clicked", confirm_keyboard_action_binding, data);
 	widget_add_event(builder, "buttonKeybindCancel", "clicked", close_keyboard_actions_window, data);
