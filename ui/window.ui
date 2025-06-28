@@ -175,6 +175,8 @@
                 </child>
                 <child>
                   <object class="GtkBox">
+                    <property name="focus-on-click">False</property>
+                    <property name="focusable">True</property>
                     <property name="hexpand">True</property>
                     <property name="hexpand-set">True</property>
                     <property name="orientation">vertical</property>
@@ -221,45 +223,52 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkListBox">
+                      <object class="GtkListBox" id="listBoxDpiProfiles">
                         <child>
-                          <object class="GtkBox">
+                          <object class="GtkListBoxRow">
+                            <property name="activatable">False</property>
+                            <property name="selectable">False</property>
                             <child>
-                              <object class="GtkCheckButton"/>
-                            </child>
-                            <child>
-                              <object class="GtkScale">
-                                <property name="adjustment">
-                                  <object class="GtkAdjustment">
-                                    <property name="lower">2.0</property>
-                                    <property name="step-increment">1.0</property>
-                                    <property name="upper">160.0</property>
-                                    <property name="value">10.0</property>
+                              <object class="GtkBox">
+                                <property name="css-classes">dpi-profile</property>
+                                <child>
+                                  <object class="GtkCheckButton" id="defaultDpiProfile"/>
+                                </child>
+                                <child>
+                                  <object class="GtkScale">
+                                    <property name="adjustment">
+                                      <object class="GtkAdjustment">
+                                        <property name="lower">2.0</property>
+                                        <property name="step-increment">1.0</property>
+                                        <property name="upper">160.0</property>
+                                        <property name="value">10.0</property>
+                                      </object>
+                                    </property>
+                                    <property name="digits">0</property>
+                                    <property name="draw-value">True</property>
+                                    <property name="hexpand">True</property>
+                                    <property name="round-digits">0</property>
+                                    <property name="show-fill-level">True</property>
+                                    <property name="value-pos">left</property>
                                   </object>
-                                </property>
-                                <property name="digits">0</property>
-                                <property name="draw-value">True</property>
-                                <property name="hexpand">True</property>
-                                <property name="round-digits">0</property>
-                                <property name="show-fill-level">True</property>
-                                <property name="value-pos">left</property>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkEditableLabel">
-                                <property name="max-width-chars">6</property>
-                                <property name="text">1000</property>
-                                <property name="xalign">0.5</property>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkColorDialogButton">
-                                <property name="dialog">
-                                  <object class="GtkColorDialog">
-                                    <property name="with-alpha">False</property>
+                                </child>
+                                <child>
+                                  <object class="GtkEditableLabel">
+                                    <property name="max-width-chars">6</property>
+                                    <property name="text">1000</property>
+                                    <property name="xalign">0.5</property>
                                   </object>
-                                </property>
-                                <property name="rgba">rgb(255,0,0)</property>
+                                </child>
+                                <child>
+                                  <object class="GtkColorDialogButton" id="defaultIndicatorColor">
+                                    <property name="dialog">
+                                      <object class="GtkColorDialog">
+                                        <property name="with-alpha">False</property>
+                                      </object>
+                                    </property>
+                                    <property name="rgba">rgb(255,0,0)</property>
+                                  </object>
+                                </child>
                               </object>
                             </child>
                           </object>
@@ -267,9 +276,9 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkButton">
+                      <object class="GtkButton" id="buttonAddDpiProfile">
                         <property name="action-name">app.add-dpi-level</property>
-                        <property name="label">Add Level</property>
+                        <property name="label">Add Profile</property>
                       </object>
                     </child>
                   </object>

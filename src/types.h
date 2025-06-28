@@ -129,6 +129,25 @@ struct config_macro_data {
 	GtkEditable *editable_macro_name;
 } typedef config_macro_data;
 
+struct dpi_profile {
+	byte dpi_value;
+	color_options indicator;
+} typedef dpi_profile;
+
+struct config_sensor_data {
+	byte polling_rate_value;
+	byte selected_dpi_profile;
+	byte lift_off_distance;
+
+	dpi_profile dpi_profiles[5];
+	byte dpi_profile_count;
+
+	GtkWidget *button_add_dpi_profile;
+	GtkColorDialogButton *color_dialog_button_default_indicator;
+	GtkCheckButton *check_button_default_dpi_profile;
+	GtkListBox *list_box_dpi_profiles;
+} typedef config_sensor_data;
+
 /**
  * @brief A struct used to store all the variables and structs needed in the application. 
  * This includes mouse data, application widgets, and mouse config.
@@ -140,6 +159,7 @@ struct app_data {
 	config_color_data color_data;
 	config_button_data button_data;
 	config_macro_data macro_data;
+	config_sensor_data sensor_data;
 } typedef app_data;
 
 #endif

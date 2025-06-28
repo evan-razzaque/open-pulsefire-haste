@@ -19,3 +19,7 @@ label.macro-events {
 .macro-name {
 	font-size: 20px;
 }
+
+.dpi-profile {
+	margin: 0px 5px;
+}

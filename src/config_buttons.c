@@ -1,4 +1,5 @@
-#include <ctype.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include <gtk/gtk.h>
 
 #include "types.h"
@@ -150,7 +151,7 @@ static void change_mouse_simple_binding(GSimpleAction *action, GVariant *mapping
  * @return return value that tells gtk to stop other handlers from being invoked after the key press.
  */
 static int set_keyboard_action(GtkEventControllerKey *self, guint keyval, guint keycode, GdkModifierType state, app_data* data) {
-	if (keyval > 0xffff) return TRUE; // Bounds check for keyboard_keys
+	if (keyval > 0xffff) return true; // Bounds check for keyboard_keys
 	GtkLabel *label_pressed_key = data->widgets->label_pressed_key;
 
 	byte hid_usage_id = data->button_data.keyboard_keys[keyval];
@@ -159,7 +160,7 @@ static int set_keyboard_action(GtkEventControllerKey *self, guint keyval, guint 
 	const char *key_name = data->button_data.key_names[hid_usage_id];
 	gtk_label_set_text(label_pressed_key, key_name);
 	
-	return TRUE;
+	return true;
 }
 
 /**

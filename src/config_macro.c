@@ -104,7 +104,7 @@ static void open_macro_overlay(GSimpleAction *action, GVariant *variant, app_dat
 }
 
 static void close_macro_overlay(GtkButton *self, app_data *data) {
-    data->macro_data.recording_macro = FALSE;
+    data->macro_data.recording_macro = false;
     
     mouse_macro *macro = &(data->macro_data.macros[data->macro_data.macro_count]);
     free(macro->events);
@@ -118,7 +118,7 @@ static void save_recorded_macro(GtkGesture* self, int n_press, double x, double 
     // Prevents the button click from being included in the macro.
     gtk_gesture_set_state(data->macro_data.gesture_button_confirm_macro, GTK_EVENT_SEQUENCE_CLAIMED);
 
-    data->macro_data.recording_macro = FALSE;
+    data->macro_data.recording_macro = false;
     
     char *macro_name = gtk_editable_get_chars(data->macro_data.editable_macro_name, 0, -1);
     data->macro_data.macros[data->macro_data.macro_count].macro_name = macro_name;
@@ -145,10 +145,10 @@ static void save_recorded_macro(GtkGesture* self, int n_press, double x, double 
 static int parse_macro(mouse_macro macro, macro_event *events, byte *modifier_map) {
     int event_count = 0, event_index = 0;
 
-    bool keys_down[256] = {FALSE}, event_keys[256] = {FALSE};
+    bool keys_down[256] = {false}, event_keys[256] = {false};
     int keys_down_count = 0, event_keys_count = 0;
     
-    bool is_mouse_down = FALSE;
+    bool is_mouse_down = false;
 
     for (int i = 0; i < macro.generic_event_count; i++) {
         generic_macro_event event = macro.events[i];
@@ -168,8 +168,8 @@ static int parse_macro(mouse_macro macro, macro_event *events, byte *modifier_ma
                 break;
             }
 
-            event_keys[event.action] = TRUE;
-            keys_down[event.action] = TRUE;
+            event_keys[event.action] = true;
+            keys_down[event.action] = true;
             keys_down_count++;
 
             if (event.action >= 0xe0) {
@@ -184,7 +184,7 @@ static int parse_macro(mouse_macro macro, macro_event *events, byte *modifier_ma
             if (is_mouse_down) break;
             if (!event_keys[event.action] || !keys_down[event.action]) break;
 
-            keys_down[event.action] = FALSE;
+            keys_down[event.action] = false;
             keys_down_count--;
             
             if (keys_down_count > 0) break;
@@ -195,21 +195,21 @@ static int parse_macro(mouse_macro macro, macro_event *events, byte *modifier_ma
             event_index++;
             
             event_keys_count = 0;
-            memset(&keys_down, FALSE, 256);
-            memset(&event_keys, FALSE, 256);
+            memset(&keys_down, false, 256);
+            memset(&event_keys, false, 256);
             break;
         case MOUSE_DOWN:
             if (keys_down_count > 0) break;
 
             event_count += 2;
-            is_mouse_down = TRUE;
+            is_mouse_down = true;
             events[event_index] = MOUSE_EVENT(event.action, event.delay_next_action, 0);
 
             break;
         case MOUSE_UP: 
             if (keys_down_count > 0) break;
 
-            is_mouse_down = FALSE;
+            is_mouse_down = false;
             events[event_index].mouse_event.up.delay_next_action = event.delay_next_action;
             event_index++;
             

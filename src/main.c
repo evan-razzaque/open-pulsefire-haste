@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include <hidapi/hidapi.h>
 #include <gtk/gtk.h>
 
@@ -39,13 +40,13 @@ GMutex mutex;
  * @param mouse mouse_data instance
  */
 void save_mouse_settings(GtkWidget *self, mouse_data *mouse) {
-	gtk_widget_set_sensitive(self, FALSE);
+	gtk_widget_set_sensitive(self, false);
 	
 	g_mutex_lock(&mutex);
 	save_settings(mouse->dev, mouse->led);
 	g_mutex_unlock(&mutex);
 
-	gtk_widget_set_sensitive(self, TRUE);
+	gtk_widget_set_sensitive(self, true);
 }
 
 /**
@@ -100,7 +101,7 @@ void activate(GtkApplication *app, app_data *data) {
 
 	GtkSettings *settings = gtk_settings_get_default();
 	g_object_set(settings, 
-		"gtk-application-prefer-dark-theme", TRUE, 
+		"gtk-application-prefer-dark-theme", true, 
 		"gtk-enable-animations", 0,
 		"gtk-theme-name", "Adwaita",
 		NULL
@@ -228,6 +229,12 @@ int main() {
 			.macro_array_size = 2,
 			.macro_count = 0,
 			.recording_macro = 0
+		},
+		.sensor_data = {
+			.polling_rate_value = 3,
+			.selected_dpi_profile = 0,
+			.dpi_profiles = {},
+			.dpi_profile_count = 1 
 		}
 	};
 	
