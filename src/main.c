@@ -85,9 +85,11 @@ void close_application(GtkWindow *window, app_data *data) {
 
 	free(data->macro_data.macros);
 
-	printf("window closed\n");
+	g_object_ref_sink(data->sensor_data.check_button_group_dpi_profile);
+	g_object_unref(data->sensor_data.check_button_group_dpi_profile);
 	gtk_window_destroy(window);
 	gtk_window_destroy(data->widgets->window_keyboard_action);
+	printf("window closed\n");
 }
 
 /**

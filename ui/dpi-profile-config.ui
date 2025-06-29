@@ -13,7 +13,7 @@
           <object class="GtkCheckButton" id="check_button"/>
         </child>
         <child>
-          <object class="GtkScale" id="scale_dpi_value">
+          <object class="GtkScale" id="range_dpi_value">
             <property name="adjustment">
               <object class="GtkAdjustment">
                 <property name="lower">2.0</property>
@@ -28,6 +28,7 @@
             <property name="round-digits">0</property>
             <property name="show-fill-level">True</property>
             <property name="value-pos">left</property>
+            <signal name="value-changed" handler="update_editable_dpi_value" object="editable_dpi_value"/>
           </object>
         </child>
         <child>

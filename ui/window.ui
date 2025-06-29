@@ -30,7 +30,7 @@
                     <child>
                       <object class="GtkBox">
                         <child>
-                          <object class="GtkLabel" id="labelBattery_2">
+                          <object class="GtkLabel">
                             <property name="halign">start</property>
                             <property name="label">Battery: </property>
                           </object>

@@ -144,6 +144,7 @@ struct config_sensor_data {
 
 	GtkWidget *button_add_dpi_profile;
 	GtkWidget *default_dpi_profile_row;
+	GtkCheckButton* check_button_group_dpi_profile;
 	GtkListBox *list_box_dpi_profiles;
 } typedef config_sensor_data;
 

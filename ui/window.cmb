@@ -4,6 +4,6 @@
 <cambalache-project version="0.96.0" target_tk="gtk-4.0">
   <gresources filename="templates.gresource.xml" sha256="41d196c0baed88d470fc8e6acec6d7d86ad9619f3a76136a88655d2081536b10"/>
   <css filename="window.css" is_global="0"/>
-  <ui template-class="DpiProfileConfig" filename="dpi-profile-config.ui" sha256="5ede93666de4acdb6a8b501468bfbc1cd94210019dea7b0edcebd09a432706af"/>
-  <ui filename="window.ui" sha256="cd6ff2a9433cac5282314f8ca737ad947c3cb94d73bd1ab3391a0ea277404783"/>
+  <ui template-class="DpiProfileConfig" filename="dpi-profile-config.ui" sha256="1e9e524c9afb8734c9dc1e684add30e218e9c02a51926a6e3b15c664adb3d5ab"/>
+  <ui filename="window.ui" sha256="85231831a29ccc1659cd8870968431e5dda7ba425eab3885eabecf23a1153a9b"/>
 </cambalache-project>
