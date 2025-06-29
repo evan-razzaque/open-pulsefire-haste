@@ -10,6 +10,49 @@
 #include "types.h"
 #include "mouse_config.h"
 
+G_DECLARE_FINAL_TYPE(DpiProfileConfig, dpi_profile_config, DPI, PROFILE_CONFIG, GtkListBoxRow)
+
+#define DPI_TYPE_PROFILE_CONFIG (dpi_profile_config_get_type())
+#define DPI_PROFILE_CONFIG(inst) (G_TYPE_CHECK_INSTANCE_CAST ((inst), DPI_TYPE_PROFILE_CONFIG, DpiProfileConfig))
+
+struct _DpiProfileConfig {
+    GtkListBoxRow parent_type;
+
+    GtkCheckButton *check_button;
+    GtkScale *scale_dpi_value;
+    GtkEditable *editable_dpi_value;
+    GtkColorDialogButton *color_button_dpi_indicator;
+};
+
+G_DEFINE_TYPE(DpiProfileConfig, dpi_profile_config, GTK_TYPE_LIST_BOX_ROW)
+
+static void dpi_profile_config_dispose(GObject *gobject) {
+    gtk_widget_dispose_template(GTK_WIDGET(gobject), DPI_TYPE_PROFILE_CONFIG);
+    G_OBJECT_CLASS(dpi_profile_config_parent_class)->dispose(gobject);
+}
+
+static void dpi_profile_config_class_init(DpiProfileConfigClass *klass) {
+    G_OBJECT_CLASS(klass)->dispose = dpi_profile_config_dispose;
+
+    GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
+
+    gtk_widget_class_set_template_from_resource(widget_class, "/com/haste/dpi-profile-config.ui");
+
+    gtk_widget_class_bind_template_child(widget_class, DpiProfileConfig, check_button);
+    gtk_widget_class_bind_template_child(widget_class, DpiProfileConfig, scale_dpi_value);
+    gtk_widget_class_bind_template_child(widget_class, DpiProfileConfig, editable_dpi_value);
+    gtk_widget_class_bind_template_child(widget_class, DpiProfileConfig, color_button_dpi_indicator);
+}
+
+static void dpi_profile_config_init(DpiProfileConfig *self) {
+    g_type_ensure(DPI_TYPE_PROFILE_CONFIG);
+    gtk_widget_init_template(GTK_WIDGET(self));
+}
+
+static DpiProfileConfig* dpi_profile_config_new() {
+    return g_object_new(DPI_TYPE_PROFILE_CONFIG, NULL);
+}
+
 static void change_polling_rate(GSimpleAction* action, GVariant *value, app_data *data) {
     g_simple_action_set_state(action, value);
     printf("%d\n", g_variant_get_int32(value));
@@ -17,38 +60,12 @@ static void change_polling_rate(GSimpleAction* action, GVariant *value, app_data
 }
 
 static void add_dpi_profile(GSimpleAction* action, GVariant *value, app_data *data) {
-    GtkListBoxRow *row = (GtkListBoxRow*) gtk_list_box_row_new();
-    gtk_list_box_row_set_activatable(row, false);
-    gtk_list_box_row_set_selectable(row, false);
+    DpiProfileConfig *dpi_config = dpi_profile_config_new();
+    GtkListBoxRow *row = &dpi_config->parent_type;
+    gtk_list_box_append(data->sensor_data.list_box_dpi_profiles, GTK_WIDGET(row));
 
-    GtkBox *box = (GtkBox*) gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-    gtk_widget_add_css_class(GTK_WIDGET(box), "dpi-profile");
-    gtk_list_box_row_set_child(row, GTK_WIDGET(box));
+    gtk_check_button_set_group(dpi_config->check_button, DPI_PROFILE_CONFIG(data->sensor_data.default_dpi_profile_row)->check_button);
 
-    GtkCheckButton *radio_button_selection = (GtkCheckButton*) gtk_check_button_new();
-    gtk_check_button_set_group(radio_button_selection, data->sensor_data.check_button_default_dpi_profile);
-
-    GtkScale *scale_dpi_value = (GtkScale*) gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 2, 16, 1);
-    gtk_widget_set_hexpand(GTK_WIDGET(scale_dpi_value), true);
-    gtk_scale_set_value_pos(scale_dpi_value, GTK_POS_LEFT);
-    gtk_scale_set_draw_value(scale_dpi_value, true);
-    gtk_scale_set_digits(scale_dpi_value, 0);
-
-    GtkEditableLabel *editable_label_dpi_value = (GtkEditableLabel*) gtk_editable_label_new("1000");
-    gtk_editable_set_max_width_chars(GTK_EDITABLE(editable_label_dpi_value), 6);
-    
-    const GdkRGBA *default_dpi_indicator_color = gtk_color_dialog_button_get_rgba(data->sensor_data.color_dialog_button_default_indicator);
-
-    GtkColorDialogButton *dpi_indicator_color = (GtkColorDialogButton*) gtk_color_dialog_button_new(gtk_color_dialog_new());
-    gtk_color_dialog_button_set_rgba(dpi_indicator_color, default_dpi_indicator_color);
-
-    gtk_box_append(box, GTK_WIDGET(radio_button_selection));
-    gtk_box_append(box, GTK_WIDGET(scale_dpi_value));
-    gtk_box_append(box, GTK_WIDGET(editable_label_dpi_value));
-    gtk_box_append(box, GTK_WIDGET(dpi_indicator_color));
-
-    GtkListBox *list_box = data->sensor_data.list_box_dpi_profiles;
-    gtk_list_box_append(list_box, GTK_WIDGET(row));
     data->sensor_data.dpi_profile_count++;
 
     if (data->sensor_data.dpi_profile_count == 5) {
@@ -57,10 +74,13 @@ static void add_dpi_profile(GSimpleAction* action, GVariant *value, app_data *da
 }
 
 void app_config_sensor_init(GtkBuilder *builder, app_data *data) {
+    DpiProfileConfig *defaultDpiProfileRow = dpi_profile_config_new();
+    
     data->sensor_data.button_add_dpi_profile = GTK_WIDGET(gtk_builder_get_object(builder, "buttonAddDpiProfile"));
     data->sensor_data.list_box_dpi_profiles = GTK_LIST_BOX(GTK_WIDGET(gtk_builder_get_object(builder, "listBoxDpiProfiles")));
-    data->sensor_data.check_button_default_dpi_profile = GTK_CHECK_BUTTON(GTK_WIDGET(gtk_builder_get_object(builder, "defaultDpiProfile")));
-    data->sensor_data.color_dialog_button_default_indicator = (GtkColorDialogButton*) gtk_builder_get_object(builder, "defaultIndicatorColor");
+    data->sensor_data.default_dpi_profile_row = GTK_WIDGET(defaultDpiProfileRow);
+
+    gtk_list_box_append(data->sensor_data.list_box_dpi_profiles, data->sensor_data.default_dpi_profile_row);
 
     const GActionEntry entries[] = {
         {.name = "change-polling-rate", .change_state = (g_action) change_polling_rate, .parameter_type = (const char*) G_VARIANT_TYPE_INT32, .state = "3"},

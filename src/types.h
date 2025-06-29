@@ -143,8 +143,7 @@ struct config_sensor_data {
 	byte dpi_profile_count;
 
 	GtkWidget *button_add_dpi_profile;
-	GtkColorDialogButton *color_dialog_button_default_indicator;
-	GtkCheckButton *check_button_default_dpi_profile;
+	GtkWidget *default_dpi_profile_row;
 	GtkListBox *list_box_dpi_profiles;
 } typedef config_sensor_data;
 

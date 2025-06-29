@@ -106,8 +106,10 @@ void activate(GtkApplication *app, app_data *data) {
 		"gtk-theme-name", "Adwaita",
 		NULL
 	);
-	
+
 	GtkBuilder *builder = gtk_builder_new_from_file("ui/window.ui");
+	g_resources_register(g_resource_load("resources/templates.gresource", NULL));
+
 	GtkWindow *window = GTK_WINDOW(GTK_WIDGET(gtk_builder_get_object(builder, "window")));
 	GtkLabel *label_battery = GTK_LABEL(GTK_WIDGET(gtk_builder_get_object(builder, "labelBattery")));
 
@@ -244,7 +246,7 @@ int main() {
 	
 	app = gtk_application_new("org.gtk.pulsefire-haste", G_APPLICATION_DEFAULT_FLAGS);
 	widgets.app = app;
-
+	
 	g_signal_connect(app, "activate", G_CALLBACK(activate), &data);
 	
 	GThread *update_thread = g_thread_new("mouse_update_loop", (GThreadFunc) mouse_update_loop, &mouse);

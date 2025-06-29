@@ -2,8 +2,8 @@
 <!DOCTYPE cambalache-project SYSTEM "cambalache-project.dtd">
 <!-- Created with Cambalache 0.96.1 -->
 <cambalache-project version="0.96.0" target_tk="gtk-4.0">
+  <gresources filename="templates.gresource.xml" sha256="41d196c0baed88d470fc8e6acec6d7d86ad9619f3a76136a88655d2081536b10"/>
   <css filename="window.css" is_global="0"/>
-  <ui filename="window.ui" sha256="871d3a0766f0d63e74e60fb9f51bc64ed93b53d997981d90237563d878a820bb">
-    <css-provider>window.css</css-provider>
-  </ui>
+  <ui template-class="DpiProfileConfig" filename="dpi-profile-config.ui" sha256="5ede93666de4acdb6a8b501468bfbc1cd94210019dea7b0edcebd09a432706af"/>
+  <ui filename="window.ui" sha256="cd6ff2a9433cac5282314f8ca737ad947c3cb94d73bd1ab3391a0ea277404783"/>
 </cambalache-project>

@@ -2,8 +2,11 @@
 bin
 main
 build
-profiles
+resources
 
 # Config
 .vscode
 gtk_settings.ini
+
+# Cambalache
+.cmb.db*
