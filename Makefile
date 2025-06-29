@@ -27,40 +27,21 @@ $(APP_OBJFILES) : src/types.h src/mouse_config.h
 
 # Device
 
-build/buttons.o: src/device/buttons.c src/device/buttons.h
-	@mkdir -p build
-	$(CC) -c $(CFLAGS) $< -o $@
-
-build/mouse.o: src/device/mouse.c src/device/mouse.h
-	@mkdir -p build
-	$(CC) -c $(CFLAGS) $< -o $@
-
-build/rgb.o: src/device/rgb.c src/device/rgb.h
+build/%.o: src/device/%.c src/device/%.h
 	@mkdir -p build
 	$(CC) -c $(CFLAGS) $< -o $@
 
 
 # Application
 
-build/main.o: src/main.c src/hid_keyboard_map.h
+build/main.o : src/main.c src/hid_keyboard_map.h
 	@mkdir -p build
 	$(CC) -c $(CFLAGS) $< -o $@
 
-build/config_led.o: src/config_led.c
+build/%.o: src/%.c
 	@mkdir -p build
 	$(CC) -c $(CFLAGS) $< -o $@
 
-build/config_buttons.o: src/config_buttons.c
-	@mkdir -p build
-	$(CC) -c $(CFLAGS) $< -o $@
-
-build/config_macro.o: src/config_macro.c
-	@mkdir -p build
-	$(CC) -c $(CFLAGS) $< -o $@
-
-build/config_sensor.o: src/config_sensor.c
-	@mkdir -p build
-	$(CC) -c $(CFLAGS) $< -o $@
 
 clean:
 	rm -rf bin build resources
