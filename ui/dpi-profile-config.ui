@@ -9,6 +9,7 @@
     <child>
       <object class="GtkBox">
         <property name="css-classes">dpi-profile</property>
+        <property name="spacing">5</property>
         <child>
           <object class="GtkCheckButton" id="check_button"/>
         </child>
@@ -23,19 +24,27 @@
               </object>
             </property>
             <property name="digits">0</property>
-            <property name="draw-value">True</property>
             <property name="hexpand">True</property>
             <property name="round-digits">0</property>
             <property name="show-fill-level">True</property>
             <property name="value-pos">left</property>
-            <signal name="value-changed" handler="update_editable_dpi_value" object="editable_dpi_value"/>
+            <signal name="value-changed" handler="update_spinner_dpi_value" object="spinner_dpi_value"/>
           </object>
         </child>
         <child>
-          <object class="GtkEditableLabel" id="editable_dpi_value">
+          <object class="GtkSpinButton" id="spinner_dpi_value">
+            <property name="adjustment">
+              <object class="GtkAdjustment">
+                <property name="lower">200.0</property>
+                <property name="step-increment">100.0</property>
+                <property name="upper">16000.0</property>
+                <property name="value">1000.0</property>
+              </object>
+            </property>
             <property name="max-width-chars">6</property>
             <property name="text">1000</property>
-            <property name="xalign">0.5</property>
+            <property name="update-policy">if-valid</property>
+            <signal name="value-changed" handler="update_range_dpi_value" object="range_dpi_value"/>
           </object>
         </child>
         <child>

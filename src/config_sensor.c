@@ -20,7 +20,7 @@ struct _DpiProfileConfig {
 
     GtkCheckButton *check_button;
     GtkRange *range_dpi_value;
-    GtkEditable *editable_dpi_value;
+    GtkSpinButton *spinner_dpi_value;
     GtkColorDialogButton *color_button_dpi_indicator;
 };
 
@@ -31,20 +31,25 @@ static void dpi_profile_config_dispose(GObject *gobject) {
     G_OBJECT_CLASS(dpi_profile_config_parent_class)->dispose(gobject);
 }
 
-static void update_editable_dpi_value(GtkEditable *self, GtkRange *range_dpi_value) {
-    char value[8];
-    sprintf(value, "%d", (int) gtk_range_get_value(range_dpi_value) * 100);
-    printf("Range: %s\n", value);
+static void update_spinner_dpi_value(GtkSpinButton *self, GtkRange *range_dpi_value);
+static void update_range_dpi_value(GtkRange* self, GtkSpinButton *spinner_dpi_value);
 
-    gtk_editable_set_text(self, value);
+static void update_range_dpi_value(GtkRange* self, GtkSpinButton *spinner_dpi_value) {
+    double value = gtk_spin_button_get_value(spinner_dpi_value) / 100;
+    
+    g_signal_handlers_block_by_func(self, G_CALLBACK(update_spinner_dpi_value), spinner_dpi_value);
+    gtk_range_set_value(self, value);
+    g_signal_handlers_unblock_by_func(self, G_CALLBACK(update_spinner_dpi_value), spinner_dpi_value);
 }
 
-static void update_range_dpi_value(GtkRange *self, gchar* text, gint length, gint* position, GtkEditable *editable_dpi_value) {
-    int value = atoi(gtk_editable_get_text(editable_dpi_value));
-    printf("Editable: %d\n", value);
+static void update_spinner_dpi_value(GtkSpinButton *self, GtkRange *range_dpi_value) {
+    double value = gtk_range_get_value(range_dpi_value) * 100;
 
-    // gtk_range_set_value(self, (double) value);
+    g_signal_handlers_block_by_func(self, G_CALLBACK(update_range_dpi_value), range_dpi_value);
+    gtk_spin_button_set_value(self, value);
+    g_signal_handlers_unblock_by_func(self, G_CALLBACK(update_range_dpi_value), range_dpi_value);
 }
+
 
 static void dpi_profile_config_class_init(DpiProfileConfigClass *klass) {
     G_OBJECT_CLASS(klass)->dispose = dpi_profile_config_dispose;
@@ -55,10 +60,10 @@ static void dpi_profile_config_class_init(DpiProfileConfigClass *klass) {
 
     gtk_widget_class_bind_template_child(widget_class, DpiProfileConfig, check_button);
     gtk_widget_class_bind_template_child(widget_class, DpiProfileConfig, range_dpi_value);
-    gtk_widget_class_bind_template_child(widget_class, DpiProfileConfig, editable_dpi_value);
+    gtk_widget_class_bind_template_child(widget_class, DpiProfileConfig, spinner_dpi_value);
     gtk_widget_class_bind_template_child(widget_class, DpiProfileConfig, color_button_dpi_indicator);
 
-    gtk_widget_class_bind_template_callback(widget_class, update_editable_dpi_value);
+    gtk_widget_class_bind_template_callback(widget_class, update_spinner_dpi_value);
     gtk_widget_class_bind_template_callback(widget_class, update_range_dpi_value);
 }
 
@@ -69,6 +74,16 @@ static void dpi_profile_config_init(DpiProfileConfig *self) {
 
 DpiProfileConfig* dpi_profile_config_new(GtkCheckButton *check_button_group) {
     DpiProfileConfig* self = g_object_new(DPI_TYPE_PROFILE_CONFIG, NULL);
+
+    GtkSpinButton *spin_button = self->spinner_dpi_value;
+    GtkWidget *button_decrease_value = gtk_widget_get_next_sibling(
+        gtk_widget_get_first_child(GTK_WIDGET(spin_button))
+    );
+    GtkWidget *button_increase_value = gtk_widget_get_next_sibling(button_decrease_value);
+
+    gtk_widget_set_visible(button_decrease_value, false);
+    gtk_widget_set_visible(button_increase_value, false);
+
     gtk_check_button_set_group(self->check_button, check_button_group);
 
     return self;
