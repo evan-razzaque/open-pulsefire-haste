@@ -101,6 +101,6 @@ void app_config_macro_init(GtkBuilder *builder, app_data *data);
  * @param builder GtkBuilder object to obtain widgets
  * @param data Application wide data structure
  */
-void app_config_sensor_init(GtkBuilder *builder, app_data *data);
+void app_config_sensor_init(GtkBuilder* builder, app_data* data);
 
 #endif

@@ -11,7 +11,9 @@
         <property name="css-classes">dpi-profile</property>
         <property name="spacing">5</property>
         <child>
-          <object class="GtkCheckButton" id="check_button"/>
+          <object class="GtkCheckButton" id="check_button">
+            <property name="action-name">app.select-dpi-profile</property>
+          </object>
         </child>
         <child>
           <object class="GtkScale" id="range_dpi_value">

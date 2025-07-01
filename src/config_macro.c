@@ -124,7 +124,7 @@ static void save_recorded_macro(GtkGesture* self, int n_press, double x, double 
     data->macro_data.macros[data->macro_data.macro_count].macro_name = macro_name;
 
     GMenuItem *macro_item = g_menu_item_new(macro_name, NULL);
-    g_menu_item_set_action_and_target(macro_item, "app.select-macro", "u", data->macro_data.macro_count);
+    g_menu_item_set_action_and_target(macro_item, "app.select-macro", (const char*) G_VARIANT_TYPE_UINT32, data->macro_data.macro_count);
     g_menu_append_item(data->macro_data.menu_macros, macro_item);
 
     data->macro_data.macro_count++;
@@ -229,6 +229,10 @@ static void select_macro(GSimpleAction *action, GVariant *macro_index, app_data 
 
     macro_event *events = malloc(sizeof(macro_event) * macro.generic_event_count);
     int event_count = parse_macro(macro, events, data->macro_data.modifier_map);
+
+    if (event_count < 0) {
+        return;
+    }
 
     g_mutex_lock(data->mouse->mutex);
     assign_button_macro(
