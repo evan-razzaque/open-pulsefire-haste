@@ -77,19 +77,23 @@ static void dpi_profile_config_init(DpiProfileConfig *self) {
 
 static void update_dpi_settings(app_data* data) {
     g_mutex_lock(data->mouse->mutex);
-    // printf("Dpi Profile: %d\n", data->sensor_data.dpi_config.selected_profile);
     save_dpi_settings(data->mouse->dev, &data->sensor_data.dpi_config, data->sensor_data.lift_off_distance);
     g_mutex_unlock(data->mouse->mutex);
 }
 
-static void update_dpi_profile_indicator(GtkColorDialogButton *self, app_data *data) {
+static void update_dpi_profile_indicator(GtkColorDialogButton *self, GParamSpec *param, app_data *data) {
     const GdkRGBA *rgba = gtk_color_dialog_button_get_rgba(self);
-
+    
     DpiProfileConfig *profile_row = DPI_PROFILE_CONFIG(gtk_widget_get_parent(
         gtk_widget_get_parent(GTK_WIDGET(self))
     ));
+    
+    data->sensor_data.dpi_config.profiles[profile_row->profile_index].indicator = (color_options) {
+        .red = rgba->red * 255,
+        .green = rgba->green * 255,
+        .blue = rgba->blue * 255
+    };
 
-    data->sensor_data.dpi_config.profiles[profile_row->profile_index].indicator = (color_options) {rgba->red, rgba->green, rgba->green};
     update_dpi_settings(data);
 }
 
@@ -196,6 +200,7 @@ static void add_dpi_profile_row(GSimpleAction* action, GVariant *value, app_data
     GtkListBoxRow *row = &dpi_config_row->parent_type;
     gtk_list_box_append(data->sensor_data.list_box_dpi_profiles, GTK_WIDGET(row));
 
+    settings->enabled_profile_bit_mask += 1 << settings->profile_count; // Sets the bit to allow an additional profile to be enabled
     settings->profile_count++;
 
     if (settings->profile_count == 5) {
