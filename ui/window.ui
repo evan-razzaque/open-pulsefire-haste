@@ -26,6 +26,7 @@
                 <property name="spacing">20</property>
                 <child>
                   <object class="GtkBox">
+                    <property name="css-classes">button-config</property>
                     <property name="orientation">vertical</property>
                     <child>
                       <object class="GtkBox">
@@ -175,51 +176,103 @@
                 </child>
                 <child>
                   <object class="GtkBox">
+                    <property name="css-classes">sensor-config</property>
                     <property name="focus-on-click">False</property>
                     <property name="focusable">True</property>
                     <property name="hexpand">True</property>
                     <property name="hexpand-set">True</property>
                     <property name="orientation">vertical</property>
                     <child>
+                      <object class="GtkBox">
+                        <property name="spacing">15</property>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="orientation">vertical</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="css-classes">title</property>
+                                <property name="halign">start</property>
+                                <property name="label">Polling Rate</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkBox">
+                                <property name="halign">start</property>
+                                <property name="margin-bottom">10</property>
+                                <property name="orientation">vertical</property>
+                                <child>
+                                  <object class="GtkCheckButton" id="pollingRate0">
+                                    <property name="action-name">app.change-polling-rate</property>
+                                    <property name="action-target">0</property>
+                                    <property name="label">125 hz</property>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkCheckButton" id="pollingRate1">
+                                    <property name="action-name">app.change-polling-rate</property>
+                                    <property name="action-target">1</property>
+                                    <property name="group">pollingRate0</property>
+                                    <property name="label">250 hz</property>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkCheckButton" id="pollingRate2">
+                                    <property name="action-name">app.change-polling-rate</property>
+                                    <property name="action-target">2</property>
+                                    <property name="group">pollingRate0</property>
+                                    <property name="label">500 hz</property>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkCheckButton" id="pollingRate3">
+                                    <property name="action-name">app.change-polling-rate</property>
+                                    <property name="action-target">3</property>
+                                    <property name="active">True</property>
+                                    <property name="group">pollingRate0</property>
+                                    <property name="label">1000 hz</property>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="halign">start</property>
+                            <property name="orientation">vertical</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="css-classes">title</property>
+                                <property name="halign">start</property>
+                                <property name="label">Lift-Off Distance</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkCheckButton" id="checkButtonLiftOffDistance">
+                                <property name="action-name">app.change-lift-off-distance</property>
+                                <property name="action-target">1</property>
+                                <property name="active">True</property>
+                                <property name="label">Low (1mm)</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkCheckButton">
+                                <property name="action-name">app.change-lift-off-distance</property>
+                                <property name="action-target">2</property>
+                                <property name="group">checkButtonLiftOffDistance</property>
+                                <property name="label">High (2mm)</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
                       <object class="GtkLabel">
-                        <property name="label">Polling Rate</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkCheckButton" id="pollingRate0">
-                        <property name="action-name">app.change-polling-rate</property>
-                        <property name="action-target">0</property>
-                        <property name="label">125 hz</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkCheckButton" id="pollingRate1">
-                        <property name="action-name">app.change-polling-rate</property>
-                        <property name="action-target">1</property>
-                        <property name="group">pollingRate0</property>
-                        <property name="label">250 hz</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkCheckButton" id="pollingRate2">
-                        <property name="action-name">app.change-polling-rate</property>
-                        <property name="action-target">2</property>
-                        <property name="group">pollingRate0</property>
-                        <property name="label">500 hz</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkCheckButton" id="pollingRate3">
-                        <property name="action-name">app.change-polling-rate</property>
-                        <property name="action-target">3</property>
-                        <property name="active">True</property>
-                        <property name="group">pollingRate0</property>
-                        <property name="label">1000 hz</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkLabel">
+                        <property name="css-classes">title</property>
+                        <property name="halign">start</property>
                         <property name="label">DPI Settings</property>
+                        <property name="margin-bottom">5</property>
                       </object>
                     </child>
                     <child>
@@ -235,6 +288,7 @@
                 </child>
                 <child>
                   <object class="GtkBox">
+                    <property name="css-classes">led-config</property>
                     <property name="focusable">True</property>
                     <property name="halign">end</property>
                     <property name="orientation">vertical</property>

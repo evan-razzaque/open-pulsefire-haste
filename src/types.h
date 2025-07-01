@@ -8,6 +8,7 @@
 #include "device/rgb.h"
 #include "device/mouse.h"
 #include "device/buttons.h"
+#include "device/sensor.h"
 
 enum MOUSE_STATE {
 	UPDATE,
@@ -129,21 +130,13 @@ struct config_macro_data {
 	GtkEditable *editable_macro_name;
 } typedef config_macro_data;
 
-struct dpi_profile {
-	byte dpi_value;
-	color_options indicator;
-} typedef dpi_profile;
-
 struct config_sensor_data {
 	byte polling_rate_value;
-	byte selected_dpi_profile;
 	byte lift_off_distance;
-
-	dpi_profile dpi_profiles[5];
-	byte dpi_profile_count;
+	
+	dpi_settings dpi_config;
 
 	GtkWidget *button_add_dpi_profile;
-	GtkWidget *default_dpi_profile_row;
 	GtkCheckButton* check_button_group_dpi_profile;
 	GtkListBox *list_box_dpi_profiles;
 } typedef config_sensor_data;

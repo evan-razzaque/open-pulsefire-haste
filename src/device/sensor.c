@@ -65,7 +65,8 @@ int save_dpi_settings(hid_device *dev, dpi_settings *settings, byte lift_off_dis
     byte data_select_profile[PACKET_SIZE] = {SEND_BYTE_DPI, SENSOR_CONFIG_BYTE_SELECTED_DPI_PROFILE, 0x00, settings->selected_profile};
     res = mouse_write(dev, data_select_profile);
 
-    byte data_save_settings[PACKET_SIZE] = {SEND_BYTE_SAVE_SETTINGS, 0x03};
+    // byte data_save_settings[PACKET_SIZE] = {SEND_BYTE_SAVE_SETTINGS, 0x03};
+    // res = mouse_write(dev, data_save_settings);
 
-    return mouse_write(dev, data_save_settings);
+    return res;
 }

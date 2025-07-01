@@ -77,23 +77,6 @@ static void confirm_keyboard_action_binding(GtkButton *self, app_data *data) {
 }
 
 /**
- * @brief Applies all the bindings to the mouse.
- * 
- * @param dev The mouse device handle
- * @param mutex The mutex to schedule sending data to the device
- * @param bindings The bindings for each mouse button
- */
-static void apply_button_bindings(hid_device *dev, GMutex *mutex, uint16_t *bindings) {
-	g_mutex_lock(mutex);
-
-	for (int i = 0; i < BUTTON_COUNT; i++) {
-		assign_button_action(dev, i, bindings[i]);
-	}
-
-	g_mutex_unlock(mutex);
-}
-
-/**
  * @brief Sets the mouse button to be re-assigned.
  * 
  * @param self The menu button object
@@ -130,7 +113,7 @@ static void change_mouse_simple_binding(GSimpleAction *action, GVariant *mapping
 	strncpy(action_name, menu_item_value + 5, 25);
 	
 	uint16_t action_value = (uint16_t) strtol(hex_value, NULL, 16);
-
+	
 	change_mouse_binding(
 		data->mouse,
 		data->button_data.selected_button,
@@ -138,6 +121,8 @@ static void change_mouse_simple_binding(GSimpleAction *action, GVariant *mapping
 		data->widgets->menu_button_bindings[data->button_data.selected_button], 
 		action_name
 	);
+	
+	data->button_data.bindings[data->button_data.selected_button] = action_value;
 }
 
 /**
@@ -156,6 +141,8 @@ static int set_keyboard_action(GtkEventControllerKey *self, guint keyval, guint 
 
 	byte hid_usage_id = data->button_data.keyboard_keys[keyval];
 	data->button_data.current_keyboard_action = 0x0200 + hid_usage_id;
+
+	data->button_data.bindings[data->button_data.selected_button] = 0x0200 + hid_usage_id;
 	
 	const char *key_name = data->button_data.key_names[hid_usage_id];
 	gtk_label_set_text(label_pressed_key, key_name);
@@ -186,8 +173,6 @@ static void setup_action_menu_buttons(GtkBuilder *builder, app_data *data) {
 }
 
 void app_config_buttons_init(GtkBuilder *builder, app_data *data) {
-	apply_button_bindings(data->mouse->dev, data->mouse->mutex, data->button_data.bindings);
-
 	data->widgets->window_keyboard_action = GTK_WINDOW(GTK_WIDGET(gtk_builder_get_object(builder, "windowTest")));
     data->widgets->event_key_controller = GTK_EVENT_CONTROLLER(gtk_builder_get_object(builder, "eventKeyController"));
 	data->widgets->label_selected_button = GTK_LABEL(GTK_WIDGET(gtk_builder_get_object(builder, "labelSelectedButton")));
