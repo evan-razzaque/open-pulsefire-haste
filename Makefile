@@ -7,7 +7,7 @@ UI_FILES        = ui/templates.gresource.xml ui/dpi-profile-config.ui
 GRESOURCES      = resources/templates.gresource
 TARGET          = bin/main
 
-CFLAGS += $$(pkg-config --cflags gtk4) -Wall -Werror -Werror=vla -Wno-deprecated-declarations -std=c99
+CFLAGS += $$(pkg-config --cflags gtk4) -Wall -Werror -Werror=vla -Wno-deprecated-declarations -std=c99 -O1
 
 ifeq ($(OS),Windows_NT)
 	LDLIBS = -lm -lhidapi $$(pkg-config --libs gtk4) -I /mingw64/include/hidapi

@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <unistd.h>
 #include <hidapi/hidapi.h>
 #include <gtk/gtk.h>
 
@@ -70,22 +71,22 @@ static void load_mouse_settings(app_data *data) {
  * @param battery_data mouse_battery_data instance
  * @return value indicating to leave this in the gtk main loop
  */
-int update_battery_display(mouse_battery_data *battery_data) {
-	char battery[5];
+// int update_battery_display(mouse_battery_data *battery_data) {
+// 	char battery[5];
 
-	GMutex *mutex = battery_data->mouse->mutex;
+// 	GMutex *mutex = battery_data->mouse->mutex;
 
-	g_mutex_lock(mutex);
+// 	g_mutex_lock(mutex);
 
-	int res = get_battery_level(battery_data->mouse->dev);
-	sprintf(battery, "%d%%", res);
+// 	int res = get_battery_level(battery_data->mouse->dev);
+// 	sprintf(battery, "%d%%", res);
 	
-	g_mutex_unlock(mutex);
+// 	g_mutex_unlock(mutex);
 
-	if (res > 0) gtk_label_set_text(battery_data->label_battery, battery);
+// 	if (res > 0) gtk_label_set_text(battery_data->label_battery, battery);
 	
-	return G_SOURCE_CONTINUE;
-}
+// 	return G_SOURCE_CONTINUE;
+// }
 
 /**
  * @brief Destroys all windows when the main window is closed.
@@ -144,7 +145,7 @@ void activate(GtkApplication *app, app_data *data) {
 	g_signal_connect(window, "close-request", G_CALLBACK(close_application), data);
 	widget_add_event(builder, "buttonSave", "clicked", save_mouse_settings, mouse);
 
-	g_timeout_add(2000, G_SOURCE_FUNC(update_battery_display), &data->battery_data);
+	// g_timeout_add(2000, G_SOURCE_FUNC(update_battery_display), &data->battery_data);
 
 	GtkCssProvider *provider = gtk_css_provider_new();
 	gtk_css_provider_load_from_path(provider, "ui/window.css");
@@ -198,7 +199,39 @@ void* mouse_update_loop(app_data *data) {
 	}
 	
 	if (mouse->dev) hid_close(mouse->dev);
-	printf("mouse closed\n");
+	printf("mouse update thread exit\n");
+	g_thread_exit(NULL);
+	return NULL;
+}
+
+void* read_mouse_data(app_data *data) {
+	mouse_data *mouse = data->mouse;
+	byte dpi_profile_index = -1;
+	GtkCheckButton **check_buttons_dpi_profiles = data->sensor_data.check_buttons_dpi_profile;
+
+	while (mouse->state != CLOSED) {
+		if (mouse->dev == NULL) {
+			continue;
+		}
+
+		byte packet_data[PACKET_SIZE] = {0};
+		hid_read(mouse->dev, packet_data, PACKET_SIZE);
+
+		byte dpi_profile_index_new;
+
+		if (packet_data[FIRST_BYTE] != 0xff) continue;
+
+		dpi_profile_index_new = packet_data[FIRST_BYTE + 2];
+
+		if (dpi_profile_index_new != dpi_profile_index) {
+			dpi_profile_index = dpi_profile_index_new;
+
+			g_mutex_lock(mouse->mutex);
+			gtk_check_button_set_active(check_buttons_dpi_profiles[dpi_profile_index], true); // TODO: Use a pipe for communications to ensure thread safety
+			g_mutex_unlock(mouse->mutex);
+		}
+	}
+
 	g_thread_exit(NULL);
 	return NULL;
 }
@@ -214,6 +247,9 @@ int main() {
 	
 	GMutex mutex;
 	g_mutex_init(&mutex);
+
+	int mouse_pipe[2];
+	pipe(mouse_pipe);
 	
 	res = hid_init();
 	HID_ERROR(res < 0, NULL);
@@ -222,7 +258,7 @@ int main() {
 	HID_ERROR(!dev, NULL);
 
 	color_options color = {.red = 0xff, .brightness = 0x64};
-	mouse_data mouse = {.mutex = &mutex, .dev = dev, .led = &color, .type = connection_type};
+	mouse_data mouse = {.mutex = &mutex, .mouse_pipe = mouse_pipe, .dev = dev, .led = &color, .type = connection_type};
 
 	app_widgets widgets = {.alert = gtk_alert_dialog_new(" ")};
 
@@ -283,6 +319,7 @@ int main() {
 	g_signal_connect(app, "activate", G_CALLBACK(activate), &data);
 	
 	GThread *update_thread = g_thread_new("mouse_update_loop", (GThreadFunc) mouse_update_loop, &data);
+	GThread *read_thread = g_thread_new("read_mouse_data", (GThreadFunc) read_mouse_data, &data);
 	status = g_application_run(G_APPLICATION(app), 0, NULL);
 
 	g_object_unref(app);
@@ -290,6 +327,7 @@ int main() {
 	
 	g_thread_join(update_thread);
 	g_thread_unref(update_thread);
+	g_thread_unref(read_thread);
 	
 	hid_exit();
 	return status;

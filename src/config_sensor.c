@@ -133,6 +133,8 @@ static void disable_update_dpi_value_spinner(GtkGestureClick* self, gint n_press
 DpiProfileConfig* dpi_profile_config_new(GtkCheckButton *check_button_group, dpi_profile *profile, int action_target, app_data *data) {
     DpiProfileConfig* self = g_object_new(DPI_TYPE_PROFILE_CONFIG, NULL);
     self->profile_index = action_target;
+
+    data->sensor_data.check_buttons_dpi_profile[action_target] = self->check_button;
     
     self->gesture_click_controller = GTK_GESTURE_CLICK(gtk_gesture_click_new());
     gtk_event_controller_set_propagation_phase(GTK_EVENT_CONTROLLER(self->gesture_click_controller), GTK_PHASE_CAPTURE);
@@ -181,7 +183,6 @@ static void change_lift_off_distance(GSimpleAction* action, GVariant *value, app
     uint32_t lift_off_distance = g_variant_get_int32(value);
     g_simple_action_set_state(action, value);
 
-
     data->sensor_data.lift_off_distance = lift_off_distance;
     update_dpi_settings(data);
 }
@@ -206,11 +207,16 @@ static void add_dpi_profile_row(GSimpleAction* action, GVariant *value, app_data
     if (settings->profile_count == 5) {
         gtk_widget_set_visible(data->sensor_data.button_add_dpi_profile, false);
     }
+
+    update_dpi_settings(data);
 }
 
 static void select_dpi_profile(GSimpleAction *action, GVariant *profile_number, app_data *data) {
     int selected_profile = g_variant_get_int32(profile_number);
+
+    g_mutex_lock(data->mouse->mutex);
     g_simple_action_set_state(action, profile_number);
+    g_mutex_unlock(data->mouse->mutex);
 
     data->sensor_data.dpi_config.selected_profile = selected_profile;
     update_dpi_settings(data);
