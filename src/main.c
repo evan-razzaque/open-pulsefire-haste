@@ -9,6 +9,7 @@
 #include "device/mouse.h"
 #include "device/rgb.h"
 #include "device/buttons.h"
+#include "device/sensor.h"
 
 #include "hid_keyboard_map.h"
 #include "mouse_config.h"
@@ -31,8 +32,6 @@
 #define widget_add_event(builder, widget_name, detailed_signal, c_handler, data)\
 	g_signal_connect(gtk_builder_get_object(builder, widget_name), detailed_signal, G_CALLBACK(c_handler), data);
 
-GMutex mutex;
-
 /**
  * @brief Saves the settings to the mouse.
  * 
@@ -42,11 +41,27 @@ GMutex mutex;
 void save_mouse_settings(GtkWidget *self, mouse_data *mouse) {
 	gtk_widget_set_sensitive(self, false);
 	
-	g_mutex_lock(&mutex);
+	g_mutex_lock(mouse->mutex);
 	save_settings(mouse->dev, mouse->led);
-	g_mutex_unlock(&mutex);
+	g_mutex_unlock(mouse->mutex);
 
 	gtk_widget_set_sensitive(self, true);
+}
+
+/**
+ * @brief Sets the settings for the mouse.
+ * 
+ * @param data Application wide data structure
+ */
+static void load_mouse_settings(app_data *data) {
+	hid_device *dev = data->mouse->dev;
+
+	for (int i = 0; i < 5; i++) {
+		assign_button_action(dev, i, data->button_data.bindings[i]);
+	}
+
+	set_polling_rate(dev, data->sensor_data.polling_rate_value);
+	save_dpi_settings(dev, &data->sensor_data.dpi_config, data->sensor_data.lift_off_distance);
 }
 
 /**
@@ -58,12 +73,14 @@ void save_mouse_settings(GtkWidget *self, mouse_data *mouse) {
 int update_battery_display(mouse_battery_data *battery_data) {
 	char battery[5];
 
-	g_mutex_lock(&mutex);
+	GMutex *mutex = battery_data->mouse->mutex;
+
+	g_mutex_lock(mutex);
 
 	int res = get_battery_level(battery_data->mouse->dev);
 	sprintf(battery, "%d%%", res);
 	
-	g_mutex_unlock(&mutex);
+	g_mutex_unlock(mutex);
 
 	if (res > 0) gtk_label_set_text(battery_data->label_battery, battery);
 	
@@ -142,16 +159,16 @@ void activate(GtkApplication *app, app_data *data) {
  * 
  * @param mouse mouse_data instance
  */
-void reconnect_mouse(mouse_data *mouse) {
-	hid_close(mouse->dev);
-	mouse->dev = NULL;
+void reconnect_mouse(app_data *data) {
+	hid_close(data->mouse->dev);
+	data->mouse->dev = NULL;
 
-	while (mouse->dev == NULL) {
+	while (data->mouse->dev == NULL) {
 		g_usleep(1000 * 2000);
-		mouse->dev = open_device(NULL);
+		data->mouse->dev = open_device(NULL);
 	}
-	
-	return;
+
+	load_mouse_settings(data);
 }
 
 /**
@@ -160,21 +177,23 @@ void reconnect_mouse(mouse_data *mouse) {
  * @param mouse mouse_data instance
  * @return Unused
  */
-void* mouse_update_loop(mouse_data *mouse) {	
+void* mouse_update_loop(app_data *data) {	
+	mouse_data *mouse = data->mouse;
+
 	int res;
 	
 	while (mouse->state != CLOSED) {
-		g_mutex_lock(&mutex);
+		g_mutex_lock(mouse->mutex);
 
 		res = change_color(mouse->dev, mouse->led);
 		
 		if (res < 0) {
 			printf("%d\n", res);
 			res = 0;
-			reconnect_mouse(mouse);
+			reconnect_mouse(data);
 		}
 		
-		g_mutex_unlock(&mutex);
+		g_mutex_unlock(mouse->mutex);
 		g_usleep(1000 * 100);
 	}
 	
@@ -193,6 +212,7 @@ int main() {
 	int res;
 	CONNECTION_TYPE connection_type;
 	
+	GMutex mutex;
 	g_mutex_init(&mutex);
 	
 	res = hid_init();
@@ -212,7 +232,7 @@ int main() {
 		.button_data = {
 			.dev = dev,
 			.buttons = {0, 1, 2, 3, 4, 5},
-			// TODO: Read buttons from file
+			// TODO: Read from file
 			.bindings = {
 				LEFT_CLICK,
 				RIGHT_CLICK,
@@ -229,19 +249,30 @@ int main() {
 			.mouse_buttons = MOUSE_MAP(),
 			.mouse_button_names = MOUSE_BUTTON_NAMES(),
 
+			// TODO: Read from file
 			.macros = malloc(sizeof(mouse_macro) * 2),
 			.macro_array_size = 2,
 			.macro_count = 0,
 			.recording_macro = 0
 		},
 		.sensor_data = {
+			// TODO: Read from file
 			.polling_rate_value = 3,
-			.selected_dpi_profile = 0,
-			.dpi_profiles = {},
-			.dpi_profile_count = 1 
+			.lift_off_distance = 2,
+			.dpi_config = {
+				.enabled_profile_bit_mask = 0b111,
+				.profiles = {
+					{.dpi_value = 500, .indicator = {.red = 0xff, .green = 0x00, .blue = 0xff}},
+					{.dpi_value = 200, .indicator = {.red = 0xff, .green = 0xff, .blue = 0xff}},
+					{.dpi_value = 5000, .indicator = {.red = 0x00, .green = 0xff, .blue = 0x00}},
+				},
+				.profile_count = 3,
+				.selected_profile = 0
+			}
 		}
 	};
-	
+
+	load_mouse_settings(&data);
 	
 	GtkApplication *app;
 	int status;
@@ -251,7 +282,7 @@ int main() {
 	
 	g_signal_connect(app, "activate", G_CALLBACK(activate), &data);
 	
-	GThread *update_thread = g_thread_new("mouse_update_loop", (GThreadFunc) mouse_update_loop, &mouse);
+	GThread *update_thread = g_thread_new("mouse_update_loop", (GThreadFunc) mouse_update_loop, &data);
 	status = g_application_run(G_APPLICATION(app), 0, NULL);
 
 	g_object_unref(app);
