@@ -16,21 +16,25 @@
           </object>
         </child>
         <child>
-          <object class="GtkScale" id="range_dpi_value">
-            <property name="adjustment">
-              <object class="GtkAdjustment">
-                <property name="lower">2.0</property>
-                <property name="step-increment">1.0</property>
-                <property name="upper">160.0</property>
-                <property name="value">10.0</property>
+          <object class="GtkBox">
+            <child>
+              <object class="GtkScale" id="range_dpi_value">
+                <property name="adjustment">
+                  <object class="GtkAdjustment">
+                    <property name="lower">2.0</property>
+                    <property name="step-increment">1.0</property>
+                    <property name="upper">160.0</property>
+                    <property name="value">10.0</property>
+                  </object>
+                </property>
+                <property name="digits">0</property>
+                <property name="hexpand">True</property>
+                <property name="round-digits">0</property>
+                <property name="show-fill-level">True</property>
+                <property name="value-pos">left</property>
+                <signal name="value-changed" handler="update_spinner_dpi_value" object="spinner_dpi_value"/>
               </object>
-            </property>
-            <property name="digits">0</property>
-            <property name="hexpand">True</property>
-            <property name="round-digits">0</property>
-            <property name="show-fill-level">True</property>
-            <property name="value-pos">left</property>
-            <signal name="value-changed" handler="update_spinner_dpi_value" object="spinner_dpi_value"/>
+            </child>
           </object>
         </child>
         <child>

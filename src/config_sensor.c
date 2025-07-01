@@ -11,6 +11,8 @@
 #include "types.h"
 #include "mouse_config.h"
 
+static void update_spinner_dpi_value(GtkSpinButton *self, GtkRange *range_dpi_value);
+static void update_range_dpi_value(GtkRange* self, GtkSpinButton *spinner_dpi_value);
 
 G_DECLARE_FINAL_TYPE(DpiProfileConfig, dpi_profile_config, DPI, PROFILE_CONFIG, GtkListBoxRow)
 
@@ -24,6 +26,9 @@ struct _DpiProfileConfig {
     GtkRange *range_dpi_value;
     GtkSpinButton *spinner_dpi_value;
     GtkColorDialogButton *color_button_dpi_indicator;
+    GtkGestureClick *gesture_click_controller;
+
+    int profile_index;
 };
 
 G_DEFINE_TYPE(DpiProfileConfig, dpi_profile_config, GTK_TYPE_LIST_BOX_ROW)
@@ -32,9 +37,6 @@ static void dpi_profile_config_dispose(GObject *gobject) {
     gtk_widget_dispose_template(GTK_WIDGET(gobject), DPI_TYPE_PROFILE_CONFIG);
     G_OBJECT_CLASS(dpi_profile_config_parent_class)->dispose(gobject);
 }
-
-static void update_spinner_dpi_value(GtkSpinButton *self, GtkRange *range_dpi_value);
-static void update_range_dpi_value(GtkRange* self, GtkSpinButton *spinner_dpi_value);
 
 static void update_range_dpi_value(GtkRange* self, GtkSpinButton *spinner_dpi_value) {
     double value = gtk_spin_button_get_value(spinner_dpi_value) / 100;
@@ -73,10 +75,70 @@ static void dpi_profile_config_init(DpiProfileConfig *self) {
     gtk_widget_init_template(GTK_WIDGET(self));
 }
 
-DpiProfileConfig* dpi_profile_config_new(GtkCheckButton *check_button_group, uint16_t dpi_value, color_options indicator, int action_target) {
-    DpiProfileConfig* self = g_object_new(DPI_TYPE_PROFILE_CONFIG, NULL);
+static void update_dpi_settings(app_data* data) {
+    g_mutex_lock(data->mouse->mutex);
+    // printf("Dpi Profile: %d\n", data->sensor_data.dpi_config.selected_profile);
+    save_dpi_settings(data->mouse->dev, &data->sensor_data.dpi_config, data->sensor_data.lift_off_distance);
+    g_mutex_unlock(data->mouse->mutex);
+}
 
-    printf("%d\n", action_target);
+static void update_dpi_profile_indicator(GtkColorDialogButton *self, app_data *data) {
+    const GdkRGBA *rgba = gtk_color_dialog_button_get_rgba(self);
+
+    DpiProfileConfig *profile_row = DPI_PROFILE_CONFIG(gtk_widget_get_parent(
+        gtk_widget_get_parent(GTK_WIDGET(self))
+    ));
+
+    data->sensor_data.dpi_config.profiles[profile_row->profile_index].indicator = (color_options) {rgba->red, rgba->green, rgba->green};
+    update_dpi_settings(data);
+}
+
+static void update_dpi_value_spinner(GtkWidget *self, app_data *data) {
+    DpiProfileConfig *profile_row = DPI_PROFILE_CONFIG(gtk_widget_get_parent(gtk_widget_get_parent(self)));
+    u_int16_t dpi_value = (int) gtk_spin_button_get_value(profile_row->spinner_dpi_value);
+
+    data->sensor_data.dpi_config.profiles[profile_row->profile_index].dpi_value = dpi_value;
+    update_dpi_settings(data);
+}
+
+static void update_dpi_value_range(GtkGestureClick* self, gint n_press, gdouble x, gdouble y, app_data *data) {
+    DpiProfileConfig *profile_row = DPI_PROFILE_CONFIG(gtk_widget_get_parent(
+        gtk_widget_get_parent(
+            gtk_event_controller_get_widget(GTK_EVENT_CONTROLLER(self))
+        )
+    ));
+
+    g_signal_handlers_unblock_by_func(profile_row->spinner_dpi_value, update_dpi_value_spinner, data);
+
+    uint16_t dpi_value = (int) gtk_range_get_value(profile_row->range_dpi_value) * 100;
+
+    data->sensor_data.dpi_config.profiles[profile_row->profile_index].dpi_value = dpi_value;
+    update_dpi_settings(data);
+}
+
+static void disable_update_dpi_value_spinner(GtkGestureClick* self, gint n_press, gdouble x, gdouble y, app_data *data) {
+    DpiProfileConfig *profile_row = DPI_PROFILE_CONFIG(gtk_widget_get_parent(
+        gtk_widget_get_parent(
+            gtk_event_controller_get_widget(GTK_EVENT_CONTROLLER(self))
+        )
+    ));
+
+    g_signal_handlers_block_by_func(profile_row->spinner_dpi_value, update_dpi_value_spinner, data);
+}
+
+DpiProfileConfig* dpi_profile_config_new(GtkCheckButton *check_button_group, dpi_profile *profile, int action_target, app_data *data) {
+    DpiProfileConfig* self = g_object_new(DPI_TYPE_PROFILE_CONFIG, NULL);
+    self->profile_index = action_target;
+    
+    self->gesture_click_controller = GTK_GESTURE_CLICK(gtk_gesture_click_new());
+    gtk_event_controller_set_propagation_phase(GTK_EVENT_CONTROLLER(self->gesture_click_controller), GTK_PHASE_CAPTURE);
+    gtk_widget_add_controller(
+        gtk_widget_get_parent(GTK_WIDGET(self->range_dpi_value)),
+        GTK_EVENT_CONTROLLER(self->gesture_click_controller)
+    );
+
+    uint16_t dpi_value = profile->dpi_value;
+    color_options indicator = profile->indicator;
 
     GtkSpinButton *spin_button = self->spinner_dpi_value;
     GtkWidget *button_decrease_value = gtk_widget_get_next_sibling(
@@ -95,48 +157,45 @@ DpiProfileConfig* dpi_profile_config_new(GtkCheckButton *check_button_group, uin
     gtk_check_button_set_group(self->check_button, check_button_group);
     gtk_actionable_set_action_target(GTK_ACTIONABLE(self->check_button), "i", action_target);
 
+    g_signal_connect(self->color_button_dpi_indicator, "notify::rgba", G_CALLBACK(update_dpi_profile_indicator), data);
+    g_signal_connect(self->spinner_dpi_value, "value-changed", G_CALLBACK(update_dpi_value_spinner), data);
+    g_signal_connect(self->gesture_click_controller, "released", G_CALLBACK(update_dpi_value_range), data);
+    g_signal_connect(self->gesture_click_controller, "pressed", G_CALLBACK(disable_update_dpi_value_spinner), data);
+
     return self;
 }
 
 static void change_polling_rate(GSimpleAction* action, GVariant *value, app_data *data) {
     uint32_t polling_rate_value = g_variant_get_int32(value);
-
     g_simple_action_set_state(action, value);
 
     set_polling_rate(data->mouse->dev, g_variant_get_int32(value));
     data->sensor_data.polling_rate_value = polling_rate_value;
 }
 
-static void update_dpi_settings(app_data* data, uint32_t lift_off_distance) {
-    g_mutex_lock(data->mouse->mutex);
-    printf("Dpi Profile: %d\n", data->sensor_data.dpi_config.selected_profile);
-    save_dpi_settings(data->mouse->dev, &data->sensor_data.dpi_config, lift_off_distance);
-    g_mutex_unlock(data->mouse->mutex);
-}
-
 static void change_lift_off_distance(GSimpleAction* action, GVariant *value, app_data *data) {
     uint32_t lift_off_distance = g_variant_get_int32(value);
-
     g_simple_action_set_state(action, value);
 
-    update_dpi_settings(data, lift_off_distance);
+
     data->sensor_data.lift_off_distance = lift_off_distance;
+    update_dpi_settings(data);
 }
 
-static void add_dpi_profile(GSimpleAction* action, GVariant *value, app_data *data) {
+static void add_dpi_profile_row(GSimpleAction* action, GVariant *value, app_data *data) {
     dpi_settings *settings = &data->sensor_data.dpi_config;
+    settings->profiles[settings->profile_count] = (dpi_profile) {.dpi_value = (settings->profile_count + 1) * 800, .indicator = {.red = 0xff}};
 
     DpiProfileConfig *dpi_config_row = dpi_profile_config_new(
         data->sensor_data.check_button_group_dpi_profile, 
-        (settings->profile_count + 1) * 800,
-        (color_options) {.red = 0xff},
-        settings->profile_count
+        &settings->profiles[settings->profile_count],
+        settings->profile_count,
+        data
     );
 
     GtkListBoxRow *row = &dpi_config_row->parent_type;
     gtk_list_box_append(data->sensor_data.list_box_dpi_profiles, GTK_WIDGET(row));
 
-    settings->profiles[settings->profile_count] = (dpi_profile) {.dpi_value = (settings->profile_count + 1) * 800, .indicator = {.red = 0xff}};
     settings->profile_count++;
 
     if (settings->profile_count == 5) {
@@ -149,7 +208,7 @@ static void select_dpi_profile(GSimpleAction *action, GVariant *profile_number, 
     g_simple_action_set_state(action, profile_number);
 
     data->sensor_data.dpi_config.selected_profile = selected_profile;
-    update_dpi_settings(data, data->sensor_data.lift_off_distance);
+    update_dpi_settings(data);
 }
 
 void app_config_sensor_init(GtkBuilder *builder, app_data *data) {
@@ -162,9 +221,9 @@ void app_config_sensor_init(GtkBuilder *builder, app_data *data) {
     for (int i = 0; i < data->sensor_data.dpi_config.profile_count; i++) {
         DpiProfileConfig *dpi_profile_row = dpi_profile_config_new(
             group,
-            data->sensor_data.dpi_config.profiles[i].dpi_value,
-            data->sensor_data.dpi_config.profiles[i].indicator,
-            i
+            &data->sensor_data.dpi_config.profiles[i],
+            i,
+            data
         );
 
         if (i == data->sensor_data.dpi_config.selected_profile) {
@@ -184,7 +243,7 @@ void app_config_sensor_init(GtkBuilder *builder, app_data *data) {
     const GActionEntry entries[] = {
         {.name = "change-polling-rate", .change_state = (g_action) change_polling_rate, .parameter_type = (const char*) G_VARIANT_TYPE_INT32, .state = "3"},
         {.name = "change-lift-off-distance", .change_state = (g_action) change_lift_off_distance, .parameter_type = (const char*) G_VARIANT_TYPE_INT32, "1"},
-        {.name = "add-dpi-level", .activate = (g_action) add_dpi_profile},
+        {.name = "add-dpi-level", .activate = (g_action) add_dpi_profile_row},
         {.name = "select-dpi-profile", .change_state = (g_action) select_dpi_profile, .parameter_type = (const char*) G_VARIANT_TYPE_INT32, .state = profile_state},
     };
     
