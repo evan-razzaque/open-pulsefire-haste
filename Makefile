@@ -49,6 +49,5 @@ clean:
 clean-partial:
 	rm -rf bin build resources
 
-
 clean-data:
 	rm -rf data

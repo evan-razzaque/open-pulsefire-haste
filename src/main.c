@@ -132,7 +132,7 @@ void activate(GtkApplication *app, app_data *data) {
 	data->battery_data = (mouse_battery_data) {.mouse = mouse, .label_battery = label_battery};
 	
 	g_signal_connect(window, "close-request", G_CALLBACK(close_application), data);
-	widget_add_event(builder, "buttonSave", "clicked", save_mouse_settings, mouse);
+	widget_add_event(builder, "buttonSave", "clicked", save_mouse_settings, data);
 
 	// g_timeout_add(2000, G_SOURCE_FUNC(update_battery_display), &data->battery_data);
 
