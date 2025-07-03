@@ -177,12 +177,7 @@ void* mouse_update_loop(app_data *data) {
 		if (mouse->dev == NULL) reconnect_mouse(data);
 		g_mutex_lock(mouse->mutex);
 
-		if (mouse->state == UPDATE) {
-			res = change_color(mouse->dev, led);
-		} else {
-			res = save_device_settings(mouse->dev, led);
-			mouse->state = UPDATE;
-		}
+		res = change_color(mouse->dev, led);
 		
 		if (res < 0) {
 			printf("%d\n", res);
@@ -196,37 +191,6 @@ void* mouse_update_loop(app_data *data) {
 	
 	if (mouse->dev) hid_close(mouse->dev);
 	printf("mouse update thread exit\n");
-	g_thread_exit(NULL);
-	return NULL;
-}
-
-void* read_mouse_data(app_data *data) {
-	mouse_data *mouse = data->mouse;
-	byte dpi_profile_index = -1;
-	GtkCheckButton **check_buttons_dpi_profiles = data->sensor_data.check_buttons_dpi_profile;
-	
-	while (mouse->state != CLOSED) {
-		if (mouse->dev == NULL) continue;
-
-		byte packet_data[PACKET_SIZE] = {0};
-
-		hid_read_timeout(mouse->dev, packet_data, PACKET_SIZE, 50);
-		
-		byte dpi_profile_index_new;
-
-		if (packet_data[FIRST_BYTE] != 0xff) continue;
-
-		dpi_profile_index_new = packet_data[FIRST_BYTE + 2];
-
-		if (dpi_profile_index_new != dpi_profile_index) {
-			dpi_profile_index = dpi_profile_index_new;
-
-			g_mutex_lock(mouse->mutex);
-			gtk_check_button_set_active(check_buttons_dpi_profiles[dpi_profile_index], true); // TODO: Use a pipe for communications to ensure thread safety
-			g_mutex_unlock(mouse->mutex);
-		}
-	}
-
 	g_thread_exit(NULL);
 	return NULL;
 }
@@ -289,7 +253,6 @@ int main() {
 	g_signal_connect(app, "activate", G_CALLBACK(activate), &data);
 	
 	GThread *update_thread = g_thread_new("mouse_update_loop", (GThreadFunc) mouse_update_loop, &data);
-	GThread *read_thread = g_thread_new("read_mouse_data", (GThreadFunc) read_mouse_data, &data);
 	status = g_application_run(G_APPLICATION(app), 0, NULL);
 
 	g_object_unref(app);
@@ -297,7 +260,6 @@ int main() {
 	
 	g_thread_join(update_thread);
 	g_thread_unref(update_thread);
-	g_thread_unref(read_thread);
 	
 	hid_exit();
 	return status;
