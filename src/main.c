@@ -15,21 +15,6 @@
 #include "hid_keyboard_map.h"
 #include "mouse_config.h"
 
-/**
- * Used for debugging purposes.
- * Logs the last error caused by HIDAPI and exits the program.
- * 
- * @param cond The condition to detect the error
- * @param dev The device to close if not NULL
- */
-#define HID_ERROR(cond, dev)\
-	if ((cond)) {\
-		printf("Error: %S\n", hid_error(dev));\
-		if ((dev)) hid_close((dev));\
-		hid_exit();\
-		return 1;\
-	}
-
 #define widget_add_event(builder, widget_name, detailed_signal, c_handler, data)\
 	g_signal_connect(gtk_builder_get_object(builder, widget_name), detailed_signal, G_CALLBACK(c_handler), data);
 
@@ -39,11 +24,13 @@
  * @param self The save button
  * @param mouse mouse_data instance
  */
-void save_mouse_settings(GtkWidget *self, mouse_data *mouse) {
+void save_mouse_settings(GtkWidget *self, app_data *data) {
+	mouse_data *mouse = data->mouse;
+
 	gtk_widget_set_sensitive(self, false);
 	
 	g_mutex_lock(mouse->mutex);
-	save_settings(mouse->dev, mouse->led);
+	save_device_settings(mouse->dev, &data->color_data.mouse_led);
 	g_mutex_unlock(mouse->mutex);
 
 	gtk_widget_set_sensitive(self, true);
@@ -95,6 +82,8 @@ static void load_mouse_settings(app_data *data) {
  * @param data Application wide data structure
  */
 void close_application(GtkWindow *window, app_data *data) {
+	save_settings_to_file(data);
+
 	// TODO: Save macros to file
 	for (int i = 0; i < data->macro_data.macro_count; i++) {
 		free(data->macro_data.macros[i].events);
@@ -139,7 +128,7 @@ void activate(GtkApplication *app, app_data *data) {
 	app_config_buttons_init(builder, data);
 	app_config_macro_init(builder, data);
 	app_config_sensor_init(builder, data);
-
+	
 	data->battery_data = (mouse_battery_data) {.mouse = mouse, .label_battery = label_battery};
 	
 	g_signal_connect(window, "close-request", G_CALLBACK(close_application), data);
@@ -180,13 +169,20 @@ void reconnect_mouse(app_data *data) {
  */
 void* mouse_update_loop(app_data *data) {	
 	mouse_data *mouse = data->mouse;
+	color_options *led = &data->color_data.mouse_led;
 
 	int res;
 	
 	while (mouse->state != CLOSED) {
+		if (mouse->dev == NULL) reconnect_mouse(data);
 		g_mutex_lock(mouse->mutex);
 
-		res = change_color(mouse->dev, mouse->led);
+		if (mouse->state == UPDATE) {
+			res = change_color(mouse->dev, led);
+		} else {
+			res = save_device_settings(mouse->dev, led);
+			mouse->state = UPDATE;
+		}
 		
 		if (res < 0) {
 			printf("%d\n", res);
@@ -208,15 +204,14 @@ void* read_mouse_data(app_data *data) {
 	mouse_data *mouse = data->mouse;
 	byte dpi_profile_index = -1;
 	GtkCheckButton **check_buttons_dpi_profiles = data->sensor_data.check_buttons_dpi_profile;
-
+	
 	while (mouse->state != CLOSED) {
-		if (mouse->dev == NULL) {
-			continue;
-		}
+		if (mouse->dev == NULL) continue;
 
 		byte packet_data[PACKET_SIZE] = {0};
-		hid_read(mouse->dev, packet_data, PACKET_SIZE);
 
+		hid_read_timeout(mouse->dev, packet_data, PACKET_SIZE, 50);
+		
 		byte dpi_profile_index_new;
 
 		if (packet_data[FIRST_BYTE] != 0xff) continue;
@@ -252,31 +247,18 @@ int main() {
 	pipe(mouse_pipe);
 	
 	res = hid_init();
-	HID_ERROR(res < 0, NULL);
+	if (res < 0) return 1;
 	
 	hid_device *dev = open_device(&connection_type);
-	HID_ERROR(!dev, NULL);
-
-	color_options color = {.red = 0xff, .brightness = 0x64};
-	mouse_data mouse = {.mutex = &mutex, .mouse_pipe = mouse_pipe, .dev = dev, .led = &color, .type = connection_type};
-
+	
+	mouse_data mouse = {.mutex = &mutex, .mouse_pipe = mouse_pipe, .dev = dev, .type = connection_type};
 	app_widgets widgets = {.alert = gtk_alert_dialog_new(" ")};
 
 	app_data data = {
 		.mouse = &mouse,
 		.widgets = &widgets,
 		.button_data = {
-			.dev = dev,
 			.buttons = {0, 1, 2, 3, 4, 5},
-			// TODO: Read from file
-			.bindings = {
-				LEFT_CLICK,
-				RIGHT_CLICK,
-				MIDDLE_CLICK,
-				BACK,
-				FORWARD,
-				DPI_TOGGLE
-			},
 			.keyboard_keys = KEYBOARD_MAP(),
 			.key_names = KEY_NAMES()
 		},
@@ -290,25 +272,13 @@ int main() {
 			.macro_array_size = 2,
 			.macro_count = 0,
 			.recording_macro = 0
-		},
-		.sensor_data = {
-			// TODO: Read from file
-			.polling_rate_value = 3,
-			.lift_off_distance = 2,
-			.dpi_config = {
-				.enabled_profile_bit_mask = 0b111,
-				.profiles = {
-					{.dpi_value = 500, .indicator = {.red = 0xff, .green = 0x00, .blue = 0xff}},
-					{.dpi_value = 200, .indicator = {.red = 0xff, .green = 0xff, .blue = 0xff}},
-					{.dpi_value = 5000, .indicator = {.red = 0x00, .green = 0xff, .blue = 0x00}},
-				},
-				.profile_count = 3,
-				.selected_profile = 0
-			}
 		}
 	};
 
-	load_mouse_settings(&data);
+	if (dev != NULL) {
+		load_settings_from_file(&data);
+		load_mouse_settings(&data);
+	}
 	
 	GtkApplication *app;
 	int status;

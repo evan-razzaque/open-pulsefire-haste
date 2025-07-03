@@ -246,7 +246,7 @@ static void select_macro(GSimpleAction *action, GVariant *macro_index, app_data 
 
     free(events);
 
-    GtkMenuButton *menu_button_active = data->widgets->menu_button_bindings[data->button_data.selected_button];
+    GtkMenuButton *menu_button_active = data->button_data.menu_button_bindings[data->button_data.selected_button];
     gtk_menu_button_set_label(menu_button_active, data->macro_data.macros[index].macro_name);
 }
 

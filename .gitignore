@@ -3,6 +3,7 @@ bin
 main
 build
 resources
+data
 
 # Config
 .vscode

@@ -86,7 +86,7 @@ int get_battery_level(hid_device* dev) {
 	return (int) data[REPORT_INDEX_BATTERY];
 }
 
-int save_settings(hid_device *dev, color_options *color) {
+int save_device_settings(hid_device *dev, color_options *color) {
 	// byte d1[PACKET_SIZE] = {REPORT_BYTE(SAVE_SETTINGS), 0x01, 0x00, 0x3c, color->red, color->green, color->blue};
 	// mouse_write(dev, d1);
 
@@ -100,7 +100,6 @@ int save_settings(hid_device *dev, color_options *color) {
 
 	// byte d4[PACKET_SIZE] = {REPORT_BYTE(0xdb), 0x55};
 	// mouse_write(dev, d4);
-
 	byte data[PACKET_SIZE] = {REPORT_BYTE(SEND_BYTE_SAVE_SETTINGS), 0xff};
 
 	return mouse_write(dev, data);

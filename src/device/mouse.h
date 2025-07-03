@@ -119,6 +119,6 @@ int set_polling_rate(hid_device *dev, byte polling_rate_value);
  * 
  * @param dev The mouse device handle
  */
-int save_settings(hid_device *dev, color_options *color);
+int save_device_settings(hid_device *dev, color_options *color);
 
 #endif

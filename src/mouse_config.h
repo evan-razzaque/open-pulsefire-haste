@@ -48,6 +48,9 @@ typedef void (*g_action)(GSimpleAction*, GVariant*, gpointer);
         .up = {.event_type = MACRO_EVENT_TYPE_MOUSE, .delay_next_action = delay}\
     }}
 
+/**
+ * @brief Used to map GTK mouse button values to mouse button values for macros.
+ */
 #define MOUSE_MAP() {\
     [1] = 0x01,\
     [3] = 0x02,\
@@ -62,6 +65,41 @@ typedef void (*g_action)(GSimpleAction*, GVariant*, gpointer);
     [0x04] = "Middle Click",\
     [0x08] = "Mouse 4",\
     [0x10] = "Mouse 5"\
+}
+
+#define SIMPLE_ACTION_NAMES() {\
+    [DISABLED     >> 8] = {\
+        [DISABLED       & 0x00ff] = "Disabled"\
+    },\
+    [LEFT_CLICK   >> 8] = {\
+        [LEFT_CLICK     & 0x00ff] = "Left Click",\
+        [RIGHT_CLICK    & 0x00ff] = "Right Click",\
+        [MIDDLE_CLICK   & 0x00ff] = "Middle Click",\
+        [BACK           & 0x00ff] = "Back",\
+        [FORWARD        & 0x00ff] = "Forward"\
+    },\
+    [PLAY_PAUSE  >> 8] = {\
+        [PLAY_PAUSE     & 0x00ff] = "Play/Pause",\
+        [STOP           & 0x00ff] = "Stop",\
+        [PREVIOUS       & 0x00ff] = "Previous",\
+        [NEXT           & 0x00ff] = "Next",\
+        [MUTE           & 0x00ff] = "Volume Mute",\
+        [VOLUME_DOWN    & 0x00ff] = "Volume Down",\
+        [VOLUME_UP      & 0x00ff] = "Volume Up",\
+    },\
+    [TASK_MANAGER >> 8] = {\
+        [TASK_MANAGER   & 0x00ff] = "Launch Task Mananger",\
+        [SYSTEM_UTILITY & 0x00ff] = "Open System Utility",\
+        [SHOW_DESKTOP   & 0x00ff] = "Show desktop",\
+        [CYCLE_APPS     & 0x00ff] = "Cycle apps",\
+        [CLOSE_APPS     & 0x00ff] = "Close window",\
+        [CUT            & 0x00ff] = "Cut",\
+        [COPY           & 0x00ff] = "Copy",\
+        [PASTE          & 0x00ff] = "Paste"\
+    },\
+    [DPI_TOGGLE   >> 8] = {\
+        [DPI_TOGGLE     & 0x00ff] = "DPI Toggle"\
+    }\
 }
 
 enum GENERIC_EVENT_ACTION_TYPES {
@@ -102,5 +140,9 @@ void app_config_macro_init(GtkBuilder *builder, app_data *data);
  * @param data Application wide data structure
  */
 void app_config_sensor_init(GtkBuilder* builder, app_data* data);
+
+void load_settings_from_file(app_data *data);
+
+void save_settings_to_file(app_data *data);
 
 #endif

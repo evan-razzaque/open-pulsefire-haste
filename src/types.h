@@ -12,6 +12,7 @@
 
 enum MOUSE_STATE {
 	UPDATE,
+	SAVE,
 	CLOSED
 } typedef MOUSE_STATE;
 
@@ -26,13 +27,11 @@ typedef enum MACRO_ACTION_TYPE {
 
 /**
  * @brief All the data required to interact with the mouse.
- * 
  */
 struct mouse_data {
 	GMutex *mutex;
 	int *mouse_pipe;
 	hid_device *dev;
-	color_options *led;
 	CONNECTION_TYPE type;
 	MOUSE_STATE state;
 	int battery_level;
@@ -50,10 +49,8 @@ struct app_widgets {
 	GtkLabel *label_battery;
 
 	GtkLabel *label_selected_button, *label_pressed_key;
-	GtkColorChooser *color_chooser;
-    GtkRange *range_brightness;
 	GtkEventController *event_key_controller;
-	GtkMenuButton *menu_button_bindings[6]; // Menu buttons for each mouse button binding
+	
 
 	GtkBox *box_macro;
 	GtkEventController *macro_mouse_events, *macro_key_events;
@@ -76,8 +73,9 @@ struct mouse_battery_data {
  * 
  */
 struct config_color_data {
-	color_options *mouse_led;
+	color_options mouse_led;
 	GtkColorChooser *color_chooser;
+	GtkRange *range_brightness;
 } typedef config_color_data;
 
 /**
@@ -85,7 +83,6 @@ struct config_color_data {
  * 
  */
 struct config_button_data {
-	hid_device *dev;
 	MOUSE_BUTTON selected_button;
 	MOUSE_BUTTON buttons[6];
 	uint16_t bindings[6];
@@ -94,6 +91,8 @@ struct config_button_data {
 	const byte keyboard_keys[1 << 16];
 	const char *key_names[256];
 	uint16_t current_keyboard_action;
+
+	GtkMenuButton *menu_button_bindings[6]; // Menu buttons for each mouse button binding
 } typedef config_button_data;
 
 /**
@@ -149,6 +148,8 @@ struct config_sensor_data {
  */
 struct app_data {
 	mouse_data *mouse;
+	FILE *settings_file;
+
 	app_widgets *widgets;
 	mouse_battery_data battery_data;
 	config_color_data color_data;
@@ -156,5 +157,18 @@ struct app_data {
 	config_macro_data macro_data;
 	config_sensor_data sensor_data;
 } typedef app_data;
+
+/**
+ * @brief A struct used for reading and writing mouse settings with the disk.
+ */
+struct mouse_settings {
+	color_options led;
+
+	uint16_t bindings[6];
+
+	dpi_settings dpi_config;
+	byte polling_rate_value;
+	byte lift_off_distance;
+} typedef mouse_settings;
 
 #endif

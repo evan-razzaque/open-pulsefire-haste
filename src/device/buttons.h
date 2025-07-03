@@ -77,8 +77,7 @@ enum SIMPLE_MOUSE_ACTION {
     MIDDLE_CLICK        = 0x0103,
     BACK                = 0x0104,
     FORWARD             = 0x0105,
-    DPI_TOGGLE          = 0x0708,
-
+    
     PLAY_PAUSE          = 0x0300,
     STOP                = 0x0301,
     PREVIOUS            = 0x0302,
@@ -86,7 +85,7 @@ enum SIMPLE_MOUSE_ACTION {
     MUTE                = 0x0304,
     VOLUME_DOWN         = 0x0305,
     VOLUME_UP           = 0x0306,
-
+    
     TASK_MANAGER        = 0x0501,
     SYSTEM_UTILITY      = 0x0502,
     SHOW_DESKTOP        = 0x0503,
@@ -95,7 +94,8 @@ enum SIMPLE_MOUSE_ACTION {
     CUT                 = 0x0506,
     COPY                = 0x0507,
     PASTE               = 0x0508,
-
+    
+    DPI_TOGGLE          = 0x0708,
 } typedef SIMPLE_MOUSE_ACTION;
 
 enum MACRO_BINDING {
