@@ -58,22 +58,22 @@ static void load_mouse_settings(app_data *data) {
  * @param battery_data mouse_battery_data instance
  * @return value indicating to leave this in the gtk main loop
  */
-// int update_battery_display(mouse_battery_data *battery_data) {
-// 	char battery[5];
+int update_battery_display(mouse_battery_data *battery_data) {
+	char battery[5];
 
-// 	GMutex *mutex = battery_data->mouse->mutex;
+	GMutex *mutex = battery_data->mouse->mutex;
 
-// 	g_mutex_lock(mutex);
+	g_mutex_lock(mutex);
 
-// 	int res = get_battery_level(battery_data->mouse->dev);
-// 	sprintf(battery, "%d%%", res);
+	int res = get_battery_level(battery_data->mouse->dev);
+	sprintf(battery, "%d%%", res);
 	
-// 	g_mutex_unlock(mutex);
+	g_mutex_unlock(mutex);
 
-// 	if (res > 0) gtk_label_set_text(battery_data->label_battery, battery);
+	if (res > 0) gtk_label_set_text(battery_data->label_battery, battery);
 	
-// 	return G_SOURCE_CONTINUE;
-// }
+	return G_SOURCE_CONTINUE;
+}
 
 /**
  * @brief Destroys all windows when the main window is closed.
@@ -134,7 +134,7 @@ void activate(GtkApplication *app, app_data *data) {
 	g_signal_connect(window, "close-request", G_CALLBACK(close_application), data);
 	widget_add_event(builder, "buttonSave", "clicked", save_mouse_settings, data);
 
-	// g_timeout_add(2000, G_SOURCE_FUNC(update_battery_display), &data->battery_data);
+	g_timeout_add(2000, G_SOURCE_FUNC(update_battery_display), &data->battery_data);
 
 	GtkCssProvider *provider = gtk_css_provider_new();
 	gtk_css_provider_load_from_path(provider, "ui/window.css");
