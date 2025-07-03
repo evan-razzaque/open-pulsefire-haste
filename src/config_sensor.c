@@ -155,8 +155,13 @@ DpiProfileConfig* dpi_profile_config_new(GtkCheckButton *check_button_group, dpi
     gtk_widget_set_visible(button_decrease_value, false);
     gtk_widget_set_visible(button_increase_value, false);
 
-    const GdkRGBA rgba = {indicator.red, indicator.green, indicator.blue, 1};
-
+    const GdkRGBA rgba = {
+        .red = indicator.red / 255.0,
+        .green = indicator.green / 255.0,
+        .blue = indicator.blue / 255.0, 
+        .alpha = 1
+    };
+    
     gtk_spin_button_set_value(self->spinner_dpi_value, (double) dpi_value);
     gtk_color_dialog_button_set_rgba(self->color_button_dpi_indicator, &rgba);
 
