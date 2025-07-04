@@ -50,4 +50,10 @@ clean-partial:
 	rm -rf bin build resources
 
 clean-data:
-	rm -rf data
+	rm -rf data/*
+
+clean-macros:
+	rm data/macros.bin
+
+clean-settings:
+	rm data/mouse_settings.bin

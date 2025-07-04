@@ -97,7 +97,7 @@ static void open_macro_overlay(GSimpleAction *action, GVariant *variant, app_dat
     macro->generic_event_array_size = 2;
     macro->events = malloc(sizeof(generic_macro_event) * macro->generic_event_array_size);
     macro->generic_event_count = 0;
-    macro->macro_name = NULL;
+    macro->name = NULL;
     
     gtk_editable_set_text(data->macro_data.editable_macro_name, "New Macro");
 	gtk_overlay_add_overlay(data->widgets->overlay, GTK_WIDGET(data->widgets->box_macro));
@@ -108,10 +108,16 @@ static void close_macro_overlay(GtkButton *self, app_data *data) {
     
     mouse_macro *macro = &(data->macro_data.macros[data->macro_data.macro_count]);
     free(macro->events);
-    free(macro->macro_name);
+    free(macro->name);
 
     gtk_label_set_text(data->widgets->label_macro_events, "");
 	gtk_overlay_remove_overlay(data->widgets->overlay, GTK_WIDGET(data->widgets->box_macro));
+}
+
+static void add_macro_item(GMenu *menu_macros, char* name, int index) {
+    GMenuItem *macro_item = g_menu_item_new(name, NULL);
+    g_menu_item_set_action_and_target(macro_item, "app.select-macro", (const char*) G_VARIANT_TYPE_UINT32, index);
+    g_menu_append_item(menu_macros, macro_item);
 }
 
 static void save_recorded_macro(GtkGesture* self, int n_press, double x, double y, app_data *data) {
@@ -121,12 +127,9 @@ static void save_recorded_macro(GtkGesture* self, int n_press, double x, double 
     data->macro_data.recording_macro = false;
     
     char *macro_name = gtk_editable_get_chars(data->macro_data.editable_macro_name, 0, -1);
-    data->macro_data.macros[data->macro_data.macro_count].macro_name = macro_name;
+    data->macro_data.macros[data->macro_data.macro_count].name = macro_name;
 
-    GMenuItem *macro_item = g_menu_item_new(macro_name, NULL);
-    g_menu_item_set_action_and_target(macro_item, "app.select-macro", (const char*) G_VARIANT_TYPE_UINT32, data->macro_data.macro_count);
-    g_menu_append_item(data->macro_data.menu_macros, macro_item);
-
+    add_macro_item(data->macro_data.menu_macros, macro_name, data->macro_data.macro_count);
     data->macro_data.macro_count++;
 
     gtk_label_set_text(data->widgets->label_macro_events, "");
@@ -223,8 +226,7 @@ static int parse_macro(mouse_macro macro, macro_event *events, byte *modifier_ma
     return event_count;
 }
 
-static void select_macro(GSimpleAction *action, GVariant *macro_index, app_data *data) {
-    uint32_t index = g_variant_get_uint32(macro_index);
+void assign_macro(uint32_t index, app_data *data) {
     mouse_macro macro = data->macro_data.macros[index];
 
     macro_event *events = malloc(sizeof(macro_event) * macro.generic_event_count);
@@ -246,11 +248,19 @@ static void select_macro(GSimpleAction *action, GVariant *macro_index, app_data 
 
     free(events);
 
+    data->button_data.bindings[data->button_data.selected_button] = MOUSE_ACTION_TYPE_MACRO << 8;
+    data->macro_data.macro_indicies[data->button_data.selected_button] = index;
+
     GtkMenuButton *menu_button_active = data->button_data.menu_button_bindings[data->button_data.selected_button];
-    gtk_menu_button_set_label(menu_button_active, data->macro_data.macros[index].macro_name);
+    gtk_menu_button_set_label(menu_button_active, data->macro_data.macros[index].name);
 }
 
-void get_macro_data_widgets(GtkBuilder *builder, app_data *data) {
+static void select_macro(GSimpleAction *action, GVariant *macro_index, app_data *data) {
+    uint32_t index = g_variant_get_uint32(macro_index);
+    assign_macro(index, data);
+}
+
+static void get_macro_data_widgets(GtkBuilder *builder, app_data *data) {
     data->widgets->box_macro = GTK_BOX(GTK_WIDGET(gtk_builder_get_object(builder, "boxMacro")));
     data->widgets->macro_key_events = GTK_EVENT_CONTROLLER(gtk_builder_get_object(builder, "macroKeyController"));
     data->widgets->label_macro_events = GTK_LABEL(GTK_WIDGET(gtk_builder_get_object(builder, "labelMacroEvents")));
@@ -285,7 +295,13 @@ void app_config_macro_init(GtkBuilder *builder, app_data *data) {
         {.name = "select-macro", .activate = (g_action) select_macro, .parameter_type = (const char*) G_VARIANT_TYPE_UINT32}
     };
 
-	g_action_map_add_action_entries(G_ACTION_MAP(data->widgets->app), entries, G_N_ELEMENTS(entries), data);
+    mouse_macro *macros = data->macro_data.macros;
+
+    g_action_map_add_action_entries(G_ACTION_MAP(data->widgets->app), entries, G_N_ELEMENTS(entries), data);
+
+    for (int i = 0; i < data->macro_data.macro_count; i++) {
+        add_macro_item(data->macro_data.menu_macros, macros[i].name, i);
+    }
 
     widget_add_event(builder, "buttonRecord", "clicked", toggle_macro_recording, data);
     widget_add_event(builder, "buttonMacroCancel", "clicked", close_macro_overlay, data);

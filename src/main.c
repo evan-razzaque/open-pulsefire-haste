@@ -44,7 +44,15 @@ void save_mouse_settings(GtkWidget *self, app_data *data) {
 static void load_mouse_settings(app_data *data) {
 	hid_device *dev = data->mouse->dev;
 
-	for (int i = 0; i < 5; i++) {
+	for (int i = 0; i < BUTTON_COUNT; i++) {
+		if (data->button_data.bindings[i] >> 8 == MOUSE_ACTION_TYPE_MACRO) {
+			data->button_data.selected_button = i;
+			assign_macro(data->macro_data.macro_indicies[i], data);
+			data->button_data.selected_button = 0;
+			continue;
+		}
+
+		data->macro_data.macro_indicies[i] = -1;
 		assign_button_action(dev, i, data->button_data.bindings[i]);
 	}
 
@@ -83,11 +91,11 @@ int update_battery_display(mouse_battery_data *battery_data) {
  */
 void close_application(GtkWindow *window, app_data *data) {
 	save_settings_to_file(data);
-
-	// TODO: Save macros to file
+	save_macros_to_file(data);
+	
 	for (int i = 0; i < data->macro_data.macro_count; i++) {
 		free(data->macro_data.macros[i].events);
-		free(data->macro_data.macros[i].macro_name);
+		free(data->macro_data.macros[i].name);
 	}
 
 	free(data->macro_data.macros);
@@ -128,7 +136,11 @@ void activate(GtkApplication *app, app_data *data) {
 	app_config_buttons_init(builder, data);
 	app_config_macro_init(builder, data);
 	app_config_sensor_init(builder, data);
-	
+
+	if (mouse->dev != NULL) {
+		load_mouse_settings(data);
+	}
+
 	data->battery_data = (mouse_battery_data) {.mouse = mouse, .label_battery = label_battery};
 	
 	g_signal_connect(window, "close-request", G_CALLBACK(close_application), data);
@@ -217,7 +229,7 @@ int main() {
 	
 	mouse_data mouse = {.mutex = &mutex, .mouse_pipe = mouse_pipe, .dev = dev, .type = connection_type};
 	app_widgets widgets = {.alert = gtk_alert_dialog_new(" ")};
-
+	
 	app_data data = {
 		.mouse = &mouse,
 		.widgets = &widgets,
@@ -230,19 +242,12 @@ int main() {
 			.modifier_map = MACRO_MODIFIER_MAP(),
 			.mouse_buttons = MOUSE_MAP(),
 			.mouse_button_names = MOUSE_BUTTON_NAMES(),
-
-			// TODO: Read from file
-			.macros = malloc(sizeof(mouse_macro) * 2),
-			.macro_array_size = 2,
-			.macro_count = 0,
 			.recording_macro = 0
 		}
 	};
 
-	if (dev != NULL) {
-		load_settings_from_file(&data);
-		load_mouse_settings(&data);
-	}
+	load_settings_from_file(&data);
+	load_macros_from_file(&data);
 	
 	GtkApplication *app;
 	int status;

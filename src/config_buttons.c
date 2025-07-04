@@ -184,6 +184,8 @@ static void setup_action_menu_buttons(GtkBuilder *builder, app_data *data) {
 	for (int i = 0; i < BUTTON_COUNT; i++) {
 		g_signal_connect(menu_buttons[i], "notify::active", G_CALLBACK(set_mouse_button), data);
 		g_object_set_data(G_OBJECT(menu_buttons[i]), "button", &data->button_data.buttons[i]);
+
+		if (bindings[i] >> 8 == MOUSE_ACTION_TYPE_MACRO) continue;
 		set_menu_button_label(menu_buttons[i], bindings[i], simple_action_names, key_names);
 	}
 }

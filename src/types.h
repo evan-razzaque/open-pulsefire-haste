@@ -84,15 +84,15 @@ struct config_color_data {
  */
 struct config_button_data {
 	MOUSE_BUTTON selected_button;
-	MOUSE_BUTTON buttons[6];
-	uint16_t bindings[6];
+	MOUSE_BUTTON buttons[BUTTON_COUNT];
+	uint16_t bindings[BUTTON_COUNT];
 	char selected_button_name[16];
 
 	const byte keyboard_keys[1 << 16];
 	const char *key_names[256];
 	uint16_t current_keyboard_action;
 
-	GtkMenuButton *menu_button_bindings[6]; // Menu buttons for each mouse button binding
+	GtkMenuButton *menu_button_bindings[BUTTON_COUNT]; // Menu buttons for each mouse button binding
 } typedef config_button_data;
 
 /**
@@ -110,7 +110,7 @@ struct mouse_macro {
 	generic_macro_event *events;
 	int generic_event_count;
 	int generic_event_array_size;
-	char* macro_name;
+	char* name;
 } typedef mouse_macro;
 
 struct config_macro_data {
@@ -122,6 +122,8 @@ struct config_macro_data {
 	int macro_count;
 	int macro_array_size;
 	bool recording_macro;
+
+	int macro_indicies[6];
 
 	GtkGesture *gesture_macro_mouse_events;
 	GtkGesture *gesture_button_confirm_macro;
@@ -148,7 +150,7 @@ struct config_sensor_data {
  */
 struct app_data {
 	mouse_data *mouse;
-	FILE *settings_file;
+	FILE *settings_file, *macros_file;
 
 	app_widgets *widgets;
 	mouse_battery_data battery_data;
@@ -157,18 +159,5 @@ struct app_data {
 	config_macro_data macro_data;
 	config_sensor_data sensor_data;
 } typedef app_data;
-
-/**
- * @brief A struct used for reading and writing mouse settings with the disk.
- */
-struct mouse_settings {
-	color_options led;
-
-	uint16_t bindings[6];
-
-	dpi_settings dpi_config;
-	byte polling_rate_value;
-	byte lift_off_distance;
-} typedef mouse_settings;
 
 #endif

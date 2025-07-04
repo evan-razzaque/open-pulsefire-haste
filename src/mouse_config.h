@@ -145,4 +145,10 @@ void load_settings_from_file(app_data *data);
 
 void save_settings_to_file(app_data *data);
 
+void save_macros_to_file(app_data *data);
+
+void load_macros_from_file(app_data *data);
+
+void assign_macro(uint32_t index, app_data *data);
+
 #endif
