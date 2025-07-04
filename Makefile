@@ -1,11 +1,12 @@
-CC              = gcc
-LDLIBS          = -lm -lhidapi-hidraw $$(pkg-config --libs gtk4)
-DEVICE_OBJFILES = build/buttons.o build/mouse.o build/rgb.o build/sensor.o
-APP_OBJFILES    = build/main.o build/config_led.o build/config_buttons.o build/config_macro.o build/config_sensor.o build/settings_storage.o
-OBJFILES        = $(DEVICE_OBJFILES) $(APP_OBJFILES)
-UI_FILES        = ui/templates.gresource.xml ui/dpi-profile-config.ui
-GRESOURCES      = resources/templates.gresource
-TARGET          = bin/main
+CC                = gcc
+LDLIBS            = -lm -lhidapi-hidraw $$(pkg-config --libs gtk4)
+DEVICE_OBJFILES   = build/buttons.o build/mouse.o build/rgb.o build/sensor.o
+APP_OBJFILES      = build/main.o build/config_led.o build/config_buttons.o build/config_macro.o build/config_sensor.o build/settings_storage.o
+TEMPLATE_OBJFILES = build/dpi_profile_config.o
+OBJFILES          = $(DEVICE_OBJFILES) $(APP_OBJFILES) $(TEMPLATE_OBJFILES)
+UI_FILES          = ui/templates.gresource.xml ui/dpi-profile-config.ui
+GRESOURCES        = resources/templates.gresource
+TARGET            = bin/main
 
 CFLAGS += $$(pkg-config --cflags gtk4) -Wall -Werror -Werror=vla -Wno-deprecated-declarations -std=c99 -O1
 
@@ -34,7 +35,7 @@ build/%.o: src/device/%.c src/device/%.h
 
 # Application
 
-build/main.o : src/main.c src/hid_keyboard_map.h
+build/main.o: src/main.c src/hid_keyboard_map.h
 	@mkdir -p build
 	$(CC) -c $(CFLAGS) $< -o $@
 
@@ -42,6 +43,15 @@ build/%.o: src/%.c
 	@mkdir -p build
 	$(CC) -c $(CFLAGS) $< -o $@
 
+# Templates
+
+build/%.o: src/templates/%.c src/templates/%.o
+	@mkdir -p build
+	$(CC) -c $(CFLAGS) $< -o $@
+
+src/config_sensor.c: src/templates/dpi_profile_config.c src/templates/dpi_profile_config.h
+
+# Clean
 
 clean:
 	rm -rf bin build resources data

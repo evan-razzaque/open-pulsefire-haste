@@ -11,69 +11,7 @@
 #include "types.h"
 #include "mouse_config.h"
 
-static void update_spinner_dpi_value(GtkSpinButton *self, GtkRange *range_dpi_value);
-static void update_range_dpi_value(GtkRange* self, GtkSpinButton *spinner_dpi_value);
-
-G_DECLARE_FINAL_TYPE(DpiProfileConfig, dpi_profile_config, DPI, PROFILE_CONFIG, GtkListBoxRow)
-
-#define DPI_TYPE_PROFILE_CONFIG (dpi_profile_config_get_type())
-#define DPI_PROFILE_CONFIG(inst) (G_TYPE_CHECK_INSTANCE_CAST ((inst), DPI_TYPE_PROFILE_CONFIG, DpiProfileConfig))
-
-struct _DpiProfileConfig {
-    GtkListBoxRow parent_type;
-
-    GtkCheckButton *check_button;
-    GtkRange *range_dpi_value;
-    GtkSpinButton *spinner_dpi_value;
-    GtkColorDialogButton *color_button_dpi_indicator;
-    GtkGestureClick *gesture_click_controller;
-
-    int profile_index;
-};
-
-G_DEFINE_TYPE(DpiProfileConfig, dpi_profile_config, GTK_TYPE_LIST_BOX_ROW)
-
-static void dpi_profile_config_dispose(GObject *gobject) {
-    gtk_widget_dispose_template(GTK_WIDGET(gobject), DPI_TYPE_PROFILE_CONFIG);
-    G_OBJECT_CLASS(dpi_profile_config_parent_class)->dispose(gobject);
-}
-
-static void update_range_dpi_value(GtkRange* self, GtkSpinButton *spinner_dpi_value) {
-    double value = gtk_spin_button_get_value(spinner_dpi_value) / 100;
-    
-    g_signal_handlers_block_by_func(self, G_CALLBACK(update_spinner_dpi_value), spinner_dpi_value);
-    gtk_range_set_value(self, value);
-    g_signal_handlers_unblock_by_func(self, G_CALLBACK(update_spinner_dpi_value), spinner_dpi_value);
-}
-
-static void update_spinner_dpi_value(GtkSpinButton *self, GtkRange *range_dpi_value) {
-    double value = gtk_range_get_value(range_dpi_value) * 100;
-
-    g_signal_handlers_block_by_func(self, G_CALLBACK(update_range_dpi_value), range_dpi_value);
-    gtk_spin_button_set_value(self, value);
-    g_signal_handlers_unblock_by_func(self, G_CALLBACK(update_range_dpi_value), range_dpi_value);
-}
-
-static void dpi_profile_config_class_init(DpiProfileConfigClass *klass) {
-    G_OBJECT_CLASS(klass)->dispose = dpi_profile_config_dispose;
-
-    GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
-
-    gtk_widget_class_set_template_from_resource(widget_class, "/com/haste/dpi-profile-config.ui");
-
-    gtk_widget_class_bind_template_child(widget_class, DpiProfileConfig, check_button);
-    gtk_widget_class_bind_template_child(widget_class, DpiProfileConfig, range_dpi_value);
-    gtk_widget_class_bind_template_child(widget_class, DpiProfileConfig, spinner_dpi_value);
-    gtk_widget_class_bind_template_child(widget_class, DpiProfileConfig, color_button_dpi_indicator);
-
-    gtk_widget_class_bind_template_callback(widget_class, update_spinner_dpi_value);
-    gtk_widget_class_bind_template_callback(widget_class, update_range_dpi_value);
-}
-
-static void dpi_profile_config_init(DpiProfileConfig *self) {
-    g_type_ensure(DPI_TYPE_PROFILE_CONFIG);
-    gtk_widget_init_template(GTK_WIDGET(self));
-}
+#include "./templates/dpi_profile_config.h"
 
 static void update_dpi_settings(app_data* data) {
     g_mutex_lock(data->mouse->mutex);
