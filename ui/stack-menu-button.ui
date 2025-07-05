@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Created with Cambalache 0.96.1 -->
+<interface>
+  <!-- interface-name test-template.ui -->
+  <requires lib="gtk" version="4.18"/>
+  <template class="StackMenuButton" parent="GtkButton">
+    <property name="has-frame">False</property>
+    <child>
+      <object class="GtkBox">
+        <child>
+          <object class="GtkLabel" id="label">
+            <property name="halign">start</property>
+            <property name="hexpand">True</property>
+            <!-- Custom object fragments -->
+            <property name="label" bind-source="StackMenuButton" bind-property="name" bind-flags="bidirectional | sync-create"/>
+            <property name="valign">center</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkImage" id="image">
+            <property name="halign">end</property>
+            <property name="hexpand">True</property>
+            <property name="icon-name">go-next</property>
+            <property name="opacity" bind-source="StackMenuButton" bind-property="height-request" bind-flags="bidirectional | sync-create">1.0</property>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>

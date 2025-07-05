@@ -61,7 +61,7 @@ static void create_settings_file(mouse_settings *settings, app_data *data) {
     
     data->settings_file = fopen(SETTINGS_FILE, "wb");
     fwrite(settings, sizeof(mouse_settings), 1, data->settings_file);
-    fflush(data->settings_file);
+    fclose(data->settings_file);
 }
 
 void load_settings_from_file(app_data *data) {
@@ -73,7 +73,6 @@ void load_settings_from_file(app_data *data) {
     } else {
         fread(&settings, sizeof(mouse_settings), 1, data->settings_file);
         fclose(data->settings_file);
-        data->settings_file = fopen(SETTINGS_FILE, "wb");
     }
 
     memcpy(data->button_data.bindings, settings.bindings, sizeof(settings.bindings));
@@ -94,7 +93,7 @@ void save_settings_to_file(app_data *data) {
 
     memcpy(settings.bindings, data->button_data.bindings, sizeof(data->button_data.bindings));
     
-    rewind(data->settings_file);
+    data->settings_file = fopen(SETTINGS_FILE, "wb");
     fwrite(&settings, sizeof(mouse_settings), 1, data->settings_file);
     fclose(data->settings_file);
 }
@@ -113,11 +112,6 @@ void load_macros_from_file(app_data *data) {
     }
 
     memcpy(data->macro_data.macro_indicies, macro_info.macro_indicies, sizeof(macro_info.macro_indicies));
-
-    for (int i = 0; i < BUTTON_COUNT; i++) {
-        printf("File: %d\n", macro_info.macro_indicies[i]);
-        printf("Data: %d\n", data->macro_data.macro_indicies[i]);
-    }
 
     if (macro_info.macro_count == 0) return;
     
@@ -149,10 +143,6 @@ void save_macros_to_file(app_data *data) {
     };
 
     memcpy(macro_info.macro_indicies, data->macro_data.macro_indicies, sizeof(int) * BUTTON_COUNT);
-    
-    for (int i = 0; i < BUTTON_COUNT; i++) {
-        printf("%d\n", macro_info.macro_indicies[i]);
-    }
 
     data->macros_file = fopen(MACROS_FILE, "wb");
     fwrite(&macro_info, sizeof(mouse_macro_info), 1, data->macros_file);

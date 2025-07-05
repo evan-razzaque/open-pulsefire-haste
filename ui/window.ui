@@ -284,6 +284,13 @@
                         <property name="label">Add Profile</property>
                       </object>
                     </child>
+                    <child>
+                      <object class="GtkMenuButton">
+                        <property name="popover">popoverButtonActions</property>
+                        <property name="valign">center</property>
+                        <property name="vexpand">True</property>
+                      </object>
+                    </child>
                   </object>
                 </child>
                 <child>
@@ -653,5 +660,101 @@
   </object>
   <object class="GtkGestureClick" id="gestureMacroMouseEvents">
     <property name="button">0</property>
+  </object>
+  <object class="GtkPopover" id="popoverButtonActions">
+    <property name="child">stackButtonActions</property>
+    <signal name="closed" handler="reset_stack_menu" object="stackButtonActions"/>
+  </object>
+  <object class="GtkStack" id="stackButtonActions">
+    <child>
+      <object class="GtkStackPage" id="stackPageMain">
+        <property name="child">
+          <object class="GtkBox">
+            <property name="name">Mouse Action</property>
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="StackMenuButton">
+                <property name="action-target">1</property>
+                <property name="height-request">1</property>
+                <property name="name">Mouse Action</property>
+                <signal name="clicked" handler="switch_stack_menu_page" object="stackButtonActions"/>
+              </object>
+            </child>
+            <child>
+              <object class="StackMenuButton">
+                <property name="height-request">0</property>
+                <property name="name">Keyboard Action</property>
+              </object>
+            </child>
+            <child>
+              <object class="StackMenuButton">
+                <property name="action-target">2</property>
+                <property name="height-request">1</property>
+                <property name="name">Media Action</property>
+                <signal name="clicked" handler="switch_stack_menu_page" object="stackButtonActions"/>
+              </object>
+            </child>
+            <child>
+              <object class="StackMenuButton">
+                <property name="action-target">3</property>
+                <property name="height-request">1</property>
+                <property name="name">Macro</property>
+                <signal name="clicked" handler="switch_stack_menu_page" object="stackButtonActions"/>
+              </object>
+            </child>
+            <child>
+              <object class="StackMenuButton">
+                <property name="action-target">4</property>
+                <property name="height-request">1</property>
+                <property name="name">Shortcut</property>
+                <signal name="clicked" handler="switch_stack_menu_page" object="stackButtonActions"/>
+              </object>
+            </child>
+            <child>
+              <object class="StackMenuButton">
+                <property name="height-request">0</property>
+                <property name="name">Disabled</property>
+              </object>
+            </child>
+          </object>
+        </property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkStackPage" id="stackPageMouse">
+        <property name="child">
+          <object class="GtkLabel">
+            <property name="label">Mouse</property>
+          </object>
+        </property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkStackPage" id="stackPageMedia">
+        <property name="child">
+          <object class="GtkLabel">
+            <property name="label">Media</property>
+          </object>
+        </property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkStackPage" id="stackPageMacro">
+        <property name="child">
+          <object class="GtkLabel">
+            <property name="label">Macro</property>
+          </object>
+        </property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkStackPage" id="stackPageShortcut">
+        <property name="child">
+          <object class="GtkLabel">
+            <property name="label">Shortcut</property>
+          </object>
+        </property>
+      </object>
+    </child>
   </object>
 </interface>

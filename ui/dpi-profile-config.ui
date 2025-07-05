@@ -32,7 +32,8 @@
                 <property name="round-digits">0</property>
                 <property name="show-fill-level">True</property>
                 <property name="value-pos">left</property>
-                <signal name="value-changed" handler="dpi_profile_config_update_spinner_dpi_value" object="spinner_dpi_value"/>
+                <!-- Custom object fragments -->
+                <signal name="value-changed" handler="dpi_profile_config_update_spinner_dpi_value" swapped="yes"/>
               </object>
             </child>
           </object>
@@ -50,6 +51,7 @@
             <property name="max-width-chars">6</property>
             <property name="text">1000</property>
             <property name="update-policy">if-valid</property>
+            <!-- Custom object fragments -->
             <signal name="value-changed" handler="dpi_profile_config_update_range_dpi_value" object="range_dpi_value"/>
           </object>
         </child>

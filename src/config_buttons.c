@@ -215,3 +215,14 @@ void app_config_buttons_init(GtkBuilder *builder, app_data *data) {
 	widget_add_event(builder, "buttonKeybindConfirm", "clicked", confirm_keyboard_action_binding, data);
 	widget_add_event(builder, "buttonKeybindCancel", "clicked", close_keyboard_actions_window, data);
 }
+
+G_MODULE_EXPORT void switch_stack_menu_page(GtkStack* stack, GtkActionable *button) {
+	GtkSelectionModel *stack_pages = gtk_stack_get_pages(stack);
+	
+	gtk_selection_model_select_item(stack_pages, g_variant_get_int32(gtk_actionable_get_action_target_value(button)), true);
+}
+
+G_MODULE_EXPORT void reset_stack_menu(GtkStack* stack, GtkPopover *popover) {
+	GtkSelectionModel *stack_pages = gtk_stack_get_pages(stack);
+	gtk_selection_model_select_item(stack_pages, 0, true);
+}

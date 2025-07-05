@@ -15,6 +15,8 @@
 #include "hid_keyboard_map.h"
 #include "mouse_config.h"
 
+#include "./templates/stack_menu_button.h"
+
 #define widget_add_event(builder, widget_name, detailed_signal, c_handler, data)\
 	g_signal_connect(gtk_builder_get_object(builder, widget_name), detailed_signal, G_CALLBACK(c_handler), data);
 
@@ -124,8 +126,9 @@ void activate(GtkApplication *app, app_data *data) {
 		NULL
 	);
 
-	GtkBuilder *builder = gtk_builder_new_from_file("ui/window.ui");
+	g_type_ensure(STACK_TYPE_MENU_BUTTON);
 	g_resources_register(g_resource_load("resources/templates.gresource", NULL));
+	GtkBuilder *builder = gtk_builder_new_from_file("ui/window.ui");
 
 	GtkWindow *window = GTK_WINDOW(GTK_WIDGET(gtk_builder_get_object(builder, "window")));
 	GtkLabel *label_battery = GTK_LABEL(GTK_WIDGET(gtk_builder_get_object(builder, "labelBattery")));
