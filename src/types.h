@@ -128,7 +128,7 @@ struct config_macro_data {
 	GtkGesture *gesture_macro_mouse_events;
 	GtkGesture *gesture_button_confirm_macro;
 	GtkButton *button_confirm_macro;
-	GMenu *menu_macros;
+	GtkBox *box_saved_macros;
 	GtkEditable *editable_macro_name;
 } typedef config_macro_data;
 

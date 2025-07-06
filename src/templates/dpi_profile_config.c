@@ -47,4 +47,5 @@ static void dpi_profile_config_class_init(DpiProfileConfigClass *klass) {
 static void dpi_profile_config_init(DpiProfileConfig *self) {
     g_type_ensure(DPI_TYPE_PROFILE_CONFIG);
     gtk_widget_init_template(GTK_WIDGET(self));
+    g_signal_connect_swapped(self->range_dpi_value, "value-changed", G_CALLBACK(dpi_profile_config_update_spinner_dpi_value), self->spinner_dpi_value);
 }

@@ -32,8 +32,6 @@
                 <property name="round-digits">0</property>
                 <property name="show-fill-level">True</property>
                 <property name="value-pos">left</property>
-                <!-- Custom object fragments -->
-                <signal name="value-changed" handler="dpi_profile_config_update_spinner_dpi_value" swapped="yes"/>
               </object>
             </child>
           </object>

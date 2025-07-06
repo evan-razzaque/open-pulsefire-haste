@@ -8,6 +8,9 @@ struct _StackMenuButton {
 
     GtkLabel *label;
     GtkImage *image;
+
+    char *direction;
+    bool has_icon;
 };
 
 G_DECLARE_FINAL_TYPE(StackMenuButton, stack_menu_button, stack, menu_button, GtkButton)

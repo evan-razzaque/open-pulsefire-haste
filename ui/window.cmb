@@ -4,9 +4,9 @@
 <cambalache-project version="0.96.0" target_tk="gtk-4.0">
   <gresources filename="templates.gresource.xml" sha256="400a9a9cc09a4f10b22896bb619358a6a356bea45f5a378a3e68b1f3b2bcf549"/>
   <css filename="window.css" is_global="0"/>
-  <ui template-class="DpiProfileConfig" filename="dpi-profile-config.ui" sha256="700a9f1cd6b16656b02e808b921813f1b791a8b57a1d650c1d4ea7942a28d6e8"/>
-  <ui template-class="StackMenuButton" filename="stack-menu-button.ui" sha256="99f9a93b70e04e36a34b4702c08094b6409accbf0fda052a668184b176cb47cb"/>
-  <ui filename="window.ui" sha256="e2fb758ee3a977b6a5d8f88f0c973afd6eda2980ed56dfd7e69bb6ee33aa5dae">
+  <ui template-class="DpiProfileConfig" filename="dpi-profile-config.ui" sha256="8c26e04c72a6386569155e76951f7869260c88e1f06f6ef172a46424cdb28a22"/>
+  <ui template-class="StackMenuButton" filename="stack-menu-button.ui" sha256="d5f9e9363acbe9c70908a1599cd512b99cf94e9450e06caaa061155fa3ef1ca6"/>
+  <ui filename="window.ui" sha256="9f0cbdaef8af11e2f5239e10baef6a6565207373082a95f356e001ea11c0a607">
     <requires>StackMenuButton</requires>
   </ui>
 </cambalache-project>

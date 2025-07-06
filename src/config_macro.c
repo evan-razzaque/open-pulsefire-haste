@@ -101,6 +101,10 @@ static void open_macro_overlay(GSimpleAction *action, GVariant *variant, app_dat
     
     gtk_editable_set_text(data->macro_data.editable_macro_name, "New Macro");
 	gtk_overlay_add_overlay(data->widgets->overlay, GTK_WIDGET(data->widgets->box_macro));
+
+    // TODO: Refactor into function
+    GtkMenuButton *menu_button_active = data->button_data.menu_button_bindings[data->button_data.selected_button];
+	gtk_menu_button_popdown(menu_button_active);
 }
 
 static void close_macro_overlay(GtkButton *self, app_data *data) {
@@ -114,10 +118,14 @@ static void close_macro_overlay(GtkButton *self, app_data *data) {
 	gtk_overlay_remove_overlay(data->widgets->overlay, GTK_WIDGET(data->widgets->box_macro));
 }
 
-static void add_macro_item(GMenu *menu_macros, char* name, int index) {
-    GMenuItem *macro_item = g_menu_item_new(name, NULL);
-    g_menu_item_set_action_and_target(macro_item, "app.select-macro", (const char*) G_VARIANT_TYPE_UINT32, index);
-    g_menu_append_item(menu_macros, macro_item);
+static void box_macros_add_item(GtkBox *box_saved_macros, char *name, int index) {
+    GtkButton *macro_item = GTK_BUTTON(gtk_button_new_with_label(name));
+    gtk_button_set_has_frame(macro_item, false);
+
+    gtk_actionable_set_action_name(GTK_ACTIONABLE(macro_item), "app.select-macro");
+    gtk_actionable_set_action_target(GTK_ACTIONABLE(macro_item), (const char*) G_VARIANT_TYPE_UINT32, index);
+
+    gtk_box_append(box_saved_macros, GTK_WIDGET(macro_item));
 }
 
 static void save_recorded_macro(GtkGesture* self, int n_press, double x, double y, app_data *data) {
@@ -129,7 +137,7 @@ static void save_recorded_macro(GtkGesture* self, int n_press, double x, double 
     char *macro_name = gtk_editable_get_chars(data->macro_data.editable_macro_name, 0, -1);
     data->macro_data.macros[data->macro_data.macro_count].name = macro_name;
 
-    add_macro_item(data->macro_data.menu_macros, macro_name, data->macro_data.macro_count);
+    box_macros_add_item(data->macro_data.box_saved_macros, macro_name, data->macro_data.macro_count);
     data->macro_data.macro_count++;
 
     gtk_label_set_text(data->widgets->label_macro_events, "");
@@ -258,18 +266,21 @@ void assign_macro(uint32_t index, app_data *data) {
 static void select_macro(GSimpleAction *action, GVariant *macro_index, app_data *data) {
     uint32_t index = g_variant_get_uint32(macro_index);
     assign_macro(index, data);
+
+    GtkMenuButton *menu_button_active = data->button_data.menu_button_bindings[data->button_data.selected_button];
+	gtk_menu_button_popdown(menu_button_active);
 }
 
 static void get_macro_data_widgets(GtkBuilder *builder, app_data *data) {
     data->widgets->box_macro = GTK_BOX(GTK_WIDGET(gtk_builder_get_object(builder, "boxMacro")));
     data->widgets->macro_key_events = GTK_EVENT_CONTROLLER(gtk_builder_get_object(builder, "macroKeyController"));
     data->widgets->label_macro_events = GTK_LABEL(GTK_WIDGET(gtk_builder_get_object(builder, "labelMacroEvents")));
-
+    
     data->macro_data.gesture_macro_mouse_events = GTK_GESTURE(gtk_builder_get_object(builder, "gestureMacroMouseEvents"));
     data->macro_data.gesture_button_confirm_macro = GTK_GESTURE(gtk_builder_get_object(builder, "gestureButtonConfirmMacro"));
     data->macro_data.button_confirm_macro = GTK_BUTTON(GTK_WIDGET(gtk_builder_get_object(builder, "buttonMacroSave")));
-
-    data->macro_data.menu_macros = G_MENU(gtk_builder_get_object(builder, "menuMacros"));
+    
+    data->macro_data.box_saved_macros = GTK_BOX(GTK_WIDGET(gtk_builder_get_object(builder, "boxSavedMacros")));
     data->macro_data.editable_macro_name = GTK_EDITABLE(gtk_builder_get_object(builder, "editableMacroName"));
 }
 
@@ -300,7 +311,7 @@ void app_config_macro_init(GtkBuilder *builder, app_data *data) {
     g_action_map_add_action_entries(G_ACTION_MAP(data->widgets->app), entries, G_N_ELEMENTS(entries), data);
 
     for (int i = 0; i < data->macro_data.macro_count; i++) {
-        add_macro_item(data->macro_data.menu_macros, macros[i].name, i);
+        box_macros_add_item(data->macro_data.box_saved_macros, macros[i].name, i);
     }
 
     widget_add_event(builder, "buttonRecord", "clicked", toggle_macro_recording, data);

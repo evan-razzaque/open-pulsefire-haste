@@ -61,7 +61,7 @@
                               <object class="GtkMenuButton" id="menuButtonLeft">
                                 <property name="direction">right</property>
                                 <property name="label">Left Click</property>
-                                <property name="menu-model">menuModelActions</property>
+                                <property name="popover">popoverButtonActions</property>
                                 <property name="tooltip-text">Left Click</property>
                               </object>
                             </child>
@@ -81,7 +81,7 @@
                               <object class="GtkMenuButton" id="menuButtonRight">
                                 <property name="direction">right</property>
                                 <property name="label">Right Click</property>
-                                <property name="menu-model">menuModelActions</property>
+                                <property name="popover">popoverButtonActions</property>
                                 <property name="tooltip-text">Right Click</property>
                               </object>
                             </child>
@@ -101,7 +101,7 @@
                               <object class="GtkMenuButton" id="menuButtonMiddle">
                                 <property name="direction">right</property>
                                 <property name="label">Middle Click</property>
-                                <property name="menu-model">menuModelActions</property>
+                                <property name="popover">popoverButtonActions</property>
                                 <property name="tooltip-text">Middle Click</property>
                               </object>
                             </child>
@@ -122,7 +122,7 @@
                               <object class="GtkMenuButton" id="menuButtonBack">
                                 <property name="direction">right</property>
                                 <property name="label">Back</property>
-                                <property name="menu-model">menuModelActions</property>
+                                <property name="popover">popoverButtonActions</property>
                                 <property name="tooltip-text">Back</property>
                               </object>
                             </child>
@@ -143,7 +143,7 @@
                               <object class="GtkMenuButton" id="menuButtonForward">
                                 <property name="direction">right</property>
                                 <property name="label">Forward</property>
-                                <property name="menu-model">menuModelActions</property>
+                                <property name="popover">popoverButtonActions</property>
                                 <property name="tooltip-text">Forward</property>
                               </object>
                             </child>
@@ -164,7 +164,7 @@
                               <object class="GtkMenuButton" id="menuButtonDPI">
                                 <property name="direction">right</property>
                                 <property name="label">DPI Toggle</property>
-                                <property name="menu-model">menuModelActions</property>
+                                <property name="popover">popoverButtonActions</property>
                                 <property name="tooltip-text">DPI Toggle</property>
                               </object>
                             </child>
@@ -282,13 +282,6 @@
                       <object class="GtkButton" id="buttonAddDpiProfile">
                         <property name="action-name">app.add-dpi-level</property>
                         <property name="label">Add Profile</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkMenuButton">
-                        <property name="popover">popoverButtonActions</property>
-                        <property name="valign">center</property>
-                        <property name="vexpand">True</property>
                       </object>
                     </child>
                   </object>
@@ -661,11 +654,8 @@
   <object class="GtkGestureClick" id="gestureMacroMouseEvents">
     <property name="button">0</property>
   </object>
-  <object class="GtkPopover" id="popoverButtonActions">
-    <property name="child">stackButtonActions</property>
-    <signal name="closed" handler="reset_stack_menu" object="stackButtonActions"/>
-  </object>
   <object class="GtkStack" id="stackButtonActions">
+    <property name="vhomogeneous">False</property>
     <child>
       <object class="GtkStackPage" id="stackPageMain">
         <property name="child">
@@ -675,21 +665,19 @@
             <child>
               <object class="StackMenuButton">
                 <property name="action-target">1</property>
-                <property name="height-request">1</property>
                 <property name="name">Mouse Action</property>
                 <signal name="clicked" handler="switch_stack_menu_page" object="stackButtonActions"/>
               </object>
             </child>
             <child>
               <object class="StackMenuButton">
-                <property name="height-request">0</property>
+                <property name="action-name">app.show-test-window</property>
                 <property name="name">Keyboard Action</property>
               </object>
             </child>
             <child>
               <object class="StackMenuButton">
                 <property name="action-target">2</property>
-                <property name="height-request">1</property>
                 <property name="name">Media Action</property>
                 <signal name="clicked" handler="switch_stack_menu_page" object="stackButtonActions"/>
               </object>
@@ -697,7 +685,6 @@
             <child>
               <object class="StackMenuButton">
                 <property name="action-target">3</property>
-                <property name="height-request">1</property>
                 <property name="name">Macro</property>
                 <signal name="clicked" handler="switch_stack_menu_page" object="stackButtonActions"/>
               </object>
@@ -705,14 +692,14 @@
             <child>
               <object class="StackMenuButton">
                 <property name="action-target">4</property>
-                <property name="height-request">1</property>
                 <property name="name">Shortcut</property>
                 <signal name="clicked" handler="switch_stack_menu_page" object="stackButtonActions"/>
               </object>
             </child>
             <child>
               <object class="StackMenuButton">
-                <property name="height-request">0</property>
+                <property name="action-name">app.change-binding</property>
+                <property name="action-target">'0000|Disabled'</property>
                 <property name="name">Disabled</property>
               </object>
             </child>
@@ -723,8 +710,56 @@
     <child>
       <object class="GtkStackPage" id="stackPageMouse">
         <property name="child">
-          <object class="GtkLabel">
-            <property name="label">Mouse</property>
+          <object class="GtkBox">
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="StackMenuButton">
+                <property name="name">Mouse Action</property>
+                <signal name="clicked" handler="reset_stack_menu" object="stackButtonActions"/>
+              </object>
+            </child>
+            <child>
+              <object class="StackMenuButton">
+                <property name="action-name">app.change-binding</property>
+                <property name="action-target">'0101|Left Click'</property>
+                <property name="name">Left Click</property>
+              </object>
+            </child>
+            <child>
+              <object class="StackMenuButton">
+                <property name="action-name">app.change-binding</property>
+                <property name="action-target">'0102|Right Click'</property>
+                <property name="name">Right Click</property>
+              </object>
+            </child>
+            <child>
+              <object class="StackMenuButton">
+                <property name="action-name">app.change-binding</property>
+                <property name="action-target">'0103|Middle Click'</property>
+                <property name="name">Middle Click</property>
+              </object>
+            </child>
+            <child>
+              <object class="StackMenuButton">
+                <property name="action-name">app.change-binding</property>
+                <property name="action-target">'0104|Back'</property>
+                <property name="name">Back</property>
+              </object>
+            </child>
+            <child>
+              <object class="StackMenuButton">
+                <property name="action-name">app.change-binding</property>
+                <property name="action-target">'0105|Forward'</property>
+                <property name="name">Forward</property>
+              </object>
+            </child>
+            <child>
+              <object class="StackMenuButton">
+                <property name="action-name">app.change-binding</property>
+                <property name="action-target">'0708|DPI Toggle'</property>
+                <property name="name">DPI Toggle</property>
+              </object>
+            </child>
           </object>
         </property>
       </object>
@@ -732,8 +767,63 @@
     <child>
       <object class="GtkStackPage" id="stackPageMedia">
         <property name="child">
-          <object class="GtkLabel">
-            <property name="label">Media</property>
+          <object class="GtkBox">
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="StackMenuButton">
+                <property name="name">Media Action</property>
+                <signal name="clicked" handler="reset_stack_menu" object="stackButtonActions"/>
+              </object>
+            </child>
+            <child>
+              <object class="StackMenuButton">
+                <property name="action-name">app.change-binding</property>
+                <property name="action-target">'0300|Play/Pause'</property>
+                <property name="name">Play/Pause</property>
+              </object>
+            </child>
+            <child>
+              <object class="StackMenuButton">
+                <property name="action-name">app.change-binding</property>
+                <property name="action-target">'0301|Stop'</property>
+                <property name="name">Stop</property>
+              </object>
+            </child>
+            <child>
+              <object class="StackMenuButton">
+                <property name="action-name">app.change-binding</property>
+                <property name="action-target">'0302|Previous'</property>
+                <property name="name">Previous</property>
+              </object>
+            </child>
+            <child>
+              <object class="StackMenuButton">
+                <property name="action-name">app.change-binding</property>
+                <property name="action-target">'0303|Next'</property>
+                <property name="name">Next</property>
+              </object>
+            </child>
+            <child>
+              <object class="StackMenuButton">
+                <property name="action-name">app.change-binding</property>
+                <property name="action-target">'0304|Volume mute'</property>
+                <property name="name">Volume mute</property>
+              </object>
+            </child>
+            <child>
+              <object class="StackMenuButton">
+                <property name="action-name">app.change-binding</property>
+                <property name="action-target">'0305|Volume down'</property>
+                <property name="name">Volume down</property>
+              </object>
+            </child>
+            <child>
+              <object class="StackMenuButton">
+                <property name="action-name">app.change-binding</property>
+                <property name="action-target">'0306|Volume up'</property>
+                <property name="name">Volume up</property>
+              </object>
+            </child>
           </object>
         </property>
       </object>
@@ -741,8 +831,27 @@
     <child>
       <object class="GtkStackPage" id="stackPageMacro">
         <property name="child">
-          <object class="GtkLabel">
-            <property name="label">Macro</property>
+          <object class="GtkScrolledWindow">
+            <property name="child">
+              <object class="GtkBox" id="boxSavedMacros">
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="StackMenuButton">
+                    <property name="name">Macro</property>
+                    <signal name="clicked" handler="reset_stack_menu" object="stackButtonActions"/>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton">
+                    <property name="action-name">app.add-macro</property>
+                    <property name="has-frame">False</property>
+                    <property name="label">Add Macro</property>
+                  </object>
+                </child>
+              </object>
+            </property>
+            <property name="hscrollbar-policy">never</property>
+            <property name="min-content-height">200</property>
           </object>
         </property>
       </object>
@@ -750,11 +859,78 @@
     <child>
       <object class="GtkStackPage" id="stackPageShortcut">
         <property name="child">
-          <object class="GtkLabel">
-            <property name="label">Shortcut</property>
+          <object class="GtkBox">
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="StackMenuButton">
+                <property name="name">Shortcut</property>
+                <signal name="clicked" handler="reset_stack_menu" object="stackButtonActions"/>
+              </object>
+            </child>
+            <child>
+              <object class="StackMenuButton">
+                <property name="action-name">app.change-binding</property>
+                <property name="action-target">'0503|Show desktop'</property>
+                <property name="name">Show desktop</property>
+              </object>
+            </child>
+            <child>
+              <object class="StackMenuButton">
+                <property name="action-name">app.change-binding</property>
+                <property name="action-target">'0505|Close window'</property>
+                <property name="name">Close window</property>
+              </object>
+            </child>
+            <child>
+              <object class="StackMenuButton">
+                <property name="action-name">app.change-binding</property>
+                <property name="action-target">'0506|Cut'</property>
+                <property name="name">Cut</property>
+              </object>
+            </child>
+            <child>
+              <object class="StackMenuButton">
+                <property name="action-name">app.change-binding</property>
+                <property name="action-target">'0507|Copy'</property>
+                <property name="name">Copy</property>
+              </object>
+            </child>
+            <child>
+              <object class="StackMenuButton">
+                <property name="action-name">app.change-binding</property>
+                <property name="action-target">'0508|Paste'</property>
+                <property name="name">Paste</property>
+              </object>
+            </child>
+            <child>
+              <object class="StackMenuButton">
+                <property name="action-name">app.change-binding</property>
+                <property name="action-target">'0501|Launch Task Mananger'</property>
+                <property name="name">Launch Task Mananger</property>
+              </object>
+            </child>
+            <child>
+              <object class="StackMenuButton">
+                <property name="action-name">app.change-binding</property>
+                <property name="action-target">'0502|Open System Utility'</property>
+                <property name="name">Open System Utility</property>
+              </object>
+            </child>
+            <child>
+              <object class="StackMenuButton">
+                <property name="action-name">app.change-binding</property>
+                <property name="action-target">'0504|Cycle apps'</property>
+                <property name="name">Cycle apps</property>
+              </object>
+            </child>
           </object>
         </property>
       </object>
     </child>
+  </object>
+  <object class="GtkPopover" id="popoverButtonActions">
+    <property name="child">stackButtonActions</property>
+    <property name="position">right</property>
+    <signal name="closed" handler="reset_stack_menu" object="stackButtonActions"/>
   </object>
 </interface>
