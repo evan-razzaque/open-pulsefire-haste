@@ -64,13 +64,6 @@ static void stack_menu_button_class_init(StackMenuButtonClass *klass) {
     G_OBJECT_CLASS(klass)->dispose = stack_menu_button_dispose;
     G_OBJECT_CLASS(klass)->set_property = stack_menu_button_set_property;
     G_OBJECT_CLASS(klass)->get_property = stack_menu_button_get_property;
-    
-    // GParamSpec *param_specs[2] = {
-    //     g_param_spec_string("direction", "Direction", "Direction of the button.", "right", G_PARAM_READWRITE),
-    //     g_param_spec_boolean("has-icon", "icon-visibility", "Whether to show the arrow icon or not.", true, G_PARAM_READWRITE)
-    // };
-    
-    // g_object_class_install_properties(G_OBJECT_CLASS(klass), G_N_ELEMENTS(param_specs), (GParamSpec**) param_specs);
 
     g_object_class_install_property(G_OBJECT_CLASS(klass), PROP_DIRECTION, g_param_spec_string("direction", "Direction", "Direction of the button.", "right", G_PARAM_READWRITE));
     g_object_class_install_property(G_OBJECT_CLASS(klass), PROP_HAS_ICON,  g_param_spec_boolean("has-icon", "icon-visibility", "Whether to show the arrow icon or not.", true, G_PARAM_READWRITE));
