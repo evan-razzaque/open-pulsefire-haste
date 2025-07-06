@@ -81,24 +81,6 @@ static void confirm_keyboard_action_binding(GtkButton *self, app_data *data) {
 }
 
 /**
- * @brief Sets the mouse button to be re-assigned.
- * 
- * @param self The menu button object
- * @param param_spec Unused
- * @param data Application wide data structure
- */
-static void set_mouse_button(GtkMenuButton *self, GParamSpec *param_spec, app_data *data) {
-	// This callback (notify::active) is fired on focus and blur,
-	// so we make sure the menu button is focused to prevent unnecessary operations.
-	if (!gtk_menu_button_get_active(self)) return;
-	
-	int *button = g_object_get_data(G_OBJECT(self), "button");
-	data->button_data.selected_button = *button;
-
-	memmove(data->button_data.selected_button_name, gtk_widget_get_tooltip_text(GTK_WIDGET(self)), 16);
-}
-
-/**
  * Remaps a mouse button to a SIMPLE_MOUSE_ACTION (see device/buttons.h).
  * 
  * @param action Unused
@@ -154,6 +136,38 @@ static int set_keyboard_action(GtkEventControllerKey *self, guint keyval, guint 
 	return true;
 }
 
+void show_popover(GtkPopover *popover) {
+	gtk_popover_popup(popover);
+}
+
+/**
+ * @brief Sets the mouse button to be re-assigned.
+ * 
+ * @param self The menu button object
+ * @param param_spec Unused
+ * @param data Application wide data structure
+ */
+static void set_mouse_button(GtkMenuButton *menu_button, GParamSpec *param_spec, app_data *data) {
+	// This callback (notify::active) is fired on focus and blur,
+	// so we make sure the menu button is focused to prevent unnecessary operations.
+	if (!gtk_menu_button_get_active(menu_button)) return;
+
+	GtkPopover *popover = gtk_menu_button_get_popover(menu_button);
+	g_timeout_add_once(10, (GSourceOnceFunc) show_popover, popover); // Prevents popover from immediately hiding
+
+	int *button = g_object_get_data(G_OBJECT(menu_button), "button");
+
+	if (*button != data->button_data.selected_button) {
+		gtk_popover_set_child(gtk_menu_button_get_popover(data->button_data.menu_button_bindings[data->button_data.selected_button]), NULL);
+	}
+
+	data->button_data.selected_button = *button;
+	
+	gtk_popover_set_child(popover, GTK_WIDGET(data->button_data.stack_button_actions));
+
+	memmove(data->button_data.selected_button_name, gtk_widget_get_tooltip_text(GTK_WIDGET(menu_button)), 16);
+}
+
 static void set_menu_button_label(GtkMenuButton *menu_button, uint16_t action, char *simple_action_names[8][9], const char **key_names) {
 	byte action_type = action >> 8;
 	byte action_value = action & 0x00ff;
@@ -200,6 +214,8 @@ void app_config_buttons_init(GtkBuilder *builder, app_data *data) {
 	data->widgets->label_selected_button = GTK_LABEL(GTK_WIDGET(gtk_builder_get_object(builder, "labelSelectedButton")));
     data->widgets->label_pressed_key = GTK_LABEL(GTK_WIDGET(gtk_builder_get_object(builder, "labelPressedKey")));
 
+	data->button_data.stack_button_actions = GTK_STACK(GTK_WIDGET(gtk_builder_get_object(builder, "stackButtonActions")));
+
 	gtk_window_set_application(data->widgets->window_keyboard_action, data->widgets->app);
 	gtk_widget_add_controller(GTK_WIDGET(data->widgets->window_keyboard_action), data->widgets->event_key_controller);
 	g_signal_connect(data->widgets->window_keyboard_action, "close-request", G_CALLBACK(clear_key_pressed_label), data->widgets->label_pressed_key);
@@ -222,15 +238,10 @@ void app_config_buttons_init(GtkBuilder *builder, app_data *data) {
 
 G_MODULE_EXPORT void switch_stack_menu_page(GtkStack* stack, GtkActionable *button) {
 	GtkSelectionModel *stack_pages = gtk_stack_get_pages(stack);
-	
 	gtk_selection_model_select_item(stack_pages, g_variant_get_int32(gtk_actionable_get_action_target_value(button)), true);
 }
 
 G_MODULE_EXPORT void reset_stack_menu(GtkStack* stack, GtkPopover *popover) {
 	GtkSelectionModel *stack_pages = gtk_stack_get_pages(stack);
 	gtk_selection_model_select_item(stack_pages, 0, true);
-}
-
-G_MODULE_EXPORT void test_func(GtkMenuButton *button, void* data) {
-	printf("Test\n");
 }

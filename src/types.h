@@ -93,6 +93,7 @@ struct config_button_data {
 	uint16_t current_keyboard_action;
 
 	GtkMenuButton *menu_button_bindings[BUTTON_COUNT]; // Menu buttons for each mouse button binding
+	GtkStack *stack_button_actions;
 } typedef config_button_data;
 
 /**

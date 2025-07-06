@@ -6,7 +6,7 @@
   <css filename="window.css" is_global="0"/>
   <ui template-class="DpiProfileConfig" filename="dpi-profile-config.ui" sha256="8c26e04c72a6386569155e76951f7869260c88e1f06f6ef172a46424cdb28a22"/>
   <ui template-class="StackMenuButton" filename="stack-menu-button.ui" sha256="d5f9e9363acbe9c70908a1599cd512b99cf94e9450e06caaa061155fa3ef1ca6"/>
-  <ui filename="window.ui" sha256="9f0cbdaef8af11e2f5239e10baef6a6565207373082a95f356e001ea11c0a607">
+  <ui filename="window.ui" sha256="adb113cd9b5931fe5eddf4694aa1b07b04e4ae1a43304382da8f89da9250cb2c">
     <requires>StackMenuButton</requires>
   </ui>
 </cambalache-project>
