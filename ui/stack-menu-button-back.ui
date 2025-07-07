@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Created with Cambalache 0.96.1 -->
+<interface>
+  <!-- interface-name stack-menu-button-back.ui -->
+  <requires lib="gtk" version="4.18"/>
+  <template class="StackMenuButtonBack" parent="GtkButton">
+    <property name="child">
+      <object class="GtkBox">
+        <child>
+          <object class="GtkImage" id="image">
+            <property name="icon-name">go-previous</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel" id="label">
+            <property name="halign">center</property>
+            <property name="hexpand">True</property>
+            <property name="label" bind-source="StackMenuButtonBack" bind-property="name" bind-flags="bidirectional | sync-create"/>
+          </object>
+        </child>
+        <child>
+          <object class="GtkImage">
+            <property name="icon-name">go-next</property>
+            <property name="opacity">0.0</property>
+          </object>
+        </child>
+      </object>
+    </property>
+    <property name="has-frame">False</property>
+  </template>
+</interface>

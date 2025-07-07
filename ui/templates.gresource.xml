@@ -4,5 +4,6 @@
   <gresource prefix="/com/haste">
     <file>dpi-profile-config.ui</file>
     <file>stack-menu-button.ui</file>
+    <file>stack-menu-button-back.ui</file>
   </gresource>
 </gresources>

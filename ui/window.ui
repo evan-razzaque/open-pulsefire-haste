@@ -16,19 +16,27 @@
             <child>
               <object class="StackMenuButton">
                 <property name="action-target">1</property>
+                <property name="has-frame">False</property>
                 <property name="name">Mouse Action</property>
                 <signal name="clicked" handler="switch_stack_menu_page" object="stackButtonActions"/>
               </object>
             </child>
             <child>
-              <object class="StackMenuButton">
+              <object class="GtkButton">
                 <property name="action-name">app.show-test-window</property>
-                <property name="name">Keyboard Action</property>
+                <property name="child">
+                  <object class="GtkLabel">
+                    <property name="halign">start</property>
+                    <property name="label">Keyboard Action</property>
+                  </object>
+                </property>
+                <property name="has-frame">False</property>
               </object>
             </child>
             <child>
               <object class="StackMenuButton">
                 <property name="action-target">2</property>
+                <property name="has-frame">False</property>
                 <property name="name">Media Action</property>
                 <signal name="clicked" handler="switch_stack_menu_page" object="stackButtonActions"/>
               </object>
@@ -36,6 +44,7 @@
             <child>
               <object class="StackMenuButton">
                 <property name="action-target">3</property>
+                <property name="has-frame">False</property>
                 <property name="name">Macro</property>
                 <signal name="clicked" handler="switch_stack_menu_page" object="stackButtonActions"/>
               </object>
@@ -43,15 +52,22 @@
             <child>
               <object class="StackMenuButton">
                 <property name="action-target">4</property>
+                <property name="has-frame">False</property>
                 <property name="name">Shortcut</property>
                 <signal name="clicked" handler="switch_stack_menu_page" object="stackButtonActions"/>
               </object>
             </child>
             <child>
-              <object class="StackMenuButton">
+              <object class="GtkButton">
                 <property name="action-name">app.change-binding</property>
                 <property name="action-target">'0000|Disabled'</property>
-                <property name="name">Disabled</property>
+                <property name="child">
+                  <object class="GtkLabel">
+                    <property name="halign">start</property>
+                    <property name="label">Disabled</property>
+                  </object>
+                </property>
+                <property name="has-frame">False</property>
               </object>
             </child>
           </object>
@@ -64,7 +80,7 @@
           <object class="GtkBox">
             <property name="orientation">vertical</property>
             <child>
-              <object class="StackMenuButton">
+              <object class="StackMenuButtonBack">
                 <property name="name">Mouse Action</property>
                 <signal name="clicked" handler="reset_stack_menu" object="stackButtonActions"/>
               </object>
@@ -121,7 +137,7 @@
           <object class="GtkBox">
             <property name="orientation">vertical</property>
             <child>
-              <object class="StackMenuButton">
+              <object class="StackMenuButtonBack">
                 <property name="name">Media Action</property>
                 <signal name="clicked" handler="reset_stack_menu" object="stackButtonActions"/>
               </object>
@@ -182,27 +198,32 @@
     <child>
       <object class="GtkStackPage" id="stackPageMacro">
         <property name="child">
-          <object class="GtkScrolledWindow">
-            <property name="child">
-              <object class="GtkBox" id="boxSavedMacros">
-                <property name="orientation">vertical</property>
-                <child>
-                  <object class="StackMenuButton">
-                    <property name="name">Macro</property>
-                    <signal name="clicked" handler="reset_stack_menu" object="stackButtonActions"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton">
-                    <property name="action-name">app.add-macro</property>
-                    <property name="has-frame">False</property>
-                    <property name="label">Add Macro</property>
-                  </object>
-                </child>
+          <object class="GtkBox">
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="StackMenuButtonBack">
+                <property name="name">Macro</property>
+                <signal name="clicked" handler="reset_stack_menu" object="stackButtonActions"/>
               </object>
-            </property>
-            <property name="hscrollbar-policy">never</property>
-            <property name="min-content-height">200</property>
+            </child>
+            <child>
+              <object class="GtkButton">
+                <property name="action-name">app.add-macro</property>
+                <property name="has-frame">False</property>
+                <property name="label">Add Macro</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkScrolledWindow">
+                <property name="child">
+                  <object class="GtkBox" id="boxSavedMacros">
+                    <property name="orientation">vertical</property>
+                  </object>
+                </property>
+                <property name="hscrollbar-policy">never</property>
+                <property name="min-content-height">200</property>
+              </object>
+            </child>
           </object>
         </property>
       </object>
@@ -213,7 +234,7 @@
           <object class="GtkBox">
             <property name="orientation">vertical</property>
             <child>
-              <object class="StackMenuButton">
+              <object class="StackMenuButtonBack">
                 <property name="name">Shortcut</property>
                 <signal name="clicked" handler="reset_stack_menu" object="stackButtonActions"/>
               </object>

@@ -2,11 +2,13 @@
 <!DOCTYPE cambalache-project SYSTEM "cambalache-project.dtd">
 <!-- Created with Cambalache 0.96.1 -->
 <cambalache-project version="0.96.0" target_tk="gtk-4.0">
-  <gresources filename="templates.gresource.xml" sha256="400a9a9cc09a4f10b22896bb619358a6a356bea45f5a378a3e68b1f3b2bcf549"/>
+  <gresources filename="templates.gresource.xml" sha256="c056168c1aa65d3b179b8f014c3e6cbdd70e8f7ef937cbcb3c29e063b8e8d7c2"/>
   <css filename="window.css" is_global="0"/>
   <ui template-class="DpiProfileConfig" filename="dpi-profile-config.ui" sha256="8c26e04c72a6386569155e76951f7869260c88e1f06f6ef172a46424cdb28a22"/>
   <ui template-class="StackMenuButton" filename="stack-menu-button.ui" sha256="d5f9e9363acbe9c70908a1599cd512b99cf94e9450e06caaa061155fa3ef1ca6"/>
-  <ui filename="window.ui" sha256="adb113cd9b5931fe5eddf4694aa1b07b04e4ae1a43304382da8f89da9250cb2c">
+  <ui template-class="StackMenuButtonBack" filename="stack-menu-button-back.ui" sha256="c83fd972f06e396df934a4761422f29a484453263cf07867fe08b5c59b094c61"/>
+  <ui filename="window.ui" sha256="8ec26ca5f042627dafbea91304b10516873a6483cb61df97eb4af670ccb6e476">
     <requires>StackMenuButton</requires>
+    <requires>StackMenuButtonBack</requires>
   </ui>
 </cambalache-project>

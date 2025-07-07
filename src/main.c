@@ -16,6 +16,7 @@
 #include "mouse_config.h"
 
 #include "./templates/stack_menu_button.h"
+#include "./templates/stack_menu_button_back.h"
 
 #define widget_add_event(builder, widget_name, detailed_signal, c_handler, data)\
 	g_signal_connect(gtk_builder_get_object(builder, widget_name), detailed_signal, G_CALLBACK(c_handler), data);
@@ -127,6 +128,7 @@ void activate(GtkApplication *app, app_data *data) {
 	);
 
 	g_type_ensure(STACK_TYPE_MENU_BUTTON);
+	g_type_ensure(STACK_TYPE_MENU_BUTTON_BACK);
 	g_resources_register(g_resource_load("resources/templates.gresource", NULL));
 	GtkBuilder *builder = gtk_builder_new_from_file("ui/window.ui");
 
