@@ -22,6 +22,7 @@
             <property name="halign">end</property>
             <property name="hexpand">True</property>
             <property name="icon-name">go-next</property>
+            <property name="opacity" bind-source="StackMenuButton" bind-property="height-request" bind-flags="bidirectional | sync-create">1.0</property>
           </object>
         </child>
       </object>

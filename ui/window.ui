@@ -17,6 +17,7 @@
               <object class="StackMenuButton">
                 <property name="action-target">1</property>
                 <property name="has-frame">False</property>
+                <property name="height-request">1</property>
                 <property name="name">Mouse Action</property>
                 <signal name="clicked" handler="switch_stack_menu_page" object="stackButtonActions"/>
               </object>
@@ -37,6 +38,7 @@
               <object class="StackMenuButton">
                 <property name="action-target">2</property>
                 <property name="has-frame">False</property>
+                <property name="height-request">1</property>
                 <property name="name">Media Action</property>
                 <signal name="clicked" handler="switch_stack_menu_page" object="stackButtonActions"/>
               </object>
@@ -45,6 +47,7 @@
               <object class="StackMenuButton">
                 <property name="action-target">3</property>
                 <property name="has-frame">False</property>
+                <property name="height-request">1</property>
                 <property name="name">Macro</property>
                 <signal name="clicked" handler="switch_stack_menu_page" object="stackButtonActions"/>
               </object>
@@ -53,6 +56,7 @@
               <object class="StackMenuButton">
                 <property name="action-target">4</property>
                 <property name="has-frame">False</property>
+                <property name="height-request">1</property>
                 <property name="name">Shortcut</property>
                 <signal name="clicked" handler="switch_stack_menu_page" object="stackButtonActions"/>
               </object>
@@ -89,6 +93,7 @@
               <object class="StackMenuButton">
                 <property name="action-name">app.change-binding</property>
                 <property name="action-target">'0101|Left Click'</property>
+                <property name="height-request">0</property>
                 <property name="name">Left Click</property>
               </object>
             </child>
@@ -96,6 +101,7 @@
               <object class="StackMenuButton">
                 <property name="action-name">app.change-binding</property>
                 <property name="action-target">'0102|Right Click'</property>
+                <property name="height-request">0</property>
                 <property name="name">Right Click</property>
               </object>
             </child>
@@ -103,6 +109,7 @@
               <object class="StackMenuButton">
                 <property name="action-name">app.change-binding</property>
                 <property name="action-target">'0103|Middle Click'</property>
+                <property name="height-request">0</property>
                 <property name="name">Middle Click</property>
               </object>
             </child>
@@ -110,6 +117,7 @@
               <object class="StackMenuButton">
                 <property name="action-name">app.change-binding</property>
                 <property name="action-target">'0104|Back'</property>
+                <property name="height-request">0</property>
                 <property name="name">Back</property>
               </object>
             </child>
@@ -117,6 +125,7 @@
               <object class="StackMenuButton">
                 <property name="action-name">app.change-binding</property>
                 <property name="action-target">'0105|Forward'</property>
+                <property name="height-request">0</property>
                 <property name="name">Forward</property>
               </object>
             </child>
@@ -124,6 +133,7 @@
               <object class="StackMenuButton">
                 <property name="action-name">app.change-binding</property>
                 <property name="action-target">'0708|DPI Toggle'</property>
+                <property name="height-request">0</property>
                 <property name="name">DPI Toggle</property>
               </object>
             </child>
@@ -146,6 +156,7 @@
               <object class="StackMenuButton">
                 <property name="action-name">app.change-binding</property>
                 <property name="action-target">'0300|Play/Pause'</property>
+                <property name="height-request">0</property>
                 <property name="name">Play/Pause</property>
               </object>
             </child>
@@ -153,6 +164,7 @@
               <object class="StackMenuButton">
                 <property name="action-name">app.change-binding</property>
                 <property name="action-target">'0301|Stop'</property>
+                <property name="height-request">0</property>
                 <property name="name">Stop</property>
               </object>
             </child>
@@ -160,6 +172,7 @@
               <object class="StackMenuButton">
                 <property name="action-name">app.change-binding</property>
                 <property name="action-target">'0302|Previous'</property>
+                <property name="height-request">0</property>
                 <property name="name">Previous</property>
               </object>
             </child>
@@ -167,6 +180,7 @@
               <object class="StackMenuButton">
                 <property name="action-name">app.change-binding</property>
                 <property name="action-target">'0303|Next'</property>
+                <property name="height-request">0</property>
                 <property name="name">Next</property>
               </object>
             </child>
@@ -174,6 +188,7 @@
               <object class="StackMenuButton">
                 <property name="action-name">app.change-binding</property>
                 <property name="action-target">'0304|Volume mute'</property>
+                <property name="height-request">0</property>
                 <property name="name">Volume mute</property>
               </object>
             </child>
@@ -181,6 +196,7 @@
               <object class="StackMenuButton">
                 <property name="action-name">app.change-binding</property>
                 <property name="action-target">'0305|Volume down'</property>
+                <property name="height-request">0</property>
                 <property name="name">Volume down</property>
               </object>
             </child>
@@ -188,6 +204,7 @@
               <object class="StackMenuButton">
                 <property name="action-name">app.change-binding</property>
                 <property name="action-target">'0306|Volume up'</property>
+                <property name="height-request">0</property>
                 <property name="name">Volume up</property>
               </object>
             </child>
@@ -243,6 +260,7 @@
               <object class="StackMenuButton">
                 <property name="action-name">app.change-binding</property>
                 <property name="action-target">'0503|Show desktop'</property>
+                <property name="height-request">0</property>
                 <property name="name">Show desktop</property>
               </object>
             </child>
@@ -250,6 +268,7 @@
               <object class="StackMenuButton">
                 <property name="action-name">app.change-binding</property>
                 <property name="action-target">'0505|Close window'</property>
+                <property name="height-request">0</property>
                 <property name="name">Close window</property>
               </object>
             </child>
@@ -257,6 +276,7 @@
               <object class="StackMenuButton">
                 <property name="action-name">app.change-binding</property>
                 <property name="action-target">'0506|Cut'</property>
+                <property name="height-request">0</property>
                 <property name="name">Cut</property>
               </object>
             </child>
@@ -264,6 +284,7 @@
               <object class="StackMenuButton">
                 <property name="action-name">app.change-binding</property>
                 <property name="action-target">'0507|Copy'</property>
+                <property name="height-request">0</property>
                 <property name="name">Copy</property>
               </object>
             </child>
@@ -271,6 +292,7 @@
               <object class="StackMenuButton">
                 <property name="action-name">app.change-binding</property>
                 <property name="action-target">'0508|Paste'</property>
+                <property name="height-request">0</property>
                 <property name="name">Paste</property>
               </object>
             </child>
@@ -278,6 +300,7 @@
               <object class="StackMenuButton">
                 <property name="action-name">app.change-binding</property>
                 <property name="action-target">'0501|Launch Task Mananger'</property>
+                <property name="height-request">0</property>
                 <property name="name">Launch Task Mananger</property>
               </object>
             </child>
@@ -285,6 +308,7 @@
               <object class="StackMenuButton">
                 <property name="action-name">app.change-binding</property>
                 <property name="action-target">'0502|Open System Utility'</property>
+                <property name="height-request">0</property>
                 <property name="name">Open System Utility</property>
               </object>
             </child>
@@ -292,6 +316,7 @@
               <object class="StackMenuButton">
                 <property name="action-name">app.change-binding</property>
                 <property name="action-target">'0504|Cycle apps'</property>
+                <property name="height-request">0</property>
                 <property name="name">Cycle apps</property>
               </object>
             </child>
