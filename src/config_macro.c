@@ -10,6 +10,8 @@
 #include "hid_keyboard_map.h"
 #include "mouse_config.h"
 
+#include "./templates/mouse_macro_button.h"
+
 /**
  * @brief Determines if two generic_macro_events are equal.
  * 
@@ -119,13 +121,13 @@ static void close_macro_overlay(GtkButton *self, app_data *data) {
 }
 
 static void box_macros_add_item(GtkBox *box_saved_macros, char *name, int index) {
-    GtkButton *macro_item = GTK_BUTTON(gtk_button_new_with_label(name));
-    gtk_button_set_has_frame(macro_item, false);
+    MouseMacroButton *macro_button = g_object_new(MOUSE_TYPE_MACRO_BUTTON, "name", name, NULL);
 
+    GtkButton *macro_item = macro_button->button_name;
     gtk_actionable_set_action_name(GTK_ACTIONABLE(macro_item), "app.select-macro");
     gtk_actionable_set_action_target(GTK_ACTIONABLE(macro_item), (const char*) G_VARIANT_TYPE_UINT32, index);
 
-    gtk_box_append(box_saved_macros, GTK_WIDGET(macro_item));
+    gtk_box_append(box_saved_macros, GTK_WIDGET(macro_button));
 }
 
 static void save_recorded_macro(GtkGesture* self, int n_press, double x, double y, app_data *data) {

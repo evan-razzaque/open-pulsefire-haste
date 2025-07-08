@@ -226,8 +226,14 @@
             <child>
               <object class="GtkButton">
                 <property name="action-name">app.add-macro</property>
+                <property name="child">
+                  <object class="GtkLabel">
+                    <property name="halign">start</property>
+                    <property name="hexpand">True</property>
+                    <property name="label">Add Macro</property>
+                  </object>
+                </property>
                 <property name="has-frame">False</property>
-                <property name="label">Add Macro</property>
               </object>
             </child>
             <child>

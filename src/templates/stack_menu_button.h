@@ -4,7 +4,7 @@
 #include <gtk/gtk.h>
 
 struct _StackMenuButton {
-    GtkButton parent_type;
+    GtkButton parent_instance;
 
     GtkLabel *label;
     GtkImage *image;

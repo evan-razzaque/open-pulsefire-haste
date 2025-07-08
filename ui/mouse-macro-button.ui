@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Created with Cambalache 0.96.1 -->
+<interface>
+  <!-- interface-name mouse-macro-button.ui -->
+  <requires lib="gtk" version="4.18"/>
+  <template class="MouseMacroButton" parent="GtkBox">
+    <child>
+      <object class="GtkButton" id="button_name">
+        <property name="child">
+          <object class="GtkLabel">
+            <property name="halign">start</property>
+            <property name="hexpand">True</property>
+            <property name="label" bind-source="MouseMacroButton" bind-property="name" bind-flags="bidirectional | sync-create"></property>
+          </object>
+        </property>
+        <property name="has-frame">False</property>
+        <property name="hexpand">True</property>
+        <signal name="clicked" handler="macro_clicked_test"/>
+      </object>
+    </child>
+    <child>
+      <object class="GtkButton" id="button_edit">
+        <property name="has-frame">False</property>
+        <property name="icon-name">document-edit-symbolic</property>
+        <signal name="clicked" handler="edit_clicked_test"/>
+      </object>
+    </child>
+    <child>
+      <object class="GtkButton" id="button_delete">
+        <property name="has-frame">False</property>
+        <property name="icon-name">user-trash-symbolic</property>
+        <signal name="clicked" handler="delete_clicked_test"/>
+      </object>
+    </child>
+  </template>
+</interface>

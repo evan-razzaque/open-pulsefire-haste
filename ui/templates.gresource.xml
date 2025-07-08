@@ -5,5 +5,6 @@
     <file>dpi-profile-config.ui</file>
     <file>stack-menu-button.ui</file>
     <file>stack-menu-button-back.ui</file>
+    <file>mouse-macro-button.ui</file>
   </gresource>
 </gresources>

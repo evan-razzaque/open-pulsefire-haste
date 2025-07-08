@@ -4,7 +4,7 @@
 #include <gtk/gtk.h>
 
 struct _DpiProfileConfig {
-    GtkListBoxRow parent_type;
+    GtkListBoxRow parent_instance;
 
     GtkCheckButton *check_button;
     GtkRange *range_dpi_value;

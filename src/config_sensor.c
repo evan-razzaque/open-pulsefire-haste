@@ -141,7 +141,7 @@ static void add_dpi_profile_row(GSimpleAction* action, GVariant *value, app_data
         data
     );
 
-    GtkListBoxRow *row = &dpi_config_row->parent_type;
+    GtkListBoxRow *row = &dpi_config_row->parent_instance;
     gtk_list_box_append(data->sensor_data.list_box_dpi_profiles, GTK_WIDGET(row));
 
     settings->enabled_profile_bit_mask += 1 << settings->profile_count; // Sets the bit to allow an additional profile to be enabled
