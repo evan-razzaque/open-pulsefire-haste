@@ -151,21 +151,21 @@ static void set_mouse_button(GtkMenuButton *menu_button, GParamSpec *param_spec,
 	// This callback (notify::active) is fired on focus and blur,
 	// so we make sure the menu button is focused to prevent unnecessary operations.
 	if (!gtk_menu_button_get_active(menu_button)) return;
-
+	
 	GtkPopover *popover = gtk_menu_button_get_popover(menu_button);
 	g_timeout_add_once(10, (GSourceOnceFunc) show_popover, popover); // Prevents popover from immediately hiding
-
+	
 	int *button = g_object_get_data(G_OBJECT(menu_button), "button");
-
+	
 	if (*button != data->button_data.selected_button) {
 		gtk_popover_set_child(gtk_menu_button_get_popover(data->button_data.menu_button_bindings[data->button_data.selected_button]), NULL);
 	}
-
+	
 	data->button_data.selected_button = *button;
 	
 	gtk_popover_set_child(popover, GTK_WIDGET(data->button_data.stack_button_actions));
-
-	memmove(data->button_data.selected_button_name, gtk_widget_get_tooltip_text(GTK_WIDGET(menu_button)), 16);
+	
+	data->button_data.selected_button_name = gtk_widget_get_tooltip_text(GTK_WIDGET(menu_button));
 }
 
 static void set_menu_button_label(GtkMenuButton *menu_button, uint16_t action, char *simple_action_names[8][9], const char **key_names) {

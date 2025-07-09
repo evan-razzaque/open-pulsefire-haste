@@ -30,6 +30,24 @@ static void resize_array(void** array, size_t type_size, int *capacity, int elem
     }
 }
 
+static void delete_array_element(void** array, size_t type_size, int element_count, int index) {
+    if (index < 0 || index >= element_count) {
+        printf("Index %d out of bounds for array length %d\n", index, element_count);
+        exit(0);
+        return;
+    }
+
+    byte **arr = (byte**) array;
+
+    if (index < element_count - 1) {
+        memmove(
+            *arr + (index * type_size), 
+            *arr + ((index + 1) * type_size),
+            ((element_count - 1) - index) * type_size
+        );
+    }
+}
+
 static void add_macro_event(MACRO_EVENT_TYPE event_type, byte action, MACRO_ACTION_TYPE action_type, app_data* data) {
     if (!data->macro_data.recording_macro) return;
 
@@ -94,9 +112,9 @@ static void toggle_macro_recording(GtkButton* self, app_data *data) {
 
 static void open_macro_overlay(GSimpleAction *action, GVariant *variant, app_data *data) {
     resize_array((void **) &data->macro_data.macros, sizeof(mouse_macro), &data->macro_data.macro_array_size, data->macro_data.macro_count);
-    
+
     mouse_macro *macro = &(data->macro_data.macros[data->macro_data.macro_count]);
-    macro->generic_event_array_size = 2;
+    macro->generic_event_array_size = 2;    
     macro->events = malloc(sizeof(generic_macro_event) * macro->generic_event_array_size);
     macro->generic_event_count = 0;
     macro->name = NULL;
@@ -120,14 +138,13 @@ static void close_macro_overlay(GtkButton *self, app_data *data) {
 	gtk_overlay_remove_overlay(data->widgets->overlay, GTK_WIDGET(data->widgets->box_macro));
 }
 
-static void box_macros_add_item(GtkBox *box_saved_macros, char *name, int index) {
+static void box_macros_add_item(GtkListBox *box_saved_macros, char *name, int index) {
     MouseMacroButton *macro_button = g_object_new(MOUSE_TYPE_MACRO_BUTTON, "name", name, NULL);
 
-    GtkButton *macro_item = macro_button->button_name;
-    gtk_actionable_set_action_name(GTK_ACTIONABLE(macro_item), "app.select-macro");
-    gtk_actionable_set_action_target(GTK_ACTIONABLE(macro_item), (const char*) G_VARIANT_TYPE_UINT32, index);
+    gtk_actionable_set_action_target(GTK_ACTIONABLE(macro_button->button_name), (const char*) G_VARIANT_TYPE_UINT32, index);
+    gtk_actionable_set_action_target(GTK_ACTIONABLE(macro_button->button_delete), (const char*) G_VARIANT_TYPE_UINT32, index);
 
-    gtk_box_append(box_saved_macros, GTK_WIDGET(macro_button));
+    gtk_list_box_append(box_saved_macros, GTK_WIDGET(macro_button));
 }
 
 static void save_recorded_macro(GtkGesture* self, int n_press, double x, double y, app_data *data) {
@@ -144,6 +161,66 @@ static void save_recorded_macro(GtkGesture* self, int n_press, double x, double 
 
     gtk_label_set_text(data->widgets->label_macro_events, "");
 	gtk_overlay_remove_overlay(data->widgets->overlay, GTK_WIDGET(data->widgets->box_macro));
+}
+
+static void update_macro_assignments(uint32_t macro_index, app_data *data) {
+    for (int i = 0; i < BUTTON_COUNT; i++) {
+        int button_macro_index = data->macro_data.macro_indicies[i];
+
+        // All macros to the right of the deleted macro are shifted to the left.
+        if (button_macro_index > macro_index) {
+            data->macro_data.macro_indicies[i]--;
+        }
+
+        if (button_macro_index == macro_index) {
+            data->button_data.bindings[i] = data->button_data.default_bindings[i];
+            data->macro_data.macro_indicies[i] = -1;
+
+            g_mutex_lock(data->mouse->mutex);
+            assign_button_action(data->mouse->dev, i, data->button_data.bindings[i]);
+            g_mutex_unlock(data->mouse->mutex);
+
+            GtkMenuButton *menu_button = data->button_data.menu_button_bindings[i];
+            gtk_menu_button_set_label(
+                menu_button,
+                gtk_widget_get_tooltip_text(GTK_WIDGET(menu_button))
+            );
+        }
+    }
+}
+
+static void delete_recorded_macro(GSimpleAction *action, GVariant *variant, app_data *data) {
+    uint32_t macro_index = g_variant_get_uint32(variant);
+
+    mouse_macro *macros = data->macro_data.macros;
+    free(macros[macro_index].events);
+    free(macros[macro_index].name);
+
+    delete_array_element(
+        (void**) &data->macro_data.macros,
+        sizeof(mouse_macro),
+        data->macro_data.macro_count,
+        macro_index
+    );
+    
+    data->macro_data.macro_count--;
+    
+    GtkListBox *box_saved_macros = data->macro_data.box_saved_macros;
+    gtk_list_box_remove(
+        box_saved_macros,
+        GTK_WIDGET(gtk_list_box_get_row_at_index(box_saved_macros, macro_index))
+    );
+
+    for (int i = 0; i < data->macro_data.macro_count; i++) {
+        MouseMacroButton *macro_button = MOUSE_MACRO_BUTTON(
+            gtk_list_box_row_get_child(gtk_list_box_get_row_at_index(box_saved_macros, i))
+        );
+
+        gtk_actionable_set_action_target(GTK_ACTIONABLE(macro_button->button_name), (const char*) G_VARIANT_TYPE_UINT32, i);
+        gtk_actionable_set_action_target(GTK_ACTIONABLE(macro_button->button_delete), (const char*) G_VARIANT_TYPE_UINT32, i);
+    }
+
+    update_macro_assignments(macro_index, data);
 }
 
 /**
@@ -208,8 +285,8 @@ static int parse_macro(mouse_macro macro, macro_event *events, byte *modifier_ma
             event_index++;
             
             event_keys_count = 0;
-            memset(&keys_down, false, 256);
-            memset(&event_keys, false, 256);
+            memset(&keys_down, false, sizeof(keys_down));
+            memset(&event_keys, false, sizeof(event_keys));
             break;
         case MOUSE_DOWN:
             if (keys_down_count > 0) break;
@@ -237,6 +314,7 @@ static int parse_macro(mouse_macro macro, macro_event *events, byte *modifier_ma
 }
 
 void assign_macro(uint32_t index, app_data *data) {
+    printf("%d\n", data->macro_data.macro_count);
     mouse_macro macro = data->macro_data.macros[index];
 
     macro_event *events = malloc(sizeof(macro_event) * macro.generic_event_count);
@@ -282,7 +360,7 @@ static void get_macro_data_widgets(GtkBuilder *builder, app_data *data) {
     data->macro_data.gesture_button_confirm_macro = GTK_GESTURE(gtk_builder_get_object(builder, "gestureButtonConfirmMacro"));
     data->macro_data.button_confirm_macro = GTK_BUTTON(GTK_WIDGET(gtk_builder_get_object(builder, "buttonMacroSave")));
     
-    data->macro_data.box_saved_macros = GTK_BOX(GTK_WIDGET(gtk_builder_get_object(builder, "boxSavedMacros")));
+    data->macro_data.box_saved_macros = GTK_LIST_BOX(GTK_WIDGET(gtk_builder_get_object(builder, "boxSavedMacros")));
     data->macro_data.editable_macro_name = GTK_EDITABLE(gtk_builder_get_object(builder, "editableMacroName"));
 }
 
@@ -305,12 +383,13 @@ void app_config_macro_init(GtkBuilder *builder, app_data *data) {
 
     const GActionEntry entries[] = {
         {.name = "add-macro", .activate = (g_action) open_macro_overlay},
-        {.name = "select-macro", .activate = (g_action) select_macro, .parameter_type = (const char*) G_VARIANT_TYPE_UINT32}
+        {.name = "select-macro", .activate = (g_action) select_macro, .parameter_type = (const char*) G_VARIANT_TYPE_UINT32},
+        {.name = "delete-macro", .activate = (g_action) delete_recorded_macro, .parameter_type = (const char*) G_VARIANT_TYPE_UINT32}
     };
 
-    mouse_macro *macros = data->macro_data.macros;
-
     g_action_map_add_action_entries(G_ACTION_MAP(data->widgets->app), entries, G_N_ELEMENTS(entries), data);
+    
+    mouse_macro *macros = data->macro_data.macros;
 
     for (int i = 0; i < data->macro_data.macro_count; i++) {
         box_macros_add_item(data->macro_data.box_saved_macros, macros[i].name, i);

@@ -42,6 +42,7 @@ struct mouse_data {
  * 
  */
 struct app_widgets {
+	GtkBuilder *builder;
 	GtkApplication *app;
 	GtkWindow *window;
 	GtkWindow *window_keyboard_action;
@@ -86,7 +87,8 @@ struct config_button_data {
 	MOUSE_BUTTON selected_button;
 	MOUSE_BUTTON buttons[BUTTON_COUNT];
 	uint16_t bindings[BUTTON_COUNT];
-	char selected_button_name[16];
+	uint16_t default_bindings[BUTTON_COUNT];
+	const char *selected_button_name;
 
 	const byte keyboard_keys[1 << 16];
 	const char *key_names[256];
@@ -129,7 +131,7 @@ struct config_macro_data {
 	GtkGesture *gesture_macro_mouse_events;
 	GtkGesture *gesture_button_confirm_macro;
 	GtkButton *button_confirm_macro;
-	GtkBox *box_saved_macros;
+	GtkListBox *box_saved_macros;
 	GtkEditable *editable_macro_name;
 } typedef config_macro_data;
 

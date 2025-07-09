@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <gtk/gtk.h>
 
 #include "device/rgb.h"
 #include "device/mouse.h"
@@ -50,7 +51,7 @@ static void create_settings_file(mouse_settings *settings, app_data *data) {
         .dpi_config = {
             .enabled_profile_bit_mask = 0b00001,
             .profiles = {
-                {.dpi_value = 1000, .indicator = {.red = 0xff}}
+                {.dpi_value = 500, .indicator = {.red = 0xff}}
             },
             .profile_count = 1,
             .selected_profile = 0
@@ -113,11 +114,12 @@ void load_macros_from_file(app_data *data) {
 
     memcpy(data->macro_data.macro_indicies, macro_info.macro_indicies, sizeof(macro_info.macro_indicies));
 
+    data->macro_data.macro_array_size = MAX(macro_info.macro_count, 1);
+    data->macro_data.macros = malloc(sizeof(mouse_macro) * data->macro_data.macro_array_size);
+
     if (macro_info.macro_count == 0) return;
     
     data->macro_data.macro_count = macro_info.macro_count;
-    data->macro_data.macro_array_size = macro_info.macro_count;
-    data->macro_data.macros = malloc(sizeof(mouse_macro) * macro_info.macro_count);
 
     mouse_macro *macros = data->macro_data.macros;
 

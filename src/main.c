@@ -87,6 +87,13 @@ int update_battery_display(mouse_battery_data *battery_data) {
 	return G_SOURCE_CONTINUE;
 }
 
+void unref_widgets(app_data *data) {
+	g_object_ref_sink(data->sensor_data.check_button_group_dpi_profile);
+	g_object_unref(data->sensor_data.check_button_group_dpi_profile);
+
+	g_object_unref(data->widgets->alert);
+}
+
 /**
  * @brief Destroys all windows when the main window is closed.
  * 
@@ -104,11 +111,11 @@ void close_application(GtkWindow *window, app_data *data) {
 
 	free(data->macro_data.macros);
 
-	g_object_ref_sink(data->sensor_data.check_button_group_dpi_profile);
-	g_object_unref(data->sensor_data.check_button_group_dpi_profile);
-	gtk_window_destroy(window);
-	gtk_window_destroy(data->widgets->window_keyboard_action);
+	unref_widgets(data);
 	printf("window closed\n");
+
+	gtk_window_destroy(data->widgets->window);
+	gtk_window_destroy(data->widgets->window_keyboard_action);
 }
 
 /**
@@ -134,6 +141,7 @@ void activate(GtkApplication *app, app_data *data) {
 	
 	g_resources_register(g_resource_load("resources/templates.gresource", NULL));
 	GtkBuilder *builder = gtk_builder_new_from_file("ui/window.ui");
+	data->widgets->builder = builder;
 
 	GtkWindow *window = GTK_WINDOW(GTK_WIDGET(gtk_builder_get_object(builder, "window")));
 	GtkLabel *label_battery = GTK_LABEL(GTK_WIDGET(gtk_builder_get_object(builder, "labelBattery")));
@@ -243,6 +251,7 @@ int main() {
 		.widgets = &widgets,
 		.button_data = {
 			.buttons = {0, 1, 2, 3, 4, 5},
+			.default_bindings = {LEFT_CLICK, RIGHT_CLICK, MIDDLE_CLICK, BACK, FORWARD, DPI_TOGGLE},
 			.keyboard_keys = KEYBOARD_MAP(),
 			.key_names = KEY_NAMES()
 		},

@@ -7,8 +7,8 @@ UI_FILES          = ui/templates.gresource.xml ui/dpi-profile-config.ui ui/stack
 GRESOURCES        = resources/templates.gresource
 TARGET            = bin/main
 
-LDLIBS  = -lm -lhidapi-hidraw $$(pkg-config --libs gtk4 gmodule-export-2.0)
-CFLAGS += $$(pkg-config --cflags gtk4 gmodule-export-2.0) -Wall -Werror -Werror=vla -Wno-deprecated-declarations -std=c99 -O1
+LDLIBS  = -fsanitize=address -lm -lhidapi-hidraw $$(pkg-config --libs gtk4 gmodule-export-2.0)
+CFLAGS += $$(pkg-config --cflags gtk4 gmodule-export-2.0) -Wall -Werror -Werror=vla -Wno-deprecated-declarations -std=c99 -Og -g -fsanitize=address
 
 ifeq ($(OS),Windows_NT)
 	LDLIBS = -lm -lhidapi $$(pkg-config --libs gtk4 gmodule-export-2.0) -I /mingw64/include/hidapi
