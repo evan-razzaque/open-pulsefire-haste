@@ -55,15 +55,15 @@ int mouse_write(hid_device *dev, byte *data) {
 	return bytes_written;
 }
 
-int mouse_read(hid_device *dev, REPORT_BYTE reportType, byte *data) {
+int mouse_read(hid_device *dev, REPORT_BYTE report_type, byte *data) {
 	int res;
 
-	byte temp[PACKET_SIZE] = {REPORT_BYTE(reportType)};
+	byte temp[PACKET_SIZE] = {REPORT_FIRST_BYTE(report_type)};
 	
 	res = hid_write(dev, temp, PACKET_SIZE);
 	
 	if (res < 0) {
-		printf("Error: %S\n", hid_error(dev));
+		printf("Device Error: %S\n", hid_error(dev));
 		return res;
 	}
 	
@@ -73,7 +73,7 @@ int mouse_read(hid_device *dev, REPORT_BYTE reportType, byte *data) {
 		res = hid_read_timeout(dev, data, PACKET_SIZE, 100);
 		if (res <= 0) break;
 		i++;
-	} while (data[0] != reportType);
+	} while (data[0] != report_type);
 
 	return res;
 }
@@ -87,20 +87,21 @@ int get_battery_level(hid_device* dev) {
 }
 
 int save_device_settings(hid_device *dev, color_options *color) {
-	// byte d1[PACKET_SIZE] = {REPORT_BYTE(SAVE_SETTINGS), 0x01, 0x00, 0x3c, color->red, color->green, color->blue};
-	// mouse_write(dev, d1);
+	/* byte d1[PACKET_SIZE] = {REPORT_FIRST_BYTE(SAVE_SETTINGS), 0x01, 0x00, 0x3c, color->red, color->green, color->blue};
+	mouse_write(dev, d1);
 
-	// for (int i = 0; i < 5; i++) {
-	// 	byte d2[PACKET_SIZE] = {REPORT_BYTE(SAVE_SETTINGS), 0x01, i + 1, 0x3c};
-	// 	mouse_write(dev, d2); 
-	// }
+	for (int i = 0; i < 5; i++) {
+		byte d2[PACKET_SIZE] = {REPORT_FIRST_BYTE(SAVE_SETTINGS), 0x01, i + 1, 0x3c};
+		mouse_write(dev, d2); 
+	}
 
-	// byte d3[PACKET_SIZE] = {REPORT_BYTE(0xd9), 0x00, 0x00, 0x03, 0x55, 0x01, 0x23};
-	// mouse_write(dev, d3);
+	byte d3[PACKET_SIZE] = {REPORT_FIRST_BYTE(0xd9), 0x00, 0x00, 0x03, 0x55, 0x01, 0x23};
+	mouse_write(dev, d3);
 
-	// byte d4[PACKET_SIZE] = {REPORT_BYTE(0xdb), 0x55};
-	// mouse_write(dev, d4);
-	byte data[PACKET_SIZE] = {REPORT_BYTE(SEND_BYTE_SAVE_SETTINGS), 0xff};
+	byte d4[PACKET_SIZE] = {REPORT_FIRST_BYTE(0xdb), 0x55};
+	mouse_write(dev, d4); */
+
+	byte data[PACKET_SIZE] = {REPORT_FIRST_BYTE(SEND_BYTE_SAVE_SETTINGS), SAVE_BYTE_ALL};
 
 	return mouse_write(dev, data);
 }

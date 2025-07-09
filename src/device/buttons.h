@@ -44,6 +44,11 @@ enum MODIFIER_KEY {
     R_WIN	= 0b10000000,
 } typedef MODIFIER_KEY;
 
+/**
+ * @brief Maps the hid usage ids for modifier keys
+ * to its corresponding modifier bit.
+ * 
+ */
 #define MACRO_MODIFIER_MAP() {\
     [0xE0] = L_CTRL,\
     [0xE1] = L_SHIFT,\
@@ -117,10 +122,10 @@ enum MACRO_REPEAT_MODE {
 } typedef MACRO_REPEAT_MODE;
 
 /**
- * @brief A struct of a keyboard event.
- * 
+ * @brief A struct for a keyboard event.
  */
 struct macro_key_event {
+    /** A MACRO_EVENT_TYPE value */
     byte event_type;
     byte modifier_keys;
     byte keys[6];
@@ -128,10 +133,10 @@ struct macro_key_event {
 } __attribute__((__packed__)) typedef macro_key_event;
 
 /**
- * @brief A struct for a mouse event
- * 
+ * @brief A struct for a mouse event.
  */
 struct macro_mouse_event {
+    /** A MACRO_EVENT_TYPE value */
     byte event_type;
     byte button;
     byte _padding;
@@ -139,8 +144,7 @@ struct macro_mouse_event {
 } __attribute__((__packed__)) typedef macro_mouse_event;
 
 /**
- * @brief A struct for a pair of mouse events
- * 
+ * @brief A struct for a pair of mouse events.
  */
 struct macro_mouse_event_pair {
     macro_mouse_event down;
@@ -149,7 +153,6 @@ struct macro_mouse_event_pair {
 
 /**
  * @brief A union for a macro event.
- * 
  */
 union marcro_event {
     byte event_data[10];

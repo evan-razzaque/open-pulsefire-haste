@@ -19,18 +19,33 @@ typedef enum SENSOR_CONFIG_MODE_BYTE {
     SENSOR_CONFIG_BYTE_SELECTED_DPI_PROFILE = 0x00,
 } SENSOR_CONFIG_MODE_BYTE;
 
+/**
+ * @brief A struct for a dpi profile.
+ */
 struct dpi_profile {
 	uint16_t dpi_value;
+    /** The color that is briefly shown when switching to this profile */
 	color_options indicator;
 } typedef dpi_profile;
 
+/**
+ * @brief A struct for storing dpi settings.
+ */
 struct dpi_settings {
     dpi_profile profiles[5];
     byte profile_count;
     byte selected_profile;
+    /** A 5 bit number where each bit enables/disables at its position */
     byte enabled_profile_bit_mask;
 } typedef dpi_settings;
 
+/**
+ * @brief Sets the polling rate for the mouse.
+ * 
+ * @param dev The mouse device handle
+ * @param polling_rate_value The polling rate value
+ * @return the number of bytes written or -1 on error
+ */
 int set_polling_rate(hid_device *dev, byte polling_rate_value);
 
 /**

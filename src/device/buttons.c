@@ -11,7 +11,7 @@
 
 int assign_button_action(hid_device *dev, MOUSE_BUTTON button, uint16_t action) {
 	byte type = action >> 8;
-	byte data[PACKET_SIZE] = {REPORT_BYTE(SEND_BYTE_BUTTON_ASSIGNMENT), button, type, 0x02, action};
+	byte data[PACKET_SIZE] = {REPORT_FIRST_BYTE(SEND_BYTE_BUTTON_ASSIGNMENT), button, type, 0x02, action};
 	
 	return mouse_write(dev, data);
 }
@@ -26,7 +26,7 @@ int assign_button_action(hid_device *dev, MOUSE_BUTTON button, uint16_t action) 
  * @return the number of bytes written or -1 on error
  */
 static int send_macro_assignment(hid_device *dev, MOUSE_BUTTON button, MACRO_REPEAT_MODE repeat_mode, int event_count) {
-	byte data[PACKET_SIZE] = {REPORT_BYTE(SEND_BYTE_MACRO_ASSIGNMENT), button, 0x00, 0x05, event_count, 0x00, repeat_mode};
+	byte data[PACKET_SIZE] = {REPORT_FIRST_BYTE(SEND_BYTE_MACRO_ASSIGNMENT), button, 0x00, 0x05, event_count, 0x00, repeat_mode};
 	int res;
 
 	print_data(data);
@@ -40,7 +40,7 @@ int assign_button_macro(hid_device *dev, MOUSE_BUTTON button, MACRO_REPEAT_MODE 
 
 	res = assign_button_action(dev, button, (MOUSE_ACTION_TYPE_MACRO << 8) + button);
 
-	byte data[PACKET_SIZE] = {REPORT_BYTE(SEND_BYTE_MACRO_DATA), button, 0x00, event_count};
+	byte data[PACKET_SIZE] = {REPORT_FIRST_BYTE(SEND_BYTE_MACRO_DATA), button, 0x00, event_count};
 
 	int events_remaining = event_count;
 	int packet_count = ceil(event_count / 6.0);

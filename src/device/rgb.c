@@ -19,7 +19,7 @@ int change_color(hid_device *dev, color_options *options) {
 	byte blue = options->blue * multiplier;
 
 	byte data[PACKET_SIZE] = {
-		REPORT_BYTE(SEND_BYTE_LED), 0x00, 0x00, 0x08,
+		REPORT_FIRST_BYTE(SEND_BYTE_LED), 0x00, 0x00, 0x08,
 		red, green, blue,
 		red, green, blue,
 		options->brightness
