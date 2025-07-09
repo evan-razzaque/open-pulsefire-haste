@@ -33,8 +33,7 @@ static void change_mouse_binding(mouse_data *mouse, MOUSE_BUTTON button, uint16_
  * @param data Application wide data structure
  */
 static void show_keyboard_actions_window(GSimpleAction *action, GVariant *variant, app_data *data) {
-	GtkMenuButton *menu_button_active = data->button_data.menu_button_bindings[data->button_data.selected_button];
-	gtk_menu_button_popdown(menu_button_active);
+	menu_button_set_popover_visibility(data->button_data.menu_button_bindings[data->button_data.selected_button], false);
 
 	gtk_label_set_text(data->widgets->label_selected_button, data->button_data.selected_button_name);
 	gtk_window_present(data->widgets->window_keyboard_action);

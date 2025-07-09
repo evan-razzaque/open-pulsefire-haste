@@ -3,18 +3,6 @@
 
 G_DEFINE_TYPE(MouseMacroButton, mouse_macro_button, GTK_TYPE_BOX)
 
-static void macro_clicked_test(GtkButton *self, void* data) {
-    printf("Macro\n");
-}
-
-static void edit_clicked_test(GtkButton *self, void* data) {
-    printf("Edit\n");
-}
-
-static void delete_clicked_test(GtkButton *self, void* data) {
-    printf("Delete\n");
-}
-
 static void mouse_macro_button_dispose(GObject *gobject) {
     gtk_widget_dispose_template(GTK_WIDGET(gobject), MOUSE_TYPE_MACRO_BUTTON);
     G_OBJECT_CLASS(mouse_macro_button_parent_class)->dispose(gobject);
@@ -31,12 +19,17 @@ static void mouse_macro_button_class_init(MouseMacroButtonClass *klass) {
     gtk_widget_class_bind_template_child(widget_class, MouseMacroButton, button_name);
     gtk_widget_class_bind_template_child(widget_class, MouseMacroButton, button_edit);
     gtk_widget_class_bind_template_child(widget_class, MouseMacroButton, button_delete);
-
-    gtk_widget_class_bind_template_callback(widget_class, macro_clicked_test);
-    gtk_widget_class_bind_template_callback(widget_class, edit_clicked_test);
-    gtk_widget_class_bind_template_callback(widget_class, delete_clicked_test);
 }
 
 static void mouse_macro_button_init(MouseMacroButton *self) {
     gtk_widget_init_template(GTK_WIDGET(self));
+}
+
+MouseMacroButton* mouse_macro_button_new(char *name, int index) {
+    MouseMacroButton *self = g_object_new(MOUSE_TYPE_MACRO_BUTTON, "name", name, NULL);
+
+    gtk_actionable_set_action_target(GTK_ACTIONABLE(self->button_name), (const char*) G_VARIANT_TYPE_UINT32, index);
+    gtk_actionable_set_action_target(GTK_ACTIONABLE(self->button_delete), (const char*) G_VARIANT_TYPE_UINT32, index);
+
+    return self;
 }

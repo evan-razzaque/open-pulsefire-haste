@@ -51,7 +51,6 @@ struct app_widgets {
 
 	GtkLabel *label_selected_button, *label_pressed_key;
 	GtkEventController *event_key_controller;
-	
 
 	GtkBox *box_macro;
 	GtkEventController *macro_mouse_events, *macro_key_events;
@@ -129,7 +128,10 @@ struct config_macro_data {
 	int macro_indicies[6];
 
 	GtkGesture *gesture_macro_mouse_events;
-	GtkGesture *gesture_button_confirm_macro;
+	GtkGesture *gesture_button_confirm_macro_claim_click;
+	GtkGesture *gesture_button_record_macro_claim_click;
+
+	GtkButton *button_record_macro;
 	GtkButton *button_confirm_macro;
 	GtkListBox *box_saved_macros;
 	GtkEditable *editable_macro_name;
