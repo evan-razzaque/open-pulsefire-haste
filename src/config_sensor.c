@@ -191,14 +191,20 @@ void app_config_sensor_init(GtkBuilder *builder, app_data *data) {
         gtk_widget_set_visible(data->sensor_data.button_add_dpi_profile, false);
     }
 
-    char profile_state[8];
+    char profile_state[4];
     sprintf(profile_state, "%d", data->sensor_data.dpi_config.selected_profile);
 
+    char polling_rate_string[4];
+    sprintf(polling_rate_string, "%d", data->sensor_data.polling_rate_value);
+
+    char lift_off_distance_string[4];
+    sprintf(lift_off_distance_string, "%d", data->sensor_data.lift_off_distance);
+
     const GActionEntry entries[] = {
-        {.name = "change-polling-rate", .change_state = (g_action) change_polling_rate, .parameter_type = (const char*) G_VARIANT_TYPE_INT32, .state = "3"},
-        {.name = "change-lift-off-distance", .change_state = (g_action) change_lift_off_distance, .parameter_type = (const char*) G_VARIANT_TYPE_INT32, "1"},
-        {.name = "add-dpi-level", .activate = (g_action) add_dpi_profile_row},
+        {.name = "change-polling-rate", .change_state = (g_action) change_polling_rate, .parameter_type = (const char*) G_VARIANT_TYPE_INT32, .state = polling_rate_string},
+        {.name = "change-lift-off-distance", .change_state = (g_action) change_lift_off_distance, .parameter_type = (const char*) G_VARIANT_TYPE_INT32, lift_off_distance_string},
         {.name = "select-dpi-profile", .change_state = (g_action) select_dpi_profile, .parameter_type = (const char*) G_VARIANT_TYPE_INT32, .state = profile_state},
+        {.name = "add-dpi-level", .activate = (g_action) add_dpi_profile_row}
     };
     
     g_action_map_add_action_entries(G_ACTION_MAP(data->widgets->app), entries, G_N_ELEMENTS(entries), data);
