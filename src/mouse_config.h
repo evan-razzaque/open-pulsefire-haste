@@ -142,8 +142,10 @@ void save_macros_to_file(app_data *data);
 
 void load_macros_from_file(app_data *data);
 
+GtkMenuButton* get_active_menu_button(app_data* data);
+
 void menu_button_set_popover_visibility(GtkMenuButton *self, bool visible);
 
-void assign_macro(uint32_t index, app_data *data);
+void assign_macro(uint32_t index, app_data* data);
 
 #endif

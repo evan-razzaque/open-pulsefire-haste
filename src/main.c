@@ -91,6 +91,7 @@ void unref_widgets(app_data *data) {
 	g_object_ref_sink(data->sensor_data.check_button_group_dpi_profile);
 	g_object_unref(data->sensor_data.check_button_group_dpi_profile);
 
+	g_object_ref_sink(data->widgets->alert);
 	g_object_unref(data->widgets->alert);
 }
 
@@ -259,7 +260,8 @@ int main() {
 			.modifier_map = MACRO_MODIFIER_MAP(),
 			.mouse_buttons = MOUSE_MAP(),
 			.mouse_button_names = MOUSE_BUTTON_NAMES(),
-			.recording_macro = false
+			.is_recording_macro = false,
+			.is_resuming_macro_recording = false
 		}
 	};
 

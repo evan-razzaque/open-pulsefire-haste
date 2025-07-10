@@ -30,6 +30,7 @@ MouseMacroButton* mouse_macro_button_new(char *name, int index) {
 
     gtk_actionable_set_action_target(GTK_ACTIONABLE(self->button_name), (const char*) G_VARIANT_TYPE_UINT32, index);
     gtk_actionable_set_action_target(GTK_ACTIONABLE(self->button_delete), (const char*) G_VARIANT_TYPE_UINT32, index);
+    gtk_actionable_set_action_target(GTK_ACTIONABLE(self->button_edit), (const char*) G_VARIANT_TYPE_UINT32, index);
 
     return self;
 }

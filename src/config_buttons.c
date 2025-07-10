@@ -33,7 +33,7 @@ static void change_mouse_binding(mouse_data *mouse, MOUSE_BUTTON button, uint16_
  * @param data Application wide data structure
  */
 static void show_keyboard_actions_window(GSimpleAction *action, GVariant *variant, app_data *data) {
-	menu_button_set_popover_visibility(data->button_data.menu_button_bindings[data->button_data.selected_button], false);
+	menu_button_set_popover_visibility(get_active_menu_button(data), false);
 
 	gtk_label_set_text(data->widgets->label_selected_button, data->button_data.selected_button_name);
 	gtk_window_present(data->widgets->window_keyboard_action);
@@ -72,7 +72,7 @@ static void confirm_keyboard_action_binding(GtkButton *self, app_data *data) {
 		data->mouse,
 		data->button_data.selected_button,
 		data->button_data.current_keyboard_action,
-		data->button_data.menu_button_bindings[data->button_data.selected_button],
+		get_active_menu_button(data),
 		data->button_data.key_names[hid_usage_id]
 	);
 
@@ -103,7 +103,7 @@ static void change_mouse_simple_binding(GSimpleAction *action, GVariant *mapping
 		data->mouse,
 		data->button_data.selected_button,
 		action_value,
-		data->button_data.menu_button_bindings[data->button_data.selected_button], 
+		get_active_menu_button(data), 
 		action_name
 	);
 	
@@ -142,7 +142,7 @@ void show_popover(GtkPopover *popover) {
 /**
  * @brief Sets the mouse button to be re-assigned.
  * 
- * @param self The menu button object
+ * @param self The menu button object for the selected mouse button
  * @param param_spec Unused
  * @param data Application wide data structure
  */
@@ -157,7 +157,7 @@ static void set_mouse_button(GtkMenuButton *menu_button, GParamSpec *param_spec,
 	int *button = g_object_get_data(G_OBJECT(menu_button), "button");
 	
 	if (*button != data->button_data.selected_button) {
-		gtk_popover_set_child(gtk_menu_button_get_popover(data->button_data.menu_button_bindings[data->button_data.selected_button]), NULL);
+		gtk_popover_set_child(gtk_menu_button_get_popover(get_active_menu_button(data)), NULL);
 	}
 	
 	data->button_data.selected_button = *button;

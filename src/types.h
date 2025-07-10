@@ -130,7 +130,12 @@ struct config_macro_data {
 	mouse_macro *macros;
 	int macro_count;
 	int macro_array_size;
-	bool recording_macro;
+	bool is_recording_macro;
+	/** Whether the user is adding new macro events to an existing macro or not */
+	bool is_resuming_macro_recording;
+
+	uint32_t macro_index;
+	uint32_t macro_saved_event_count;
 
 	int macro_indicies[6];
 
