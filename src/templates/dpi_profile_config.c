@@ -33,7 +33,7 @@ static void dpi_profile_config_class_init(DpiProfileConfigClass *klass) {
 
     GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
 
-    gtk_widget_class_set_template_from_resource(widget_class, "/com/haste/dpi-profile-config.ui");
+    gtk_widget_class_set_template_from_resource(widget_class, "/org/haste/dpi-profile-config.ui");
 
     gtk_widget_class_bind_template_child(widget_class, DpiProfileConfig, check_button);
     gtk_widget_class_bind_template_child(widget_class, DpiProfileConfig, range_dpi_value);

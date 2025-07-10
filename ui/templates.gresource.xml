@@ -1,10 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- Created with Cambalache 0.96.1 -->
 <gresources>
-  <gresource prefix="/com/haste">
+  <gresource prefix="/org/haste">
     <file>dpi-profile-config.ui</file>
     <file>stack-menu-button.ui</file>
     <file>stack-menu-button-back.ui</file>
     <file>mouse-macro-button.ui</file>
+    <file>macro-event-item.ui</file>
   </gresource>
 </gresources>

@@ -11,6 +11,7 @@
 #include "mouse_config.h"
 
 #include "./templates/mouse_macro_button.h"
+#include "./templates/macro_event_item.h"
 
 static void claim_click(GtkGesture *gesture, int n_press, double x, double y, void *data);
 
@@ -50,11 +51,22 @@ static void delete_array_element(void** array, size_t type_size, int element_cou
     }
 }
 
-static void add_macro_event_gobject(GListStore *list_store_macro_events, generic_macro_event *event, app_data *data) {
-    GObject *object = g_object_new(G_TYPE_OBJECT, NULL);
-    g_object_set_data(object, "event", event);
+static void list_store_add_macro_event(GListStore *list_store_macro_events, generic_macro_event *event, app_data *data) {
+    if (event->delay > 0) {
+        g_list_store_append(
+            list_store_macro_events,
+            macro_event_item_new(MACRO_ITEM_TYPE_DELAY, NULL, event->delay)
+        );
+    }
 
-    g_list_store_append(list_store_macro_events, object);
+    const char* action_name = (event->event_type == MACRO_EVENT_TYPE_KEYBOARD)?
+        data->button_data.key_names[event->action]:
+        data->macro_data.mouse_button_names[event->action];
+    
+    g_list_store_append(
+        list_store_macro_events,
+        macro_event_item_new(MACRO_ITEM_TYPE_ACTION, action_name, event->delay)
+    );
 }
 
 static void add_macro_event(MACRO_EVENT_TYPE event_type, byte action, MACRO_ACTION_TYPE action_type, app_data* data) {
@@ -89,7 +101,7 @@ static void add_macro_event(MACRO_EVENT_TYPE event_type, byte action, MACRO_ACTI
     event.delay_next_action = current_time;
     macro->events[macro->generic_event_count] = event;
     
-    add_macro_event_gobject(data->macro_data.list_store_macro_events, &macro->events[macro->generic_event_count], data);
+    list_store_add_macro_event(data->macro_data.list_store_macro_events, &macro->events[macro->generic_event_count], data);
     macro->generic_event_count++;
 }
 
@@ -394,28 +406,8 @@ static void setup_event_controllers(app_data *data) {
     g_signal_connect(data->macro_data.gesture_button_confirm_macro_claim_click, "pressed", G_CALLBACK(save_recorded_macro), data);
 }
 
-GtkWidget* create_macro_event_widget(GObject *item, app_data *data) {
-    generic_macro_event *event = g_object_get_data(item, "event");
-
-    uint16_t delay = event->delay;
-
-    const char* action_name = (event->event_type == MACRO_EVENT_TYPE_KEYBOARD)? 
-        data->button_data.key_names[event->action] :
-        data->macro_data.mouse_button_names[event->action];
-
-    GtkBox *box = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
-    gtk_widget_add_css_class(GTK_WIDGET(box), "macro-event");
-    
-    if (delay > 0) {
-        char delay_string[8];
-        sprintf(delay_string, "%d", delay);
-        gtk_box_append(box, gtk_label_new(delay_string));
-    }
-
-    gtk_box_append(box, gtk_label_new(action_name));
-    
-    g_object_unref(item);
-    return GTK_WIDGET(box);
+GtkWidget* create_macro_event_widget(MacroEventItem *item, void *data) {
+    return GTK_WIDGET(item);
 }
 
 void destroy_macro_events(void *data) {
@@ -448,7 +440,7 @@ void app_config_macro_init(GtkBuilder *builder, app_data *data) {
         data->macro_data.flow_box_macro_events,
         (GListModel*) data->macro_data.list_store_macro_events,
         (GtkFlowBoxCreateWidgetFunc) create_macro_event_widget, 
-        data, 
+        data,
         destroy_macro_events
     );
 
