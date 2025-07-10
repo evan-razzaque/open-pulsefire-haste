@@ -31,3 +31,8 @@ label.macro-events {
 .sensor-config label.title {
 	font-size: 16px;
 }
+
+.macro_event {
+	border-width: 2px;
+	border-color: white;
+}

@@ -259,7 +259,7 @@ int main() {
 			.modifier_map = MACRO_MODIFIER_MAP(),
 			.mouse_buttons = MOUSE_MAP(),
 			.mouse_button_names = MOUSE_BUTTON_NAMES(),
-			.recording_macro = 0
+			.recording_macro = false
 		}
 	};
 

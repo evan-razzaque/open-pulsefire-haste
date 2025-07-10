@@ -25,6 +25,13 @@ typedef enum MACRO_ACTION_TYPE {
 	MACRO_ACTION_TYPE_DOWN = 0x01
 } MACRO_ACTION_TYPE;
 
+enum GENERIC_EVENT_ACTION_TYPES {
+    KEY_DOWN   = 0x1a01,
+    KEY_UP     = 0x1a00,
+    MOUSE_DOWN = 0x2501,
+    MOUSE_UP   = 0x2500
+} typedef GENERIC_EVENT_ACTION_TYPES;
+
 /**
  * @brief All the data required to interact with the mouse.
  */
@@ -54,7 +61,6 @@ struct app_widgets {
 
 	GtkBox *box_macro;
 	GtkEventController *macro_mouse_events, *macro_key_events;
-	GtkLabel *label_macro_events;
 
 	GtkAlertDialog *alert;
 } typedef app_widgets;
@@ -105,6 +111,7 @@ struct generic_macro_event {
 	MACRO_EVENT_TYPE event_type;
 	MACRO_ACTION_TYPE action_type;
 	byte action;
+	uint16_t delay;
 	int delay_next_action;
 } typedef generic_macro_event;
 
@@ -131,7 +138,12 @@ struct config_macro_data {
 	GtkGesture *gesture_button_confirm_macro_claim_click;
 	GtkGesture *gesture_button_record_macro_claim_click;
 
+	GtkFlowBox *flow_box_macro_events;
+	GListStore *list_store_macro_events;
+
 	GtkButton *button_record_macro;
+	GtkImage *image_recording_macro;
+
 	GtkButton *button_confirm_macro;
 	GtkListBox *box_saved_macros;
 	GtkEditable *editable_macro_name;
