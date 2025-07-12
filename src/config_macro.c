@@ -42,32 +42,6 @@ static void resize_array(void** array, size_t type_size, int *capacity, int elem
 }
 
 /**
- * @brief Removes an element from the array.
- * 
- * @param array The array to remove the element from
- * @param type_size Size of the array element type
- * @param element_count The number of elements in the array
- * @param index The index pf the element to remove
- */
-static void delete_array_element(void** array, size_t type_size, int element_count, int index) {
-    if (index < 0 || index >= element_count) {
-        printf("Index %d out of bounds for array length %d\n", index, element_count);
-        exit(0);
-        return;
-    }
-
-    byte **arr = (byte**) array;
-
-    if (index < element_count - 1) {
-        memmove(
-            *arr + (index * type_size), 
-            *arr + ((index + 1) * type_size),
-            ((element_count - 1) - index) * type_size
-        );
-    }
-}
-
-/**
  * @brief Stores a MacroEventItem widget into a GListStore.
  * 
  * @param list_store_macro_events The GListStore to store the widget in
@@ -274,20 +248,20 @@ static void update_macro_assignments(uint32_t macro_index, app_data *data) {
             data->macro_data.macro_indicies[i]--;
         }
 
-        if (button_macro_index == macro_index) {
-            data->button_data.bindings[i] = data->button_data.default_bindings[i];
-            data->macro_data.macro_indicies[i] = -1;
+        if (button_macro_index != macro_index) continue;
 
-            g_mutex_lock(data->mouse->mutex);
-            assign_button_action(data->mouse->dev, i, data->button_data.bindings[i]);
-            g_mutex_unlock(data->mouse->mutex);
+        data->button_data.bindings[i] = data->button_data.default_bindings[i];
+        data->macro_data.macro_indicies[i] = -1;
 
-            GtkMenuButton *menu_button = data->button_data.menu_button_bindings[i];
-            gtk_menu_button_set_label(
-                menu_button,
-                gtk_widget_get_tooltip_text(GTK_WIDGET(menu_button))
-            );
-        }
+        g_mutex_lock(data->mouse->mutex);
+        assign_button_action(data->mouse->dev, i, data->button_data.bindings[i]);
+        g_mutex_unlock(data->mouse->mutex);
+
+        GtkMenuButton *menu_button = data->button_data.menu_button_bindings[i];
+        gtk_menu_button_set_label(
+            menu_button,
+            gtk_widget_get_tooltip_text(GTK_WIDGET(menu_button))
+        );
     }
 }
 
@@ -298,14 +272,7 @@ static void delete_macro(GSimpleAction *action, GVariant *variant, app_data *dat
     free(macros[macro_index].events);
     free(macros[macro_index].name);
 
-    delete_array_element(
-        (void**) &data->macro_data.macros,
-        sizeof(mouse_macro),
-        data->macro_data.macro_count,
-        macro_index
-    );
-    
-    data->macro_data.macro_count--;
+    array_delete_element(macros, data->macro_data.macro_count, macro_index);
     
     GtkListBox *box_saved_macros = data->macro_data.box_saved_macros;
     gtk_list_box_remove(
@@ -364,7 +331,7 @@ static int parse_macro(mouse_macro macro, macro_event *events, byte *modifier_ma
             keys_down[event.action] = true;
             keys_down_count++;
 
-            if (event.action >= 0xe0) {
+            if (event.action >= LCTRL) {
                 events[event_index].key_event.modifier_keys += modifier_map[event.action];
                 break;
             }
