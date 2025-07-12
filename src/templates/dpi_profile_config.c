@@ -36,9 +36,11 @@ static void dpi_profile_config_class_init(DpiProfileConfigClass *klass) {
     gtk_widget_class_set_template_from_resource(widget_class, "/org/haste/dpi-profile-config.ui");
 
     gtk_widget_class_bind_template_child(widget_class, DpiProfileConfig, check_button);
+    gtk_widget_class_bind_template_child(widget_class, DpiProfileConfig, box_range_dpi_value);
     gtk_widget_class_bind_template_child(widget_class, DpiProfileConfig, range_dpi_value);
     gtk_widget_class_bind_template_child(widget_class, DpiProfileConfig, spinner_dpi_value);
     gtk_widget_class_bind_template_child(widget_class, DpiProfileConfig, color_button_dpi_indicator);
+    gtk_widget_class_bind_template_child(widget_class, DpiProfileConfig, button_delete_profile);
 
     gtk_widget_class_bind_template_callback(widget_class, dpi_profile_config_update_spinner_dpi_value);
     gtk_widget_class_bind_template_callback(widget_class, dpi_profile_config_update_range_dpi_value);
@@ -47,5 +49,14 @@ static void dpi_profile_config_class_init(DpiProfileConfigClass *klass) {
 static void dpi_profile_config_init(DpiProfileConfig *self) {
     g_type_ensure(DPI_TYPE_PROFILE_CONFIG);
     gtk_widget_init_template(GTK_WIDGET(self));
+
+    GtkWidget *button_decrease_value = gtk_widget_get_next_sibling(
+        gtk_widget_get_first_child(GTK_WIDGET(self->spinner_dpi_value))
+    );
+    GtkWidget *button_increase_value = gtk_widget_get_next_sibling(button_decrease_value);
+
+    gtk_widget_set_visible(button_decrease_value, false);
+    gtk_widget_set_visible(button_increase_value, false);
+
     g_signal_connect_swapped(self->range_dpi_value, "value-changed", G_CALLBACK(dpi_profile_config_update_spinner_dpi_value), self->spinner_dpi_value);
 }

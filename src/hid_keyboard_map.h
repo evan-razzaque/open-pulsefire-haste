@@ -4,6 +4,9 @@
 #include <stdint.h>
 #include <gtk-4.0/gdk/gdkkeysyms.h>
 
+// The first modifier key hid usage id
+#define LCTRL (0xE0)
+
 /**
  * @brief Used to initialize an array for mapping gdk key values to hid usage ids.
  */

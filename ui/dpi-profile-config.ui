@@ -13,10 +13,11 @@
         <child>
           <object class="GtkCheckButton" id="check_button">
             <property name="action-name">app.select-dpi-profile</property>
+            <property name="action-target" bind-source="DpiProfileConfig" bind-property="action-target" bind-flags="bidirectional | sync-create"/>
           </object>
         </child>
         <child>
-          <object class="GtkBox">
+          <object class="GtkBox" id="box_range_dpi_value">
             <child>
               <object class="GtkScale" id="range_dpi_value">
                 <property name="adjustment">
@@ -61,6 +62,14 @@
               </object>
             </property>
             <property name="rgba">rgb(255,0,0)</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkButton" id="button_delete_profile">
+            <property name="action-name">app.delete-dpi-profile</property>
+            <property name="action-target" bind-source="DpiProfileConfig" bind-property="action-target" bind-flags="bidirectional | sync-create"/>
+            <property name="has-frame">False</property>
+            <property name="icon-name">user-trash-symbolic</property>
           </object>
         </child>
       </object>

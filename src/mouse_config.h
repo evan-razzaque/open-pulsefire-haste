@@ -103,6 +103,22 @@ typedef void (*g_action)(GSimpleAction*, GVariant*, gpointer);
 }
 
 /**
+ * @brief Removes the element at `index` from `array` and decrements `length`.
+ * 
+ * @param array The array to remove the element from
+ * @param length A variable containing the number of elements in the array
+ * @param index The index of the element to remove
+ */
+#define array_delete_element(array, length, index) ({\
+    memmove(\
+        (array) + (index),\
+        (array) + (index) + 1,\
+        ((length) - 1 - (index)) * sizeof(*array)\
+    );\
+    (length)--;\
+})
+
+/**
  * Init for mouse led settings.
  * 
  * @param builder GtkBuilder object to obtain widgets
