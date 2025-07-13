@@ -51,7 +51,7 @@ static void create_settings_file(mouse_settings *settings, app_data *data) {
         .dpi_config = {
             .enabled_profile_bit_mask = 0b00001,
             .profiles = {
-                {.dpi_value = 500, .indicator = {.red = 0xff}}
+                {.dpi_value = 400, .indicator = {.red = 0xff}}
             },
             .profile_count = 1,
             .selected_profile = 0

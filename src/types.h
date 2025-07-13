@@ -159,7 +159,6 @@ struct config_sensor_data {
 	byte lift_off_distance;
 	
 	dpi_settings dpi_config;
-	GtkCheckButton *check_buttons_dpi_profile[5];
 
 	GtkWidget *button_add_dpi_profile;
 	GtkCheckButton* check_button_group_dpi_profile;

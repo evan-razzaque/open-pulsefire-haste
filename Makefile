@@ -46,8 +46,9 @@ build/%.o: src/%.c
 
 # Templates
 
-src/config_sensor.c: src/templates/dpi_profile_config.h
-src/config_macro.c: src/templates/macro_event_item.h
+build/main.o: src/templates/stack_menu_button.h src/templates/stack_menu_button_back.h
+build/config_sensor.o: src/templates/dpi_profile_config.h
+build/config_macro.o: src/templates/macro_event_item.h
 
 build/%.o: src/templates/%.c src/templates/%.h
 	@mkdir -p build
