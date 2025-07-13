@@ -70,7 +70,7 @@ static void load_mouse_settings(app_data *data) {
  * @param battery_data mouse_battery_data instance
  * @return value indicating to leave this in the gtk main loop
  */
-int update_battery_display(mouse_battery_data *battery_data) {
+/* int update_battery_display(mouse_battery_data *battery_data) {
 	char battery[5];
 
 	GMutex *mutex = battery_data->mouse->mutex;
@@ -85,7 +85,7 @@ int update_battery_display(mouse_battery_data *battery_data) {
 	if (res > 0) gtk_label_set_text(battery_data->label_battery, battery);
 	
 	return G_SOURCE_CONTINUE;
-}
+} */
 
 void unref_widgets(app_data *data) {
 	g_object_ref_sink(data->sensor_data.check_button_group_dpi_profile);
@@ -163,7 +163,7 @@ void activate(GtkApplication *app, app_data *data) {
 	g_signal_connect(window, "close-request", G_CALLBACK(close_application), data);
 	widget_add_event(builder, "buttonSave", "clicked", save_mouse_settings, data);
 
-	g_timeout_add(2000, G_SOURCE_FUNC(update_battery_display), &data->battery_data);
+	// g_timeout_add(2000, G_SOURCE_FUNC(update_battery_display), &data->battery_data);
 
 	GtkCssProvider *provider = gtk_css_provider_new();
 	gtk_css_provider_load_from_path(provider, "ui/window.css");

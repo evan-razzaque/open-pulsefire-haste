@@ -140,6 +140,9 @@ static void dpi_profile_config_init(DpiProfileConfig *self) {
 DpiProfileConfig* dpi_profile_config_new(GtkCheckButton *check_button_group, uint8_t profile_index) {
     DpiProfileConfig* self = g_object_new(DPI_TYPE_PROFILE_CONFIG, NULL);
     dpi_profile_config_set_index(self, profile_index);
+    gtk_check_button_set_group(self->check_button, check_button_group);
+
+    printf("Profile: %d\n", profile_index);
 
     GdkRGBA rgba_indicator = {
         .red   = ((profile_index + 1) & (1 << 0)),
@@ -177,11 +180,15 @@ void dpi_profile_config_set_index(DpiProfileConfig *self, uint8_t profile_index)
     gtk_actionable_set_action_target(GTK_ACTIONABLE(self->check_button), (const char*) G_VARIANT_TYPE_BYTE, profile_index);
 }
 
-void dpi_profile_config_set_active(DpiProfileConfig *self, bool active) {
-    gtk_check_button_set_active(self->check_button, active);
+void dpi_profile_config_activate(DpiProfileConfig *self) {
+    g_signal_emit_by_name(self->check_button, "activate", NULL);
 }
 
 void dpi_profile_config_delete_button_set_enabled(DpiProfileConfig *self, bool enabled) {
     gtk_widget_set_sensitive(GTK_WIDGET(self->button_delete_profile), enabled);
+}
+
+void dpi_profile_config_remove_check_button_group(DpiProfileConfig *self) {
+    gtk_check_button_set_group(self->check_button, NULL);
 }
 

@@ -53,8 +53,6 @@ static void add_dpi_profile(GSimpleAction* action, GVariant *value, app_data *da
         data->sensor_data.check_button_group_dpi_profile,
         dpi_config->profile_count
     );
-
-    dpi_profile_config_set_active(dpi_profile_row, false);
     
     g_signal_connect(dpi_profile_row, "profile-updated", G_CALLBACK(update_dpi_profile_data), data);
 
@@ -114,16 +112,19 @@ static void delete_dpi_profile(GSimpleAction* action, GVariant *value_profile_in
     }
 
     GtkListBox *list_box = sensor_data->list_box_dpi_profiles;
-    gtk_list_box_remove(list_box, GTK_WIDGET(gtk_list_box_get_row_at_index(list_box, profile_index)));
     
-    DpiProfileConfig *dpi_profile_row = NULL;
+    DpiProfileConfig *dpi_profile_row = DPI_PROFILE_CONFIG(gtk_list_box_get_row_at_index(list_box, profile_index));
+    dpi_profile_config_remove_check_button_group(dpi_profile_row);
+    
+    gtk_list_box_remove(list_box, GTK_WIDGET(gtk_list_box_get_row_at_index(list_box, profile_index)));
 
     for (byte i = 0; i < dpi_config->profile_count; i++) {
         dpi_profile_row = DPI_PROFILE_CONFIG(gtk_list_box_get_row_at_index(list_box, i));
         dpi_profile_config_set_index(dpi_profile_row, i);
+        printf("Profile %d, Dpi: %d\n", i, dpi_profile_config_get_dpi_value(dpi_profile_row));
 
         if (i == dpi_config->selected_profile) {
-            dpi_profile_config_set_active(dpi_profile_row, true);
+            dpi_profile_config_activate(dpi_profile_row);
         }
     }
 
@@ -159,6 +160,9 @@ static void load_dpi_profile_rows(app_data* data, GtkCheckButton* check_button_g
 void app_config_sensor_init(GtkBuilder *builder, app_data *data) {
     GtkCheckButton *check_button_group = GTK_CHECK_BUTTON(gtk_check_button_new());
     data->sensor_data.check_button_group_dpi_profile = check_button_group;
+
+    data->sensor_data.box_dpi_settings_label = GTK_BOX(GTK_WIDGET(gtk_builder_get_object(builder, "boxDpiSettingsLabel")));
+    gtk_box_append(data->sensor_data.box_dpi_settings_label, GTK_WIDGET(check_button_group));
 
     data->sensor_data.button_add_dpi_profile = GTK_WIDGET(gtk_builder_get_object(builder, "buttonAddDpiProfile"));
     data->sensor_data.list_box_dpi_profiles = GTK_LIST_BOX(GTK_WIDGET(gtk_builder_get_object(builder, "listBoxDpiProfiles")));

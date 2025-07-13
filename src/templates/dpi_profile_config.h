@@ -21,8 +21,10 @@ void dpi_profile_config_set_dpi_value(DpiProfileConfig *self, uint16_t dpi_value
 
 void dpi_profile_config_set_indicator(DpiProfileConfig *self, GdkRGBA *rgb);
 
-void dpi_profile_config_set_active(DpiProfileConfig *self, bool active);
+void dpi_profile_config_activate(DpiProfileConfig *self);
 
 void dpi_profile_config_delete_button_set_enabled(DpiProfileConfig *self, bool enabled);
+
+void dpi_profile_config_remove_check_button_group(DpiProfileConfig *self);
 
 #endif
