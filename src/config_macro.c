@@ -4,10 +4,11 @@
 #include <sys/time.h>
 #include <gtk/gtk.h>
 
-#include "types.h"
-
 #include "device/buttons.h"
 #include "hid_keyboard_map.h"
+
+#include "types.h"
+#include "util.h"
 #include "mouse_config.h"
 
 #include "./templates/mouse_macro_button.h"

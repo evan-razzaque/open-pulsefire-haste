@@ -26,7 +26,7 @@ $(GRESOURCES) : $(UI_FILES)
 	@mkdir -p resources
 	glib-compile-resources $< --sourcedir ui --target $@
 
-$(APP_OBJFILES) : src/types.h src/mouse_config.h
+$(APP_OBJFILES) : src/types.h src/mouse_config.h src/util.h
 
 # Device
 
