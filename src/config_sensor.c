@@ -27,6 +27,7 @@ static void update_dpi_profile_data(DpiProfileConfig *self, byte profile_index, 
     profile->indicator.green = indicator->green * 255;
     profile->indicator.blue = indicator->blue * 255;
     
+    printf("settings updated\n");
     update_dpi_settings(data);
 }
 
@@ -46,16 +47,48 @@ static void change_lift_off_distance(GSimpleAction* action, GVariant *value, app
     update_dpi_settings(data);
 }
 
-static void add_dpi_profile(GSimpleAction* action, GVariant *value, app_data *data) {
+DpiProfileConfig* create_dpi_profile_row(byte profile_index, app_data *data, dpi_profile *profile) {
     dpi_settings *dpi_config = &data->sensor_data.dpi_config;
-    
-    DpiProfileConfig *dpi_profile_row = dpi_profile_config_new(
+
+    DpiProfileConfig *self = dpi_profile_config_new(
         data->sensor_data.check_button_group_dpi_profile,
-        dpi_config->profile_count
+        profile_index
+    ); 
+
+    if (profile != NULL) {
+        GdkRGBA rgb = {
+            .red = profile->indicator.red / 255.0,
+            .green = profile->indicator.green / 255.0,
+            .blue = profile->indicator.blue / 255.0,
+        };
+
+        dpi_profile_config_set_dpi_value(self, profile->dpi_value);
+        dpi_profile_config_set_indicator(self, &rgb);
+    }
+
+    g_signal_connect(self, "profile-updated", G_CALLBACK(update_dpi_profile_data), data);
+    
+    GtkListBox *list_box_dpi_profiles = data->sensor_data.list_box_dpi_profiles;
+    gtk_list_box_append(data->sensor_data.list_box_dpi_profiles, GTK_WIDGET(self));
+
+    gtk_widget_set_visible(
+        data->sensor_data.button_add_dpi_profile,
+        profile_index < (G_N_ELEMENTS(dpi_config->profiles) - 1)
+    );
+
+    dpi_profile_config_delete_button_set_enabled(
+        DPI_PROFILE_CONFIG(gtk_list_box_get_row_at_index(list_box_dpi_profiles, 0)),
+        profile_index > 0
     );
     
-    g_signal_connect(dpi_profile_row, "profile-updated", G_CALLBACK(update_dpi_profile_data), data);
+    return self;
+}
 
+static void add_dpi_profile(GSimpleAction* action, GVariant *value, app_data *data) {
+    dpi_settings *dpi_config = &data->sensor_data.dpi_config;
+
+    DpiProfileConfig *dpi_profile_row = create_dpi_profile_row(dpi_config->profile_count, data, NULL);
+    
     uint16_t dpi_value = dpi_profile_config_get_dpi_value(dpi_profile_row);
     const GdkRGBA *rgba = dpi_profile_config_get_indicator(dpi_profile_row);
     
@@ -70,19 +103,6 @@ static void add_dpi_profile(GSimpleAction* action, GVariant *value, app_data *da
 
     dpi_config->enabled_profile_bit_mask += 1 << dpi_config->profile_count; // Sets the bit to allow an additional profile to be enabled
     dpi_config->profile_count++;
-    
-    dpi_profile_config_delete_button_set_enabled(
-        DPI_PROFILE_CONFIG(gtk_list_box_get_row_at_index(
-            data->sensor_data.list_box_dpi_profiles, 0)
-        ),
-        true
-    );
-    
-    if (dpi_config->profile_count == 5) {
-        gtk_widget_set_visible(data->sensor_data.button_add_dpi_profile, false);
-    }
-
-    gtk_list_box_append(data->sensor_data.list_box_dpi_profiles, GTK_WIDGET(dpi_profile_row));
 
     update_dpi_settings(data);
 }
@@ -121,63 +141,29 @@ static void delete_dpi_profile(GSimpleAction* action, GVariant *value_profile_in
     for (byte i = 0; i < dpi_config->profile_count; i++) {
         dpi_profile_row = DPI_PROFILE_CONFIG(gtk_list_box_get_row_at_index(list_box, i));
         dpi_profile_config_set_index(dpi_profile_row, i);
-        printf("Profile %d, Dpi: %d\n", i, dpi_profile_config_get_dpi_value(dpi_profile_row));
 
         if (i == dpi_config->selected_profile) {
             dpi_profile_config_activate(dpi_profile_row);
         }
     }
 
-    if (dpi_config->profile_count == 1) {
-        dpi_profile_config_delete_button_set_enabled(dpi_profile_row, false);
-    }
+    dpi_profile_config_delete_button_set_enabled(
+        dpi_profile_row, 
+        dpi_config->profile_count > 1
+    );
 
     gtk_widget_set_visible(sensor_data->button_add_dpi_profile, true);
 }
 
-static void load_dpi_profile_rows(app_data* data, GtkCheckButton* check_button_group) {
-    dpi_settings* dpi_config = &data->sensor_data.dpi_config;
-
-    for (int i = 0; i < data->sensor_data.dpi_config.profile_count; i++) {
-        DpiProfileConfig* dpi_profile_row = dpi_profile_config_new(check_button_group, i);
-        dpi_profile_config_set_dpi_value(dpi_profile_row, dpi_config->profiles[i].dpi_value);
-
-        color_options* indicator = &dpi_config->profiles[i].indicator;
-
-        GdkRGBA rgb = {
-            .red = indicator->red / 255.0,
-            .green = indicator->green / 255.0,
-            .blue = indicator->blue / 255.0
-        };
-
-        dpi_profile_config_set_indicator(dpi_profile_row, &rgb);
-
-        g_signal_connect(dpi_profile_row, "profile-updated", G_CALLBACK(update_dpi_profile_data), data);
-        gtk_list_box_append(data->sensor_data.list_box_dpi_profiles, GTK_WIDGET(dpi_profile_row));
-    }
-}
-
 void app_config_sensor_init(GtkBuilder *builder, app_data *data) {
-    GtkCheckButton *check_button_group = GTK_CHECK_BUTTON(gtk_check_button_new());
-    data->sensor_data.check_button_group_dpi_profile = check_button_group;
-
-    data->sensor_data.box_dpi_settings_label = GTK_BOX(GTK_WIDGET(gtk_builder_get_object(builder, "boxDpiSettingsLabel")));
-    gtk_box_append(data->sensor_data.box_dpi_settings_label, GTK_WIDGET(check_button_group));
-
     data->sensor_data.button_add_dpi_profile = GTK_WIDGET(gtk_builder_get_object(builder, "buttonAddDpiProfile"));
     data->sensor_data.list_box_dpi_profiles = GTK_LIST_BOX(GTK_WIDGET(gtk_builder_get_object(builder, "listBoxDpiProfiles")));
+    data->sensor_data.check_button_group_dpi_profile = GTK_CHECK_BUTTON(gtk_check_button_new());
     
-    load_dpi_profile_rows(data, check_button_group);
+    dpi_settings* dpi_config = &data->sensor_data.dpi_config;
 
-    byte profile_count = data->sensor_data.dpi_config.profile_count;
-
-    if (profile_count == 5) {
-        gtk_widget_set_visible(data->sensor_data.button_add_dpi_profile, false);
-    } else if (profile_count == 1) {
-        GtkListBox *list_box = data->sensor_data.list_box_dpi_profiles;
-        DpiProfileConfig *dpi_profile_row = DPI_PROFILE_CONFIG(gtk_list_box_get_row_at_index(list_box, 0));
-        
-        dpi_profile_config_delete_button_set_enabled(dpi_profile_row, false);
+    for (byte i = 0; i < dpi_config->profile_count; i++) {
+        create_dpi_profile_row(i, data, dpi_config->profiles + i);
     }
 
     char profile_state[10];

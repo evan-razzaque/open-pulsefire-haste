@@ -160,7 +160,6 @@ struct config_sensor_data {
 	
 	dpi_settings dpi_config;
 
-	GtkBox *box_dpi_settings_label;
 	GtkWidget *button_add_dpi_profile;
 	GtkCheckButton* check_button_group_dpi_profile;
 	GtkListBox *list_box_dpi_profiles;
