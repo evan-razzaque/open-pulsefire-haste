@@ -5,6 +5,514 @@
   <requires lib="gio" version="2.0"/>
   <requires lib="gtk" version="4.18"/>
   <requires lib="gtk+" version="4.0"/>
+  <requires lib="libadwaita" version="1.7"/>
+  <object class="GtkWindow" id="window">
+    <property name="default-height">800</property>
+    <property name="default-width">700</property>
+    <property name="destroy-with-parent">True</property>
+    <property name="height-request">800</property>
+    <property name="title">HyperX Pulsefire Haste</property>
+    <property name="width-request">700</property>
+    <child>
+      <object class="GtkStack" id="stackMain">
+        <child>
+          <object class="GtkStackPage">
+            <property name="child">
+              <object class="GtkBox" id="boxMain">
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="spacing">20</property>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="css-classes">button-config</property>
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="GtkBox">
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="halign">start</property>
+                                <property name="label">Battery: </property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="labelBattery">
+                                <property name="halign">start</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="orientation">vertical</property>
+                            <property name="spacing">15</property>
+                            <child>
+                              <object class="GtkBox">
+                                <property name="orientation">vertical</property>
+                                <property name="spacing">5</property>
+                                <child>
+                                  <object class="GtkLabel">
+                                    <property name="halign">start</property>
+                                    <property name="label">Left Mouse Button</property>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkMenuButton" id="menuButtonLeft">
+                                    <property name="direction">right</property>
+                                    <property name="label">Left Click</property>
+                                    <property name="popover">
+                                      <object class="GtkPopover"/>
+                                    </property>
+                                    <property name="tooltip-text">Left Click</property>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkBox">
+                                <property name="orientation">vertical</property>
+                                <property name="spacing">5</property>
+                                <child>
+                                  <object class="GtkLabel">
+                                    <property name="halign">start</property>
+                                    <property name="label">Right Mouse Button</property>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkMenuButton" id="menuButtonRight">
+                                    <property name="direction">right</property>
+                                    <property name="label">Right Click</property>
+                                    <property name="popover">
+                                      <object class="GtkPopover"/>
+                                    </property>
+                                    <property name="tooltip-text">Right Click</property>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkBox">
+                                <property name="orientation">vertical</property>
+                                <property name="spacing">5</property>
+                                <child>
+                                  <object class="GtkLabel">
+                                    <property name="halign">start</property>
+                                    <property name="label">Middle Mouse Button</property>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkMenuButton" id="menuButtonMiddle">
+                                    <property name="direction">right</property>
+                                    <property name="label">Middle Click</property>
+                                    <property name="popover">
+                                      <object class="GtkPopover"/>
+                                    </property>
+                                    <property name="tooltip-text">Middle Click</property>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkBox">
+                                <property name="orientation">vertical</property>
+                                <property name="spacing">5</property>
+                                <child>
+                                  <object class="GtkLabel">
+                                    <property name="halign">start</property>
+                                    <property name="label">Side Back Mouse Button</property>
+                                    <property name="tooltip-text">Lower side button</property>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkMenuButton" id="menuButtonBack">
+                                    <property name="direction">right</property>
+                                    <property name="label">Back</property>
+                                    <property name="popover">
+                                      <object class="GtkPopover"/>
+                                    </property>
+                                    <property name="tooltip-text">Back</property>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkBox">
+                                <property name="orientation">vertical</property>
+                                <property name="spacing">5</property>
+                                <child>
+                                  <object class="GtkLabel">
+                                    <property name="halign">start</property>
+                                    <property name="label">Side Forward Mouse Button</property>
+                                    <property name="tooltip-text">Upper side button</property>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkMenuButton" id="menuButtonForward">
+                                    <property name="direction">right</property>
+                                    <property name="label">Forward</property>
+                                    <property name="popover">
+                                      <object class="GtkPopover"/>
+                                    </property>
+                                    <property name="tooltip-text">Forward</property>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkBox">
+                                <property name="orientation">vertical</property>
+                                <property name="spacing">5</property>
+                                <child>
+                                  <object class="GtkLabel">
+                                    <property name="halign">start</property>
+                                    <property name="label">DPI Button</property>
+                                    <property name="tooltip-text">Below scroll wheel</property>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkMenuButton" id="menuButtonDPI">
+                                    <property name="direction">right</property>
+                                    <property name="label">DPI Toggle</property>
+                                    <property name="popover">
+                                      <object class="GtkPopover"/>
+                                    </property>
+                                    <property name="tooltip-text">DPI Toggle</property>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="css-classes">led-config</property>
+                        <property name="focusable">True</property>
+                        <property name="halign">end</property>
+                        <property name="hexpand">True</property>
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="GtkColorChooserWidget" id="colorChooserLed">
+                            <property name="focusable">True</property>
+                            <property name="halign">center</property>
+                            <property name="hexpand">True</property>
+                            <property name="rgba">rgb(255,0,0)</property>
+                            <property name="show-editor">True</property>
+                            <property name="use-alpha">False</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="halign">start</property>
+                            <property name="justify">center</property>
+                            <property name="label">Brightness</property>
+                            <property name="margin-start">12</property>
+                            <property name="margin-top">20</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkScale" id="scaleBrightness">
+                            <property name="adjustment">adjustmentBrightness</property>
+                            <property name="digits">0</property>
+                            <property name="draw-value">True</property>
+                            <property name="round-digits">0</property>
+                            <property name="show-fill-level">True</property>
+                            <property name="valign">start</property>
+                            <property name="value-pos">left</property>
+                            <property name="vexpand">True</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="css-classes">sensor-config</property>
+                        <property name="focus-on-click">False</property>
+                        <property name="focusable">True</property>
+                        <property name="hexpand">True</property>
+                        <property name="hexpand-set">True</property>
+                        <property name="spacing">20</property>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="spacing">15</property>
+                            <child>
+                              <object class="GtkBox">
+                                <property name="orientation">vertical</property>
+                                <child>
+                                  <object class="GtkLabel">
+                                    <property name="css-classes">title</property>
+                                    <property name="halign">start</property>
+                                    <property name="label">Polling Rate</property>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkBox">
+                                    <property name="halign">start</property>
+                                    <property name="margin-bottom">10</property>
+                                    <property name="orientation">vertical</property>
+                                    <child>
+                                      <object class="GtkCheckButton" id="pollingRate0">
+                                        <property name="action-name">app.change-polling-rate</property>
+                                        <property name="action-target">byte 0</property>
+                                        <property name="label">125 hz</property>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="GtkCheckButton" id="pollingRate1">
+                                        <property name="action-name">app.change-polling-rate</property>
+                                        <property name="action-target">byte 1</property>
+                                        <property name="group">pollingRate0</property>
+                                        <property name="label">250 hz</property>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="GtkCheckButton" id="pollingRate2">
+                                        <property name="action-name">app.change-polling-rate</property>
+                                        <property name="action-target">byte 2</property>
+                                        <property name="group">pollingRate0</property>
+                                        <property name="label">500 hz</property>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="GtkCheckButton" id="pollingRate3">
+                                        <property name="action-name">app.change-polling-rate</property>
+                                        <property name="action-target">byte 3</property>
+                                        <property name="active">True</property>
+                                        <property name="group">pollingRate0</property>
+                                        <property name="label">1000 hz</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkBox">
+                                <property name="halign">start</property>
+                                <property name="orientation">vertical</property>
+                                <child>
+                                  <object class="GtkLabel">
+                                    <property name="css-classes">title</property>
+                                    <property name="halign">start</property>
+                                    <property name="label">Lift-Off Distance</property>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkCheckButton" id="checkButtonLiftOffDistance">
+                                    <property name="action-name">app.change-lift-off-distance</property>
+                                    <property name="action-target">byte 1</property>
+                                    <property name="active">True</property>
+                                    <property name="label">Low (1mm)</property>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkCheckButton">
+                                    <property name="action-name">app.change-lift-off-distance</property>
+                                    <property name="action-target">byte 2</property>
+                                    <property name="group">checkButtonLiftOffDistance</property>
+                                    <property name="label">High (2mm)</property>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="hexpand">True</property>
+                            <property name="orientation">vertical</property>
+                            <property name="vexpand">True</property>
+                            <child>
+                              <object class="GtkBox" id="boxDpiSettingsLabel">
+                                <child>
+                                  <object class="GtkLabel">
+                                    <property name="css-classes">title</property>
+                                    <property name="halign">start</property>
+                                    <property name="label">DPI Settings</property>
+                                    <property name="margin-bottom">5</property>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkListBox" id="listBoxDpiProfiles"/>
+                            </child>
+                            <child>
+                              <object class="GtkButton" id="buttonAddDpiProfile">
+                                <property name="action-name">app.add-dpi-level</property>
+                                <property name="label">Add Profile</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="halign">start</property>
+                    <property name="homogeneous">True</property>
+                    <property name="spacing">5</property>
+                    <property name="valign">end</property>
+                    <property name="vexpand">True</property>
+                    <property name="visible">True</property>
+                    <child>
+                      <object class="GtkButton" id="buttonSave">
+                        <property name="can-focus">True</property>
+                        <property name="label" translatable="yes">Save</property>
+                        <property name="receives-default">True</property>
+                        <property name="visible">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="buttonImport">
+                        <property name="can-focus">True</property>
+                        <property name="label" translatable="yes">Import</property>
+                        <property name="receives-default">True</property>
+                        <property name="visible">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="buttonExport">
+                        <property name="can-focus">True</property>
+                        <property name="label" translatable="yes">Export</property>
+                        <property name="receives-default">True</property>
+                        <property name="visible">True</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkStackPage">
+            <property name="child">
+              <object class="GtkBox" id="boxMacro">
+                <property name="css-classes">macro</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+                <property name="orientation">vertical</property>
+                <property name="vexpand">True</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">vertical</property>
+                        <property name="spacing">10</property>
+                        <property name="valign">start</property>
+                        <child>
+                          <object class="GtkEditableLabel" id="editableMacroName">
+                            <property name="css-classes">macro-name</property>
+                            <property name="margin-bottom">10</property>
+                            <property name="margin-top">10</property>
+                            <property name="valign">start</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="buttonMacroRecord">
+                            <property name="can-focus">False</property>
+                            <property name="child">
+                              <object class="GtkBox">
+                                <child>
+                                  <object class="GtkLabel">
+                                    <property name="label">Record</property>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkImage" id="imageRecordingMacro">
+                                    <property name="icon-name">media-record</property>
+                                    <property name="margin-start">5</property>
+                                    <property name="visible">False</property>
+                                  </object>
+                                </child>
+                              </object>
+                            </property>
+                            <property name="focus-on-click">False</property>
+                            <property name="focusable">False</property>
+                            <property name="halign">start</property>
+                            <property name="margin-start">5</property>
+                            <property name="margin-top">5</property>
+                            <property name="valign">end</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="halign">start</property>
+                        <property name="margin-top">10</property>
+                        <property name="orientation">vertical</property>
+                        <property name="overflow">hidden</property>
+                        <child>
+                          <object class="AdwWrapBox" id="wrapBoxMacroEvents">
+                            <property name="child-spacing">10</property>
+                            <property name="height-request">500</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="halign">start</property>
+                    <property name="homogeneous">True</property>
+                    <property name="margin-bottom">5</property>
+                    <property name="margin-end">5</property>
+                    <property name="margin-start">5</property>
+                    <property name="margin-top">5</property>
+                    <property name="spacing">5</property>
+                    <property name="valign">start</property>
+                    <property name="vexpand">True</property>
+                    <child>
+                      <object class="GtkButton" id="buttonMacroCancel">
+                        <property name="action-target">0</property>
+                        <property name="can-focus">False</property>
+                        <property name="focus-on-click">False</property>
+                        <property name="focusable">False</property>
+                        <property name="label">Cancel</property>
+                        <property name="valign">end</property>
+                        <signal name="clicked" handler="switch_stack_page" object="stackMain"/>
+                        <signal name="clicked" handler="exit_macro_stack_page" object="boxMain"/>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="buttonMacroSave">
+                        <property name="action-target">0</property>
+                        <property name="can-focus">False</property>
+                        <property name="focus-on-click">False</property>
+                        <property name="focusable">False</property>
+                        <property name="label">Save</property>
+                        <property name="valign">end</property>
+                        <signal name="clicked" handler="switch_stack_page" object="stackMain"/>
+                        <signal name="clicked" handler="exit_macro_stack_page" object="stackMain"/>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </property>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
   <object class="GtkStack" id="stackButtonActions">
     <property name="vhomogeneous">False</property>
     <child>
@@ -19,7 +527,7 @@
                 <property name="has-frame">False</property>
                 <property name="height-request">1</property>
                 <property name="name">Mouse Action</property>
-                <signal name="clicked" handler="switch_stack_menu_page" object="stackButtonActions"/>
+                <signal name="clicked" handler="switch_stack_page" object="stackButtonActions"/>
               </object>
             </child>
             <child>
@@ -40,7 +548,7 @@
                 <property name="has-frame">False</property>
                 <property name="height-request">1</property>
                 <property name="name">Media Action</property>
-                <signal name="clicked" handler="switch_stack_menu_page" object="stackButtonActions"/>
+                <signal name="clicked" handler="switch_stack_page" object="stackButtonActions"/>
               </object>
             </child>
             <child>
@@ -49,7 +557,7 @@
                 <property name="has-frame">False</property>
                 <property name="height-request">1</property>
                 <property name="name">Macro</property>
-                <signal name="clicked" handler="switch_stack_menu_page" object="stackButtonActions"/>
+                <signal name="clicked" handler="switch_stack_page" object="stackButtonActions"/>
               </object>
             </child>
             <child>
@@ -58,7 +566,7 @@
                 <property name="has-frame">False</property>
                 <property name="height-request">1</property>
                 <property name="name">Shortcut</property>
-                <signal name="clicked" handler="switch_stack_menu_page" object="stackButtonActions"/>
+                <signal name="clicked" handler="switch_stack_page" object="stackButtonActions"/>
               </object>
             </child>
             <child>
@@ -226,6 +734,7 @@
             <child>
               <object class="GtkButton">
                 <property name="action-name">app.add-macro</property>
+                <property name="action-target">1</property>
                 <property name="child">
                   <object class="GtkLabel">
                     <property name="halign">start</property>
@@ -234,6 +743,8 @@
                   </object>
                 </property>
                 <property name="has-frame">False</property>
+                <signal name="clicked" handler="switch_stack_page" object="stackMain"/>
+                <signal name="clicked" handler="enter_macro_stack_page" object="boxMain"/>
               </object>
             </child>
             <child>
@@ -332,415 +843,13 @@
       </object>
     </child>
   </object>
-  <object class="GtkWindow" id="window">
-    <property name="default-height">800</property>
-    <property name="default-width">700</property>
-    <property name="destroy-with-parent">True</property>
-    <property name="height-request">800</property>
-    <property name="title">HyperX Pulsefire Haste</property>
-    <property name="width-request">700</property>
-    <child>
-      <object class="GtkOverlay" id="overlayMain">
-        <child>
-          <object class="GtkBox">
-            <property name="margin-bottom">5</property>
-            <property name="margin-end">5</property>
-            <property name="margin-start">5</property>
-            <property name="margin-top">5</property>
-            <property name="orientation">vertical</property>
-            <child>
-              <object class="GtkBox">
-                <property name="spacing">20</property>
-                <child>
-                  <object class="GtkBox">
-                    <property name="css-classes">button-config</property>
-                    <property name="orientation">vertical</property>
-                    <child>
-                      <object class="GtkBox">
-                        <child>
-                          <object class="GtkLabel">
-                            <property name="halign">start</property>
-                            <property name="label">Battery: </property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="labelBattery">
-                            <property name="halign">start</property>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkBox">
-                        <property name="orientation">vertical</property>
-                        <property name="spacing">15</property>
-                        <child>
-                          <object class="GtkBox">
-                            <property name="orientation">vertical</property>
-                            <property name="spacing">5</property>
-                            <child>
-                              <object class="GtkLabel">
-                                <property name="halign">start</property>
-                                <property name="label">Left Mouse Button</property>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkMenuButton" id="menuButtonLeft">
-                                <property name="direction">right</property>
-                                <property name="label">Left Click</property>
-                                <property name="popover">
-                                  <object class="GtkPopover">
-                                    <signal name="closed" handler="reset_stack_menu" object="stackButtonActions"/>
-                                  </object>
-                                </property>
-                                <property name="tooltip-text">Left Click</property>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkBox">
-                            <property name="orientation">vertical</property>
-                            <property name="spacing">5</property>
-                            <child>
-                              <object class="GtkLabel">
-                                <property name="halign">start</property>
-                                <property name="label">Right Mouse Button</property>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkMenuButton" id="menuButtonRight">
-                                <property name="direction">right</property>
-                                <property name="label">Right Click</property>
-                                <property name="popover">
-                                  <object class="GtkPopover">
-                                    <signal name="closed" handler="reset_stack_menu" object="stackButtonActions"/>
-                                  </object>
-                                </property>
-                                <property name="tooltip-text">Right Click</property>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkBox">
-                            <property name="orientation">vertical</property>
-                            <property name="spacing">5</property>
-                            <child>
-                              <object class="GtkLabel">
-                                <property name="halign">start</property>
-                                <property name="label">Middle Mouse Button</property>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkMenuButton" id="menuButtonMiddle">
-                                <property name="direction">right</property>
-                                <property name="label">Middle Click</property>
-                                <property name="popover">
-                                  <object class="GtkPopover">
-                                    <signal name="closed" handler="reset_stack_menu" object="stackButtonActions"/>
-                                  </object>
-                                </property>
-                                <property name="tooltip-text">Middle Click</property>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkBox">
-                            <property name="orientation">vertical</property>
-                            <property name="spacing">5</property>
-                            <child>
-                              <object class="GtkLabel">
-                                <property name="halign">start</property>
-                                <property name="label">Side Back Mouse Button</property>
-                                <property name="tooltip-text">Lower side button</property>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkMenuButton" id="menuButtonBack">
-                                <property name="direction">right</property>
-                                <property name="label">Back</property>
-                                <property name="popover">
-                                  <object class="GtkPopover">
-                                    <signal name="closed" handler="reset_stack_menu" object="stackButtonActions"/>
-                                  </object>
-                                </property>
-                                <property name="tooltip-text">Back</property>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkBox">
-                            <property name="orientation">vertical</property>
-                            <property name="spacing">5</property>
-                            <child>
-                              <object class="GtkLabel">
-                                <property name="halign">start</property>
-                                <property name="label">Side Forward Mouse Button</property>
-                                <property name="tooltip-text">Upper side button</property>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkMenuButton" id="menuButtonForward">
-                                <property name="direction">right</property>
-                                <property name="label">Forward</property>
-                                <property name="popover">
-                                  <object class="GtkPopover">
-                                    <signal name="closed" handler="reset_stack_menu" object="stackButtonActions"/>
-                                  </object>
-                                </property>
-                                <property name="tooltip-text">Forward</property>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkBox">
-                            <property name="orientation">vertical</property>
-                            <property name="spacing">5</property>
-                            <child>
-                              <object class="GtkLabel">
-                                <property name="halign">start</property>
-                                <property name="label">DPI Button</property>
-                                <property name="tooltip-text">Below scroll wheel</property>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkMenuButton" id="menuButtonDPI">
-                                <property name="direction">right</property>
-                                <property name="label">DPI Toggle</property>
-                                <property name="popover">
-                                  <object class="GtkPopover">
-                                    <signal name="closed" handler="reset_stack_menu" object="stackButtonActions"/>
-                                  </object>
-                                </property>
-                                <property name="tooltip-text">DPI Toggle</property>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkBox">
-                    <property name="css-classes">led-config</property>
-                    <property name="focusable">True</property>
-                    <property name="halign">end</property>
-                    <property name="hexpand">True</property>
-                    <property name="orientation">vertical</property>
-                    <child>
-                      <object class="GtkColorChooserWidget" id="colorChooserLed">
-                        <property name="focusable">True</property>
-                        <property name="halign">center</property>
-                        <property name="hexpand">True</property>
-                        <property name="rgba">rgb(255,0,0)</property>
-                        <property name="show-editor">True</property>
-                        <property name="use-alpha">False</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkLabel">
-                        <property name="halign">start</property>
-                        <property name="justify">center</property>
-                        <property name="label">Brightness</property>
-                        <property name="margin-start">12</property>
-                        <property name="margin-top">20</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkScale" id="scaleBrightness">
-                        <property name="adjustment">adjustmentBrightness</property>
-                        <property name="digits">0</property>
-                        <property name="draw-value">True</property>
-                        <property name="round-digits">0</property>
-                        <property name="show-fill-level">True</property>
-                        <property name="valign">start</property>
-                        <property name="value-pos">left</property>
-                        <property name="vexpand">True</property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-              </object>
-            </child>
-            <child>
-              <object class="GtkBox">
-                <property name="orientation">vertical</property>
-                <child>
-                  <object class="GtkBox">
-                    <property name="css-classes">sensor-config</property>
-                    <property name="focus-on-click">False</property>
-                    <property name="focusable">True</property>
-                    <property name="hexpand">True</property>
-                    <property name="hexpand-set">True</property>
-                    <property name="spacing">20</property>
-                    <child>
-                      <object class="GtkBox">
-                        <property name="spacing">15</property>
-                        <child>
-                          <object class="GtkBox">
-                            <property name="orientation">vertical</property>
-                            <child>
-                              <object class="GtkLabel">
-                                <property name="css-classes">title</property>
-                                <property name="halign">start</property>
-                                <property name="label">Polling Rate</property>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkBox">
-                                <property name="halign">start</property>
-                                <property name="margin-bottom">10</property>
-                                <property name="orientation">vertical</property>
-                                <child>
-                                  <object class="GtkCheckButton" id="pollingRate0">
-                                    <property name="action-name">app.change-polling-rate</property>
-                                    <property name="action-target">byte 0</property>
-                                    <property name="label">125 hz</property>
-                                  </object>
-                                </child>
-                                <child>
-                                  <object class="GtkCheckButton" id="pollingRate1">
-                                    <property name="action-name">app.change-polling-rate</property>
-                                    <property name="action-target">byte 1</property>
-                                    <property name="group">pollingRate0</property>
-                                    <property name="label">250 hz</property>
-                                  </object>
-                                </child>
-                                <child>
-                                  <object class="GtkCheckButton" id="pollingRate2">
-                                    <property name="action-name">app.change-polling-rate</property>
-                                    <property name="action-target">byte 2</property>
-                                    <property name="group">pollingRate0</property>
-                                    <property name="label">500 hz</property>
-                                  </object>
-                                </child>
-                                <child>
-                                  <object class="GtkCheckButton" id="pollingRate3">
-                                    <property name="action-name">app.change-polling-rate</property>
-                                    <property name="action-target">byte 3</property>
-                                    <property name="active">True</property>
-                                    <property name="group">pollingRate0</property>
-                                    <property name="label">1000 hz</property>
-                                  </object>
-                                </child>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkBox">
-                            <property name="halign">start</property>
-                            <property name="orientation">vertical</property>
-                            <child>
-                              <object class="GtkLabel">
-                                <property name="css-classes">title</property>
-                                <property name="halign">start</property>
-                                <property name="label">Lift-Off Distance</property>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkCheckButton" id="checkButtonLiftOffDistance">
-                                <property name="action-name">app.change-lift-off-distance</property>
-                                <property name="action-target">byte 1</property>
-                                <property name="active">True</property>
-                                <property name="label">Low (1mm)</property>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkCheckButton">
-                                <property name="action-name">app.change-lift-off-distance</property>
-                                <property name="action-target">byte 2</property>
-                                <property name="group">checkButtonLiftOffDistance</property>
-                                <property name="label">High (2mm)</property>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkBox">
-                        <property name="hexpand">True</property>
-                        <property name="orientation">vertical</property>
-                        <property name="vexpand">True</property>
-                        <child>
-                          <object class="GtkBox" id="boxDpiSettingsLabel">
-                            <child>
-                              <object class="GtkLabel">
-                                <property name="css-classes">title</property>
-                                <property name="halign">start</property>
-                                <property name="label">DPI Settings</property>
-                                <property name="margin-bottom">5</property>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkListBox" id="listBoxDpiProfiles"/>
-                        </child>
-                        <child>
-                          <object class="GtkButton" id="buttonAddDpiProfile">
-                            <property name="action-name">app.add-dpi-level</property>
-                            <property name="label">Add Profile</property>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-              </object>
-            </child>
-            <child>
-              <object class="GtkBox">
-                <property name="halign">start</property>
-                <property name="homogeneous">True</property>
-                <property name="spacing">5</property>
-                <property name="valign">end</property>
-                <property name="vexpand">True</property>
-                <property name="visible">True</property>
-                <child>
-                  <object class="GtkButton" id="buttonSave">
-                    <property name="can-focus">True</property>
-                    <property name="label" translatable="yes">Save</property>
-                    <property name="receives-default">True</property>
-                    <property name="visible">True</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="buttonImport">
-                    <property name="can-focus">True</property>
-                    <property name="label" translatable="yes">Import</property>
-                    <property name="receives-default">True</property>
-                    <property name="visible">True</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="buttonExport">
-                    <property name="can-focus">True</property>
-                    <property name="label" translatable="yes">Export</property>
-                    <property name="receives-default">True</property>
-                    <property name="visible">True</property>
-                  </object>
-                </child>
-              </object>
-            </child>
-          </object>
-        </child>
-      </object>
-    </child>
-  </object>
   <object class="GtkAdjustment" id="adjustmentBrightness">
     <property name="step-increment">1.0</property>
     <property name="upper">100.0</property>
     <property name="value">100.0</property>
   </object>
   <object class="GtkEventControllerKey" id="eventKeyController"/>
-  <object class="GtkWindow" id="windowTest">
+  <object class="GtkWindow" id="windowKeyboardAction">
     <property name="child">
       <object class="GtkBox">
         <property name="css-classes">keyboard</property>
@@ -804,99 +913,6 @@
     <property name="resizable">False</property>
     <property name="title">Keyboard Action</property>
     <property name="transient-for">window</property>
-  </object>
-  <object class="GtkBox" id="boxMacro">
-    <property name="css-classes">macro</property>
-    <property name="margin-bottom">5</property>
-    <property name="margin-end">5</property>
-    <property name="margin-start">5</property>
-    <property name="margin-top">5</property>
-    <property name="orientation">vertical</property>
-    <property name="vexpand">True</property>
-    <child>
-      <object class="GtkBox">
-        <property name="orientation">vertical</property>
-        <child>
-          <object class="GtkBox">
-            <property name="orientation">vertical</property>
-            <property name="spacing">10</property>
-            <property name="valign">start</property>
-            <child>
-              <object class="GtkEditableLabel" id="editableMacroName">
-                <property name="css-classes">macro-name</property>
-                <property name="margin-bottom">10</property>
-                <property name="margin-top">10</property>
-                <property name="valign">start</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkButton" id="buttonMacroRecord">
-                <property name="child">
-                  <object class="GtkBox">
-                    <child>
-                      <object class="GtkLabel">
-                        <property name="label">Record</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkImage" id="imageRecordingMacro">
-                        <property name="icon-name">media-record</property>
-                        <property name="margin-start">5</property>
-                        <property name="visible">False</property>
-                      </object>
-                    </child>
-                  </object>
-                </property>
-                <property name="halign">start</property>
-                <property name="margin-start">5</property>
-                <property name="margin-top">5</property>
-                <property name="valign">end</property>
-              </object>
-            </child>
-          </object>
-        </child>
-        <child>
-          <object class="GtkBox">
-            <property name="orientation">vertical</property>
-            <property name="overflow">hidden</property>
-            <child>
-              <object class="GtkFlowBox" id="flowBoxMacroEvents">
-                <property name="hexpand">True</property>
-                <property name="homogeneous">True</property>
-                <property name="max-children-per-line">20</property>
-                <property name="valign">start</property>
-              </object>
-            </child>
-          </object>
-        </child>
-      </object>
-    </child>
-    <child>
-      <object class="GtkBox">
-        <property name="halign">start</property>
-        <property name="hexpand">True</property>
-        <property name="homogeneous">True</property>
-        <property name="margin-bottom">5</property>
-        <property name="margin-end">5</property>
-        <property name="margin-start">5</property>
-        <property name="margin-top">5</property>
-        <property name="spacing">5</property>
-        <property name="valign">start</property>
-        <property name="vexpand">True</property>
-        <child>
-          <object class="GtkButton" id="buttonMacroCancel">
-            <property name="label">Cancel</property>
-            <property name="valign">end</property>
-          </object>
-        </child>
-        <child>
-          <object class="GtkButton" id="buttonMacroSave">
-            <property name="label">Save</property>
-            <property name="valign">end</property>
-          </object>
-        </child>
-      </object>
-    </child>
   </object>
   <object class="GtkEventControllerKey" id="macroKeyController"/>
   <object class="GtkGestureClick" id="gestureButtonConfirmMacro">

@@ -9,11 +9,11 @@ TARGET            = bin/main
 
 ASAN = -fsanitize=address
 
-LDLIBS  = $(ASAN) -lm -lhidapi-hidraw $$(pkg-config --libs gtk4 gmodule-export-2.0)
-CFLAGS += $$(pkg-config --cflags gtk4 gmodule-export-2.0) -Wall -Werror -Werror=vla -Wno-deprecated-declarations -std=c99 -Og -g $(ASAN)
+LDLIBS  = $(ASAN) -lm -lhidapi-hidraw $$(pkg-config --libs libadwaita-1 gmodule-export-2.0)
+CFLAGS += $$(pkg-config --cflags libadwaita-1 gmodule-export-2.0) -Wall -Werror -Werror=vla -Wno-deprecated-declarations -std=c99 -Og -g $(ASAN)
 
 ifeq ($(OS),Windows_NT)
-	LDLIBS = -lm -lhidapi $$(pkg-config --libs gtk4 gmodule-export-2.0) -I /mingw64/include/hidapi
+	LDLIBS = -lm -lhidapi $$(pkg-config --libs libadwaita-1 gmodule-export-2.0) -I /mingw64/include/hidapi
 endif
 
 all: $(TARGET) $(GRESOURCES) 

@@ -5,10 +5,18 @@
   <requires lib="gtk" version="4.18"/>
   <template class="MacroEventItem" parent="GtkBox">
     <property name="css-classes">macro-event</property>
+    <property name="halign">start</property>
     <child>
-      <object class="GtkLabel" id="item_content">
-        <property name="hexpand">True</property>
-        <property name="justify">center</property>
+      <object class="GtkBox">
+        <child>
+          <object class="GtkLabel" id="item_content">
+            <property name="justify">center</property>
+            <property name="margin-bottom">5</property>
+            <property name="margin-end">5</property>
+            <property name="margin-start">5</property>
+            <property name="margin-top">5</property>
+          </object>
+        </child>
       </object>
     </child>
   </template>

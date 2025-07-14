@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <hidapi/hidapi.h>
 #include <gtk/gtk.h>
+#include <adwaita.h>
 
 #include "device/rgb.h"
 #include "device/mouse.h"
@@ -53,13 +54,11 @@ struct app_widgets {
 	GtkApplication *app;
 	GtkWindow *window;
 	GtkWindow *window_keyboard_action;
-	GtkOverlay *overlay;
 	GtkLabel *label_battery;
 
 	GtkLabel *label_selected_button, *label_pressed_key;
 	GtkEventController *event_key_controller;
 
-	GtkBox *box_macro;
 	GtkEventController *macro_mouse_events, *macro_key_events;
 
 	GtkAlertDialog *alert;
@@ -143,8 +142,7 @@ struct config_macro_data {
 	GtkGesture *gesture_button_confirm_macro_claim_click;
 	GtkGesture *gesture_button_record_macro_claim_click;
 
-	GtkFlowBox *flow_box_macro_events;
-	GListStore *list_store_macro_events;
+	AdwWrapBox *wrap_box_macro_events;
 
 	GtkButton *button_record_macro;
 	GtkImage *image_recording_macro;

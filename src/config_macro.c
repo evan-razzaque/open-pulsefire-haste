@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <sys/time.h>
 #include <gtk/gtk.h>
+#include <adwaita.h>
 
 #include "device/buttons.h"
 #include "hid_keyboard_map.h"
@@ -15,6 +16,20 @@
 #include "./templates/macro_event_item.h"
 
 static void claim_click(GtkGesture *gesture, int n_press, double x, double y, void *data);
+
+/**
+ * @brief Removes all children from a AdwWrapBox.
+ * 
+ * @param self The wrap box
+ */
+static void adw_wrap_box_remove_all(AdwWrapBox *self) {
+    GtkWidget *widget;
+    g_return_if_fail(ADW_IS_WRAP_BOX(self));
+
+    while ((widget = gtk_widget_get_first_child(GTK_WIDGET(self)))) {
+        adw_wrap_box_remove(self, widget);
+    }
+}
 
 /**
  * @brief Determines if two generic_macro_events are equal.
@@ -43,17 +58,17 @@ static void resize_array(void** array, size_t type_size, int *capacity, int elem
 }
 
 /**
- * @brief Stores a MacroEventItem widget into a GListStore.
+ * @brief Stores a MacroEventItem widget into a wrap box.
  * 
- * @param list_store_macro_events The GListStore to store the widget in
- * @param event A generic_macro_event object
+ * @param wrap_box The wrap box
+ * @param event The macro event for the MacroEventItem widget
  * @param data Application wide data structure
  */
-static void list_store_add_macro_event(GListStore *list_store_macro_events, generic_macro_event *event, app_data *data) {
+static void wrap_box_add_macro_event(AdwWrapBox *wrap_box, generic_macro_event *event, app_data *data) {
     if (event->delay > 0) {
-        g_list_store_append(
-            list_store_macro_events,
-            macro_event_item_new(MACRO_ITEM_TYPE_DELAY, NULL, event->delay)
+        adw_wrap_box_append(
+            wrap_box,
+            GTK_WIDGET(macro_event_item_new(MACRO_ITEM_TYPE_DELAY, NULL, event->delay))
         );
     }
 
@@ -61,9 +76,9 @@ static void list_store_add_macro_event(GListStore *list_store_macro_events, gene
         data->button_data.key_names[event->action]:
         data->macro_data.mouse_button_names[event->action];
     
-    g_list_store_append(
-        list_store_macro_events,
-        macro_event_item_new(MACRO_ITEM_TYPE_ACTION, action_name, event->delay)
+    adw_wrap_box_append(
+        wrap_box,
+        GTK_WIDGET(macro_event_item_new(MACRO_ITEM_TYPE_ACTION, action_name, event->delay))
     );
 }
 
@@ -76,8 +91,11 @@ static void add_macro_event(MACRO_EVENT_TYPE event_type, byte action, MACRO_ACTI
 
     generic_macro_event event = {.event_type = event_type, .action_type = action_type, .action = action};
     
-    // Prevents identical macro actions from being added multiple times in a row
-    if (previous_event_index >= 0 && macro_event_equals(macro->events[previous_event_index], event)) {
+    // Prevents identical macro events from being added multiple times in a row
+    if (
+        previous_event_index >= 0
+        && macro_event_equals(macro->events[previous_event_index], event)
+    ) {
         return;
     }
 
@@ -105,7 +123,11 @@ static void add_macro_event(MACRO_EVENT_TYPE event_type, byte action, MACRO_ACTI
     event.delay_next_action = current_time;
     macro->events[macro->generic_event_count] = event;
     
-    list_store_add_macro_event(data->macro_data.list_store_macro_events, &macro->events[macro->generic_event_count], data);
+    wrap_box_add_macro_event(
+        data->macro_data.wrap_box_macro_events,
+        macro->events + macro->generic_event_count,
+        data
+    );
     macro->generic_event_count++;
 }
 
@@ -139,7 +161,8 @@ static void toggle_macro_recording(GtkGesture *gesture, int n_press, double x, d
     data->macro_data.is_recording_macro = is_recording;
     data->macro_data.is_resuming_macro_recording = is_resuming_recording;
 
-    gtk_widget_set_visible(GTK_WIDGET(data->macro_data.image_recording_macro), data->macro_data.is_recording_macro);
+    gtk_widget_set_visible(GTK_WIDGET(data->macro_data.image_recording_macro), is_recording);
+    gtk_widget_set_sensitive(GTK_WIDGET(data->macro_data.editable_macro_name), !is_recording);
 }
 
 static void create_macro(GSimpleAction *action, GVariant *variant, app_data *data) {
@@ -154,8 +177,6 @@ static void create_macro(GSimpleAction *action, GVariant *variant, app_data *dat
     data->macro_data.macro_index = data->macro_data.macro_count;
     
     gtk_editable_set_text(data->macro_data.editable_macro_name, "New Macro");
-	gtk_overlay_add_overlay(data->widgets->overlay, GTK_WIDGET(data->widgets->box_macro));
-
     menu_button_set_popover_visibility(get_active_menu_button(data), false);
 }
 
@@ -163,8 +184,7 @@ static void stop_macro_recording(app_data *data) {
     data->macro_data.is_recording_macro = false;
     gtk_widget_set_visible(GTK_WIDGET(data->macro_data.image_recording_macro), false);
 
-    g_list_store_remove_all(data->macro_data.list_store_macro_events);
-	gtk_overlay_remove_overlay(data->widgets->overlay, GTK_WIDGET(data->widgets->box_macro));
+    adw_wrap_box_remove_all(data->macro_data.wrap_box_macro_events);
     menu_button_set_popover_visibility(get_active_menu_button(data), true);
 }
 
@@ -183,7 +203,7 @@ static void close_macro_overlay(GtkButton *button, app_data *data) {
         free(macro->events);
         free(macro->name);
     } else {
-        // Effectively discards unsaved macro events
+        // Discard unsaved macro events
         macro->generic_event_count = data->macro_data.macro_saved_event_count;
     }
 }
@@ -227,8 +247,7 @@ static void edit_macro(GSimpleAction *action, GVariant *macro_index, app_data *d
     int event_count = macro.generic_event_count;
 
     for (int i = 0; i < event_count; i++) {
-        generic_macro_event event = macro.events[i];
-        list_store_add_macro_event(data->macro_data.list_store_macro_events, &event, data);
+        wrap_box_add_macro_event(data->macro_data.wrap_box_macro_events, macro.events + i, data);
     }
 
     data->macro_data.macro_index = index;
@@ -236,7 +255,6 @@ static void edit_macro(GSimpleAction *action, GVariant *macro_index, app_data *d
 
     gtk_editable_set_text(data->macro_data.editable_macro_name, macro.name);
     menu_button_set_popover_visibility(get_active_menu_button(data), false);
-    gtk_overlay_add_overlay(data->widgets->overlay, GTK_WIDGET(data->widgets->box_macro));
 }
 
 static void update_macro_assignments(uint32_t macro_index, app_data *data) {
@@ -420,14 +438,12 @@ static void select_macro(GSimpleAction *action, GVariant *macro_index, app_data 
 }
 
 static void get_macro_data_widgets(GtkBuilder *builder, app_data *data) {
-    data->widgets->box_macro = GTK_BOX(GTK_WIDGET(gtk_builder_get_object(builder, "boxMacro")));
     data->widgets->macro_key_events = GTK_EVENT_CONTROLLER(gtk_builder_get_object(builder, "macroKeyController"));
-    
     data->macro_data.gesture_macro_mouse_events = GTK_GESTURE(gtk_builder_get_object(builder, "gestureMacroMouseEvents"));
     data->macro_data.gesture_button_confirm_macro_claim_click = GTK_GESTURE(gtk_builder_get_object(builder, "gestureButtonConfirmMacro"));
     data->macro_data.gesture_button_record_macro_claim_click = GTK_GESTURE(gtk_builder_get_object(builder, "gestureButtonMacroRecording"));
 
-    data->macro_data.flow_box_macro_events = GTK_FLOW_BOX(GTK_WIDGET(gtk_builder_get_object(builder, "flowBoxMacroEvents")));
+    data->macro_data.wrap_box_macro_events = (AdwWrapBox*) GTK_WIDGET(gtk_builder_get_object(builder, "wrapBoxMacroEvents"));
     data->macro_data.button_record_macro = GTK_BUTTON(GTK_WIDGET(gtk_builder_get_object(builder, "buttonMacroRecord")));
     data->macro_data.image_recording_macro = GTK_IMAGE(GTK_WIDGET(gtk_builder_get_object(builder, "imageRecordingMacro")));
 
@@ -457,20 +473,12 @@ static void setup_event_controllers(app_data *data) {
     g_signal_connect(data->macro_data.gesture_button_confirm_macro_claim_click, "pressed", G_CALLBACK(save_recorded_macro), data);
 }
 
-GtkWidget* create_macro_event_widget(MacroEventItem *item, void *data) {
-    return GTK_WIDGET(item);
-}
-
-void destroy_macro_events(void *data) {
-
-}
-
 void app_config_macro_init(GtkBuilder *builder, app_data *data) {
     get_macro_data_widgets(builder, data);
     setup_event_controllers(data);
 
     const GActionEntry entries[] = {
-        {.name = "add-macro",    .activate = (g_action) create_macro},
+        {.name = "add-macro",    .activate = (g_action) create_macro, .parameter_type = (const char*) G_VARIANT_TYPE_INT32},
         {.name = "select-macro", .activate = (g_action) select_macro, .parameter_type = (const char*) G_VARIANT_TYPE_UINT32},
         {.name = "edit-macro",   .activate = (g_action) edit_macro,   .parameter_type = (const char*) G_VARIANT_TYPE_UINT32},
         {.name = "delete-macro", .activate = (g_action) delete_macro, .parameter_type = (const char*) G_VARIANT_TYPE_UINT32}
@@ -479,22 +487,13 @@ void app_config_macro_init(GtkBuilder *builder, app_data *data) {
     g_action_map_add_action_entries(G_ACTION_MAP(data->widgets->app), entries, G_N_ELEMENTS(entries), data);
     
     mouse_macro *macros = data->macro_data.macros;
-
+    
     for (int i = 0; i < data->macro_data.macro_count; i++) {
         gtk_list_box_append(
             data->macro_data.box_saved_macros, 
             GTK_WIDGET(mouse_macro_button_new(macros[i].name, i))
         );
     }
-
-    data->macro_data.list_store_macro_events = g_list_store_new(G_TYPE_OBJECT);
-    gtk_flow_box_bind_model(
-        data->macro_data.flow_box_macro_events,
-        (GListModel*) data->macro_data.list_store_macro_events,
-        (GtkFlowBoxCreateWidgetFunc) create_macro_event_widget, 
-        data,
-        destroy_macro_events
-    );
 
     widget_add_event(builder, "buttonMacroCancel", "clicked", close_macro_overlay, data);
 }

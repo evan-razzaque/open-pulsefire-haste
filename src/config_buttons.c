@@ -167,6 +167,11 @@ static void set_mouse_button(GtkMenuButton *menu_button, GParamSpec *param_spec,
 	data->button_data.selected_button_name = gtk_widget_get_tooltip_text(GTK_WIDGET(menu_button));
 }
 
+G_MODULE_EXPORT void reset_stack_menu(GtkStack* stack, GtkPopover *popover) {
+	GtkSelectionModel *stack_pages = gtk_stack_get_pages(stack);
+	gtk_selection_model_select_item(stack_pages, 0, true);
+}
+
 static void set_menu_button_label(GtkMenuButton *menu_button, uint16_t action, char *simple_action_names[8][9], const char **key_names) {
 	byte action_type = action >> 8;
 	byte action_value = action & 0x00ff;
@@ -199,28 +204,36 @@ static void setup_action_menu_buttons(GtkBuilder *builder, app_data *data) {
 	menu_buttons[5] = GTK_MENU_BUTTON(GTK_WIDGET(gtk_builder_get_object(builder, "menuButtonDPI")));
 	
 	for (int i = 0; i < BUTTON_COUNT; i++) {
-		g_signal_connect(menu_buttons[i], "notify::active", G_CALLBACK(set_mouse_button), data);
 		g_object_set_data(G_OBJECT(menu_buttons[i]), "button", &data->button_data.buttons[i]);
+		
+		g_signal_connect(menu_buttons[i], "notify::active", G_CALLBACK(set_mouse_button), data);
+		g_signal_connect_swapped(
+			gtk_menu_button_get_popover(menu_buttons[i]),
+			"closed",
+			G_CALLBACK(reset_stack_menu),
+			data->button_data.stack_button_actions
+		);
 
 		if (bindings[i] >> 8 == MOUSE_ACTION_TYPE_MACRO) continue;
 		set_menu_button_label(menu_buttons[i], bindings[i], simple_action_names, key_names);
 	}
 }
 
-void app_config_buttons_init(GtkBuilder *builder, app_data *data) {
-	data->widgets->window_keyboard_action = GTK_WINDOW(GTK_WIDGET(gtk_builder_get_object(builder, "windowTest")));
+static void get_button_data_widgets(GtkBuilder *builder, app_data *data) {
+	data->widgets->window_keyboard_action = GTK_WINDOW(GTK_WIDGET(gtk_builder_get_object(builder, "windowKeyboardAction")));
     data->widgets->event_key_controller = GTK_EVENT_CONTROLLER(gtk_builder_get_object(builder, "eventKeyController"));
 	data->widgets->label_selected_button = GTK_LABEL(GTK_WIDGET(gtk_builder_get_object(builder, "labelSelectedButton")));
     data->widgets->label_pressed_key = GTK_LABEL(GTK_WIDGET(gtk_builder_get_object(builder, "labelPressedKey")));
-
 	data->button_data.stack_button_actions = GTK_STACK(GTK_WIDGET(gtk_builder_get_object(builder, "stackButtonActions")));
+}
+
+void app_config_buttons_init(GtkBuilder *builder, app_data *data) {
+	get_button_data_widgets(builder, data);
 
 	gtk_window_set_application(data->widgets->window_keyboard_action, data->widgets->app);
 	gtk_widget_add_controller(GTK_WIDGET(data->widgets->window_keyboard_action), data->widgets->event_key_controller);
 	g_signal_connect(data->widgets->window_keyboard_action, "close-request", G_CALLBACK(clear_key_pressed_label), data->widgets->label_pressed_key);
     g_signal_connect(data->widgets->event_key_controller, "key-pressed", G_CALLBACK(set_keyboard_action), data);
-
-	data->widgets->overlay = GTK_OVERLAY(GTK_WIDGET(gtk_builder_get_object(builder, "overlayMain")));
 	
 	setup_action_menu_buttons(builder, data);
 	
@@ -233,14 +246,4 @@ void app_config_buttons_init(GtkBuilder *builder, app_data *data) {
 
 	widget_add_event(builder, "buttonKeybindConfirm", "clicked", confirm_keyboard_action_binding, data);
 	widget_add_event(builder, "buttonKeybindCancel", "clicked", close_keyboard_actions_window, data);
-}
-
-G_MODULE_EXPORT void switch_stack_menu_page(GtkStack* stack, GtkActionable *button) {
-	GtkSelectionModel *stack_pages = gtk_stack_get_pages(stack);
-	gtk_selection_model_select_item(stack_pages, g_variant_get_int32(gtk_actionable_get_action_target_value(button)), true);
-}
-
-G_MODULE_EXPORT void reset_stack_menu(GtkStack* stack, GtkPopover *popover) {
-	GtkSelectionModel *stack_pages = gtk_stack_get_pages(stack);
-	gtk_selection_model_select_item(stack_pages, 0, true);
 }

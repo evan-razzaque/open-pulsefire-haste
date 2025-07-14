@@ -22,6 +22,10 @@
 #define widget_add_event(builder, widget_name, detailed_signal, c_handler, data)\
 	g_signal_connect(gtk_builder_get_object(builder, widget_name), detailed_signal, G_CALLBACK(c_handler), data);
 
+const char* __asan_default_options() {
+	return "detect_leaks=0";
+}
+
 /**
  * @brief Saves the settings to the mouse.
  * 
@@ -232,7 +236,7 @@ void* mouse_update_loop(app_data *data) {
 int main() {
 	int res;
 	CONNECTION_TYPE connection_type;
-	
+
 	GMutex mutex;
 	g_mutex_init(&mutex);
 
