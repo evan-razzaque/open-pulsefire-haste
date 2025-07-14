@@ -234,6 +234,7 @@
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
+                    <property name="vexpand">True</property>
                     <child>
                       <object class="GtkBox">
                         <property name="css-classes">sensor-config</property>
@@ -742,7 +743,7 @@
                 </property>
                 <property name="has-frame">False</property>
                 <signal name="clicked" handler="switch_stack_page" object="stackMain"/>
-                <signal name="clicked" handler="disable_main_stack_page" object="boxMain"/>
+                <signal name="clicked" handler="enable_main_stack_page" object="boxMain"/>
               </object>
             </child>
             <child>

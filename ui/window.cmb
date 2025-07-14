@@ -9,7 +9,7 @@
   <ui template-class="StackMenuButtonBack" filename="stack-menu-button-back.ui" sha256="c83fd972f06e396df934a4761422f29a484453263cf07867fe08b5c59b094c61"/>
   <ui template-class="MouseMacroButton" filename="mouse-macro-button.ui" sha256="c37ed070b6151e73b9a3a2a009fa2077874b9124d8313c2fac6ae741baa90b9e"/>
   <ui template-class="MacroEventItem" filename="macro-event-item.ui" sha256="e5c336fce6f9330b35899321d8ffe6d436190742b27d81d4e7f47201b18c70e3"/>
-  <ui filename="window.ui" sha256="e71e8ef7ac335bfa8d77ad352d5b730a10e72a2ed2b1f4fb0040ca19f84f43e6">
+  <ui filename="window.ui" sha256="e6bebee57d2ee181a1e6d6a539e1cf9336f207ce3d1ce3ff8ca7c48ff18e053f">
     <requires>StackMenuButton</requires>
     <requires>StackMenuButtonBack</requires>
   </ui>
