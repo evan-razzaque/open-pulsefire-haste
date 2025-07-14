@@ -154,6 +154,11 @@ static void toggle_macro_recording(GtkGesture *gesture, int n_press, double x, d
     data->macro_data.is_recording_macro = is_recording;
     data->macro_data.is_resuming_macro_recording = is_resuming_recording;
 
+    gtk_editable_label_stop_editing(
+        (GtkEditableLabel*) data->macro_data.editable_macro_name,
+        true
+    );
+
     gtk_widget_set_visible(GTK_WIDGET(data->macro_data.image_recording_macro), is_recording);
     gtk_widget_set_sensitive(GTK_WIDGET(data->macro_data.editable_macro_name), !is_recording);
 }
