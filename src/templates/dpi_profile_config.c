@@ -142,8 +142,6 @@ DpiProfileConfig* dpi_profile_config_new(GtkCheckButton *check_button_group, uin
     dpi_profile_config_set_index(self, profile_index);
     gtk_check_button_set_group(self->check_button, check_button_group);
 
-    printf("Profile: %d\n", profile_index);
-
     GdkRGBA rgba_indicator = {
         .red   = ((profile_index + 1) & (1 << 0)),
         .green = ((profile_index + 1) & (1 << 1)),

@@ -146,6 +146,12 @@ GtkMenuButton* get_active_menu_button(app_data* data);
 
 void menu_button_set_popover_visibility(GtkMenuButton *self, bool visible);
 
+void switch_stack_page(GtkStack *stack, GtkActionable* button);
+
+void enter_macro_stack_page(GtkStack *stack, GtkActionable *button);
+
+void disable_main_stack_page(GtkBox *box_main, GtkActionable *button);
+
 void assign_macro(uint32_t index, app_data* data);
 
 #endif

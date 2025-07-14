@@ -489,7 +489,7 @@
                         <property name="label">Cancel</property>
                         <property name="valign">end</property>
                         <signal name="clicked" handler="switch_stack_page" object="stackMain"/>
-                        <signal name="clicked" handler="exit_macro_stack_page" object="boxMain"/>
+                        <signal name="clicked" handler="enable_main_stack_page" object="boxMain"/>
                       </object>
                     </child>
                     <child>
@@ -500,8 +500,6 @@
                         <property name="focusable">False</property>
                         <property name="label">Save</property>
                         <property name="valign">end</property>
-                        <signal name="clicked" handler="switch_stack_page" object="stackMain"/>
-                        <signal name="clicked" handler="exit_macro_stack_page" object="stackMain"/>
                       </object>
                     </child>
                   </object>
@@ -744,7 +742,7 @@
                 </property>
                 <property name="has-frame">False</property>
                 <signal name="clicked" handler="switch_stack_page" object="stackMain"/>
-                <signal name="clicked" handler="enter_macro_stack_page" object="boxMain"/>
+                <signal name="clicked" handler="disable_main_stack_page" object="boxMain"/>
               </object>
             </child>
             <child>
@@ -917,6 +915,8 @@
   <object class="GtkEventControllerKey" id="macroKeyController"/>
   <object class="GtkGestureClick" id="gestureButtonConfirmMacro">
     <property name="button">0</property>
+    <signal name="pressed" handler="enter_main_stack_page" object="stackMain"/>
+    <signal name="pressed" handler="enable_main_stack_page" object="boxMain"/>
   </object>
   <object class="GtkGestureClick" id="gestureMacroMouseEvents">
     <property name="button">0</property>

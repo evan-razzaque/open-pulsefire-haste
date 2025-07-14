@@ -152,6 +152,9 @@ void activate(GtkApplication *app, app_data *data) {
 	GtkLabel *label_battery = GTK_LABEL(GTK_WIDGET(gtk_builder_get_object(builder, "labelBattery")));
 
 	data->widgets->window = window;
+	data->widgets->stack_main = GTK_STACK(GTK_WIDGET(gtk_builder_get_object(builder, "stackMain")));
+	data->widgets->box_main = GTK_BOX(GTK_WIDGET(gtk_builder_get_object(builder, "boxMain")));
+
 	
 	app_config_led_init(builder, data);
 	app_config_buttons_init(builder, data);

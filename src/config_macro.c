@@ -201,12 +201,25 @@ static void close_macro_overlay(GtkButton *button, app_data *data) {
     }
 }
 
-static void add_recorded_macro(char* macro_name, app_data *data) {
-    gtk_list_box_append(
-        data->macro_data.box_saved_macros, 
-        GTK_WIDGET(mouse_macro_button_new(macro_name, data->macro_data.macro_count))
+static MouseMacroButton* create_macro_item(char *macro_name, byte index, app_data *data) {
+    MouseMacroButton *self = mouse_macro_button_new(
+        macro_name,
+        index
     );
 
+    g_signal_connect_swapped(self->button_edit, "clicked", G_CALLBACK(disable_main_stack_page), data->widgets->box_main);
+    g_signal_connect_swapped(self->button_edit, "clicked", G_CALLBACK(enter_macro_stack_page), data->widgets->stack_main);
+
+    gtk_list_box_append(
+        data->macro_data.box_saved_macros,
+        GTK_WIDGET(self)
+    );
+
+    return self;
+}
+
+static void add_recorded_macro(char *macro_name, app_data *data) {
+    create_macro_item(macro_name, data->macro_data.macro_count, data);
     data->macro_data.macro_count++;
 }
 
@@ -235,7 +248,7 @@ static void save_recorded_macro(GtkGesture *gesture, int n_press, double x, doub
 
 static void edit_macro(GSimpleAction *action, GVariant *macro_index, app_data *data) {
     uint32_t index = g_variant_get_uint32(macro_index);
-
+    
     mouse_macro macro = data->macro_data.macros[index];
     int event_count = macro.generic_event_count;
 
@@ -482,10 +495,7 @@ void app_config_macro_init(GtkBuilder *builder, app_data *data) {
     mouse_macro *macros = data->macro_data.macros;
     
     for (int i = 0; i < data->macro_data.macro_count; i++) {
-        gtk_list_box_append(
-            data->macro_data.box_saved_macros, 
-            GTK_WIDGET(mouse_macro_button_new(macros[i].name, i))
-        );
+        create_macro_item(macros[i].name, i, data);
     }
 
     widget_add_event(builder, "buttonMacroCancel", "clicked", close_macro_overlay, data);

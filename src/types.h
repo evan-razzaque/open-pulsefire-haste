@@ -43,6 +43,9 @@ struct app_widgets {
 	GtkWindow *window_keyboard_action;
 	GtkLabel *label_battery;
 
+	GtkStack *stack_main;
+	GtkBox *box_main;
+
 	GtkLabel *label_selected_button, *label_pressed_key;
 	GtkEventController *event_key_controller;
 
