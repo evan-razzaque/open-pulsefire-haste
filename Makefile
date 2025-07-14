@@ -40,6 +40,8 @@ build/main.o: src/main.c src/hid_keyboard_map.h
 	@mkdir -p build
 	$(CC) -c $(CFLAGS) $< -o $@
 
+build/config_macro.o build/macro_event_item.o: src/macro_types.h
+
 build/%.o: src/%.c
 	@mkdir -p build
 	$(CC) -c $(CFLAGS) $< -o $@

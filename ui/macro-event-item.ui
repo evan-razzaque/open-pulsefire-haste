@@ -8,13 +8,29 @@
     <property name="halign">start</property>
     <child>
       <object class="GtkBox">
+        <property name="spacing">5</property>
         <child>
-          <object class="GtkLabel" id="item_content">
-            <property name="justify">center</property>
-            <property name="margin-bottom">5</property>
-            <property name="margin-end">5</property>
+          <object class="GtkLabel" id="label_delay"/>
+        </child>
+        <child>
+          <object class="GtkBox">
+            <property name="css-classes">action</property>
             <property name="margin-start">5</property>
-            <property name="margin-top">5</property>
+            <property name="spacing">5</property>
+            <child>
+              <object class="GtkLabel" id="label_action_name">
+                <property name="justify">center</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkImage" id="image_action_type">
+                <property name="margin-end">5</property>
+              </object>
+            </child>
           </object>
         </child>
       </object>

@@ -65,20 +65,13 @@ static void resize_array(void** array, size_t type_size, int *capacity, int elem
  * @param data Application wide data structure
  */
 static void wrap_box_add_macro_event(AdwWrapBox *wrap_box, generic_macro_event *event, app_data *data) {
-    if (event->delay > 0) {
-        adw_wrap_box_append(
-            wrap_box,
-            GTK_WIDGET(macro_event_item_new(MACRO_ITEM_TYPE_DELAY, NULL, event->delay))
-        );
-    }
-
     const char* action_name = (event->event_type == MACRO_EVENT_TYPE_KEYBOARD)?
         data->button_data.key_names[event->action]:
         data->macro_data.mouse_button_names[event->action];
     
     adw_wrap_box_append(
         wrap_box,
-        GTK_WIDGET(macro_event_item_new(MACRO_ITEM_TYPE_ACTION, action_name, event->delay))
+        GTK_WIDGET(macro_event_item_new(action_name, event->delay, event->action_type))
     );
 }
 

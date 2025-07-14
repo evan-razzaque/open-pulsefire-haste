@@ -11,27 +11,14 @@
 #include "device/buttons.h"
 #include "device/sensor.h"
 
+#include "macro_types.h"
+
 enum MOUSE_STATE {
 	UPDATE,
 	SAVE,
 	CLOSED
 } typedef MOUSE_STATE;
 
-/**
- * @brief An enum for macro event pressed/released states.
- * 
- */
-typedef enum MACRO_ACTION_TYPE {
-	MACRO_ACTION_TYPE_UP   = 0x00,
-	MACRO_ACTION_TYPE_DOWN = 0x01
-} MACRO_ACTION_TYPE;
-
-enum GENERIC_EVENT_ACTION_TYPES {
-    KEY_DOWN   = 0x1a01,
-    KEY_UP     = 0x1a00,
-    MOUSE_DOWN = 0x2501,
-    MOUSE_UP   = 0x2500
-} typedef GENERIC_EVENT_ACTION_TYPES;
 
 /**
  * @brief All the data required to interact with the mouse.

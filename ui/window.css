@@ -26,13 +26,8 @@ box.macro {
 	font-size: 16px;
 }
 
-box.macro-event.action {
+box.macro-event .action {
 	border-width: 1px;
 	border-style: solid;
 	border-color: white;
-}
-
-box.macro-event.delay label {
-	font-size: 10px;
-	margin: 2px;
 }

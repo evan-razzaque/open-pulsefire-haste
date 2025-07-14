@@ -1,0 +1,22 @@
+#ifndef MACRO_TYPES_H
+#define MACRO_TYPES_H
+
+#include "./device/buttons.h"
+
+/**
+ * @brief An enum for macro event pressed/released states.
+ * 
+ */
+typedef enum MACRO_ACTION_TYPE {
+	MACRO_ACTION_TYPE_UP   = 0x00,
+	MACRO_ACTION_TYPE_DOWN = 0x01
+} MACRO_ACTION_TYPE;
+
+enum GENERIC_EVENT_ACTION_TYPES {
+    KEY_DOWN   = (MACRO_EVENT_TYPE_KEYBOARD << 8) + MACRO_ACTION_TYPE_DOWN,
+    KEY_UP     = (MACRO_EVENT_TYPE_KEYBOARD << 8) + MACRO_ACTION_TYPE_UP,
+    MOUSE_DOWN = (MACRO_EVENT_TYPE_MOUSE    << 8) + MACRO_ACTION_TYPE_DOWN,
+    MOUSE_UP   = (MACRO_EVENT_TYPE_MOUSE    << 8) + MACRO_ACTION_TYPE_UP
+} typedef GENERIC_EVENT_ACTION_TYPES;
+
+#endif
