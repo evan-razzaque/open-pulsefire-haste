@@ -152,6 +152,6 @@ void enter_macro_stack_page(GtkStack *stack, GtkActionable *button);
 
 void disable_main_stack_page(GtkBox *box_main, GtkActionable *button);
 
-void assign_macro(uint32_t index, app_data* data);
+void assign_macro(uint32_t macro_index, byte button, app_data* data);
 
 #endif

@@ -228,6 +228,26 @@ static void add_recorded_macro(char *macro_name, app_data *data) {
     data->macro_data.macro_count++;
 }
 
+static void modify_recorded_macro(uint32_t macro_index, char *macro_name, app_data *data) {
+    GtkListBox *box_saved_macros = data->macro_data.box_saved_macros;
+    MouseMacroButton *macro_button = MOUSE_MACRO_BUTTON(gtk_list_box_row_get_child(
+        gtk_list_box_get_row_at_index(box_saved_macros, macro_index)
+    ));
+
+    gtk_widget_set_name(GTK_WIDGET(macro_button), macro_name);
+
+    int *macro_indicies = data->macro_data.macro_indicies;
+
+    for (int i = 0; i < BUTTON_COUNT; i++) {
+        if (
+            data->button_data.bindings[i] >> 8 == MOUSE_ACTION_TYPE_MACRO
+            && macro_indicies[i] == macro_index
+        ) {
+            assign_macro(macro_indicies[i], i, data);
+        }
+    }
+}
+
 static void save_recorded_macro(GtkGesture *gesture, int n_press, double x, double y, app_data *data) {
     claim_click(gesture, n_press, x, y, NULL);
     stop_macro_recording(data);
@@ -239,15 +259,11 @@ static void save_recorded_macro(GtkGesture *gesture, int n_press, double x, doub
     char *macro_name = gtk_editable_get_chars(data->macro_data.editable_macro_name, 0, -1);
     macro->name = macro_name;
 
+    // New macro
     if (data->macro_data.macro_index == data->macro_data.macro_count) {
         add_recorded_macro(macro_name, data);
     } else {
-        GtkListBox *box_saved_macros = data->macro_data.box_saved_macros;
-        MouseMacroButton *macro_button = MOUSE_MACRO_BUTTON(gtk_list_box_row_get_child(
-            gtk_list_box_get_row_at_index(box_saved_macros, macro_index)
-        ));
-
-        gtk_widget_set_name(GTK_WIDGET(&macro_button->parent_instance), macro_name);
+        modify_recorded_macro(macro_index, macro_name, data);
     }
 }
 
@@ -340,47 +356,47 @@ static int parse_macro(mouse_macro macro, macro_event *events, byte *modifier_ma
     bool is_mouse_down = false;
 
     for (int i = 0; i < macro.generic_event_count; i++) {
-        generic_macro_event event = macro.events[i];
-        uint16_t event_action_type = (uint16_t) (event.event_type << 8) + (uint16_t) event.action_type; 
+        generic_macro_event generic_event = macro.events[i];
+        uint16_t event_action_type = (uint16_t) (generic_event.event_type << 8) + (uint16_t) generic_event.action_type; 
 
         switch (event_action_type) {
         case KEY_DOWN:
-            if (is_mouse_down || event_keys[event.action]) break;
+            if (is_mouse_down || event_keys[generic_event.action]) break;
             
             if (keys_down_count == 0) {
-                events[event_index] = KEYBOARD_EVENT_DOWN(0, event.delay_next_action, 0);
+                events[event_index] = KEYBOARD_EVENT_DOWN(0, generic_event.delay_next_action, 0);
                 event_count++;
             } else if (event_keys_count < 6) {
                 int previous_delay = events[event_index].key_event.delay_next_action;
-                events[event_index].key_event.delay_next_action = MAX(previous_delay, event.delay_next_action);
+                events[event_index].key_event.delay_next_action = MAX(previous_delay, generic_event.delay_next_action);
             } else {
                 break;
             }
 
-            event_keys[event.action] = true;
-            keys_down[event.action] = true;
+            event_keys[generic_event.action] = true;
+            keys_down[generic_event.action] = true;
             keys_down_count++;
 
-            if (event.action >= LCTRL) {
-                events[event_index].key_event.modifier_keys += modifier_map[event.action];
+            if (generic_event.action >= LCTRL) {
+                events[event_index].key_event.modifier_keys += modifier_map[generic_event.action];
                 break;
             }
 
-            events[event_index].key_event.keys[event_keys_count] = event.action;
+            events[event_index].key_event.keys[event_keys_count] = generic_event.action;
             event_keys_count++;
             break;
         case KEY_UP:
             if (is_mouse_down) break;
-            if (!event_keys[event.action] || !keys_down[event.action]) break;
+            if (!event_keys[generic_event.action] || !keys_down[generic_event.action]) break;
 
-            keys_down[event.action] = false;
+            keys_down[generic_event.action] = false;
             keys_down_count--;
             
             if (keys_down_count > 0) break;
             event_count++;
 
             event_index++;
-            events[event_index] = KEYBOARD_EVENT_UP(event.delay_next_action);
+            events[event_index] = KEYBOARD_EVENT_UP(generic_event.delay_next_action);
             event_index++;
             
             event_keys_count = 0;
@@ -392,14 +408,14 @@ static int parse_macro(mouse_macro macro, macro_event *events, byte *modifier_ma
 
             event_count += 2;
             is_mouse_down = true;
-            events[event_index] = MOUSE_EVENT(event.action, event.delay_next_action, 0);
+            events[event_index] = MOUSE_EVENT(generic_event.action, generic_event.delay_next_action, 0);
 
             break;
         case MOUSE_UP: 
             if (keys_down_count > 0) break;
 
             is_mouse_down = false;
-            events[event_index].mouse_event.up.delay_next_action = event.delay_next_action;
+            events[event_index].mouse_event.up.delay_next_action = generic_event.delay_next_action;
             event_index++;
             
             break;
@@ -412,9 +428,15 @@ static int parse_macro(mouse_macro macro, macro_event *events, byte *modifier_ma
     return event_count;
 }
 
-void assign_macro(uint32_t index, app_data *data) {
-    // printf("%d\n", data->macro_data.macro_count);
-    mouse_macro macro = data->macro_data.macros[index];
+/**
+ * @brief Assigns a macro to a mouse button.
+ * 
+ * @param macro_index The index of the macro
+ * @param button The button number being re-assigned
+ * @param data Application wide data structure
+ */
+void assign_macro(uint32_t macro_index, byte button, app_data *data) {
+    mouse_macro macro = data->macro_data.macros[macro_index];
 
     macro_event *events = malloc(sizeof(macro_event) * macro.generic_event_count);
     int event_count = parse_macro(macro, events, data->macro_data.modifier_map);
@@ -426,7 +448,7 @@ void assign_macro(uint32_t index, app_data *data) {
     g_mutex_lock(data->mouse->mutex);
     assign_button_macro(
         data->mouse->dev,
-        data->button_data.selected_button, 
+        button, 
         MACRO_REPEAT_MODE_ONCE,
         events,
         event_count
@@ -435,15 +457,18 @@ void assign_macro(uint32_t index, app_data *data) {
 
     free(events);
 
-    data->button_data.bindings[data->button_data.selected_button] = MOUSE_ACTION_TYPE_MACRO << 8;
-    data->macro_data.macro_indicies[data->button_data.selected_button] = index;
+    data->button_data.bindings[button] = MOUSE_ACTION_TYPE_MACRO << 8;
+    data->macro_data.macro_indicies[button] = macro_index;
 
-    gtk_menu_button_set_label(get_active_menu_button(data), data->macro_data.macros[index].name);
+    gtk_menu_button_set_label(
+        data->button_data.menu_button_bindings[button],
+        data->macro_data.macros[macro_index].name
+    );
 }
 
 static void select_macro(GSimpleAction *action, GVariant *macro_index, app_data *data) {
     uint32_t index = g_variant_get_uint32(macro_index);
-    assign_macro(index, data);
+    assign_macro(index, data->button_data.selected_button, data);
 
     menu_button_set_popover_visibility(get_active_menu_button(data), false);
 }

@@ -8,7 +8,7 @@
 typedef uint8_t byte;
 
 /**
- * The type byte for macro when re-assigning a button.
+ * The type byte for a macro when re-assigning a button.
  */
 #define MOUSE_ACTION_TYPE_MACRO (0x04)
 

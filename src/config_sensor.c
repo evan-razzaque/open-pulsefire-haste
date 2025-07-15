@@ -28,7 +28,6 @@ static void update_dpi_profile_data(DpiProfileConfig *self, byte profile_index, 
     profile->indicator.green = indicator->green * 255;
     profile->indicator.blue = indicator->blue * 255;
     
-    printf("settings updated\n");
     update_dpi_settings(data);
 }
 

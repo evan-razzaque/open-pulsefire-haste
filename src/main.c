@@ -54,9 +54,7 @@ static void load_mouse_settings(app_data *data) {
 
 	for (int i = 0; i < BUTTON_COUNT; i++) {
 		if (data->button_data.bindings[i] >> 8 == MOUSE_ACTION_TYPE_MACRO) {
-			data->button_data.selected_button = i;
-			assign_macro(data->macro_data.macro_indicies[i], data);
-			data->button_data.selected_button = 0;
+			assign_macro(data->macro_data.macro_indicies[i], i, data);
 			continue;
 		}
 

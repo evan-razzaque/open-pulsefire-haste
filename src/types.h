@@ -80,6 +80,9 @@ struct config_color_data {
 struct config_button_data {
 	MOUSE_BUTTON selected_button;
 	MOUSE_BUTTON buttons[BUTTON_COUNT];
+
+	// Bindings for the mouse. Each binding is 2 bytes,
+	// where the upper byte is the action type and the lower byte is the action value.
 	uint16_t bindings[BUTTON_COUNT];
 	uint16_t default_bindings[BUTTON_COUNT];
 	const char *selected_button_name;
