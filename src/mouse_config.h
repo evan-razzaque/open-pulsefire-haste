@@ -19,7 +19,7 @@ typedef void (*g_action)(GSimpleAction*, GVariant*, gpointer);
  * Convieniece macro for a key(s) down event
  *
  * @param modifier The modifier keys
- * @param delay long to wait before executing the next event (in milliseconds)
+ * @param delay How long to wait before executing the next event (in milliseconds)
  * @param key_ids HID key usage ids (max 6)
  * @return A macro event object
  */

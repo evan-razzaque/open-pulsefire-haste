@@ -12,6 +12,9 @@
 #include "util.h"
 #include "mouse_config.h"
 
+#define MACRO_PARSER_PRIVATE
+#include "macro_parser.h"
+
 #include "./templates/mouse_macro_button.h"
 #include "./templates/macro_event_item.h"
 
@@ -339,96 +342,6 @@ static void delete_macro(GSimpleAction *action, GVariant *variant, app_data *dat
 }
 
 /**
- * @brief Converts a mouse macro into an array of macro events
- * that are readable by the mouse.
- * 
- * @param macro The recored macro
- * @param events The output location to store macro events into
- * @param modifier_map Used to map modifier keys to modifier bit flags for a macro key event
- * @return the number of macro events
- */
-static int parse_macro(mouse_macro macro, macro_event *events, byte *modifier_map) {
-    int event_count = 0, event_index = 0;
-
-    bool keys_down[256] = {false}, event_keys[256] = {false};
-    int keys_down_count = 0, event_keys_count = 0;
-    
-    bool is_mouse_down = false;
-
-    for (int i = 0; i < macro.generic_event_count; i++) {
-        generic_macro_event generic_event = macro.events[i];
-        uint16_t event_action_type = (uint16_t) (generic_event.event_type << 8) + (uint16_t) generic_event.action_type; 
-
-        switch (event_action_type) {
-        case KEY_DOWN:
-            if (is_mouse_down || event_keys[generic_event.action]) break;
-            
-            if (keys_down_count == 0) {
-                events[event_index] = KEYBOARD_EVENT_DOWN(0, generic_event.delay_next_action, 0);
-                event_count++;
-            } else if (event_keys_count < 6) {
-                int previous_delay = events[event_index].key_event.delay_next_action;
-                events[event_index].key_event.delay_next_action = MAX(previous_delay, generic_event.delay_next_action);
-            } else {
-                break;
-            }
-
-            event_keys[generic_event.action] = true;
-            keys_down[generic_event.action] = true;
-            keys_down_count++;
-
-            if (generic_event.action >= LCTRL) {
-                events[event_index].key_event.modifier_keys += modifier_map[generic_event.action];
-                break;
-            }
-
-            events[event_index].key_event.keys[event_keys_count] = generic_event.action;
-            event_keys_count++;
-            break;
-        case KEY_UP:
-            if (is_mouse_down) break;
-            if (!event_keys[generic_event.action] || !keys_down[generic_event.action]) break;
-
-            keys_down[generic_event.action] = false;
-            keys_down_count--;
-            
-            if (keys_down_count > 0) break;
-            event_count++;
-
-            event_index++;
-            events[event_index] = KEYBOARD_EVENT_UP(generic_event.delay_next_action);
-            event_index++;
-            
-            event_keys_count = 0;
-            memset(&keys_down, false, sizeof(keys_down));
-            memset(&event_keys, false, sizeof(event_keys));
-            break;
-        case MOUSE_DOWN:
-            if (keys_down_count > 0) break;
-
-            event_count += 2;
-            is_mouse_down = true;
-            events[event_index] = MOUSE_EVENT(generic_event.action, generic_event.delay_next_action, 0);
-
-            break;
-        case MOUSE_UP: 
-            if (keys_down_count > 0) break;
-
-            is_mouse_down = false;
-            events[event_index].mouse_event.up.delay_next_action = generic_event.delay_next_action;
-            event_index++;
-            
-            break;
-        default:
-            break;
-        }
-    }
-
-    if (is_mouse_down || keys_down_count > 0) return -1;
-    return event_count;
-}
-
-/**
  * @brief Assigns a macro to a mouse button.
  * 
  * @param macro_index The index of the macro
@@ -436,12 +349,13 @@ static int parse_macro(mouse_macro macro, macro_event *events, byte *modifier_ma
  * @param data Application wide data structure
  */
 void assign_macro(uint32_t macro_index, byte button, app_data *data) {
-    mouse_macro macro = data->macro_data.macros[macro_index];
+    mouse_macro *macro = data->macro_data.macros + macro_index;
 
-    macro_event *events = malloc(sizeof(macro_event) * macro.generic_event_count);
+    macro_event *events = malloc(sizeof(macro_event) * macro->generic_event_count);
     int event_count = parse_macro(macro, events, data->macro_data.modifier_map);
 
     if (event_count < 0) {
+        printf("Invalid macro\n");
         return;
     }
 
