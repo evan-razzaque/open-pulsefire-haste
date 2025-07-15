@@ -35,17 +35,6 @@ static void adw_wrap_box_remove_all(AdwWrapBox *self) {
 }
 
 /**
- * @brief Determines if two generic_macro_events are equal.
- * 
- * @param x The first macro event
- * @param y The second macro event
- * @return whether the macro events are equal or not
- */
-static bool macro_event_equals(generic_macro_event x, generic_macro_event y) {
-    return x.event_type == y.event_type && x.action_type == y.action_type && x.action == y.action;
-}
-
-/**
  * @brief Doubles the capacity of a one-dimensional array when necessary.
  * 
  * @param array The array to resize
@@ -86,14 +75,6 @@ static void add_macro_event(MACRO_EVENT_TYPE event_type, byte action, MACRO_ACTI
     int previous_event_index = macro->generic_event_count - 1;
 
     generic_macro_event event = {.event_type = event_type, .action_type = action_type, .action = action};
-    
-    // Prevents identical macro events from being added multiple times in a row
-    if (
-        previous_event_index >= 0
-        && macro_event_equals(macro->events[previous_event_index], event)
-    ) {
-        return;
-    }
 
     struct timeval t;
     gettimeofday(&t, NULL);
@@ -128,10 +109,15 @@ static void add_macro_event(MACRO_EVENT_TYPE event_type, byte action, MACRO_ACTI
 }
 
 static void append_macro_key_pressed(GtkEventControllerKey *self, guint keyval, guint keycode, GdkModifierType state, app_data* data) {
+    if (data->macro_data.last_pressed_key == keyval) return;
+    data->macro_data.last_pressed_key = keyval;
+
     add_macro_event(MACRO_EVENT_TYPE_KEYBOARD, data->button_data.keyboard_keys[keyval], MACRO_ACTION_TYPE_DOWN, data);
 }
 
 static void append_macro_key_released(GtkEventControllerKey *self, guint keyval, guint keycode, GdkModifierType state, app_data* data) {
+    data->macro_data.last_pressed_key = 0;
+
     add_macro_event(MACRO_EVENT_TYPE_KEYBOARD, data->button_data.keyboard_keys[keyval], MACRO_ACTION_TYPE_UP, data);
 }
 

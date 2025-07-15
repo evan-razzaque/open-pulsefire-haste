@@ -19,7 +19,6 @@ enum MOUSE_STATE {
 	CLOSED
 } typedef MOUSE_STATE;
 
-
 /**
  * @brief All the data required to interact with the mouse.
  */
@@ -125,6 +124,8 @@ struct config_macro_data {
 	bool is_recording_macro;
 	/** Whether the user is adding new macro events to an existing macro or not */
 	bool is_resuming_macro_recording;
+
+	uint32_t last_pressed_key;
 
 	uint32_t macro_index;
 	uint32_t macro_saved_event_count;
