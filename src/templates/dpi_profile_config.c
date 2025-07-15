@@ -189,4 +189,3 @@ void dpi_profile_config_delete_button_set_enabled(DpiProfileConfig *self, bool e
 void dpi_profile_config_remove_check_button_group(DpiProfileConfig *self) {
     gtk_check_button_set_group(self->check_button, NULL);
 }
-
