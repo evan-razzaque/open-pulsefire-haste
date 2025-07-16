@@ -16,6 +16,7 @@
 enum MOUSE_STATE {
 	UPDATE,
 	SAVE,
+	RECONNECT,
 	CLOSED
 } typedef MOUSE_STATE;
 
@@ -24,7 +25,6 @@ enum MOUSE_STATE {
  */
 struct mouse_data {
 	GMutex *mutex;
-	int *mouse_pipe;
 	hid_device *dev;
 	CONNECTION_TYPE type;
 	MOUSE_STATE state;

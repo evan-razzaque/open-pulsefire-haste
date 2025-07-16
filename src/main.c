@@ -12,6 +12,8 @@
 #include "device/buttons.h"
 #include "device/sensor.h"
 
+#include "hotplug.h"
+
 #include "hid_keyboard_map.h"
 #include "mouse_config.h"
 
@@ -51,6 +53,8 @@ void save_mouse_settings(GtkWidget *self, app_data *data) {
  */
 static void load_mouse_settings(app_data *data) {
 	hid_device *dev = data->mouse->dev;
+
+	if (dev == NULL) return;
 
 	for (int i = 0; i < BUTTON_COUNT; i++) {
 		if (data->button_data.bindings[i] >> 8 == MOUSE_ACTION_TYPE_MACRO) {
@@ -152,7 +156,6 @@ void activate(GtkApplication *app, app_data *data) {
 	data->widgets->window = window;
 	data->widgets->stack_main = GTK_STACK(GTK_WIDGET(gtk_builder_get_object(builder, "stackMain")));
 	data->widgets->box_main = GTK_BOX(GTK_WIDGET(gtk_builder_get_object(builder, "boxMain")));
-
 	
 	app_config_led_init(builder, data);
 	app_config_buttons_init(builder, data);
@@ -184,19 +187,17 @@ void activate(GtkApplication *app, app_data *data) {
  * @param mouse mouse_data instance
  */
 void reconnect_mouse(app_data *data) {
-	hid_close(data->mouse->dev);
-	data->mouse->dev = NULL;
-
 	while (data->mouse->dev == NULL) {
-		g_usleep(1000 * 2000);
 		data->mouse->dev = open_device(NULL);
+		// g_usleep(1000 * 2000);
 	}
 
+	data->mouse->state = UPDATE;
 	load_mouse_settings(data);
 }
 
 /**
- * @brief Updates the mouse led settings, which allows every other setting to be preserved while the application is running.
+ * @brief Updates the mouse connection and settings.
  * 
  * @param mouse mouse_data instance
  * @return Unused
@@ -208,7 +209,8 @@ void* mouse_update_loop(app_data *data) {
 	int res;
 	
 	while (mouse->state != CLOSED) {
-		if (mouse->dev == NULL) reconnect_mouse(data);
+		if (mouse->state == RECONNECT) reconnect_mouse(data);
+		if (mouse->dev == NULL) continue;
 		g_mutex_lock(mouse->mutex);
 
 		res = change_color(mouse->dev, led);
@@ -216,7 +218,7 @@ void* mouse_update_loop(app_data *data) {
 		if (res < 0) {
 			printf("%d\n", res);
 			res = 0;
-			reconnect_mouse(data);
+			mouse->dev = NULL;
 		}
 		
 		g_mutex_unlock(mouse->mutex);
@@ -241,15 +243,14 @@ int main() {
 	GMutex mutex;
 	g_mutex_init(&mutex);
 
-	int mouse_pipe[2];
-	pipe(mouse_pipe);
-	
 	res = hid_init();
 	if (res < 0) return 1;
 	
 	hid_device *dev = open_device(&connection_type);
+	mouse_data mouse = {.mutex = &mutex, .dev = dev, .type = connection_type};
+
+	hotplug_listener_data *listener_data = hotplug_listener_init(&dev, &mouse.state);
 	
-	mouse_data mouse = {.mutex = &mutex, .mouse_pipe = mouse_pipe, .dev = dev, .type = connection_type};
 	app_widgets widgets = {.alert = gtk_alert_dialog_new(" ")};
 	
 	app_data data = {
@@ -289,6 +290,8 @@ int main() {
 	
 	g_thread_join(update_thread);
 	g_thread_unref(update_thread);
+	
+	hotplug_listener_exit(listener_data);
 	
 	hid_exit();
 	return status;

@@ -39,6 +39,7 @@ int assign_button_macro(hid_device *dev, MOUSE_BUTTON button, MACRO_REPEAT_MODE 
 	int res;
 
 	res = assign_button_action(dev, button, (MOUSE_ACTION_TYPE_MACRO << 8) + button);
+	if (res < 0) return -1;
 
 	byte data[PACKET_SIZE] = {REPORT_FIRST_BYTE(SEND_BYTE_MACRO_DATA), button, 0x00, event_count};
 
@@ -73,6 +74,7 @@ int assign_button_macro(hid_device *dev, MOUSE_BUTTON button, MACRO_REPEAT_MODE 
 		memset(data + offset, 0, PACKET_SIZE - offset); // Zeros out unessesary event bytes from previous packets
 		// print_data(data);
 		res = mouse_write(dev, data);
+		if (res < 0) return -1;
 	}
 
 	res = send_macro_assignment(dev, button, repeat_mode, event_count);

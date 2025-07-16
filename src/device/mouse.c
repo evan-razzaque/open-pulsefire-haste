@@ -50,6 +50,7 @@ hid_device* open_device(CONNECTION_TYPE *connection_type) {
 }
 
 int mouse_write(hid_device *dev, byte *data) {
+	if (dev == NULL) return -1;
 	int bytes_written = hid_write(dev, data, PACKET_SIZE);
 	
 	return bytes_written;
