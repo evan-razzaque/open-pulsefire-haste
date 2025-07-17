@@ -6,6 +6,12 @@
 #include "device/buttons.h"
 #include "device/rgb.h"
 
+enum {
+    STACK_PAGE_MAIN,
+    STACK_PAGE_MACRO,
+    STACK_PAGE_DEVICE_NOT_FOUND
+};
+
 /**
  * @brief Used to cast function pointers to GAction callbacks.
  * 
@@ -101,6 +107,8 @@ typedef void (*g_action)(GSimpleAction*, GVariant*, gpointer);
         [DPI_TOGGLE     & 0x00ff] = "DPI Toggle"\
     }\
 }
+
+int toggle_mouse_settings_visibility(app_data *data);
 
 /**
  * Init for mouse led settings.

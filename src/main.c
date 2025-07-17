@@ -171,7 +171,7 @@ void activate(GtkApplication *app, app_data *data) {
 	g_signal_connect(window, "close-request", G_CALLBACK(close_application), data);
 	widget_add_event(builder, "buttonSave", "clicked", save_mouse_settings, data);
 
-	// g_timeout_add(2000, G_SOURCE_FUNC(update_battery_display), &data->battery_data);
+	g_timeout_add(100, G_SOURCE_FUNC(toggle_mouse_settings_visibility), data);
 
 	GtkCssProvider *provider = gtk_css_provider_new();
 	gtk_css_provider_load_from_path(provider, "ui/window.css");
@@ -192,7 +192,7 @@ void reconnect_mouse(app_data *data) {
 		// g_usleep(1000 * 2000);
 	}
 
-	data->mouse->state = UPDATE;
+	data->mouse->state = CONNECTED;
 	load_mouse_settings(data);
 }
 
@@ -210,7 +210,8 @@ void* mouse_update_loop(app_data *data) {
 	
 	while (mouse->state != CLOSED) {
 		if (mouse->state == RECONNECT) reconnect_mouse(data);
-		if (mouse->dev == NULL) continue;
+		if (mouse->dev == NULL || mouse->state != UPDATE) continue;
+
 		g_mutex_lock(mouse->mutex);
 
 		res = change_color(mouse->dev, led);

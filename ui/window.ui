@@ -509,6 +509,23 @@
             </property>
           </object>
         </child>
+        <child>
+          <object class="GtkStackPage">
+            <property name="child">
+              <object class="GtkBox" id="boxDeviceNotFound">
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="css-classes">not-found</property>
+                    <property name="label">Device not found</property>
+                    <property name="valign">center</property>
+                    <property name="vexpand">True</property>
+                  </object>
+                </child>
+              </object>
+            </property>
+          </object>
+        </child>
       </object>
     </child>
   </object>
