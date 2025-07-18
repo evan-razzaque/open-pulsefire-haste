@@ -12,7 +12,7 @@ HOTPLUG_SOURCE    = src/linux/hotplug.c
 ASAN = -fsanitize=address
 
 LDLIBS  = $(ASAN) -lm -lhidapi-hidraw -lusb-1.0 $$(pkg-config --libs libadwaita-1 gmodule-export-2.0)
-CFLAGS += -I src/ $$(pkg-config --cflags libadwaita-1 gmodule-export-2.0) -Wall -Werror -Werror=vla -Wno-deprecated-declarations -std=c99 -O1 -g $(ASAN)
+CFLAGS += -I src/ $$(pkg-config --cflags libadwaita-1 gmodule-export-2.0) -Wall -Werror -Werror=vla -Wno-deprecated-declarations -std=c99 -Og -g $(ASAN)
 
 ifeq ($(OS),Windows_NT)
 	HOTPLUG_SOURCE = src/windows/hotplug.c

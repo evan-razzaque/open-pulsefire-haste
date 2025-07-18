@@ -182,16 +182,18 @@ void activate(GtkApplication *app, app_data *data) {
 }
 
 /**
- * @brief A function to periodically attempt to connect to the mouse when disconnected.
+ * @brief A function to periodically attempt to connect to the mouse.
  * 
  * @param mouse mouse_data instance
  */
 void reconnect_mouse(app_data *data) {
 	while (data->mouse->dev == NULL) {
-		data->mouse->dev = open_device(NULL);
-		// g_usleep(1000 * 2000);
+		printf("Reconnecting...\n");
+		data->mouse->dev = open_device(get_active_devices(data->mouse->type));
+		g_usleep(1000 * 50);
 	}
 
+	printf("connected\n");
 	data->mouse->state = CONNECTED;
 	load_mouse_settings(data);
 }
@@ -209,14 +211,24 @@ void* mouse_update_loop(app_data *data) {
 	int res;
 	
 	while (mouse->state != CLOSED) {
-		if (mouse->state == RECONNECT) reconnect_mouse(data);
-		if (mouse->dev == NULL || mouse->state != UPDATE) continue;
+		if (mouse->state == RECONNECT) {
+			if (mouse->dev != NULL) { // TODO: Fix dev not being null when attaching wired with wireless
+				printf("Device Main: %p\n", mouse->dev);
+				mouse->dev = NULL;
+			}
+			
+			reconnect_mouse(data);
+		}
+
+		if (mouse->dev == NULL || mouse->state != UPDATE) {
+			continue;
+		}
 
 		g_mutex_lock(mouse->mutex);
 
 		res = change_color(mouse->dev, led);
 		
-		if (res < 0) {
+		if (res < 0 && mouse->state != RECONNECT) {
 			printf("%d\n", res);
 			res = 0;
 			mouse->dev = NULL;
@@ -247,10 +259,11 @@ int main() {
 	res = hid_init();
 	if (res < 0) return 1;
 	
-	hid_device *dev = open_device(&connection_type);
+	hid_device *dev = open_device(get_devices(&connection_type));
+
 	mouse_data mouse = {.mutex = &mutex, .dev = dev, .type = connection_type};
 
-	hotplug_listener_data *listener_data = hotplug_listener_init(&dev, &mouse.state);
+	hotplug_listener_data *listener_data = hotplug_listener_init(&dev, &mouse.state, &mouse.type);
 	
 	app_widgets widgets = {.alert = gtk_alert_dialog_new(" ")};
 	
@@ -293,6 +306,7 @@ int main() {
 	g_thread_unref(update_thread);
 	
 	hotplug_listener_exit(listener_data);
+	free(listener_data);
 	
 	hid_exit();
 	return status;

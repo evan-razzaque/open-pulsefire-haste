@@ -27,8 +27,9 @@
 #define BUTTON_COUNT 6
 
 enum CONNECTION_TYPE {
-    CONNECTION_TYPE_WIRED,
-    CONNECTION_TYPE_WIRELESS
+    DISCONNECTED             = 0,
+    CONNECTION_TYPE_WIRED    = 1,
+    CONNECTION_TYPE_WIRELESS = 2
 } typedef CONNECTION_TYPE;
 
 enum SEND_BYTE {
@@ -80,12 +81,20 @@ enum REPORT_INDEX {
 void print_data(byte *data);
 
 /**
- * Gets a list of device info objects for the active mouse connection.
+ * Gets a list of device info objects for each connection type.
  * 
- * @param connection_type Output location to store the type of connection (wired or wireless)
+ * @param connection_type Output location to store the type of connection (wired or wireless).
  * @return a list of device info objects
  */
 struct hid_device_info* get_devices(CONNECTION_TYPE *connection_type);
+
+/**
+ * @brief Gets a list of device info objects for the active mouse connection.
+ * 
+ * @param connection_type The active mouse connection type
+ * @return struct hid_device_info* a list of device info objects
+ */
+struct hid_device_info* get_active_devices(CONNECTION_TYPE connection_type);
 
 /**
  * Opens the mouse device handle.
@@ -93,7 +102,7 @@ struct hid_device_info* get_devices(CONNECTION_TYPE *connection_type);
  * @param connection_type Output location to store the type of connection
  * @return the mouse device handle
  */
-hid_device* open_device(CONNECTION_TYPE *connection_type);
+hid_device* open_device(struct hid_device_info *dev_list);
 
 /**
  * Write data to the device.

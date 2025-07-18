@@ -18,7 +18,7 @@ typedef struct hotplug_listener_data hotplug_listener_data;
  * @param dev A pointer to a hid_device pointer 
  * @return hotplug_listener_data* the hotplug_listener_data object
  */
-hotplug_listener_data* hotplug_listener_init(hid_device **dev, MOUSE_STATE *mouse_state);
+hotplug_listener_data* hotplug_listener_init(hid_device **dev, MOUSE_STATE *mouse_state, CONNECTION_TYPE *connection_type);
 
 /**
  * @brief Deinitialize the hotplug listener 

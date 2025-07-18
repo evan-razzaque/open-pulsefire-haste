@@ -26,8 +26,9 @@ enum MOUSE_STATE {
 struct mouse_data {
 	GMutex *mutex;
 	hid_device *dev;
+	
 	CONNECTION_TYPE type;
-	MOUSE_STATE state;
+	MOUSE_STATE state; // Determines what actions to take with the mouse
 	int battery_level;
 } typedef mouse_data;
 

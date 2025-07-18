@@ -401,7 +401,7 @@
         <child>
           <object class="GtkStackPage">
             <property name="child">
-              <object class="GtkBox" id="boxMacro">
+              <object class="GtkBox">
                 <property name="css-classes">macro</property>
                 <property name="margin-bottom">5</property>
                 <property name="margin-end">5</property>
@@ -512,7 +512,7 @@
         <child>
           <object class="GtkStackPage">
             <property name="child">
-              <object class="GtkBox" id="boxDeviceNotFound">
+              <object class="GtkBox">
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkLabel">

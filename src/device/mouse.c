@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <string.h>
 #include <hidapi/hidapi.h>
 #include <unistd.h>
@@ -15,25 +16,52 @@ void print_data(byte *data) {
 	printf("\n");
 }
 
-struct hid_device_info* get_devices(CONNECTION_TYPE *connection_type) {
-	int type = CONNECTION_TYPE_WIRED;
+struct hid_device_info* get_active_devices(CONNECTION_TYPE connection_type) {
+	struct hid_device_info *dev_list = hid_enumerate(
+		VID,
+		(connection_type & CONNECTION_TYPE_WIRED)?
+		PID_WIRED:
+		PID_WIRELESS
+	);
 
-	struct hid_device_info *dev_list = hid_enumerate(VID, PID_WIRED);
-
-	if (!dev_list) {
-		dev_list = hid_enumerate(VID, PID_WIRELESS);
-		type = CONNECTION_TYPE_WIRELESS;
-	}
-
-	if (connection_type != NULL) *connection_type = type;
 	return dev_list;
 }
 
-hid_device* open_device(CONNECTION_TYPE *connection_type) {
-	struct hid_device_info *dev_list, *dev_info;
+struct hid_device_info* get_devices(CONNECTION_TYPE *connection_type) {
+	CONNECTION_TYPE type = 0;
+
+	struct hid_device_info *dev_list;
+	struct hid_device_info *dev_list_wired = hid_enumerate(VID, PID_WIRED);
+	struct hid_device_info *dev_list_wireless = hid_enumerate(VID, PID_WIRELESS);
+
+	if (dev_list_wired) {
+		type |= CONNECTION_TYPE_WIRED;
+
+		dev_list = dev_list_wired;
+		struct hid_device_info *temp = dev_list;
+
+		while (temp->next != NULL) {
+			temp = temp->next;
+		}
+		
+		temp->next = dev_list_wireless;
+	} else {
+		dev_list = dev_list_wireless;
+	}
+
+	if (dev_list_wireless) {
+		type |= CONNECTION_TYPE_WIRELESS;
+	}
+
+	*connection_type = type;
+
+	return dev_list;
+}
+
+hid_device* open_device(struct hid_device_info *dev_list) {
+	struct hid_device_info *dev_info;
 	hid_device *dev = NULL;
 
-	dev_list = get_devices(connection_type);
 	dev_info = dev_list;
 
 	while (dev_info) {

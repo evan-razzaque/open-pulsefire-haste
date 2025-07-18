@@ -125,7 +125,8 @@ static void delete_dpi_profile(GSimpleAction* action, GVariant *value_profile_in
     dpi_config->enabled_profile_bit_mask >>= 1;
     update_dpi_settings(data);
 
-    if (dpi_config->selected_profile == dpi_config->profile_count
+    if (
+        dpi_config->selected_profile == dpi_config->profile_count
         || dpi_config->selected_profile > profile_index
     ) {
         dpi_config->selected_profile--;
