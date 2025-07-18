@@ -36,15 +36,15 @@ struct hid_device_info* get_devices(CONNECTION_TYPE *connection_type) {
 
 	if (dev_list_wired) {
 		type |= CONNECTION_TYPE_WIRED;
-
 		dev_list = dev_list_wired;
-		struct hid_device_info *temp = dev_list;
 
-		while (temp->next != NULL) {
-			temp = temp->next;
+		struct hid_device_info *dev_list_last = dev_list;
+
+		while (dev_list_last->next != NULL) {
+			dev_list_last = dev_list_last->next;
 		}
 		
-		temp->next = dev_list_wireless;
+		dev_list_last->next = dev_list_wireless;
 	} else {
 		dev_list = dev_list_wireless;
 	}
@@ -54,7 +54,6 @@ struct hid_device_info* get_devices(CONNECTION_TYPE *connection_type) {
 	}
 
 	*connection_type = type;
-
 	return dev_list;
 }
 
@@ -131,6 +130,5 @@ int save_device_settings(hid_device *dev, color_options *color) {
 	mouse_write(dev, d4); */
 
 	byte data[PACKET_SIZE] = {REPORT_FIRST_BYTE(SEND_BYTE_SAVE_SETTINGS), SAVE_BYTE_ALL};
-
 	return mouse_write(dev, data);
 }

@@ -9,42 +9,36 @@
 #include "hotplug.h"
 
 struct hotplug_listener_data {
-    hid_device **dev;
-    CONNECTION_TYPE *connection_type; // Current connection type(s) to the mouse
-    libusb_hotplug_callback_handle hotplug_cb_handle_wired, hotplug_cb_handle_wireless;
-    MOUSE_STATE *mouse_state; // The state of the mouse
-    GThread *thread;
+    libusb_hotplug_callback_handle hotplug_cb_handle_wired;
+    libusb_hotplug_callback_handle hotplug_cb_handle_wireless;
 } typedef hotplug_listener_data;
 
 static void update_device_connection_detached(
-    hotplug_listener_data *listener_data,
+    mouse_data *mouse,
     CONNECTION_TYPE last_connection_type
 ) {
-    hid_device **dev = listener_data->dev;
-
     // Wireless was disconnected with wired plugged in, do nothing
-    if (*listener_data->connection_type == CONNECTION_TYPE_WIRED) {
+    if (mouse->type == CONNECTION_TYPE_WIRED) {
         printf("Wireless unplugged with wired\n");
         return;
     }
 
-    hid_close(*dev);
-    *dev = NULL;
+    hid_close(mouse->dev);
+    mouse->dev = NULL;
     printf("Detach wired\n");
 
     // Reconnect to wireless
-    if (*listener_data->connection_type == CONNECTION_TYPE_WIRELESS) {
-        *listener_data->mouse_state = RECONNECT;
+    if (mouse->type == CONNECTION_TYPE_WIRELESS) {
+        printf("Wireless still plugged in\n");
+        mouse->state = RECONNECT;
     }
 
 }
 
 static void update_device_connection_attached(
-    hotplug_listener_data *listener_data,
+    mouse_data *mouse,
     CONNECTION_TYPE last_connection_type
 ) {
-    hid_device **dev = listener_data->dev;
-
     // Wireless was plugged in with wired, do nothing
     if (last_connection_type == CONNECTION_TYPE_WIRED) {
         printf("Wireless plugged in with wired\n");
@@ -53,14 +47,13 @@ static void update_device_connection_attached(
 
     // Wireless is no longer active, reconnect to wired
     if (last_connection_type == CONNECTION_TYPE_WIRELESS) {
-        hid_close(*dev);
-        *dev = NULL;
+        hid_close(mouse->dev);
+        mouse->dev = NULL;
         printf("Wireless inactive\n");
     }
 
-    *listener_data->mouse_state = RECONNECT; 
+    mouse->state = RECONNECT; 
 }
-
 
 /**
  * @brief Handles the attachment and detachment of the mouse.
@@ -72,31 +65,35 @@ static void update_device_connection_attached(
  * @return indicates that this callback should stop handling hotplug events
  */
 static int device_hotplug_callback(libusb_context *ctx, libusb_device *device,
-    libusb_hotplug_event event, hotplug_listener_data *listener_data
+    libusb_hotplug_event event, mouse_data *mouse
 ) {
-    struct libusb_device_descriptor device_desc = {0};
-    libusb_get_device_descriptor(device, &device_desc);
+    struct libusb_device_descriptor dev_desc = {0};
+    libusb_get_device_descriptor(device, &dev_desc);
 
-    CONNECTION_TYPE last_connection_type = *listener_data->connection_type;
+    CONNECTION_TYPE last_connection_type = mouse->type;
 
     CONNECTION_TYPE connection_type = 
-        (device_desc.idProduct == PID_WIRED)?
+        (dev_desc.idProduct == PID_WIRED)?
         CONNECTION_TYPE_WIRED:
         CONNECTION_TYPE_WIRELESS;
 
     if (event == LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT) {
-        *listener_data->connection_type -= connection_type;
-        update_device_connection_detached(listener_data, last_connection_type);
+        mouse->type -= connection_type;
+        printf("Connection type: %d\n", mouse->type);
+        update_device_connection_detached(mouse, last_connection_type);
     } else {
-        *listener_data->connection_type += connection_type;
-        update_device_connection_attached(listener_data, last_connection_type);
+        mouse->type += connection_type;
+        printf("Connection type: %d\n", mouse->type);
+        update_device_connection_attached(mouse, last_connection_type);
     }
 
     return false;
 }
 
-void* handle_events(hotplug_listener_data *listener_data) {
-    while (*listener_data->mouse_state != CLOSED) {
+void* handle_events(mouse_hotplug_data *hotplug_data) {
+    mouse_data *mouse = hotplug_data->mouse;
+
+    while (mouse->state != CLOSED) {
         libusb_handle_events_completed(NULL, NULL);
         g_usleep(1000 * 100);
     }
@@ -106,7 +103,7 @@ void* handle_events(hotplug_listener_data *listener_data) {
     return NULL;
 }
 
-hotplug_listener_data* hotplug_listener_init(hid_device **dev, MOUSE_STATE *mouse_state, CONNECTION_TYPE *connection_type) {
+void hotplug_listener_init(mouse_hotplug_data *hotplug_data, mouse_data *mouse) {
     int res = libusb_init_context(NULL, NULL, 0);
 
     if (res != LIBUSB_SUCCESS) {
@@ -115,10 +112,8 @@ hotplug_listener_data* hotplug_listener_init(hid_device **dev, MOUSE_STATE *mous
         exit(-1);
     }
 
-    hotplug_listener_data *listener_data = malloc(sizeof(hotplug_listener_data));
-    listener_data->dev = dev;
-    listener_data->connection_type = connection_type;
-    listener_data->mouse_state = mouse_state;
+    hotplug_data->mouse = mouse;
+    hotplug_data->listener_data = malloc(sizeof(hotplug_listener_data));
 
     libusb_hotplug_register_callback(
         NULL,
@@ -127,8 +122,8 @@ hotplug_listener_data* hotplug_listener_init(hid_device **dev, MOUSE_STATE *mous
         0, VID, PID_WIRED, 
         LIBUSB_HOTPLUG_MATCH_ANY, 
         (libusb_hotplug_callback_fn) device_hotplug_callback,
-        listener_data, 
-        &listener_data->hotplug_cb_handle_wired
+        hotplug_data->mouse, 
+        &hotplug_data->listener_data->hotplug_cb_handle_wired
     );
 
     libusb_hotplug_register_callback(
@@ -138,22 +133,22 @@ hotplug_listener_data* hotplug_listener_init(hid_device **dev, MOUSE_STATE *mous
         0, VID, PID_WIRELESS, 
         LIBUSB_HOTPLUG_MATCH_ANY, 
         (libusb_hotplug_callback_fn) device_hotplug_callback,
-        listener_data, 
-        &listener_data->hotplug_cb_handle_wireless
+        hotplug_data->mouse, 
+        &hotplug_data->listener_data->hotplug_cb_handle_wireless
     );
 
-    GThread *thread = g_thread_new("handle_events", (GThreadFunc) handle_events, listener_data);
-    listener_data->thread = thread;
-
-    return listener_data;
+    GThread *thread = g_thread_new("handle_events", (GThreadFunc) handle_events, hotplug_data);
+    hotplug_data->hotplug_thread = thread;
 }
 
-void hotplug_listener_exit(hotplug_listener_data *listener_data) {
-    libusb_hotplug_deregister_callback(NULL, listener_data->hotplug_cb_handle_wired);
-    libusb_hotplug_deregister_callback(NULL, listener_data->hotplug_cb_handle_wireless);
+void hotplug_listener_exit(mouse_hotplug_data *hotplug_data) {
+    libusb_hotplug_deregister_callback(NULL, hotplug_data->listener_data->hotplug_cb_handle_wired);
+    libusb_hotplug_deregister_callback(NULL, hotplug_data->listener_data->hotplug_cb_handle_wireless);
 
-    g_thread_join(listener_data->thread);
-	g_thread_unref(listener_data->thread);
+    g_thread_join(hotplug_data->hotplug_thread);
+	g_thread_unref(hotplug_data->hotplug_thread);
 
+    free(hotplug_data->listener_data);
+    
     libusb_exit(NULL);
 }

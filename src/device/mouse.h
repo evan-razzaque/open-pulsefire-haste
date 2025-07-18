@@ -83,7 +83,7 @@ void print_data(byte *data);
 /**
  * Gets a list of device info objects for each connection type.
  * 
- * @param connection_type Output location to store the type of connection (wired or wireless).
+ * @param connection_type Output location to store the type of connection
  * @return a list of device info objects
  */
 struct hid_device_info* get_devices(CONNECTION_TYPE *connection_type);

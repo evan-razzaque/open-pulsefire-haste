@@ -7,25 +7,35 @@
 #include "types.h"
 
 /**
- * @brief An opaque struct for storing platform specific hotplug data.
+ * @brief An opaque struct for storing platform specific hotplug listener data.
  * 
  */
 typedef struct hotplug_listener_data hotplug_listener_data;
 
 /**
+ * @brief A struct for storing mouse hotplug data.
+ * 
+ */
+struct mouse_hotplug_data {
+    hotplug_listener_data *listener_data;
+    mouse_data *mouse;
+    GThread *hotplug_thread;
+} typedef mouse_hotplug_data;
+
+/**
  * @brief Initializes the hotplug listener.
  * 
- * @param dev A pointer to a hid_device pointer 
- * @return hotplug_listener_data* the hotplug_listener_data object
+ * @param hotplug_data A pointer to a mouse_hotplug_data struct to store the hotplug listener into.
+ * @param mouse The mouse_data object to store into the mouse_hotplug_data object 
  */
-hotplug_listener_data* hotplug_listener_init(hid_device **dev, MOUSE_STATE *mouse_state, CONNECTION_TYPE *connection_type);
+void hotplug_listener_init(mouse_hotplug_data *hotplug_data, mouse_data *mouse);
 
 /**
  * @brief Deinitialize the hotplug listener 
  * and free any resources associated with it.
  * 
- * @param listener The hotplug_listener_data object associated with the hotplug listener
+ * @param hotplug The mouse_hotplug_data struct containing the hotplug listener
  */
-void hotplug_listener_exit(hotplug_listener_data *listener_data);
+void hotplug_listener_exit(mouse_hotplug_data *listener_data);
 
 #endif

@@ -251,7 +251,6 @@ void* mouse_update_loop(app_data *data) {
  */
 int main() {
 	int res;
-	CONNECTION_TYPE connection_type;
 
 	GMutex mutex;
 	g_mutex_init(&mutex);
@@ -259,11 +258,11 @@ int main() {
 	res = hid_init();
 	if (res < 0) return 1;
 	
-	hid_device *dev = open_device(get_devices(&connection_type));
+	mouse_data mouse = {.mutex = &mutex};
+	mouse.dev = open_device(get_devices(&mouse.type));
 
-	mouse_data mouse = {.mutex = &mutex, .dev = dev, .type = connection_type};
-
-	hotplug_listener_data *listener_data = hotplug_listener_init(&dev, &mouse.state, &mouse.type);
+	mouse_hotplug_data hotplug_data = {0};
+	hotplug_listener_init(&hotplug_data, &mouse);
 	
 	app_widgets widgets = {.alert = gtk_alert_dialog_new(" ")};
 	
@@ -305,8 +304,7 @@ int main() {
 	g_thread_join(update_thread);
 	g_thread_unref(update_thread);
 	
-	hotplug_listener_exit(listener_data);
-	free(listener_data);
+	hotplug_listener_exit(&hotplug_data);
 	
 	hid_exit();
 	return status;
