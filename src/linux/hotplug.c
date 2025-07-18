@@ -19,17 +19,17 @@ static void update_device_connection_detached(
 ) {
     // Wireless was disconnected with wired plugged in, do nothing
     if (mouse->type == CONNECTION_TYPE_WIRED) {
-        printf("Wireless unplugged with wired\n");
+        printf("Wireless unplugged\n");
         return;
     }
 
     hid_close(mouse->dev);
     mouse->dev = NULL;
-    printf("Detach wired\n");
+    printf("Wired detached\n");
 
     // Reconnect to wireless
     if (mouse->type == CONNECTION_TYPE_WIRELESS) {
-        printf("Wireless still plugged in\n");
+        printf("Attaching to mouse\n");
         mouse->state = RECONNECT;
     }
 
@@ -41,7 +41,7 @@ static void update_device_connection_attached(
 ) {
     // Wireless was plugged in with wired, do nothing
     if (last_connection_type == CONNECTION_TYPE_WIRED) {
-        printf("Wireless plugged in with wired\n");
+        printf("Wireless plugged in\n");
         return;
     } 
 
@@ -49,10 +49,10 @@ static void update_device_connection_attached(
     if (last_connection_type == CONNECTION_TYPE_WIRELESS) {
         hid_close(mouse->dev);
         mouse->dev = NULL;
-        printf("Wireless inactive\n");
     }
 
-    mouse->state = RECONNECT; 
+    printf("Attaching to mouse\n");
+    mouse->state = RECONNECT;
 }
 
 /**
@@ -67,30 +67,32 @@ static void update_device_connection_attached(
 static int device_hotplug_callback(libusb_context *ctx, libusb_device *device,
     libusb_hotplug_event event, mouse_data *mouse
 ) {
-    struct libusb_device_descriptor dev_desc = {0};
-    libusb_get_device_descriptor(device, &dev_desc);
+    struct libusb_device_descriptor device_desc = {0};
+    libusb_get_device_descriptor(device, &device_desc);
+
+    CONNECTION_TYPE connection_type = 
+        (device_desc.idProduct == PID_WIRED)?
+        CONNECTION_TYPE_WIRED:
+        CONNECTION_TYPE_WIRELESS;
+    
+    g_mutex_lock(mouse->mutex);
 
     CONNECTION_TYPE last_connection_type = mouse->type;
 
-    CONNECTION_TYPE connection_type = 
-        (dev_desc.idProduct == PID_WIRED)?
-        CONNECTION_TYPE_WIRED:
-        CONNECTION_TYPE_WIRELESS;
-
     if (event == LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT) {
         mouse->type -= connection_type;
-        printf("Connection type: %d\n", mouse->type);
         update_device_connection_detached(mouse, last_connection_type);
     } else {
         mouse->type += connection_type;
-        printf("Connection type: %d\n", mouse->type);
         update_device_connection_attached(mouse, last_connection_type);
     }
+
+    g_mutex_unlock(mouse->mutex);
 
     return false;
 }
 
-void* handle_events(mouse_hotplug_data *hotplug_data) {
+static void* handle_events(mouse_hotplug_data *hotplug_data) {
     mouse_data *mouse = hotplug_data->mouse;
 
     while (mouse->state != CLOSED) {

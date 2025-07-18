@@ -193,7 +193,7 @@ void reconnect_mouse(app_data *data) {
 		g_usleep(1000 * 50);
 	}
 
-	printf("connected\n");
+	printf("Connected\n");
 	data->mouse->state = CONNECTED;
 	load_mouse_settings(data);
 }
@@ -211,18 +211,8 @@ void* mouse_update_loop(app_data *data) {
 	int res;
 	
 	while (mouse->state != CLOSED) {
-		if (mouse->state == RECONNECT) {
-			if (mouse->dev != NULL) { // TODO: Fix dev not being null when attaching wired with wireless
-				printf("Device Main: %p\n", mouse->dev);
-				mouse->dev = NULL;
-			}
-			
-			reconnect_mouse(data);
-		}
-
-		if (mouse->dev == NULL || mouse->state != UPDATE) {
-			continue;
-		}
+		if (mouse->state == RECONNECT) reconnect_mouse(data);
+		if (mouse->dev == NULL || mouse->state != UPDATE) continue;
 
 		g_mutex_lock(mouse->mutex);
 
@@ -233,7 +223,7 @@ void* mouse_update_loop(app_data *data) {
 			res = 0;
 			mouse->dev = NULL;
 		}
-		
+
 		g_mutex_unlock(mouse->mutex);
 		g_usleep(1000 * 100);
 	}
