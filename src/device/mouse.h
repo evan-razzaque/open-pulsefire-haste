@@ -15,7 +15,7 @@
 
 #ifdef _WIN32
 // Shifts the packet data over a single byte for the (unused) report id (thanks windows)
-#define REPORT_FIRST_BYTE(byte) 0x00, (byte)
+#define REPORT_FIRST_BYTE(value) 0x00, (value)
 #define PACKET_SIZE (65)
 #else
 // Everything other platform other than windows doesn't use report ids, so this is used for compatability
