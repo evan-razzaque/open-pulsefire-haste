@@ -211,7 +211,10 @@ void* mouse_update_loop(app_data *data) {
 	
 	while (mouse->state != CLOSED) {
 		if (mouse->state == RECONNECT) reconnect_mouse(data);
-		if (mouse->dev == NULL || mouse->state != UPDATE) continue;
+		if (mouse->dev == NULL || mouse->state != UPDATE) {
+			g_usleep(1000 * 100);
+			continue;
+		}
 
 		g_mutex_lock(mouse->mutex);
 
