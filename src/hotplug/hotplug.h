@@ -25,6 +25,8 @@ struct mouse_hotplug_data {
     GThread *hotplug_thread;
 } typedef mouse_hotplug_data;
 
+void setup_mouse_removal_callbacks(mouse_hotplug_data *hotplug_data, struct hid_device_info *dev_list);
+
 /**
  * @brief Initializes the hotplug listener.
  * 

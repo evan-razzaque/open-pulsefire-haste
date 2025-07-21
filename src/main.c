@@ -248,10 +248,14 @@ int main() {
 	if (res < 0) return 1;
 	
 	mouse_data mouse = {.mutex = &mutex};
-	mouse.dev = open_device(get_devices(&mouse.type));
 
 	mouse_hotplug_data hotplug_data = {0};
 	hotplug_listener_init(&hotplug_data, &mouse);
+	
+	struct hid_device_info *dev_list = get_devices(&mouse.type);
+	setup_mouse_removal_callbacks(&hotplug_data, dev_list);
+	mouse.dev = open_device(dev_list);
+	dev_list = NULL;
 	
 	app_widgets widgets = {.alert = gtk_alert_dialog_new(" ")};
 	

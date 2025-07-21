@@ -16,8 +16,8 @@
 
 struct device_connection_data {
     HANDLE device_handle;
-    CM_NOTIFY_FILTER filter;
-    HCMNOTIFICATION notify_context;
+    CM_NOTIFY_FILTER notify_filter_removal;
+    HCMNOTIFICATION notify_context_removal;
     
     uint16_t product_id;
     bool device_connected;
@@ -26,12 +26,36 @@ struct device_connection_data {
 } typedef device_connection_data;
 
 struct hotplug_listener_data {
-    CM_NOTIFY_FILTER notify_filter;
+    CM_NOTIFY_FILTER notify_filter_arrival;
     HCMNOTIFICATION notify_context_wired;
     HCMNOTIFICATION notify_context_wireless;
     device_connection_data connection_data_wired;
     device_connection_data connection_data_wireless;
 };
+
+static HANDLE open_device_handle(void *path, bool is_wide_char) {
+    if (is_wide_char) {
+        return CreateFileW(
+            (wchar_t*) path,
+            0,
+            FILE_SHARE_READ | FILE_SHARE_WRITE,
+            NULL,
+            OPEN_EXISTING,
+            FILE_FLAG_OVERLAPPED,
+            0
+        );
+    } else {
+        return CreateFileA(
+            (char*) path,
+            0,
+            FILE_SHARE_READ | FILE_SHARE_WRITE,
+            NULL,
+            OPEN_EXISTING,
+            FILE_FLAG_OVERLAPPED,
+            0
+        );
+    }
+}
 
 /**
  * @brief Get the device handle from a path and a product id.
@@ -44,15 +68,7 @@ static HANDLE get_device_handle(wchar_t *path, uint16_t product_id) {
     HIDD_ATTRIBUTES attrib;
     HANDLE device_handle;
 
-    device_handle = CreateFileW(
-        path,
-        0,
-        FILE_SHARE_READ | FILE_SHARE_WRITE,
-        NULL,
-        OPEN_EXISTING,
-        FILE_FLAG_OVERLAPPED,
-        0
-    );
+    device_handle = open_device_handle((void*) path, true);
 
     if (device_handle == INVALID_HANDLE_VALUE) {
         DWORD error = GetLastError();
@@ -134,10 +150,23 @@ static CALLBACK DWORD device_hotplug_removal(HCMNOTIFICATION notify_handle, devi
 
     update_mouse_connection_type(mouse, product_id, action);
     
-    CM_Unregister_Notification(connection_data->notify_context);
-    CloseHandle(connection_data->device_handle);
+    printf("%d\n", CloseHandle(connection_data->device_handle));
+    CM_Unregister_Notification(connection_data->notify_context_removal);
 
-    return ERROR_CANCELLED;
+    return 0;
+}
+
+static void register_device_removal_callback(device_connection_data *connection_data, HANDLE device_handle) {
+    connection_data->notify_filter_removal.u.DeviceHandle.hTarget = device_handle;
+    connection_data->device_connected = true;
+    connection_data->device_handle = device_handle;
+
+    CM_Register_Notification(
+        &connection_data->notify_filter_removal,
+        connection_data,
+        (PCM_NOTIFY_CALLBACK) device_hotplug_removal,
+        &connection_data->notify_context_removal
+    );
 }
 
 /**
@@ -162,20 +191,9 @@ static CALLBACK DWORD device_hotplug_arrival(HCMNOTIFICATION notify_handle, devi
     HANDLE device_handle = get_device_handle(event_data->u.DeviceInterface.SymbolicLink, product_id);
     if (device_handle == INVALID_HANDLE_VALUE) return 0;
 
-    connection_data->device_connected = true;
-
     update_mouse_connection_type(mouse, product_id, action);
 
-    connection_data->filter.u.DeviceHandle.hTarget = device_handle;
-    connection_data->device_connected = true;
-    connection_data->device_handle = device_handle;
-
-    CM_Register_Notification(
-        &connection_data->filter,
-        connection_data,
-        (PCM_NOTIFY_CALLBACK) device_hotplug_removal,
-        &connection_data->notify_context
-    );
+    register_device_removal_callback(connection_data, device_handle);
 
     return 0;
 }
@@ -193,20 +211,45 @@ static void* handle_events(mouse_hotplug_data *hotplug_data) {
     return NULL;
 }
 
+void setup_mouse_removal_callbacks(mouse_hotplug_data *hotplug_data, struct hid_device_info *dev_list) {
+    struct hid_device_info *dev = dev_list;
+    device_connection_data *connection_data;
+
+    while (dev != NULL) {
+        if (dev->interface_number != INTERFACE_NUMBER) {
+            dev = dev->next;
+            continue;
+        }
+
+        printf("%d\n", dev->interface_number);
+
+        if (dev->product_id == PID_WIRED) {
+            connection_data = &hotplug_data->listener_data->connection_data_wired;
+        } else {
+            connection_data = &hotplug_data->listener_data->connection_data_wireless;
+        }
+
+        HANDLE device_handle = open_device_handle(dev->path, false);
+        register_device_removal_callback(connection_data, device_handle);
+
+        dev = dev->next;
+    }
+}
+
 void hotplug_listener_init(mouse_hotplug_data *hotplug_data, mouse_data *mouse) {
     hotplug_data->mouse = mouse;
     hotplug_data->listener_data = malloc(sizeof(hotplug_listener_data));
     
     hotplug_listener_data *listener_data = hotplug_data->listener_data;
 
-    listener_data->notify_filter = (CM_NOTIFY_FILTER) {
+    listener_data->notify_filter_arrival = (CM_NOTIFY_FILTER) {
         .cbSize = sizeof(CM_NOTIFY_FILTER),
         .FilterType = CM_NOTIFY_FILTER_TYPE_DEVICEINTERFACE,
         .u.DeviceInterface.ClassGuid = GUID_DEVINTERFACE_HID
     };
 
     device_connection_data connection_data = {
-        .filter = {
+        .notify_filter_removal = {
             .cbSize = sizeof(CM_NOTIFY_FILTER),
             .FilterType = CM_NOTIFY_FILTER_TYPE_DEVICEHANDLE
         },
@@ -222,7 +265,7 @@ void hotplug_listener_init(mouse_hotplug_data *hotplug_data, mouse_data *mouse) 
     DWORD res;
 
     res = CM_Register_Notification(
-        &listener_data->notify_filter,
+        &listener_data->notify_filter_arrival,
         &listener_data->connection_data_wired,
         (PCM_NOTIFY_CALLBACK) device_hotplug_arrival,
         &listener_data->notify_context_wired
@@ -234,7 +277,7 @@ void hotplug_listener_init(mouse_hotplug_data *hotplug_data, mouse_data *mouse) 
     }
 
     res = CM_Register_Notification(
-        &listener_data->notify_filter,
+        &listener_data->notify_filter_arrival,
         &listener_data->connection_data_wireless,
         (PCM_NOTIFY_CALLBACK) device_hotplug_arrival,
         &listener_data->notify_context_wireless
