@@ -11,8 +11,7 @@
 #include "device/rgb.h"
 #include "device/buttons.h"
 #include "device/sensor.h"
-
-#include "hotplug.h"
+#include "hotplug/hotplug.h"
 
 #include "hid_keyboard_map.h"
 #include "mouse_config.h"
@@ -273,7 +272,6 @@ int main() {
 			.is_resuming_macro_recording = false
 		}
 	};
-
 	load_settings_from_file(&data);
 	load_macros_from_file(&data);
 	

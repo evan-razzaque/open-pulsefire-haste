@@ -64,7 +64,7 @@ hid_device* open_device(struct hid_device_info *dev_list) {
 	dev_info = dev_list;
 
 	while (dev_info) {
-		if (dev_info->interface_number == INTERFACE) {
+		if (dev_info->interface_number == INTERFACE_NUMBER) {
 			dev = hid_open_path(dev_info->path);
 			break;
 		}

@@ -2,12 +2,12 @@ CC                = gcc
 DEVICE_OBJFILES   = build/buttons.o build/mouse.o build/rgb.o build/sensor.o
 APP_OBJFILES      = build/main.o build/mouse_config.o build/config_led.o build/config_buttons.o build/config_macro.o build/config_sensor.o build/settings_storage.o build/macro_parser.o
 TEMPLATE_OBJFILES = build/dpi_profile_config.o build/stack_menu_button.o build/stack_menu_button_back.o build/mouse_macro_button.o build/macro_event_item.o
-OBJFILES          = $(DEVICE_OBJFILES) $(APP_OBJFILES) $(TEMPLATE_OBJFILES) build/hotplug.o
+OBJFILES          = $(DEVICE_OBJFILES) $(APP_OBJFILES) $(TEMPLATE_OBJFILES) build/hotplug.o build/hotplug_common.o
 UI_FILES          = ui/templates.gresource.xml ui/dpi-profile-config.ui ui/stack-menu-button.ui ui/stack-menu-button-back.ui ui/mouse-macro-button.ui ui/macro-event-item.ui
 GRESOURCES        = resources/templates.gresource
 TARGET            = bin/main
 
-HOTPLUG_SOURCE    = src/linux/hotplug.c
+HOTPLUG_SOURCE    = src/hotplug/hotplug_linux.c
 
 ASAN = -fsanitize=address
 
@@ -15,8 +15,9 @@ LDLIBS  = $(ASAN) -lm -lhidapi-hidraw -lusb-1.0 $$(pkg-config --libs libadwaita-
 CFLAGS += -I src/ $$(pkg-config --cflags libadwaita-1 gmodule-export-2.0) -Wall -Werror -Werror=vla -Wno-deprecated-declarations -std=c99 -Og -g $(ASAN)
 
 ifeq ($(OS),Windows_NT)
-	HOTPLUG_SOURCE = src/windows/hotplug.c
-	LDLIBS = -lm -lhidapi $$(pkg-config --libs libadwaita-1 gmodule-export-2.0) -I /mingw64/include/hidapi
+	ASAN=
+	HOTPLUG_SOURCE = src/hotplug/hotplug_windows.c
+	LDLIBS = -lm -lhidapi -lhid -lcfgmgr32 $$(pkg-config --libs libadwaita-1 gmodule-export-2.0) -I /mingw64/include/hidapi
 endif
 
 all: $(TARGET) $(GRESOURCES)
@@ -39,7 +40,11 @@ build/%.o: src/device/%.c src/device/%.h
 
 # Hotplug
 
-build/hotplug.o: $(HOTPLUG_SOURCE) src/hotplug.h
+build/hotplug.o: $(HOTPLUG_SOURCE) src/hotplug/hotplug.h
+	@mkdir -p build
+	$(CC) -c $(CFLAGS) $< -o $@
+
+build/hotplug_common.o: src/hotplug/hotplug_common.c src/hotplug/hotplug_common.h
 	@mkdir -p build
 	$(CC) -c $(CFLAGS) $< -o $@
 

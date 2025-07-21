@@ -1,10 +1,13 @@
 #ifndef HOTPLUG_H
 #define HOTPLUG_H
 
+#define HOTPLUG_COMMON_PRIVATE
+
 #include <stdint.h>
 #include <hidapi/hidapi.h>
 
 #include "types.h"
+#include "hotplug/hotplug_common.h"
 
 /**
  * @brief An opaque struct for storing platform specific hotplug listener data.
@@ -25,7 +28,7 @@ struct mouse_hotplug_data {
 /**
  * @brief Initializes the hotplug listener.
  * 
- * @param hotplug_data A pointer to a mouse_hotplug_data struct to store the hotplug listener into.
+ * @param hotplug_data A pointer to a mouse_hotplug_data struct to store the hotplug listener into
  * @param mouse The mouse_data object to store into the mouse_hotplug_data object 
  */
 void hotplug_listener_init(mouse_hotplug_data *hotplug_data, mouse_data *mouse);

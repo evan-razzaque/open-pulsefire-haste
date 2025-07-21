@@ -6,54 +6,12 @@
 
 #include "types.h"
 #include "device/mouse.h"
-#include "hotplug.h"
+#include "hotplug/hotplug.h"
 
 struct hotplug_listener_data {
     libusb_hotplug_callback_handle hotplug_cb_handle_wired;
     libusb_hotplug_callback_handle hotplug_cb_handle_wireless;
-} typedef hotplug_listener_data;
-
-static void update_device_connection_detached(
-    mouse_data *mouse,
-    CONNECTION_TYPE last_connection_type
-) {
-    // Wireless was disconnected with wired plugged in, do nothing
-    if (mouse->type == CONNECTION_TYPE_WIRED) {
-        printf("Wireless unplugged\n");
-        return;
-    }
-
-    hid_close(mouse->dev);
-    mouse->dev = NULL;
-    printf("Wired detached\n");
-
-    // Reconnect to wireless
-    if (mouse->type == CONNECTION_TYPE_WIRELESS) {
-        printf("Attaching to mouse\n");
-        mouse->state = RECONNECT;
-    }
-
-}
-
-static void update_device_connection_attached(
-    mouse_data *mouse,
-    CONNECTION_TYPE last_connection_type
-) {
-    // Wireless was plugged in with wired, do nothing
-    if (last_connection_type == CONNECTION_TYPE_WIRED) {
-        printf("Wireless plugged in\n");
-        return;
-    } 
-
-    // Wireless is no longer active, reconnect to wired
-    if (last_connection_type == CONNECTION_TYPE_WIRELESS) {
-        hid_close(mouse->dev);
-        mouse->dev = NULL;
-    }
-
-    printf("Attaching to mouse\n");
-    mouse->state = RECONNECT;
-}
+};
 
 /**
  * @brief Handles the attachment and detachment of the mouse.
@@ -81,7 +39,7 @@ static int device_hotplug_callback(libusb_context *ctx, libusb_device *device,
 
     if (event == LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT) {
         mouse->type -= connection_type;
-        update_device_connection_detached(mouse, last_connection_type);
+        update_device_connection_detached(mouse);
     } else {
         mouse->type += connection_type;
         update_device_connection_attached(mouse, last_connection_type);

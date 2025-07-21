@@ -2,7 +2,7 @@
 #define MACRO_PARSER_H
 
 #ifndef MACRO_PARSER_PRIVATE
-#error "You cannot include private header macro_parser.h"
+#error "You cannot include this header directly"
 #endif
 
 #include "mouse_config.h"

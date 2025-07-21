@@ -10,7 +10,7 @@
 #define PID_WIRELESS (0x028E)
 #define PID_WIRED (0x048E)
 
-#define INTERFACE (0x02)
+#define INTERFACE_NUMBER (0x02)
 #define TRUE_PACKET_SIZE (64) // Packet data length without report id
 
 #ifdef _WIN32
