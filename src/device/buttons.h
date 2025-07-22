@@ -7,10 +7,10 @@
 
 typedef uint8_t byte;
 
-/**
- * The type byte for a macro when re-assigning a button.
- */
-#define MOUSE_ACTION_TYPE_MACRO (0x04)
+enum {
+    MOUSE_ACTION_TYPE_KEYBOARD = 0x02,
+    MOUSE_ACTION_TYPE_MACRO    = 0x04
+};
 
 /**
  * The size of a macro event (in bytes).

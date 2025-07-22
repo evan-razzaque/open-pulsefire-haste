@@ -8,6 +8,8 @@
 #include "device/mouse.h"
 #include "hotplug/hotplug.h"
 
+// For compatability with windows
+
 void setup_mouse_removal_callbacks(mouse_hotplug_data *hotplug_data, struct hid_device_info *dev_list) {}
 
 struct hotplug_listener_data {
@@ -21,7 +23,7 @@ struct hotplug_listener_data {
  * @param ctx Unused
  * @param device The device that was attached/detached
  * @param event Whether the mouse was connected or disconnected
- * @param listener_data The hotplug_listener_data object
+ * @param listener_data The mouse_data object
  * @return indicates whether this callback should stop handling hotplug events or not
  */
 static int device_hotplug_callback(libusb_context *ctx, libusb_device *device,
@@ -34,6 +36,12 @@ static int device_hotplug_callback(libusb_context *ctx, libusb_device *device,
     return false;
 }
 
+/**
+ * @brief Handles the device hotplug events
+ * 
+ * @param hotplug_data The mouse_data object
+ * @return void* Unused
+ */
 static void* handle_events(mouse_hotplug_data *hotplug_data) {
     mouse_data *mouse = hotplug_data->mouse;
 

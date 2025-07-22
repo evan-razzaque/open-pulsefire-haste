@@ -7,6 +7,11 @@
 #include "mouse.h"
 #include "rgb.h"
 
+typedef enum LIFT_OFF_DISTANCE {
+    LIFT_OFF_DISTANCE_LOW  = 1,
+    LIFT_OFF_DISTANCE_HIGH = 2
+} LIFT_OFF_DISTANCE;
+
 /**
  * @brief An enum for mode bytes for dpi settings and lift-off distance.
  * Members are ordered by the order in which their corresponding packets are sent.

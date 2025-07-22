@@ -10,7 +10,14 @@ int set_polling_rate(hid_device *dev, byte polling_rate_value) {
 	return mouse_write(dev, data);
 }
 
-static int set_lift_off_distance(hid_device *dev, byte lift_off_distance) {
+/**
+ * @brief Sets the lift off distance for the mouse.
+ * 
+ * @param dev The mouse device handle
+ * @param lift_off_distance A LIFT_OFF_DISTANCE value
+ * @return the number of bytes written or -1 on error
+ */
+static int set_lift_off_distance(hid_device *dev, LIFT_OFF_DISTANCE lift_off_distance) {
     byte data[PACKET_SIZE] = {
         REPORT_FIRST_BYTE(SEND_BYTE_DPI),
         SENSOR_CONFIG_BYTE_LIFT_OFF_DISTANCE,

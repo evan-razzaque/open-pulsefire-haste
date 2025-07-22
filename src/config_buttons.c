@@ -135,7 +135,12 @@ static int set_keyboard_action(GtkEventControllerKey *self, guint keyval, guint 
 	return true;
 }
 
-void show_popover(GtkPopover *popover) {
+/**
+ * @brief Used to show a popover with a timeout.
+ * 
+ * @param popover The popover to show
+ */
+static void show_popover(GtkPopover *popover) {
 	gtk_popover_popup(popover);
 }
 
@@ -167,16 +172,31 @@ static void set_mouse_button(GtkMenuButton *menu_button, GParamSpec *param_spec,
 	data->button_data.selected_button_name = gtk_widget_get_tooltip_text(GTK_WIDGET(menu_button));
 }
 
+/**
+ * @brief Set the stack's page to the first page when its parent popover is blurred.
+ * 
+ * @param stack The stack to reset.
+ * @param popover The popover containing the stack
+ */
 G_MODULE_EXPORT void reset_stack_menu(GtkStack* stack, GtkPopover *popover) {
 	GtkSelectionModel *stack_pages = gtk_stack_get_pages(stack);
 	gtk_selection_model_select_item(stack_pages, 0, true);
 }
 
+/**
+ * @brief Set the menu button label to the action 
+ * that was assigned to the mouse button corresponding to the menu button. 
+ * 
+ * @param menu_button The menu button 
+ * @param action The action that was assigned
+ * @param simple_action_names The array of simple action names from action type / action value pairs 
+ * @param key_names The array of key_names from hid usage ids
+ */
 static void set_menu_button_label(GtkMenuButton *menu_button, uint16_t action, char *simple_action_names[8][9], const char **key_names) {
 	byte action_type = action >> 8;
 	byte action_value = action & 0x00ff;
 	
-	if (action_type == 2) {
+	if (action_type == MOUSE_ACTION_TYPE_KEYBOARD) {
 		gtk_menu_button_set_label(menu_button, key_names[action_value]);
 	} else {
 		gtk_menu_button_set_label(menu_button, simple_action_names[action_type][action_value]);
@@ -219,6 +239,12 @@ static void setup_action_menu_buttons(GtkBuilder *builder, app_data *data) {
 	}
 }
 
+/**
+ * @brief Gets the widgets needed for all button related config.
+ * 
+ * @param builder GtkBuilder object to obtain widgets
+ * @param data Application wide data structure
+ */
 static void get_button_data_widgets(GtkBuilder *builder, app_data *data) {
 	data->widgets->window_keyboard_action = GTK_WINDOW(GTK_WIDGET(gtk_builder_get_object(builder, "windowKeyboardAction")));
     data->widgets->event_key_controller = GTK_EVENT_CONTROLLER(gtk_builder_get_object(builder, "eventKeyController"));

@@ -14,12 +14,26 @@
 
 #include "./templates/dpi_profile_config.h"
 
+/**
+ * @brief Updates the mouse's dpi settings.
+ * 
+ * @param data Application wide data structure
+ */
 static void update_dpi_settings(app_data* data) {
     g_mutex_lock(data->mouse->mutex);
     save_dpi_settings(data->mouse->dev, &data->sensor_data.dpi_config, data->sensor_data.lift_off_distance);
     g_mutex_unlock(data->mouse->mutex);
 }
 
+/**
+ * @brief Updates a dpi profile.
+ * 
+ * @param self The widget representing the dpi profile
+ * @param profile_index The index of the dpi_profile
+ * @param dpi_value The dpi value
+ * @param indicator The profile indicator color
+ * @param data Application wide data structure
+ */
 static void update_dpi_profile_data(DpiProfileConfig *self, byte profile_index, int dpi_value, GdkRGBA *indicator, app_data *data) {
     dpi_profile *profile = data->sensor_data.dpi_config.profiles + profile_index;
     
@@ -31,6 +45,13 @@ static void update_dpi_profile_data(DpiProfileConfig *self, byte profile_index, 
     update_dpi_settings(data);
 }
 
+/**
+ * @brief Changes the polling rate of the mouse.
+ * 
+ * @param action The simple action containing the check button state for the polling rate
+ * @param value The polling rate value
+ * @param data Application wide data structure
+ */
 static void change_polling_rate(GSimpleAction* action, GVariant *value, app_data *data) {
     byte polling_rate_value = g_variant_get_byte(value);
     g_simple_action_set_state(action, value);
@@ -39,6 +60,14 @@ static void change_polling_rate(GSimpleAction* action, GVariant *value, app_data
     data->sensor_data.polling_rate_value = polling_rate_value;
 }
 
+
+/**
+ * @brief Change the lift off distance of the mouse
+ * 
+ * @param action The simple action containing the check button state for the lift off distance
+ * @param value The lift off distance value (in milimeters)
+ * @param data Application wide data structure
+ */
 static void change_lift_off_distance(GSimpleAction* action, GVariant *value, app_data *data) {
     byte lift_off_distance = g_variant_get_byte(value);
     g_simple_action_set_state(action, value);
@@ -47,7 +76,16 @@ static void change_lift_off_distance(GSimpleAction* action, GVariant *value, app
     update_dpi_settings(data);
 }
 
-DpiProfileConfig* create_dpi_profile_row(byte profile_index, app_data *data, dpi_profile *profile) {
+/**
+ * @brief Create a dpi profile row widget from a dpi profile 
+ * 
+ * @param profile_index The index of the profile
+ * @param profile The dpi profile
+ * @param data Application wide data structure
+ * 
+ * @return a DpiProfileConfig widget
+ */
+static DpiProfileConfig* create_dpi_profile_row(byte profile_index, dpi_profile *profile, app_data *data) {
     dpi_settings *dpi_config = &data->sensor_data.dpi_config;
 
     DpiProfileConfig *self = dpi_profile_config_new(
@@ -84,10 +122,17 @@ DpiProfileConfig* create_dpi_profile_row(byte profile_index, app_data *data, dpi
     return self;
 }
 
+/**
+ * @brief Creates a dpi profile
+ * 
+ * @param action Unused
+ * @param value Unused
+ * @param data Application wide data structure
+ */
 static void add_dpi_profile(GSimpleAction* action, GVariant *value, app_data *data) {
     dpi_settings *dpi_config = &data->sensor_data.dpi_config;
 
-    DpiProfileConfig *dpi_profile_row = create_dpi_profile_row(dpi_config->profile_count, data, NULL);
+    DpiProfileConfig *dpi_profile_row = create_dpi_profile_row(dpi_config->profile_count, NULL, data);
     
     uint16_t dpi_value = dpi_profile_config_get_dpi_value(dpi_profile_row);
     const GdkRGBA *rgba = dpi_profile_config_get_indicator(dpi_profile_row);
@@ -107,6 +152,13 @@ static void add_dpi_profile(GSimpleAction* action, GVariant *value, app_data *da
     update_dpi_settings(data);
 }
 
+/**
+ * @brief A function to select a dpi profile
+ * 
+ * @param action The simple action containing the state for the selected dpi profile index
+ * @param value_profile_index The index of the dpi profile to select
+ * @param data Application wide data structure
+ */
 static void select_dpi_profile(GSimpleAction *action, GVariant *value_profile_index, app_data *data) {
     byte profile_index = g_variant_get_byte(value_profile_index);
     g_simple_action_set_state(action, value_profile_index);
@@ -115,6 +167,13 @@ static void select_dpi_profile(GSimpleAction *action, GVariant *value_profile_in
     update_dpi_settings(data);
 }
 
+/**
+ * @brief A function to delete a dpi profile
+ * 
+ * @param action Unused
+ * @param value_profile_index The index of the dpi profile to delete
+ * @param data Application wide data structure
+ */
 static void delete_dpi_profile(GSimpleAction* action, GVariant *value_profile_index, app_data *data) {
     byte profile_index = g_variant_get_byte(value_profile_index);
     dpi_settings *dpi_config = &data->sensor_data.dpi_config;
@@ -164,7 +223,7 @@ void app_config_sensor_init(GtkBuilder *builder, app_data *data) {
     dpi_settings* dpi_config = &data->sensor_data.dpi_config;
 
     for (byte i = 0; i < dpi_config->profile_count; i++) {
-        create_dpi_profile_row(i, data, dpi_config->profiles + i);
+        create_dpi_profile_row(i, dpi_config->profiles + i, data);
     }
 
     char profile_state[10];
