@@ -9,8 +9,9 @@
 #include "hotplug/hotplug.h"
 
 // For compatability with windows
-
-void setup_mouse_removal_callbacks(mouse_hotplug_data *hotplug_data, struct hid_device_info *dev_list) {}
+void setup_mouse_removal_callbacks(mouse_hotplug_data *hotplug_data, struct hid_device_info *dev_list) {
+    return;
+}
 
 struct hotplug_listener_data {
     libusb_hotplug_callback_handle hotplug_cb_handle_wired;
