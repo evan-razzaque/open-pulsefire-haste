@@ -16,9 +16,11 @@
 #include "hid_keyboard_map.h"
 #include "mouse_config.h"
 
-#include "./templates/stack_menu_button.h"
-#include "./templates/stack_menu_button_back.h"
-#include "./templates/mouse_macro_button.h"
+#include "templates/stack_menu_button.h"
+#include "templates/stack_menu_button_back.h"
+#include "templates/mouse_macro_button.h"
+
+#include "templates/gresources.h"
 
 #define widget_add_event(builder, widget_name, detailed_signal, c_handler, data)\
 	g_signal_connect(gtk_builder_get_object(builder, widget_name), detailed_signal, G_CALLBACK(c_handler), data);
@@ -145,7 +147,8 @@ void activate(GtkApplication *app, app_data *data) {
 	g_type_ensure(STACK_TYPE_MENU_BUTTON_BACK);
 	g_type_ensure(MOUSE_TYPE_MACRO_BUTTON);
 	
-	g_resources_register(g_resource_load("resources/templates.gresource", NULL));
+	// g_resources_register(g_resource_load("resources/templates.gresource", NULL));
+	g_resources_register(gresources_get_resource());
 	GtkBuilder *builder = gtk_builder_new_from_file("ui/window.ui");
 	data->widgets->builder = builder;
 
@@ -166,15 +169,15 @@ void activate(GtkApplication *app, app_data *data) {
 	}
 
 	data->battery_data = (mouse_battery_data) {.mouse = mouse, .label_battery = label_battery};
-	
-	g_signal_connect(window, "close-request", G_CALLBACK(close_application), data);
-	widget_add_event(builder, "buttonSave", "clicked", save_mouse_settings, data);
-
-	g_timeout_add(100, G_SOURCE_FUNC(toggle_mouse_settings_visibility), data);
 
 	GtkCssProvider *provider = gtk_css_provider_new();
 	gtk_css_provider_load_from_path(provider, "ui/window.css");
 	gtk_style_context_add_provider_for_display(gtk_widget_get_display(GTK_WIDGET(window)), GTK_STYLE_PROVIDER(provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+
+	g_signal_connect(window, "close-request", G_CALLBACK(close_application), data);
+	widget_add_event(builder, "buttonSave", "clicked", save_mouse_settings, data);
+
+	g_timeout_add(100, G_SOURCE_FUNC(toggle_mouse_settings_visibility), data);
 	
 	gtk_window_set_application(window, app);
 	gtk_window_present(window);
