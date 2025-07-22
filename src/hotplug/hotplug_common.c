@@ -24,3 +24,24 @@ void update_device_connection_attached(mouse_data *mouse, CONNECTION_TYPE last_c
 
     mouse->state = RECONNECT;
 }
+
+void update_mouse_connection_type(mouse_data *mouse, uint16_t product_id, int event) {
+    CONNECTION_TYPE connection_type = 
+        (product_id == PID_WIRED)?
+        CONNECTION_TYPE_WIRED:
+        CONNECTION_TYPE_WIRELESS;
+
+    g_mutex_lock(mouse->mutex);
+
+    CONNECTION_TYPE last_connection_type = mouse->type;
+
+    if (event == DEVICE_REMOVE) {
+        mouse->type -= connection_type;
+        update_device_connection_detached(mouse);
+    } else {
+        mouse->type += connection_type;
+        update_device_connection_attached(mouse, last_connection_type);
+    }
+
+    g_mutex_unlock(mouse->mutex);
+}

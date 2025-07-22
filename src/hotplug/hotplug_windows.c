@@ -94,39 +94,6 @@ static HANDLE get_device_handle(wchar_t *path, uint16_t product_id) {
 }
 
 /**
- * @brief Updates the mouse connection type given its product id and 
- * the notification action.
- * 
- * @param mouse The mouse_data object
- * @param product_id The product id of the mouse
- * @param action The notification action that has occured
- */
-static void update_mouse_connection_type(
-    mouse_data *mouse,
-    uint16_t product_id,
-    CM_NOTIFY_ACTION action
-) {
-    CONNECTION_TYPE connection_type = 
-        (product_id == PID_WIRED)?
-        CONNECTION_TYPE_WIRED:
-        CONNECTION_TYPE_WIRELESS;
-
-    g_mutex_lock(mouse->mutex);
-
-    CONNECTION_TYPE last_connection_type = mouse->type;
-
-    if (action == CM_NOTIFY_ACTION_DEVICEREMOVECOMPLETE) {
-        mouse->type -= connection_type;
-        update_device_connection_detached(mouse);
-    } else {
-        mouse->type += connection_type;
-        update_device_connection_attached(mouse, last_connection_type);
-    }
-
-    g_mutex_unlock(mouse->mutex);
-}
-
-/**
  * @brief Handles the detachment of the mouse.
  * 
  * @param notify_handle Unused
@@ -139,7 +106,7 @@ static void update_mouse_connection_type(
 static CALLBACK DWORD device_hotplug_removal(HCMNOTIFICATION notify_handle, device_connection_data* connection_data,
     CM_NOTIFY_ACTION action, PCM_NOTIFY_EVENT_DATA event_data, DWORD event_data_size
 ) {
-    if (action != CM_NOTIFY_ACTION_DEVICEREMOVECOMPLETE) {
+    if (action != DEVICE_REMOVE) {
         return 0;
     }
 
@@ -182,7 +149,7 @@ static void register_device_removal_callback(device_connection_data *connection_
 static CALLBACK DWORD device_hotplug_arrival(HCMNOTIFICATION notify_handle, device_connection_data* connection_data,
     CM_NOTIFY_ACTION action, PCM_NOTIFY_EVENT_DATA event_data, DWORD event_data_size
 ) {
-    if (action != CM_NOTIFY_ACTION_DEVICEINTERFACEARRIVAL) return 0;
+    if (action != DEVICE_ARRIVE) return 0;
     if (connection_data->device_connected) return 0;
 
     mouse_data *mouse = connection_data->mouse;

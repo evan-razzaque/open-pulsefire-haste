@@ -8,6 +8,8 @@
 #include "device/mouse.h"
 #include "hotplug/hotplug.h"
 
+void setup_mouse_removal_callbacks(mouse_hotplug_data *hotplug_data, struct hid_device_info *dev_list) {}
+
 struct hotplug_listener_data {
     libusb_hotplug_callback_handle hotplug_cb_handle_wired;
     libusb_hotplug_callback_handle hotplug_cb_handle_wireless;
@@ -20,7 +22,7 @@ struct hotplug_listener_data {
  * @param device The device that was attached/detached
  * @param event Whether the mouse was connected or disconnected
  * @param listener_data The hotplug_listener_data object
- * @return indicates that this callback should stop handling hotplug events
+ * @return indicates whether this callback should stop handling hotplug events or not
  */
 static int device_hotplug_callback(libusb_context *ctx, libusb_device *device,
     libusb_hotplug_event event, mouse_data *mouse
@@ -28,25 +30,7 @@ static int device_hotplug_callback(libusb_context *ctx, libusb_device *device,
     struct libusb_device_descriptor device_desc = {0};
     libusb_get_device_descriptor(device, &device_desc);
 
-    CONNECTION_TYPE connection_type = 
-        (device_desc.idProduct == PID_WIRED)?
-        CONNECTION_TYPE_WIRED:
-        CONNECTION_TYPE_WIRELESS;
-    
-    g_mutex_lock(mouse->mutex);
-
-    CONNECTION_TYPE last_connection_type = mouse->type;
-
-    if (event == LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT) {
-        mouse->type -= connection_type;
-        update_device_connection_detached(mouse);
-    } else {
-        mouse->type += connection_type;
-        update_device_connection_attached(mouse, last_connection_type);
-    }
-
-    g_mutex_unlock(mouse->mutex);
-
+    update_mouse_connection_type(mouse, device_desc.idProduct, event);
     return false;
 }
 

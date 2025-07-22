@@ -5,7 +5,29 @@
 #error "You cannot directly include hotplug_common.h"
 #endif
 
+#ifdef _WIN32
+#include <cfgmgr32.h>
+#define DEVICE_ARRIVE (CM_NOTIFY_ACTION_DEVICEINTERFACEARRIVAL)
+#define DEVICE_REMOVE (CM_NOTIFY_ACTION_DEVICEREMOVECOMPLETE)
+#else
+#include <libusb-1.0/libusb.h>
+#define DEVICE_ARRIVE (LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED)
+#define DEVICE_REMOVE (LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT)
+#endif
+
+#include <stdint.h>
+
 #include "hotplug/hotplug.h"
+
+/**
+ * @brief Updates the mouse connection when the device connection changes.
+ * 
+ * @param mouse A mouse_data struct
+ * @param product_id The product id of the mouse
+ * @param event The device event that has occured
+ *
+ */
+void update_mouse_connection_type(mouse_data *mouse, uint16_t product_id, int event);
 
 /**
  * @brief Updates the mouse connection status when the device is detached.
