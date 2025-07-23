@@ -12,6 +12,8 @@
 #include <hidclass.h>
 #include <hidsdi.h>
 
+#include <glib.h>
+
 #include "hotplug/hotplug.h"
 
 struct device_connection_data {

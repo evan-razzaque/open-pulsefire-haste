@@ -5,8 +5,11 @@ void update_device_connection_detached(mouse_data *mouse) {
     // Wireless was disconnected with wired plugged in, do nothing
     if (mouse->type == CONNECTION_TYPE_WIRED) return;
 
-    hid_close(mouse->dev);
-    mouse->dev = NULL;
+    if (mouse->dev != NULL) {
+        printf("disconnect\n");
+        hid_close(mouse->dev);
+        mouse->dev = NULL;
+    }
 
     // Reconnect to wireless
     if (mouse->type == CONNECTION_TYPE_WIRELESS) mouse->state = RECONNECT;
@@ -34,7 +37,7 @@ void update_mouse_connection_type(mouse_data *mouse, uint16_t product_id, int ev
     g_mutex_lock(mouse->mutex);
 
     CONNECTION_TYPE last_connection_type = mouse->type;
-
+    
     if (event == DEVICE_REMOVE) {
         mouse->type -= connection_type;
         update_device_connection_detached(mouse);

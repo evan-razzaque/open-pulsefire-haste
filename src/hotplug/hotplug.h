@@ -3,6 +3,7 @@
 
 #define HOTPLUG_COMMON_PRIVATE
 
+#include <glib.h>
 #include <hidapi/hidapi.h>
 
 #include "types.h"

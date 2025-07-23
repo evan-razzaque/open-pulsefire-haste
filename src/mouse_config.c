@@ -11,7 +11,7 @@ void gtk_stack_set_page(GtkStack *stack, uint32_t page) {
 int toggle_mouse_settings_visibility(app_data *data) {
     mouse_data *mouse = data->mouse;
 
-    if (data->mouse->dev == NULL) {
+    if (mouse->dev == NULL) {
         gtk_stack_set_page(
             data->widgets->stack_main,
             STACK_PAGE_DEVICE_NOT_FOUND

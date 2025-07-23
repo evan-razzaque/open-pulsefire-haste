@@ -16,6 +16,7 @@
 #endif
 
 #include <stdint.h>
+#include <hidapi/hidapi.h>
 
 #include "hotplug/hotplug.h"
 

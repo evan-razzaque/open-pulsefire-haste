@@ -2,7 +2,6 @@
 #include <hidapi/hidapi.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <gtk/gtk.h>
 
 #include "types.h"
 #include "device/mouse.h"
@@ -71,21 +70,21 @@ void hotplug_listener_init(mouse_hotplug_data *hotplug_data, mouse_data *mouse) 
         NULL,
         LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED
         | LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT,
-        0, VID, PID_WIRED, 
-        LIBUSB_HOTPLUG_MATCH_ANY, 
+        0, VID, PID_WIRED,
+        LIBUSB_HOTPLUG_MATCH_ANY,
         (libusb_hotplug_callback_fn) device_hotplug_callback,
-        hotplug_data->mouse, 
+        hotplug_data->mouse,
         &hotplug_data->listener_data->hotplug_cb_handle_wired
     );
-
+    
     libusb_hotplug_register_callback(
         NULL,
         LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED
         | LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT,
-        0, VID, PID_WIRELESS, 
-        LIBUSB_HOTPLUG_MATCH_ANY, 
+        0, VID, PID_WIRELESS,
+        LIBUSB_HOTPLUG_MATCH_ANY,
         (libusb_hotplug_callback_fn) device_hotplug_callback,
-        hotplug_data->mouse, 
+        hotplug_data->mouse,
         &hotplug_data->listener_data->hotplug_cb_handle_wireless
     );
 

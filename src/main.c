@@ -228,7 +228,11 @@ void* mouse_update_loop(app_data *data) {
 		if (res < 0 && mouse->state != RECONNECT) {
 			printf("%d\n", res);
 			res = 0;
-			mouse->dev = NULL;
+
+			if (mouse->dev != NULL) {
+				hid_close(mouse->dev);
+				mouse->dev = NULL;
+			}
 		}
 
 		g_mutex_unlock(mouse->mutex);
