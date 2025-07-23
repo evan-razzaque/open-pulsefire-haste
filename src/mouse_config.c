@@ -54,6 +54,12 @@ void enter_macro_stack_page(GtkStack *stack, GtkActionable *button) {
     gtk_stack_set_page(stack, STACK_PAGE_MACRO);
 }
 
+/**
+ * @brief A function to switch to the main stack page.
+ * 
+ * @param stack The main stack widget
+ * @param controller Unused
+ */
 G_MODULE_EXPORT void enter_main_stack_page(GtkStack *stack, GtkEventController *controller) {
     gtk_stack_set_page(stack, STACK_PAGE_MAIN);
 }

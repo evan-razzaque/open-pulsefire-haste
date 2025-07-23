@@ -26,10 +26,14 @@
 #define FIRST_BYTE (PACKET_SIZE - TRUE_PACKET_SIZE)
 #define BUTTON_COUNT 6
 
+/**
+ * An enum that represents how the mouse is connected.
+ * Can be a combination of any of these values,
+ * or none to signify that the mouse is disconnected.
+ */
 enum CONNECTION_TYPE {
-    DISCONNECTED             = 0,
-    CONNECTION_TYPE_WIRED    = 1,
-    CONNECTION_TYPE_WIRELESS = 2
+    CONNECTION_TYPE_WIRED        = 1,
+    CONNECTION_TYPE_WIRELESS     = 2
 } typedef CONNECTION_TYPE;
 
 enum SEND_BYTE {

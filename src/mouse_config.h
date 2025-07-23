@@ -142,24 +142,86 @@ void app_config_macro_init(GtkBuilder *builder, app_data *data);
  */
 void app_config_sensor_init(GtkBuilder* builder, app_data* data);
 
+/**
+ * @brief Load the mouse settings from disk.
+ * 
+ * @param data Application wide data structure
+ * @return 0 if the settings were loaded or -1 if there was an error
+ */
 int load_settings_from_file(app_data *data);
 
+/**
+ * @brief Save the mouse settings to disk.
+ * 
+ * @param data Application wide data structure
+ * @return 0 if the settings were saved or -1 if there was an error
+ */
 int save_settings_to_file(app_data *data);
 
+/**
+ * @brief Save the macros to disk.
+ * 
+ * @param data Application wide data structure
+ * @return 0 if the macros were saved or -1 if there was an error
+ */
 int save_macros_to_file(app_data *data);
 
+/**
+ * @brief Load the macros frp, disk.
+ * 
+ * @param data Application wide data structure
+ * @return 0 if the macros were loaded or -1 if there was an error
+ */
 int load_macros_from_file(app_data *data);
 
+/**
+ * @brief Gets the menu button that has its popover shown.
+ * 
+ * @param data Application wide data structure
+ * @return GtkMenuButton* the active menu button widget
+ */
 GtkMenuButton* get_active_menu_button(app_data* data);
 
+/**
+ * @brief Sets the visibility of a menu button popover
+ * 
+ * @param self The menu button that contains the popover
+ * @param visible Whether the popover should be visible or not
+ */
 void menu_button_set_popover_visibility(GtkMenuButton *self, bool visible);
 
+/**
+ * @brief A functioon switch the displayed page in a GtkStack
+ * 
+ * @param stack The GtkStack widget
+ * @param button The GtkActionable of the button for switching the stack page
+ */
 void switch_stack_page(GtkStack *stack, GtkActionable* button);
 
+/**
+ * @brief Switch 
+ * 
+ * @param stack The main stack widget
+ * @param button Unused
+ */
 void enter_macro_stack_page(GtkStack *stack, GtkActionable *button);
 
+/**
+ * @brief A function to disable the main stack page 
+ * when inside the macro stack page
+ * 
+ * @param box_main The child of the main stack page
+ * @param button Unused
+ */
 void disable_main_stack_page(GtkBox *box_main, GtkActionable *button);
 
-void assign_macro(uint32_t macro_index, byte button, app_data* data);
+/**
+ * @brief Assigns a macro to a mouse button.
+ * 
+ * @param macro_index The index of the macro
+ * @param button The button number being re-assigned
+ * @param data Application wide data structure
+ */
+void assign_macro(uint32_t macro_index, byte button, app_data *data);
 
 #endif

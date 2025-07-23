@@ -7,7 +7,7 @@
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
 
 struct macro_parser_data {
-    mouse_macro *recored_macro; // Macro recored by the user
+    recorded_macro *recored_macro; // Macro recored by the user
     macro_event *events; // Stores the macro events to write to the mouse
     
     int event_count, event_index;
@@ -25,11 +25,11 @@ struct macro_parser_data {
  */
 static void parse_key_down_event(macro_parser_data *p, byte *modifier_map, generic_macro_event *generic_event) {
     if (p->keys_down_count == 0) {
-        p->events[p->event_index] = KEYBOARD_EVENT_DOWN(0, generic_event->delay_next_action, 0);
+        p->events[p->event_index] = KEYBOARD_EVENT_DOWN(0, generic_event->delay_next_event, 0);
         p->event_count++;
     } else if (p->event_keys_count < 6) {
         int previous_delay = p->events[p->event_index].key_event.delay_next_action;
-        p->events[p->event_index].key_event.delay_next_action = MAX(previous_delay, generic_event->delay_next_action);
+        p->events[p->event_index].key_event.delay_next_action = MAX(previous_delay, generic_event->delay_next_event);
     } else {
         return;
     }
@@ -61,7 +61,7 @@ static void parse_key_up_event(macro_parser_data *p, generic_macro_event *generi
     p->event_count++;
 
     p->event_index++;
-    p->events[p->event_index] = KEYBOARD_EVENT_UP(generic_event->delay_next_action);
+    p->events[p->event_index] = KEYBOARD_EVENT_UP(generic_event->delay_next_event);
     p->event_index++;
     
     p->event_keys_count = 0;
@@ -81,14 +81,14 @@ static void parse_mouse_event(macro_parser_data *p, generic_macro_event *generic
     p->is_mouse_down = (bool) event_type;
 
     if (event_type == MACRO_EVENT_TYPE_DOWN) {
-        p->events[p->event_index] = MOUSE_EVENT(generic_event->action, generic_event->delay_next_action, 0);
+        p->events[p->event_index] = MOUSE_EVENT(generic_event->action, generic_event->delay_next_event, 0);
     } else {
-        p->events[p->event_index].mouse_event.up.delay_next_action = generic_event->delay_next_action;
+        p->events[p->event_index].mouse_event.up.delay_next_action = generic_event->delay_next_event;
         p->event_index++;
     }
 }
 
-int parse_macro(mouse_macro *macro, macro_event *events, byte *modifier_map) {
+int parse_macro(recorded_macro *macro, macro_event *events, byte *modifier_map) {
     macro_parser_data parser_data = {
         .recored_macro = macro,
         .events = events,

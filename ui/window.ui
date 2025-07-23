@@ -931,7 +931,7 @@
     <property name="transient-for">window</property>
   </object>
   <object class="GtkEventControllerKey" id="macroKeyController"/>
-  <object class="GtkGestureClick" id="gestureButtonConfirmMacro">
+  <object class="GtkGestureClick" id="gestureButtonSaveMacro">
     <property name="button">0</property>
     <signal name="pressed" handler="enter_main_stack_page" object="stackMain"/>
     <signal name="pressed" handler="enable_main_stack_page" object="boxMain"/>

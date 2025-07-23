@@ -7,6 +7,19 @@
 #include "mouse.h"
 #include "rgb.h"
 
+/**
+ * An enum for polling rate values.
+ */
+typedef enum POLLING_RATE {
+    POLLING_RATE_125HZ,
+    POLLING_RATE_250HZ,
+    POLLING_RATE_500HZ,
+    POLLING_RATE_1000HZ
+} POLLING_RATE;
+
+/**
+ * An enum for lift off distance (in millimeters).
+ */
 typedef enum LIFT_OFF_DISTANCE {
     LIFT_OFF_DISTANCE_LOW  = 1,
     LIFT_OFF_DISTANCE_HIGH = 2
@@ -37,10 +50,14 @@ struct dpi_profile {
  * @brief A struct for storing dpi settings.
  */
 struct dpi_settings {
-    dpi_profile profiles[5];
-    byte profile_count;
-    byte selected_profile;
-    /** A 5 bit number where each bit enables/disables at its position */
+    dpi_profile profiles[5]; // An array of dpi profiles
+    byte profile_count; // The number of dpi profiles
+    byte selected_profile; // The selected profile number
+
+    /** 
+     * A 5 bit number where each bit is the enabled state of the dpi profile number n,
+     * where n is the bit's position.
+     */
     byte enabled_profile_bit_mask;
 } typedef dpi_settings;
 

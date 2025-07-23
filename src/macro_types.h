@@ -4,7 +4,7 @@
 #include "./device/buttons.h"
 
 /**
- * @brief An enum for macro event pressed/released states.
+ * @brief An enum for generic macro event button pressed/released states.
  * 
  */
 typedef enum MACRO_EVENT_TYPE {

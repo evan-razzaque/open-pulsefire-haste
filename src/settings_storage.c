@@ -51,6 +51,13 @@ static int handle_file_error(FILE *file, const char* filename, bool file_should_
     return 0;
 }
 
+/**
+ * @brief Creates a settings file for the mouse if none exists.
+ * 
+ * @param settings The mouse_settings object
+ * @param data Application wide data structure
+ * @return 0 if the settings file was created or -1 if there was an error
+ */
 static int create_settings_file(mouse_settings *settings, app_data *data) {
     *settings = (mouse_settings) {
         .led = {.red = 0xff, .brightness = 100},
@@ -89,7 +96,8 @@ int load_settings_from_file(app_data *data) {
     if (handle_file_error(data->settings_file, SETTINGS_FILE, false) < 0) return -1;
 
     if (data->settings_file == NULL) {
-        create_settings_file(&settings, data);
+        int result = create_settings_file(&settings, data);
+        if (result < 0) return -1;
     } else {
         fread(&settings, sizeof(mouse_settings), 1, data->settings_file);
         fclose(data->settings_file);
@@ -143,13 +151,13 @@ int load_macros_from_file(app_data *data) {
     memcpy(data->macro_data.macro_indicies, macro_info.macro_indicies, sizeof(macro_info.macro_indicies));
 
     data->macro_data.macro_array_size = MAX(macro_info.macro_count, 1);
-    data->macro_data.macros = malloc(sizeof(mouse_macro) * data->macro_data.macro_array_size);
+    data->macro_data.macros = malloc(sizeof(recorded_macro) * data->macro_data.macro_array_size);
 
     if (macro_info.macro_count == 0) return 0;
     
     data->macro_data.macro_count = macro_info.macro_count;
 
-    mouse_macro *macros = data->macro_data.macros;
+    recorded_macro *macros = data->macro_data.macros;
 
     for (int i = 0; i < macro_info.macro_count; i++) {
         macro_detail detail = {0};
@@ -181,7 +189,7 @@ int save_macros_to_file(app_data *data) {
 
     fwrite(&macro_info, sizeof(mouse_macro_info), 1, data->macros_file);
 
-    mouse_macro *macros = data->macro_data.macros;
+    recorded_macro *macros = data->macro_data.macros;
     
     for (int i = 0; i < macro_info.macro_count; i++) {
         macro_detail detail = {

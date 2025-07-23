@@ -2,7 +2,7 @@
 <!DOCTYPE cambalache-project SYSTEM "cambalache-project.dtd">
 <!-- Created with Cambalache 0.96.1 -->
 <cambalache-project version="0.96.0" target_tk="gtk-4.0">
-  <gresources filename="templates.gresource.xml" sha256="e8723fa2674e880de2fbf1c7e2149c99cbb71e81cff6871177e525abed18be26"/>
+  <gresources filename="gresources.gresource.xml" sha256="e8723fa2674e880de2fbf1c7e2149c99cbb71e81cff6871177e525abed18be26"/>
   <css filename="window.css" is_global="1"/>
   <ui template-class="DpiProfileConfig" filename="dpi-profile-config.ui" sha256="5b6b4da2a591203e523b953dda9a7586148163622c7668dcd6e62e049dcef9af"/>
   <ui template-class="StackMenuButton" filename="stack-menu-button.ui" sha256="c8cad1c34294f71d606bd8802afd7eb228377d71200b4b8b828a343bb40fa541"/>

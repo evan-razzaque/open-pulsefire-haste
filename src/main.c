@@ -123,7 +123,7 @@ void close_application(GtkWindow *window, app_data *data) {
 	printf("window closed\n");
 
 	gtk_window_destroy(data->widgets->window);
-	gtk_window_destroy(data->widgets->window_keyboard_action);
+	gtk_window_destroy(data->button_data.window_keyboard_action);
 }
 
 /**
@@ -187,7 +187,7 @@ void activate(GtkApplication *app, app_data *data) {
 /**
  * @brief A function to periodically attempt to connect to the mouse.
  * 
- * @param mouse mouse_data instance
+ * @param mouse The mouse_data instance
  */
 void reconnect_mouse(app_data *data) {
 	while (data->mouse->dev == NULL) {
@@ -202,7 +202,8 @@ void reconnect_mouse(app_data *data) {
 }
 
 /**
- * @brief Updates the mouse connection and settings.
+ * @brief Updates the mouse connection and led settings, which in turn saves every other
+ * setting while the mouse is actively being updated.
  * 
  * @param mouse mouse_data instance
  * @return Unused
