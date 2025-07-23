@@ -72,12 +72,12 @@ struct config_color_data {
  */
 struct config_button_data {
 	MOUSE_BUTTON selected_button; // The mouse button that is being rebinded
-	MOUSE_BUTTON buttons[BUTTON_COUNT]; // An array of buttons for setting gobject data for each menu button
+	const MOUSE_BUTTON buttons[BUTTON_COUNT]; // An array of buttons for setting gobject data for each menu button
 
 	// Bindings for the mouse. Each binding is 2 bytes,
 	// where the upper byte is the action type and the lower byte is the action value.
 	uint16_t bindings[BUTTON_COUNT];
-	uint16_t default_bindings[BUTTON_COUNT]; // Default binding for the mouse buttons
+	const uint16_t default_bindings[BUTTON_COUNT]; // Default binding for the mouse buttons
 	const char *selected_button_name; // The name of the selected mouse button
 
 	const byte keyboard_keys[1 << 16]; // An array for mapping Gdk keyvals to hid usage ids 
@@ -111,17 +111,20 @@ struct generic_macro_event {
  */
 struct recorded_macro {
 	generic_macro_event *events; // The generic macro events
+	REPEAT_MODE repeat_mode; // The repeat behavior of the macro
+	
+	char* name; // The name of the macro
 	int generic_event_count; // The number of events
 	int generic_event_array_size; // The size of the events array
-	char* name; // The name of the macro
 } typedef recorded_macro;
 
 /**
  * @brief A struct to store macros and macro settings for the mouse.
  */
 struct config_macro_data {
-	byte modifier_map[256]; // Maps hid usage ids to modifier bit flags for a macro key event
-	byte mouse_buttons[10]; // Maps GtkGesture mouse button values to mouse button values for a macro mouse event
+	const byte modifier_map[256]; // Maps hid usage ids to modifier bit flags for a macro key event
+	const byte mouse_buttons[10]; // Maps GtkGesture mouse button values to mouse button values for a macro mouse event
+	const byte repeat_mode_map[3]; // Repeat mode values for a macro
 	const char *mouse_button_names[32];
 
 	recorded_macro *macros; // Stores the recorded macros
@@ -140,7 +143,8 @@ struct config_macro_data {
 	uint32_t last_pressed_key; 
 
 	uint32_t macro_index; // The index of the macro being recorded/edited
-	uint32_t macro_saved_event_count; // The index of the last generic macro event in the macro being edited
+	uint32_t macro_previous_event_count; // The previous event count in the macro being edited
+	REPEAT_MODE macro_previous_repeat_mode; // The previous repeat mode of the macro being edited
 
 	int macro_indicies[6]; // Used to store the macro index for each button that is assigned to a macro
 
@@ -157,6 +161,8 @@ struct config_macro_data {
 	GtkButton *button_record_macro; // The actual button used to toggle the macro recording
 	GtkImage *image_recording_macro;
 
+	GtkDropDown *drop_down_repeat_mode; // A dropdown to select the macro's repeat behavior
+
 	GtkButton *button_save_macro; // The actual button used to save the macro
 	GtkListBox *box_saved_macros; // Holds the MouseMacroButton widgets
 	GtkEditable *editable_macro_name; // Contains the name of the macro that is being created/edited
@@ -168,7 +174,7 @@ struct config_macro_data {
 struct config_sensor_data {
 	POLLING_RATE polling_rate_value; // The polling rate value for the mouse
 	LIFT_OFF_DISTANCE lift_off_distance; // The lift off distance for the mouse
-	
+
 	dpi_settings dpi_config; // The dpi settings for the mouse
 
 	GtkWidget *button_add_dpi_profile; // The button used to add a dpi profile

@@ -16,6 +16,6 @@
  * @param modifier_map Used to map modifier keys to modifier bit flags for a macro key event
  * @return the number of macro events, or -1 if the macro is invalid
  */
-int parse_macro(recorded_macro *macro, macro_event *events, byte *modifier_map);
+int parse_macro(recorded_macro *macro, macro_event *events, const byte *modifier_map);
 
 #endif

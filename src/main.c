@@ -279,6 +279,11 @@ int main() {
 		.macro_data = {
 			.modifier_map = MACRO_MODIFIER_MAP(),
 			.mouse_buttons = MOUSE_MAP(),
+			.repeat_mode_map = {
+				REPEAT_MODE_PLAY_ONCE,
+				REPEAT_MODE_TOGGLE_REPEAT,
+				REPEAT_MODE_HOLD_REPEAT
+			},
 			.mouse_button_names = MOUSE_BUTTON_NAMES(),
 			.is_recording_macro = false,
 			.is_resuming_macro_recording = false

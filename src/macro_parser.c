@@ -23,7 +23,7 @@ struct macro_parser_data {
  * @param modifier_map The array used to map hid usage ids to modifier bit flags
  * @param generic_event A generic_macro_event object
  */
-static void parse_key_down_event(macro_parser_data *p, byte *modifier_map, generic_macro_event *generic_event) {
+static void parse_key_down_event(macro_parser_data *p, const byte *modifier_map, generic_macro_event *generic_event) {
     if (p->keys_down_count == 0) {
         p->events[p->event_index] = KEYBOARD_EVENT_DOWN(0, generic_event->delay_next_event, 0);
         p->event_count++;
@@ -88,7 +88,7 @@ static void parse_mouse_event(macro_parser_data *p, generic_macro_event *generic
     }
 }
 
-int parse_macro(recorded_macro *macro, macro_event *events, byte *modifier_map) {
+int parse_macro(recorded_macro *macro, macro_event *events, const byte *modifier_map) {
     macro_parser_data parser_data = {
         .recored_macro = macro,
         .events = events,

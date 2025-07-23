@@ -224,7 +224,7 @@ static void setup_action_menu_buttons(GtkBuilder *builder, app_data *data) {
 	menu_buttons[5] = GTK_MENU_BUTTON(GTK_WIDGET(gtk_builder_get_object(builder, "menuButtonDPI")));
 	
 	for (int i = 0; i < BUTTON_COUNT; i++) {
-		g_object_set_data(G_OBJECT(menu_buttons[i]), "button", &data->button_data.buttons[i]);
+		g_object_set_data(G_OBJECT(menu_buttons[i]), "button", (void*) &data->button_data.buttons[i]);
 		
 		g_signal_connect(menu_buttons[i], "notify::active", G_CALLBACK(set_mouse_button), data);
 		g_signal_connect_swapped(

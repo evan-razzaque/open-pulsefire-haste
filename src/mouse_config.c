@@ -78,3 +78,8 @@ G_MODULE_EXPORT void disable_main_stack_page(GtkBox *box_main, GtkActionable *bu
 G_MODULE_EXPORT void enable_main_stack_page(GtkBox *box_main, GtkActionable *button) {
     gtk_widget_set_sensitive(GTK_WIDGET(box_main), true);
 }
+
+G_MODULE_EXPORT void drop_down_activate(GtkDropDown *self, GParamSpec *param_spec, void *data) {
+    printf("param name: %s", param_spec->name);
+    printf("Selected: %d\n", gtk_drop_down_get_selected(self));
+}

@@ -4,7 +4,7 @@ APP_OBJFILES       = build/main.o build/mouse_config.o build/config_led.o build/
 TEMPLATE_OBJFILES  = build/dpi_profile_config.o build/stack_menu_button.o build/stack_menu_button_back.o build/mouse_macro_button.o build/macro_event_item.o
 GRESOURCES_OBJFILE = build/gresources.o
 OBJFILES           = $(DEVICE_OBJFILES) $(APP_OBJFILES) $(TEMPLATE_OBJFILES) $(GRESOURCES_OBJFILE) build/hotplug.o build/hotplug_common.o
-UI_FILES           = ui/gresources.gresource.xml ui/dpi-profile-config.ui ui/stack-menu-button.ui ui/stack-menu-button-back.ui ui/mouse-macro-button.ui ui/macro-event-item.ui
+UI_FILES           = ui/gresources.gresource.xml ui/window.ui ui/window.css ui/dpi-profile-config.ui ui/stack-menu-button.ui ui/stack-menu-button-back.ui ui/mouse-macro-button.ui ui/macro-event-item.ui
 GRESOURCES         = resources/templates.gresource
 TARGET             = bin/main
 

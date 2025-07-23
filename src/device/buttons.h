@@ -115,11 +115,13 @@ enum MACRO_ACTION_TYPE {
     MACRO_ACTION_TYPE_MOUSE    = 0x25
 } typedef MACRO_ACTION_TYPE;
 
-enum MACRO_REPEAT_MODE {
-    MACRO_REPEAT_MODE_ONCE = 0x00,
-    MACRO_REPEAT_MODE_TOGGLE_REPEAT = 0x02,
-    MACRO_REPEAT_MODE_HOLD_REPEAT = 0x03,
-} typedef MACRO_REPEAT_MODE;
+enum REPEAT_MODE {
+    REPEAT_MODE_PLAY_ONCE     = 0x00,
+    REPEAT_MODE_TOGGLE_REPEAT = 0x02,
+    REPEAT_MODE_HOLD_REPEAT   = 0x03,
+} typedef REPEAT_MODE;
+
+#define REPEAT_MODES_COUNT (3)
 
 /**
  * @brief A struct for a keyboard event.
@@ -180,6 +182,6 @@ int assign_button_action(hid_device *dev, MOUSE_BUTTON button, uint16_t action);
  * @param event_count The number of events
  * @return the number of bytes written or -1 on error
  */
-int assign_button_macro(hid_device *dev, MOUSE_BUTTON button,  MACRO_REPEAT_MODE repeat_mode, macro_event *events, int event_count);
+int assign_button_macro(hid_device *dev, MOUSE_BUTTON button,  REPEAT_MODE repeat_mode, macro_event *events, int event_count);
 
 #endif

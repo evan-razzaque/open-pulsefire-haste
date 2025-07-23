@@ -8,7 +8,6 @@
 #include "device/mouse.h"
 #include "hotplug/hotplug.h"
 
-// For compatability with windows
 void setup_mouse_removal_callbacks(mouse_hotplug_data *hotplug_data, struct hid_device_info *dev_list) {
     return;
 }

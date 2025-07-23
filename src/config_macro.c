@@ -219,11 +219,14 @@ static void create_macro(GSimpleAction *action, GVariant *variant, app_data *dat
     macro->generic_event_array_size = 2;    
     macro->events = malloc(sizeof(generic_macro_event) * macro->generic_event_array_size);
     macro->generic_event_count = 0;
+    
+    macro->repeat_mode = REPEAT_MODE_PLAY_ONCE;
     macro->name = NULL;
 
     data->macro_data.macro_index = data->macro_data.macro_count;
     
     gtk_editable_set_text(data->macro_data.editable_macro_name, "New Macro");
+    gtk_drop_down_set_selected(data->macro_data.drop_down_repeat_mode, 0);
     menu_button_set_popover_visibility(get_active_menu_button(data), false);
 }
 
@@ -236,8 +239,15 @@ static void stop_macro_recording(app_data *data) {
     data->macro_data.is_recording_macro = false;
     gtk_widget_set_visible(GTK_WIDGET(data->macro_data.image_recording_macro), false);
 
+    recorded_macro *macro = data->macro_data.macros + data->macro_data.macro_index;
+    int last_event_index = macro->generic_event_count - 1;
+
     adw_wrap_box_remove_all(data->macro_data.wrap_box_macro_events);
     menu_button_set_popover_visibility(get_active_menu_button(data), true);
+    
+    if (last_event_index < 1) return;
+
+    macro->events[last_event_index].delay_next_event = macro->events[last_event_index - 1].delay_next_event;
 }
 
 /**
@@ -255,8 +265,8 @@ static void close_macro_overlay(GtkButton *button, app_data *data) {
         free(macro->events);
         free(macro->name);
     } else {
-        // Discard unsaved macro events
-        macro->generic_event_count = data->macro_data.macro_saved_event_count;
+        macro->generic_event_count = data->macro_data.macro_previous_event_count;
+        macro->repeat_mode = data->macro_data.macro_previous_repeat_mode;
     }
 }
 
@@ -327,7 +337,7 @@ static void save_recorded_macro(GtkGesture *gesture, int n_press, double x, doub
     stop_macro_recording(data);
 
     uint32_t macro_index = data->macro_data.macro_index;
-    recorded_macro *macro = &data->macro_data.macros[macro_index];
+    recorded_macro *macro = data->macro_data.macros + macro_index;
     free(macro->name);
 
     char *macro_name = gtk_editable_get_chars(data->macro_data.editable_macro_name, 0, -1);
@@ -343,6 +353,21 @@ static void save_recorded_macro(GtkGesture *gesture, int n_press, double x, doub
 }
 
 /**
+ * @brief Changes the macro's repeat mode behavior.
+ * 
+ * @param dropdown The dropdown widget containing the repeat mode options
+ * @param param_spec Unused
+ * @param data Application wide data structure
+ */
+static void change_macro_repeat_mode(GtkDropDown *dropdown, GParamSpec *param_spec, app_data *data) {
+    uint32_t macro_index = data->macro_data.macro_index;
+    recorded_macro *macro = data->macro_data.macros + macro_index;
+
+    byte selected_index = gtk_drop_down_get_selected(dropdown);
+    macro->repeat_mode = data->macro_data.repeat_mode_map[selected_index];
+}
+
+/**
  * @brief A function to open the stack page with the macro to be edited.
  * 
  * @param action Unused
@@ -352,17 +377,24 @@ static void save_recorded_macro(GtkGesture *gesture, int n_press, double x, doub
 static void edit_macro(GSimpleAction *action, GVariant *macro_index, app_data *data) {
     uint32_t index = g_variant_get_uint32(macro_index);
     
-    recorded_macro macro = data->macro_data.macros[index];
-    int event_count = macro.generic_event_count;
+    recorded_macro *macro = data->macro_data.macros + index;
+    generic_macro_event *macro_events = macro->events;
+    int event_count = macro->generic_event_count;
 
     for (int i = 0; i < event_count; i++) {
-        wrap_box_add_macro_event(data->macro_data.wrap_box_macro_events, macro.events + i, data);
+        wrap_box_add_macro_event(data->macro_data.wrap_box_macro_events, macro_events + i, data);
     }
 
     data->macro_data.macro_index = index;
-    data->macro_data.macro_saved_event_count = event_count;
+    data->macro_data.macro_previous_event_count = event_count;
+    data->macro_data.macro_previous_repeat_mode = macro->repeat_mode;
 
-    gtk_editable_set_text(data->macro_data.editable_macro_name, macro.name);
+    gtk_editable_set_text(data->macro_data.editable_macro_name, macro->name);
+    gtk_drop_down_set_selected(
+        data->macro_data.drop_down_repeat_mode,
+        array_index_of(data->macro_data.repeat_mode_map, REPEAT_MODES_COUNT, macro->repeat_mode)
+    );
+
     menu_button_set_popover_visibility(get_active_menu_button(data), false);
 }
 
@@ -449,7 +481,7 @@ void assign_macro(uint32_t macro_index, byte button, app_data *data) {
     assign_button_macro(
         data->mouse->dev,
         button, 
-        MACRO_REPEAT_MODE_ONCE,
+        macro->repeat_mode,
         events,
         event_count
     );
@@ -493,6 +525,9 @@ static void get_macro_data_widgets(GtkBuilder *builder, app_data *data) {
     data->macro_data.gesture_button_record_macro_claim_click = GTK_GESTURE(gtk_builder_get_object(builder, "gestureButtonMacroRecording"));
 
     data->macro_data.wrap_box_macro_events = (AdwWrapBox*) GTK_WIDGET(gtk_builder_get_object(builder, "wrapBoxMacroEvents"));
+    
+    data->macro_data.drop_down_repeat_mode = (GtkDropDown*) GTK_WIDGET(gtk_builder_get_object(builder, "dropDownRepeatMode"));
+
     data->macro_data.button_record_macro = GTK_BUTTON(GTK_WIDGET(gtk_builder_get_object(builder, "buttonMacroRecord")));
     data->macro_data.image_recording_macro = GTK_IMAGE(GTK_WIDGET(gtk_builder_get_object(builder, "imageRecordingMacro")));
 
@@ -553,5 +588,6 @@ void app_config_macro_init(GtkBuilder *builder, app_data *data) {
         create_macro_item(macros[i].name, i, data);
     }
 
+    g_signal_connect(data->macro_data.drop_down_repeat_mode, "notify::selected-item", G_CALLBACK(change_macro_repeat_mode), data);
     widget_add_event(builder, "buttonMacroCancel", "clicked", close_macro_overlay, data);
 }

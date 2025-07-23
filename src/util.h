@@ -15,12 +15,21 @@
  * @param index The index of the element to remove
  */
 #define array_delete_element(array, length, index) ({\
-    memmove(\
-        (array) + (index),\
-        (array) + (index) + 1,\
-        ((length) - 1 - (index)) * sizeof(*array)\
-    );\
-    (length)--;\
+    memmove(                                         \
+        (array) + (index),                           \
+        (array) + (index) + 1,                       \
+        ((length) - 1 - (index)) * sizeof(*array)    \
+    );                                               \
+    (length)--;                                      \
+})
+
+#define array_index_of(array, length, value) ({\
+    int i;                                     \
+    for (i = 0; i < (length); i++) {           \
+        if ((array)[i] == (value)) break;      \
+    }                                          \
+    if (i == (length)) i = -1;                 \
+    i;                                         \
 })
 
 #endif

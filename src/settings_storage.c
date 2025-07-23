@@ -36,6 +36,7 @@ struct mouse_macro_info {
 struct macro_detail {
     size_t macro_name_length;
     int event_count;
+    REPEAT_MODE repeat_mode;
 } typedef macro_detail;
 
 static int handle_file_error(FILE *file, const char* filename, bool file_should_exist) {
@@ -170,6 +171,8 @@ int load_macros_from_file(app_data *data) {
         macros[i].generic_event_array_size = detail.event_count;
         macros[i].events = malloc(sizeof(generic_macro_event) * detail.event_count);
         fread(macros[i].events, sizeof(generic_macro_event), detail.event_count, data->macros_file);
+
+        macros[i].repeat_mode = detail.repeat_mode;
     }
 
     fclose(data->macros_file);
@@ -194,7 +197,8 @@ int save_macros_to_file(app_data *data) {
     for (int i = 0; i < macro_info.macro_count; i++) {
         macro_detail detail = {
             .macro_name_length = strlen(macros[i].name) + 1,
-            .event_count = macros[i].generic_event_count
+            .event_count = macros[i].generic_event_count,
+            .repeat_mode = macros[i].repeat_mode
         };
 
         fwrite(&detail, sizeof(macro_detail), 1, data->macros_file);
