@@ -110,10 +110,10 @@ enum MACRO_BINDING {
     MACRO_BINDING_DPI     = 0x0405
 } typedef MACRO_BINDING;
 
-enum MACRO_EVENT_TYPE {
-    MACRO_EVENT_TYPE_KEYBOARD = 0x1a,
-    MACRO_EVENT_TYPE_MOUSE    = 0x25
-} typedef MACRO_EVENT_TYPE;
+enum MACRO_ACTION_TYPE {
+    MACRO_ACTION_TYPE_KEYBOARD = 0x1a,
+    MACRO_ACTION_TYPE_MOUSE    = 0x25
+} typedef MACRO_ACTION_TYPE;
 
 enum MACRO_REPEAT_MODE {
     MACRO_REPEAT_MODE_ONCE = 0x00,
@@ -125,8 +125,8 @@ enum MACRO_REPEAT_MODE {
  * @brief A struct for a keyboard event.
  */
 struct macro_key_event {
-    /** A MACRO_EVENT_TYPE value */
-    byte event_type;
+    /** A MACRO_ACTION_TYPE value */
+    byte action_type;
     byte modifier_keys;
     byte keys[6];
     uint16_t delay_next_action;
@@ -136,8 +136,8 @@ struct macro_key_event {
  * @brief A struct for a mouse event.
  */
 struct macro_mouse_event {
-    /** A MACRO_EVENT_TYPE value */
-    byte event_type;
+    /** A MACRO_ACTION_TYPE value */
+    byte action_type;
     byte button;
     byte _padding;
     uint16_t delay_next_action;

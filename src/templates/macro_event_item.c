@@ -36,7 +36,7 @@ static void macro_event_item_init(MacroEventItem *self) {
     gtk_widget_init_template(GTK_WIDGET(self));
 }
 
-MacroEventItem* macro_event_item_new(const char* action_name, uint16_t delay, MACRO_ACTION_TYPE action_type) {
+MacroEventItem* macro_event_item_new(const char* action_name, uint16_t delay, MACRO_EVENT_TYPE event_type) {
     MacroEventItem *self = g_object_new(MACRO_TYPE_EVENT_ITEM, NULL);
 
     if (delay > 0) {
@@ -49,7 +49,7 @@ MacroEventItem* macro_event_item_new(const char* action_name, uint16_t delay, MA
 
     gtk_image_set_from_icon_name(
         self->image_action_type, 
-        (action_type == MACRO_ACTION_TYPE_DOWN)? ICON_DOWN_ARROW : ICON_UP_ARROW
+        (event_type == MACRO_EVENT_TYPE_DOWN)? ICON_DOWN_ARROW : ICON_UP_ARROW
     );
     
     return self;

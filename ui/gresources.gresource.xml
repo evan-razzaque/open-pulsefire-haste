@@ -7,5 +7,7 @@
     <file>stack-menu-button-back.ui</file>
     <file>mouse-macro-button.ui</file>
     <file>macro-event-item.ui</file>
+    <file>window.ui</file>
+    <file>window.css</file>
   </gresource>
 </gresources>

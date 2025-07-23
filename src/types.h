@@ -100,8 +100,8 @@ struct config_button_data {
  * 
  */
 struct generic_macro_event {
-	MACRO_EVENT_TYPE event_type;
 	MACRO_ACTION_TYPE action_type;
+	MACRO_EVENT_TYPE event_type;
 	byte action;
 	uint16_t delay;
 	int delay_next_action;

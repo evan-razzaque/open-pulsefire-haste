@@ -149,11 +149,16 @@ void activate(GtkApplication *app, app_data *data) {
 	
 	// g_resources_register(g_resource_load("resources/templates.gresource", NULL));
 	g_resources_register(gresources_get_resource());
-	GtkBuilder *builder = gtk_builder_new_from_file("ui/window.ui");
+	
+	GtkBuilder *builder = gtk_builder_new_from_resource("/org/haste/window.ui");
 	data->widgets->builder = builder;
 
 	GtkWindow *window = GTK_WINDOW(GTK_WIDGET(gtk_builder_get_object(builder, "window")));
 	GtkLabel *label_battery = GTK_LABEL(GTK_WIDGET(gtk_builder_get_object(builder, "labelBattery")));
+
+	GtkCssProvider *provider = gtk_css_provider_new();
+	gtk_css_provider_load_from_resource(provider, "/org/haste/window.css");
+	gtk_style_context_add_provider_for_display(gtk_widget_get_display(GTK_WIDGET(window)), GTK_STYLE_PROVIDER(provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
 	data->widgets->window = window;
 	data->widgets->stack_main = GTK_STACK(GTK_WIDGET(gtk_builder_get_object(builder, "stackMain")));
@@ -169,10 +174,6 @@ void activate(GtkApplication *app, app_data *data) {
 	}
 
 	data->battery_data = (mouse_battery_data) {.mouse = mouse, .label_battery = label_battery};
-
-	GtkCssProvider *provider = gtk_css_provider_new();
-	gtk_css_provider_load_from_path(provider, "ui/window.css");
-	gtk_style_context_add_provider_for_display(gtk_widget_get_display(GTK_WIDGET(window)), GTK_STYLE_PROVIDER(provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
 	g_signal_connect(window, "close-request", G_CALLBACK(close_application), data);
 	widget_add_event(builder, "buttonSave", "clicked", save_mouse_settings, data);
@@ -282,8 +283,9 @@ int main() {
 			.is_resuming_macro_recording = false
 		}
 	};
-	load_settings_from_file(&data);
-	load_macros_from_file(&data);
+
+	if (load_settings_from_file(&data) < 0) return -1;
+	if (load_macros_from_file(&data) < 0) return -1;
 	
 	GtkApplication *app;
 	int status;
@@ -291,9 +293,9 @@ int main() {
 	app = gtk_application_new("org.gtk.pulsefire-haste", G_APPLICATION_DEFAULT_FLAGS);
 	widgets.app = app;
 	
-	g_signal_connect(app, "activate", G_CALLBACK(activate), &data);
-	
 	GThread *update_thread = g_thread_new("mouse_update_loop", (GThreadFunc) mouse_update_loop, &data);
+	
+	g_signal_connect(app, "activate", G_CALLBACK(activate), &data);
 	status = g_application_run(G_APPLICATION(app), 0, NULL);
 
 	g_object_unref(app);

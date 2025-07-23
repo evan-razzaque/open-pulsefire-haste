@@ -58,7 +58,7 @@ int assign_button_macro(hid_device *dev, MOUSE_BUTTON button, MACRO_REPEAT_MODE 
 		for (int j = 6; j > 0 && events_remaining > 0;) {
 			/**
 			 * Since the first byte of a macro event is the macro type,
-			 * and MACRO_EVENT_TYPE_KEYBOARD = 0x1a and MACRO_EVENT_TYPE_MOUSE = 0x25,
+			 * and MACRO_ACTION_TYPE_KEYBOARD = 0x1a and MACRO_ACTION_TYPE_MOUSE = 0x25,
 			 * we can shift the byte right 4 bits to obtain the actual number of events.
 			 */
 			int actual_event_count = events[i].event_data[0] >> 4;

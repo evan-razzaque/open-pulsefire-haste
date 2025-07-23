@@ -30,7 +30,7 @@ typedef void (*g_action)(GSimpleAction*, GVariant*, gpointer);
  * @return A macro event object
  */
 #define KEYBOARD_EVENT_DOWN(modifier, delay, key_ids...)\
-    (macro_event) {.key_event = {.event_type = MACRO_EVENT_TYPE_KEYBOARD, .modifier_keys = modifier, .keys = {key_ids}, .delay_next_action = delay}}
+    (macro_event) {.key_event = {.action_type = MACRO_ACTION_TYPE_KEYBOARD, .modifier_keys = modifier, .keys = {key_ids}, .delay_next_action = delay}}
 
 /**
  * Convieniece macro for a key(s) up event
@@ -39,7 +39,7 @@ typedef void (*g_action)(GSimpleAction*, GVariant*, gpointer);
  * @return A macro event object
  */
 #define KEYBOARD_EVENT_UP(delay)\
-    (macro_event) {.key_event = {.event_type = MACRO_EVENT_TYPE_KEYBOARD, .delay_next_action = delay}}
+    (macro_event) {.key_event = {.action_type = MACRO_ACTION_TYPE_KEYBOARD, .delay_next_action = delay}}
 
 /**
  * Convieniece macro for a mouse event.
@@ -50,8 +50,8 @@ typedef void (*g_action)(GSimpleAction*, GVariant*, gpointer);
  */
 #define MOUSE_EVENT(btn, duration, delay)\
     (macro_event) {.mouse_event = {\
-        .down = {.event_type = MACRO_EVENT_TYPE_MOUSE, .button = btn, .delay_next_action = duration},\
-        .up = {.event_type = MACRO_EVENT_TYPE_MOUSE, .delay_next_action = delay}\
+        .down = {.action_type = MACRO_ACTION_TYPE_MOUSE, .button = btn, .delay_next_action = duration},\
+        .up = {.action_type = MACRO_ACTION_TYPE_MOUSE, .delay_next_action = delay}\
     }}
 
 /**
@@ -142,13 +142,13 @@ void app_config_macro_init(GtkBuilder *builder, app_data *data);
  */
 void app_config_sensor_init(GtkBuilder* builder, app_data* data);
 
-void load_settings_from_file(app_data *data);
+int load_settings_from_file(app_data *data);
 
-void save_settings_to_file(app_data *data);
+int save_settings_to_file(app_data *data);
 
-void save_macros_to_file(app_data *data);
+int save_macros_to_file(app_data *data);
 
-void load_macros_from_file(app_data *data);
+int load_macros_from_file(app_data *data);
 
 GtkMenuButton* get_active_menu_button(app_data* data);
 

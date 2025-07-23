@@ -240,7 +240,7 @@ static void setup_action_menu_buttons(GtkBuilder *builder, app_data *data) {
 }
 
 /**
- * @brief Gets the widgets needed for all button related config.
+ * @brief Gets the widgets needed for mouse buttons' related config.
  * 
  * @param builder GtkBuilder object to obtain widgets
  * @param data Application wide data structure

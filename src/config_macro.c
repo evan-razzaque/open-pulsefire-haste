@@ -18,7 +18,7 @@
 #include "./templates/mouse_macro_button.h"
 #include "./templates/macro_event_item.h"
 
-static void claim_click(GtkGesture *gesture, int n_press, double x, double y, void *data);
+static void claim_click(GtkGesture *gesture, void *data);
 
 /**
  * @brief Removes all children from a AdwWrapBox.
@@ -57,24 +57,32 @@ static void resize_array(void** array, size_t type_size, int *capacity, int elem
  * @param data Application wide data structure
  */
 static void wrap_box_add_macro_event(AdwWrapBox *wrap_box, generic_macro_event *event, app_data *data) {
-    const char* action_name = (event->event_type == MACRO_EVENT_TYPE_KEYBOARD)?
+    const char* action_name = (event->action_type == MACRO_ACTION_TYPE_KEYBOARD)?
         data->button_data.key_names[event->action]:
         data->macro_data.mouse_button_names[event->action];
     
     adw_wrap_box_append(
         wrap_box,
-        GTK_WIDGET(macro_event_item_new(action_name, event->delay, event->action_type))
+        GTK_WIDGET(macro_event_item_new(action_name, event->delay, event->event_type))
     );
 }
 
-static void add_macro_event(MACRO_EVENT_TYPE event_type, byte action, MACRO_ACTION_TYPE action_type, app_data* data) {
+/**
+ * @brief Adds a macro event to the macro being recoreded.
+ * 
+ * @param action_type A MACRO_ACTION_TYPE value
+ * @param action An action value given the action_type
+ * @param event_type A MACRO_EVENT_TYPE value
+ * @param data Application wide data structure
+ */
+static void add_macro_event(MACRO_ACTION_TYPE action_type, byte action, MACRO_EVENT_TYPE event_type, app_data* data) {
     if (!data->macro_data.is_recording_macro) return;
 
     uint32_t macro_index = data->macro_data.macro_index;
     mouse_macro *macro = &(data->macro_data.macros[macro_index]);
     int previous_event_index = macro->generic_event_count - 1;
 
-    generic_macro_event event = {.event_type = event_type, .action_type = action_type, .action = action};
+    generic_macro_event event = {.action_type = action_type, .event_type = event_type, .action = action};
 
     struct timeval t;
     gettimeofday(&t, NULL);
@@ -108,31 +116,76 @@ static void add_macro_event(MACRO_EVENT_TYPE event_type, byte action, MACRO_ACTI
     macro->generic_event_count++;
 }
 
+/**
+ * @brief Appends a key press to the macro being recoreded.
+ * 
+ * @param self The GtkEventControllerKey instance
+ * @param keyval The value of the key pressed
+ * @param keycode Unused
+ * @param state Unused
+ * @param data Application wide data structure
+ */
 static void append_macro_key_pressed(GtkEventControllerKey *self, guint keyval, guint keycode, GdkModifierType state, app_data* data) {
     if (data->macro_data.last_pressed_key == keyval) return;
     data->macro_data.last_pressed_key = keyval;
 
-    add_macro_event(MACRO_EVENT_TYPE_KEYBOARD, data->button_data.keyboard_keys[keyval], MACRO_ACTION_TYPE_DOWN, data);
+    add_macro_event(MACRO_ACTION_TYPE_KEYBOARD, data->button_data.keyboard_keys[keyval], MACRO_EVENT_TYPE_DOWN, data);
 }
 
+/**
+ * @brief Appends a key release to the macro being recoreded.
+ * 
+ * @param self The GtkEventControllerKey instance
+ * @param keyval The value of the key pressed
+ * @param keycode Unused
+ * @param state Unused
+ * @param data Application wide data structure
+ */
 static void append_macro_key_released(GtkEventControllerKey *self, guint keyval, guint keycode, GdkModifierType state, app_data* data) {
     data->macro_data.last_pressed_key = 0;
 
-    add_macro_event(MACRO_EVENT_TYPE_KEYBOARD, data->button_data.keyboard_keys[keyval], MACRO_ACTION_TYPE_UP, data);
+    add_macro_event(MACRO_ACTION_TYPE_KEYBOARD, data->button_data.keyboard_keys[keyval], MACRO_EVENT_TYPE_UP, data);
 }
 
+/**
+ * @brief Appends a mouse button press to the macro being recorded.
+ * 
+ * @param self The GtkGesture instance
+ * @param n_press Unused
+ * @param x Unused
+ * @param y Unused
+ * @param data Application wide data structure
+ */
 static void append_macro_mouse_pressed(GtkGesture* self, int n_press, double x, double y, app_data *data) {
     uint32_t gtk_button = gtk_gesture_single_get_current_button(GTK_GESTURE_SINGLE(self));
-    add_macro_event(MACRO_EVENT_TYPE_MOUSE, data->macro_data.mouse_buttons[gtk_button], MACRO_ACTION_TYPE_DOWN, data);
+    add_macro_event(MACRO_ACTION_TYPE_MOUSE, data->macro_data.mouse_buttons[gtk_button], MACRO_EVENT_TYPE_DOWN, data);
 }
 
+/**
+ * @brief Appends a mouse button release to the macro being recorded.
+ * 
+ * @param self The GtkGesture instance
+ * @param n_press Unused
+ * @param x Unused
+ * @param y Unused
+ * @param data Application wide data structure
+ */
 static void append_macro_mouse_released(GtkGesture *self, int n_press, double x, double y, app_data *data) {
     uint32_t gtk_button = gtk_gesture_single_get_current_button(GTK_GESTURE_SINGLE(self));
-    add_macro_event(MACRO_EVENT_TYPE_MOUSE, data->macro_data.mouse_buttons[gtk_button], MACRO_ACTION_TYPE_UP, data);
+    add_macro_event(MACRO_ACTION_TYPE_MOUSE, data->macro_data.mouse_buttons[gtk_button], MACRO_EVENT_TYPE_UP, data);
 }
 
+/**
+ * @brief Starts/stops the macro recording
+ * 
+ * @param gesture The GtkGesture instance used in claim_click()
+ * @param n_press Unused
+ * @param x Unused
+ * @param y Unused
+ * @param data Application wide data structure
+ */
 static void toggle_macro_recording(GtkGesture *gesture, int n_press, double x, double y, app_data *data) {
-    claim_click(gesture, n_press, x, y, NULL);
+    claim_click(gesture, NULL);
 
     bool is_recording = !data->macro_data.is_recording_macro;
     bool is_resuming_recording = 
@@ -152,6 +205,13 @@ static void toggle_macro_recording(GtkGesture *gesture, int n_press, double x, d
     gtk_widget_set_sensitive(GTK_WIDGET(data->macro_data.editable_macro_name), !is_recording);
 }
 
+/**
+ * @brief A function to create a new macro.
+ * 
+ * @param action Unused
+ * @param variant Unused
+ * @param data Application wide data structure
+ */
 static void create_macro(GSimpleAction *action, GVariant *variant, app_data *data) {
     resize_array((void **) &data->macro_data.macros, sizeof(mouse_macro), &data->macro_data.macro_array_size, data->macro_data.macro_count);
 
@@ -167,6 +227,11 @@ static void create_macro(GSimpleAction *action, GVariant *variant, app_data *dat
     menu_button_set_popover_visibility(get_active_menu_button(data), false);
 }
 
+/**
+ * @brief A function to stop the macro recording and exit the macro stack page.
+ * 
+ * @param data Application wide date structure
+ */
 static void stop_macro_recording(app_data *data) {
     data->macro_data.is_recording_macro = false;
     gtk_widget_set_visible(GTK_WIDGET(data->macro_data.image_recording_macro), false);
@@ -195,6 +260,15 @@ static void close_macro_overlay(GtkButton *button, app_data *data) {
     }
 }
 
+/**
+ * @brief Creates a mouse macro button widget with the signals 
+ * used to assign the macro.
+ * 
+ * @param macro_name The name of the macro
+ * @param index The index of the macro
+ * @param data Application wide data structure
+ * @return MouseMacroButton widget
+ */
 static MouseMacroButton* create_macro_item(char *macro_name, byte index, app_data *data) {
     MouseMacroButton *self = mouse_macro_button_new(
         macro_name,
@@ -212,11 +286,13 @@ static MouseMacroButton* create_macro_item(char *macro_name, byte index, app_dat
     return self;
 }
 
-static void add_recorded_macro(char *macro_name, app_data *data) {
-    create_macro_item(macro_name, data->macro_data.macro_count, data);
-    data->macro_data.macro_count++;
-}
-
+/**
+ * @brief A function edit a macro and re-assigned to buttons that are binded to the macro.
+ * 
+ * @param macro_index The index of the macro
+ * @param macro_name The name of the macro
+ * @param data Application wide data structure
+ */
 static void modify_recorded_macro(uint32_t macro_index, char *macro_name, app_data *data) {
     GtkListBox *box_saved_macros = data->macro_data.box_saved_macros;
     MouseMacroButton *macro_button = MOUSE_MACRO_BUTTON(gtk_list_box_row_get_child(
@@ -237,8 +313,17 @@ static void modify_recorded_macro(uint32_t macro_index, char *macro_name, app_da
     }
 }
 
+/**
+ * @brief Saves changes to a macro.
+ * 
+ * @param gesture The GtkGesture instance used in claim_click()
+ * @param n_press Unused
+ * @param x Unused
+ * @param y Unused
+ * @param data Application wide data structure
+ */
 static void save_recorded_macro(GtkGesture *gesture, int n_press, double x, double y, app_data *data) {
-    claim_click(gesture, n_press, x, y, NULL);
+    claim_click(gesture, NULL);
     stop_macro_recording(data);
 
     uint32_t macro_index = data->macro_data.macro_index;
@@ -250,12 +335,20 @@ static void save_recorded_macro(GtkGesture *gesture, int n_press, double x, doub
 
     // New macro
     if (data->macro_data.macro_index == data->macro_data.macro_count) {
-        add_recorded_macro(macro_name, data);
+        create_macro_item(macro_name, data->macro_data.macro_count, data);
+        data->macro_data.macro_count++;
     } else {
         modify_recorded_macro(macro_index, macro_name, data);
     }
 }
 
+/**
+ * @brief A function to open the stack page with the macro to be edited.
+ * 
+ * @param action Unused
+ * @param macro_index The index of the macro
+ * @param data Application wide data structure
+ */
 static void edit_macro(GSimpleAction *action, GVariant *macro_index, app_data *data) {
     uint32_t index = g_variant_get_uint32(macro_index);
     
@@ -273,6 +366,13 @@ static void edit_macro(GSimpleAction *action, GVariant *macro_index, app_data *d
     menu_button_set_popover_visibility(get_active_menu_button(data), false);
 }
 
+/**
+ * @brief A method to update macro assignments for each button 
+ * when a macro is deleted.
+ * 
+ * @param macro_index The index of the deleted macro
+ * @param data Application wide data structure
+ */
 static void update_macro_assignments(uint32_t macro_index, app_data *data) {
     for (int i = 0; i < BUTTON_COUNT; i++) {
         int button_macro_index = data->macro_data.macro_indicies[i];
@@ -300,8 +400,15 @@ static void update_macro_assignments(uint32_t macro_index, app_data *data) {
     }
 }
 
-static void delete_macro(GSimpleAction *action, GVariant *variant, app_data *data) {
-    uint32_t macro_index = g_variant_get_uint32(variant);
+/**
+ * @brief A function to delete a macro.
+ * 
+ * @param action Unused
+ * @param variant_index The index of the macro to delete
+ * @param data Application wide data structure
+ */
+static void delete_macro(GSimpleAction *action, GVariant *variant_index, app_data *data) {
+    uint32_t macro_index = g_variant_get_uint32(variant_index);
 
     mouse_macro *macros = data->macro_data.macros;
     free(macros[macro_index].events);
@@ -366,6 +473,13 @@ void assign_macro(uint32_t macro_index, byte button, app_data *data) {
     );
 }
 
+/**
+ * @brief A function to select a macro.
+ * 
+ * @param action Unused
+ * @param macro_index The index of the macro
+ * @param data Application wide data structure
+ */
 static void select_macro(GSimpleAction *action, GVariant *macro_index, app_data *data) {
     uint32_t index = g_variant_get_uint32(macro_index);
     assign_macro(index, data->button_data.selected_button, data);
@@ -373,6 +487,12 @@ static void select_macro(GSimpleAction *action, GVariant *macro_index, app_data 
     menu_button_set_popover_visibility(get_active_menu_button(data), false);
 }
 
+/**
+ * @brief Gets the widgets needed for macro related config.
+ * 
+ * @param builder GtkBuilder object to obtain widgets
+ * @param data Application wide data structure
+ */
 static void get_macro_data_widgets(GtkBuilder *builder, app_data *data) {
     data->widgets->macro_key_events = GTK_EVENT_CONTROLLER(gtk_builder_get_object(builder, "macroKeyController"));
     data->macro_data.gesture_macro_mouse_events = GTK_GESTURE(gtk_builder_get_object(builder, "gestureMacroMouseEvents"));
@@ -389,10 +509,22 @@ static void get_macro_data_widgets(GtkBuilder *builder, app_data *data) {
     data->macro_data.editable_macro_name = GTK_EDITABLE(gtk_builder_get_object(builder, "editableMacroName"));
 }
 
-static void claim_click(GtkGesture *gesture, int n_press, double x, double y, void *data) {
+/**
+ * @brief A function to prevent a macro event from being recorded
+ * when pressing a button.
+ * 
+ * @param gesture The GtkGesture that emmited the event
+ * @param data Application wide data structure
+ */
+static void claim_click(GtkGesture *gesture, void *data) {
     gtk_gesture_set_state(gesture, GTK_EVENT_SEQUENCE_CLAIMED);
 }
 
+/**
+ * @brief Set up the event controllers used for listening to mouse and keyboard events. 
+ * 
+ * @param data Application wide data structure
+ */
 static void setup_event_controllers(app_data *data) {
     gtk_widget_add_controller(GTK_WIDGET(data->widgets->window), data->widgets->macro_key_events);
     g_signal_connect(data->widgets->macro_key_events, "key-pressed", G_CALLBACK(append_macro_key_pressed), data);
