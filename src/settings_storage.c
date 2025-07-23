@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <errno.h>
 #include <stdio.h>
 #include <string.h>
 #include <gtk/gtk.h>
@@ -37,7 +38,20 @@ struct macro_detail {
     int event_count;
 } typedef macro_detail;
 
-static void create_settings_file(mouse_settings *settings, app_data *data) {
+static int handle_file_error(FILE *file, const char* filename, bool file_should_exist) {
+    int error = errno;
+    
+    if (error == 2 && !file_should_exist) return 0;
+
+    if (file == NULL && error != 0) {
+        printf("Error opening %s: %s\n", filename, strerror(error));
+        return -1;
+    }
+
+    return 0;
+}
+
+static int create_settings_file(mouse_settings *settings, app_data *data) {
     *settings = (mouse_settings) {
         .led = {.red = 0xff, .brightness = 100},
         .bindings = {
@@ -61,13 +75,18 @@ static void create_settings_file(mouse_settings *settings, app_data *data) {
     };
     
     data->settings_file = fopen(SETTINGS_FILE, "wb");
+    if (handle_file_error(data->settings_file, SETTINGS_FILE, true) < 0) return -1;
+
     fwrite(settings, sizeof(mouse_settings), 1, data->settings_file);
     fclose(data->settings_file);
+
+    return 0;
 }
 
-void load_settings_from_file(app_data *data) {
+int load_settings_from_file(app_data *data) {
     mouse_settings settings = {0};
     data->settings_file = fopen(SETTINGS_FILE, "rb");
+    if (handle_file_error(data->settings_file, SETTINGS_FILE, false) < 0) return -1;
 
     if (data->settings_file == NULL) {
         create_settings_file(&settings, data);
@@ -82,9 +101,11 @@ void load_settings_from_file(app_data *data) {
     data->sensor_data.dpi_config = settings.dpi_config;
     data->sensor_data.polling_rate_value = settings.polling_rate_value;
     data->sensor_data.lift_off_distance = settings.lift_off_distance;
+
+    return 0;
 }
 
-void save_settings_to_file(app_data *data) {
+int save_settings_to_file(app_data *data) {
     mouse_settings settings = {
         .led = data->color_data.mouse_led,
         .dpi_config = data->sensor_data.dpi_config,
@@ -95,17 +116,24 @@ void save_settings_to_file(app_data *data) {
     memcpy(settings.bindings, data->button_data.bindings, sizeof(data->button_data.bindings));
     
     data->settings_file = fopen(SETTINGS_FILE, "wb");
+    if (handle_file_error(data->settings_file, SETTINGS_FILE, true) < 0) return -1;
+    
     fwrite(&settings, sizeof(mouse_settings), 1, data->settings_file);
     fclose(data->settings_file);
+
+    return 0;
 }
 
-void load_macros_from_file(app_data *data) {
+int load_macros_from_file(app_data *data) {
     mouse_macro_info macro_info = {.macro_count = 0, .macro_indicies = {-1, -1, -1, -1, -1, -1}};
     
     data->macros_file = fopen(MACROS_FILE, "rb");
-
+    if (handle_file_error(data->macros_file, MACROS_FILE, false) < 0) return -1;
+    
     if (data->macros_file == NULL) {
         data->macros_file = fopen(MACROS_FILE, "wb");
+        if (handle_file_error(data->macros_file, MACROS_FILE, true) < 0) return -1;
+
         fwrite(&macro_info, sizeof(mouse_macro_info), 1, data->macros_file);
         fclose(data->macros_file);
     } else {
@@ -117,7 +145,7 @@ void load_macros_from_file(app_data *data) {
     data->macro_data.macro_array_size = MAX(macro_info.macro_count, 1);
     data->macro_data.macros = malloc(sizeof(mouse_macro) * data->macro_data.macro_array_size);
 
-    if (macro_info.macro_count == 0) return;
+    if (macro_info.macro_count == 0) return 0;
     
     data->macro_data.macro_count = macro_info.macro_count;
 
@@ -137,9 +165,11 @@ void load_macros_from_file(app_data *data) {
     }
 
     fclose(data->macros_file);
+
+    return 0;
 }
 
-void save_macros_to_file(app_data *data) {
+int save_macros_to_file(app_data *data) {
     mouse_macro_info macro_info = {
         .macro_count = data->macro_data.macro_count,
     };
@@ -147,6 +177,8 @@ void save_macros_to_file(app_data *data) {
     memcpy(macro_info.macro_indicies, data->macro_data.macro_indicies, sizeof(int) * BUTTON_COUNT);
 
     data->macros_file = fopen(MACROS_FILE, "wb");
+    if (handle_file_error(data->macros_file, MACROS_FILE, true) < 0) return -1;
+
     fwrite(&macro_info, sizeof(mouse_macro_info), 1, data->macros_file);
 
     mouse_macro *macros = data->macro_data.macros;
@@ -163,4 +195,6 @@ void save_macros_to_file(app_data *data) {
     }
 
     fclose(data->macros_file);
+
+    return 0;
 }
