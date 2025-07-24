@@ -515,6 +515,8 @@
                         <property name="width-request">160</property>
                         <child>
                           <object class="GtkDropDown" id="dropDownRepeatMode">
+                            <property name="can-focus">False</property>
+                            <property name="focus-on-click">False</property>
                             <property name="hexpand">True</property>
                             <property name="margin-bottom">5</property>
                             <property name="margin-end">5</property>
@@ -790,7 +792,7 @@ Hold Repeat</property>
                 </property>
                 <property name="has-frame">False</property>
                 <signal name="clicked" handler="switch_stack_page" object="stackMain"/>
-                <signal name="clicked" handler="enable_main_stack_page" object="boxMain"/>
+                <signal name="clicked" handler="disable_main_stack_page" object="boxMain"/>
               </object>
             </child>
             <child>

@@ -285,8 +285,8 @@ static MouseMacroButton* create_macro_item(char *macro_name, byte index, app_dat
         index
     );
 
-    g_signal_connect_swapped(self->button_edit, "clicked", G_CALLBACK(disable_main_stack_page), data->widgets->box_main);
-    g_signal_connect_swapped(self->button_edit, "clicked", G_CALLBACK(enter_macro_stack_page), data->widgets->stack_main);
+    // g_signal_connect_swapped(self->button_edit, "clicked", G_CALLBACK(disable_main_stack_page), data->widgets->box_main);
+    // g_signal_connect_swapped(self->button_edit, "clicked", G_CALLBACK(enter_macro_stack_page), data->widgets->stack_main);
 
     gtk_list_box_append(
         data->macro_data.box_saved_macros,
@@ -375,6 +375,9 @@ static void change_macro_repeat_mode(GtkDropDown *dropdown, GParamSpec *param_sp
  * @param data Application wide data structure
  */
 static void edit_macro(GSimpleAction *action, GVariant *macro_index, app_data *data) {
+    disable_main_stack_page(data->widgets->box_main, NULL);
+    enter_macro_stack_page(data->widgets->stack_main, NULL);
+
     uint32_t index = g_variant_get_uint32(macro_index);
     
     recorded_macro *macro = data->macro_data.macros + index;
