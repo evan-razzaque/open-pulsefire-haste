@@ -3,6 +3,13 @@
 
 #include "stack_menu_button.h"
 
+struct _StackMenuButton {
+    GtkButton parent_instance;
+
+    GtkLabel *label;
+    GtkImage *image;
+};
+
 G_DEFINE_TYPE(StackMenuButton, stack_menu_button, GTK_TYPE_BUTTON)
 
 static void stack_menu_button_dispose(GObject *gobject) {

@@ -1,6 +1,14 @@
 #include <gtk/gtk.h>
 #include "mouse_macro_button.h"
 
+struct _MouseMacroButton {
+    GtkBox parent_instance;
+
+    GtkButton *button_name; 
+    GtkButton *button_edit;
+    GtkButton *button_delete;
+};
+
 G_DEFINE_TYPE(MouseMacroButton, mouse_macro_button, GTK_TYPE_BOX)
 
 static void mouse_macro_button_dispose(GObject *gobject) {
@@ -25,7 +33,7 @@ static void mouse_macro_button_init(MouseMacroButton *self) {
     gtk_widget_init_template(GTK_WIDGET(self));
 }
 
-MouseMacroButton* mouse_macro_button_new(char *name, int index) {
+MouseMacroButton* mouse_macro_button_new(char *name, uint32_t index) {
     MouseMacroButton *self = g_object_new(MOUSE_TYPE_MACRO_BUTTON, "name", name, NULL);
 
     gtk_actionable_set_action_target(GTK_ACTIONABLE(self->button_name), (const char*) G_VARIANT_TYPE_UINT32, index);
@@ -33,4 +41,9 @@ MouseMacroButton* mouse_macro_button_new(char *name, int index) {
     gtk_actionable_set_action_target(GTK_ACTIONABLE(self->button_edit), (const char*) G_VARIANT_TYPE_UINT32, index);
 
     return self;
+}
+
+void mouse_macro_button_set_index(MouseMacroButton* self, uint32_t index) {
+    gtk_actionable_set_action_target(GTK_ACTIONABLE(self->button_name), (const char*) G_VARIANT_TYPE_UINT32, index);
+    gtk_actionable_set_action_target(GTK_ACTIONABLE(self->button_delete), (const char*) G_VARIANT_TYPE_UINT32, index);
 }

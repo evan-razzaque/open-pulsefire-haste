@@ -462,8 +462,7 @@ static void delete_macro(GSimpleAction *action, GVariant *variant_index, app_dat
             gtk_list_box_row_get_child(gtk_list_box_get_row_at_index(box_saved_macros, i))
         );
 
-        gtk_actionable_set_action_target(GTK_ACTIONABLE(macro_button->button_name), (const char*) G_VARIANT_TYPE_UINT32, i);
-        gtk_actionable_set_action_target(GTK_ACTIONABLE(macro_button->button_delete), (const char*) G_VARIANT_TYPE_UINT32, i);
+        mouse_macro_button_set_index(macro_button, i);
     }
 
     update_macro_assignments(macro_index, data);

@@ -3,13 +3,6 @@
 
 #include <gtk/gtk.h>
 
-struct _StackMenuButton {
-    GtkButton parent_instance;
-
-    GtkLabel *label;
-    GtkImage *image;
-};
-
 G_DECLARE_FINAL_TYPE(StackMenuButton, stack_menu_button, STACK, MENU_BUTTON, GtkButton)
 
 #define STACK_TYPE_MENU_BUTTON (stack_menu_button_get_type())

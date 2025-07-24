@@ -1,12 +1,8 @@
+#ifndef MOUSE_MACRO_BUTTON_H
+#define MOUSE_MACRO_BUTTON_H
+
+#include <stdint.h>
 #include <gtk/gtk.h>
-
-struct _MouseMacroButton {
-    GtkBox parent_instance;
-
-    GtkButton *button_name; 
-    GtkButton *button_edit;
-    GtkButton *button_delete;
-};
 
 G_DECLARE_FINAL_TYPE(MouseMacroButton, mouse_macro_button, MOUSE, MACRO_BUTTON, GtkBox)
 
@@ -20,4 +16,14 @@ G_DECLARE_FINAL_TYPE(MouseMacroButton, mouse_macro_button, MOUSE, MACRO_BUTTON, 
  * @param index The index of the macro
  * @return a nes MouseMacroButton
  */
-MouseMacroButton* mouse_macro_button_new(char* name, int index);
+MouseMacroButton* mouse_macro_button_new(char* name, uint32_t index);
+
+/**
+ * @brief Sets the macro index for the MouseMacroButton.
+ * 
+ * @param self The MouseMacroButton instance
+ * @param index The macro index
+ */
+void mouse_macro_button_set_index(MouseMacroButton* self, uint32_t index);
+
+#endif
