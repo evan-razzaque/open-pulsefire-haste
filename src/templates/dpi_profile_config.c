@@ -26,7 +26,20 @@ enum {
 
 static guint signals[N_SIGNALS] = {0};
 
+/**
+ * @brief Syncs the DpiProfileConfig's spinner value with its range value.
+ * 
+ * @param self The DpiProfileConfig instance
+ * @param range_dpi_value The instance's range widget
+ */
 static void dpi_profile_config_update_spinner_dpi_value(GtkSpinButton *self, GtkRange *range_dpi_value);
+
+/**
+ * @brief Syncs the DpiProfileConfig's range value with its spinner value.
+ * 
+ * @param self The DpiProfileConfig instance
+ * @param range_dpi_value The instance's spin button widget
+ */
 static void dpi_profile_config_update_range_dpi_value(GtkRange* self, GtkSpinButton *spinner_dpi_value);
 
 static void dpi_profile_config_dispose(GObject *gobject) {
@@ -50,6 +63,11 @@ static void dpi_profile_config_update_spinner_dpi_value(GtkSpinButton *self, Gtk
     g_signal_handlers_unblock_by_func(self, G_CALLBACK(dpi_profile_config_update_range_dpi_value), range_dpi_value);
 }
 
+/**
+ * @brief Emits the `profile-updated` signal if the dpi value or the color indicators changes.
+ * 
+ * @param self The DpiProfileConfig instance
+ */
 static void dpi_profile_config_update_profile(DpiProfileConfig *self) {
     if (self->is_spinner_blocked) {
         g_signal_handlers_unblock_by_func(
@@ -71,6 +89,13 @@ static void dpi_profile_config_update_profile(DpiProfileConfig *self) {
     );
 }
 
+/**
+ * @brief Blocks the instance's spinner from emitting the `profile-updated` signal
+ * when the user presses the range widget's button. This is to prevent the spinner from setting
+ * the value of the range while the user is dragging the range.
+ * 
+ * @param self The DpiProfileConfig instance
+ */
 static void block_dpi_spinner_update_signal(DpiProfileConfig *self) {
     g_signal_handlers_block_by_func(
         self->spinner_dpi_value,

@@ -9,22 +9,75 @@ G_DECLARE_FINAL_TYPE(DpiProfileConfig, dpi_profile_config, DPI, PROFILE_CONFIG, 
 #define DPI_TYPE_PROFILE_CONFIG (dpi_profile_config_get_type())
 #define DPI_PROFILE_CONFIG(inst) (G_TYPE_CHECK_INSTANCE_CAST((inst), DPI_TYPE_PROFILE_CONFIG, DpiProfileConfig))
 
+/**
+ * @brief Creates a DpiProfileConfig.
+ * 
+ * @param check_button_group The GtkButtonGroup for dpi profile config
+ * @param profile_index The index of the dpi profile
+ * @return a new DpiProfileConfig
+ */
 DpiProfileConfig* dpi_profile_config_new(GtkCheckButton *check_button_group, uint8_t profile_index);
 
+/**
+ * @brief Gets the dpi value.
+ * 
+ * @param self The DpiProfileConfig instance
+ * @return The dpi value of the instance
+ */
 uint16_t dpi_profile_config_get_dpi_value(DpiProfileConfig *self);
 
+/**
+ * @brief Get the color indicator.
+ * 
+ * @param self The DpiProfileConfig instance
+ * @return a GdkRGBA instance
+ */
 const GdkRGBA* dpi_profile_config_get_indicator(DpiProfileConfig *self);
 
+/**
+ * @brief Set the profile index for the DpiProfileConfig.
+ * 
+ * @param self The DpiProfileConfig instance
+ * @param profile_index The profile index
+ */
 void dpi_profile_config_set_index(DpiProfileConfig *self, uint8_t profile_index);
 
+/**
+ * @brief Set the dpi value for the DpiProfileConfig.
+ * 
+ * @param self The DpiProfileConfig instance
+ * @param dpi_value The dpi value
+ */
 void dpi_profile_config_set_dpi_value(DpiProfileConfig *self, uint16_t dpi_value);
 
+/**
+ * @brief Set the indicator for the DpiProfileConfig.
+ * 
+ * @param self The DpiProfileConfig instance
+ * @param rgb A GdkRGBA instance for the color indicator
+ */
 void dpi_profile_config_set_indicator(DpiProfileConfig *self, GdkRGBA *rgb);
 
+/**
+ * @brief A function to select the dpi profile associated with the DpiProfileConfig.
+ * 
+ * @param self The DpiProfileConfig instance
+ */
 void dpi_profile_config_activate(DpiProfileConfig *self);
 
+/**
+ * @brief Sets whether the DpiProfileConfig's delete button is enabled or not.
+ * 
+ * @param self The DpiProfileConfig instance 
+ * @param enabled The enabled value to set
+ */
 void dpi_profile_config_delete_button_set_enabled(DpiProfileConfig *self, bool enabled);
 
+/**
+ * @brief Removes the check button group from the DpiProfileConfig
+ * 
+ * @param self The DpiProfileConfig instance
+ */
 void dpi_profile_config_remove_check_button_group(DpiProfileConfig *self);
 
 #endif
