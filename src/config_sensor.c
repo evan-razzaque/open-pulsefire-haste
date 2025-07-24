@@ -12,7 +12,7 @@
 #include "util.h"
 #include "mouse_config.h"
 
-#include "./templates/dpi_profile_config.h"
+#include "templates/dpi_profile_config.h"
 
 /**
  * @brief Updates the mouse's dpi settings.

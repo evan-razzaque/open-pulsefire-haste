@@ -1,7 +1,7 @@
 #ifndef MACRO_TYPES_H
 #define MACRO_TYPES_H
 
-#include "./device/buttons.h"
+#include "device/buttons.h"
 
 /**
  * @brief An enum for generic macro event button pressed/released states.

@@ -15,8 +15,8 @@
 #define MACRO_PARSER_PRIVATE
 #include "macro_parser.h"
 
-#include "./templates/mouse_macro_button.h"
-#include "./templates/macro_event_item.h"
+#include "templates/mouse_macro_button.h"
+#include "templates/macro_event_item.h"
 
 static void claim_click(GtkGesture *gesture, void *data);
 

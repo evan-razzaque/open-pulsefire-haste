@@ -55,8 +55,6 @@ void save_mouse_settings(GtkWidget *self, app_data *data) {
 static void load_mouse_settings(app_data *data) {
 	hid_device *dev = data->mouse->dev;
 
-	if (dev == NULL) return;
-
 	for (int i = 0; i < BUTTON_COUNT; i++) {
 		if (data->button_data.bindings[i] >> 8 == MOUSE_ACTION_TYPE_MACRO) {
 			assign_macro(data->macro_data.macro_indicies[i], i, data);
@@ -120,10 +118,11 @@ void close_application(GtkWindow *window, app_data *data) {
 	free(data->macro_data.macros);
 
 	unref_widgets(data);
-	printf("window closed\n");
-
+	
 	gtk_window_destroy(data->widgets->window);
 	gtk_window_destroy(data->button_data.window_keyboard_action);
+	
+	printf("window closed\n");
 }
 
 /**
