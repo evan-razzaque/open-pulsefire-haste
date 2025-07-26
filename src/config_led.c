@@ -48,6 +48,7 @@ void app_config_led_init(GtkBuilder *builder, app_data *data) {
 	};
 
 	gtk_color_chooser_set_rgba(data->color_data.color_chooser, &rgba);
+	gtk_range_set_value(data->color_data.range_brightness, data->color_data.mouse_led.brightness);
 
     g_timeout_add(10, G_SOURCE_FUNC(update_color), &data->color_data);
     g_signal_connect(data->color_data.range_brightness, "value-changed", G_CALLBACK(update_brightness), &(data->color_data.mouse_led.brightness));
