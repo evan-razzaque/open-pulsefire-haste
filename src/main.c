@@ -20,6 +20,8 @@
 #include "templates/stack_menu_button_back.h"
 #include "templates/mouse_macro_button.h"
 
+#include "util.h"
+
 #include "templates/gresources.h"
 
 #define widget_add_event(builder, widget_name, detailed_signal, c_handler, data)\
@@ -245,6 +247,15 @@ void* mouse_update_loop(app_data *data) {
 }
 
 /**
+ * @brief A function to set various enviorment variables.
+ */
+void set_env() {
+	// Fixes memory leaks when switching pages with GtkStack
+	g_setenv("GSK_RENDERER", "cairo", true);
+	printval(g_getenv("GSK_RENDERER"), "%s", "\n");
+}
+
+/**
  * @brief Opens the mouse device handle and mouse update thread, sets up application data, and initializes GTK.
  * 
  * @return exit status 
@@ -299,6 +310,7 @@ int main() {
 	GtkApplication *app;
 	int status;
 	
+	set_env();
 	app = gtk_application_new("org.gtk.pulsefire-haste", G_APPLICATION_DEFAULT_FLAGS);
 	widgets.app = app;
 	
