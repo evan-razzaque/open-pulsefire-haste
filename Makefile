@@ -8,12 +8,16 @@ UI_FILES           = ui/gresources.gresource.xml ui/window.ui ui/window.css ui/d
 GRESOURCES         = resources/templates.gresource
 TARGET             = bin/main
 
-HOTPLUG_SOURCE    = src/hotplug/hotplug_linux.c
+HOTPLUG_SOURCE     = src/hotplug/hotplug_linux.c
+ASAN               = -fsanitize=address
 
-ASAN = -fsanitize=address
+LOCAL_LIB=/usr/local/lib
 
-LDLIBS  = $(ASAN) -lm -lhidapi-hidraw -lusb-1.0 $$(pkg-config --libs libadwaita-1 gmodule-export-2.0)
-CFLAGS += -I src/ -I resources/  $$(pkg-config --cflags libadwaita-1 gmodule-export-2.0) -Wall -Werror -Werror=vla -Wno-deprecated-declarations -std=c99 -Og -g $(ASAN)
+# libadwaita wip/alice/wrap-layout-leak
+LIBADWAITA         = $(LOCAL_LIB)/pkgconfig/libadwaita-1.pc
+
+LDLIBS  = -g $(ASAN) -lm -lhidapi-hidraw -lusb-1.0 $$(pkg-config --libs $(LIBADWAITA) gmodule-export-2.0) -Wl,-rpath,$(LOCAL_LIB)
+CFLAGS += -g $(ASAN) -I src/ -I resources/ $$(pkg-config --cflags $(LIBADWAITA) gmodule-export-2.0) -Wall -Werror -Werror=vla -Wno-deprecated-declarations -std=c99 -Og
 
 ifeq ($(OS),Windows_NT)
 	ASAN=

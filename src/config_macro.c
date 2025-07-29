@@ -18,21 +18,9 @@
 #include "templates/mouse_macro_button.h"
 #include "templates/macro_event_item.h"
 
+#define MAX_MACRO_EVENT_COUNT (80)
+
 static void claim_click(GtkGesture *gesture, void *data);
-
-/**
- * @brief Removes all children from a AdwWrapBox.
- * 
- * @param self The wrap box
- */
-static void adw_wrap_box_remove_all(AdwWrapBox *self) {
-    GtkWidget *widget;
-    g_return_if_fail(ADW_IS_WRAP_BOX(self));
-
-    while ((widget = gtk_widget_get_first_child(GTK_WIDGET(self)))) {
-        adw_wrap_box_remove(self, widget);
-    }
-}
 
 /**
  * @brief Doubles the capacity of a one-dimensional array when necessary.
@@ -60,11 +48,13 @@ static void wrap_box_add_macro_event(AdwWrapBox *wrap_box, generic_macro_event *
     const char* action_name = (event->action_type == MACRO_ACTION_TYPE_KEYBOARD)?
         data->button_data.key_names[event->action]:
         data->macro_data.mouse_button_names[event->action];
-    
+
     adw_wrap_box_append(
-        wrap_box,
-        GTK_WIDGET(macro_event_item_new(action_name, event->delay, event->event_type))
-    );
+        wrap_box, 
+        GTK_WIDGET(
+            macro_event_item_new(action_name, event->delay, event->event_type)
+        )
+    );    
 }
 
 /**
@@ -80,6 +70,9 @@ static void add_macro_event(MACRO_ACTION_TYPE action_type, byte action, MACRO_EV
 
     uint32_t macro_index = data->macro_data.macro_index;
     recorded_macro *macro = &(data->macro_data.macros[macro_index]);
+
+    if (macro->generic_event_count >= MAX_MACRO_EVENT_COUNT) return;
+
     int previous_event_index = macro->generic_event_count - 1;
 
     generic_macro_event event = {.action_type = action_type, .event_type = event_type, .action = action};
@@ -284,9 +277,6 @@ static MouseMacroButton* create_macro_item(char *macro_name, byte index, app_dat
         macro_name,
         index
     );
-
-    // g_signal_connect_swapped(self->button_edit, "clicked", G_CALLBACK(disable_main_stack_page), data->widgets->box_main);
-    // g_signal_connect_swapped(self->button_edit, "clicked", G_CALLBACK(enter_macro_stack_page), data->widgets->stack_main);
 
     gtk_list_box_append(
         data->macro_data.box_saved_macros,
@@ -526,7 +516,16 @@ static void get_macro_data_widgets(GtkBuilder *builder, app_data *data) {
     data->macro_data.gesture_button_save_macro_claim_click = GTK_GESTURE(gtk_builder_get_object(builder, "gestureButtonSaveMacro"));
     data->macro_data.gesture_button_record_macro_claim_click = GTK_GESTURE(gtk_builder_get_object(builder, "gestureButtonMacroRecording"));
 
-    data->macro_data.wrap_box_macro_events = (AdwWrapBox*) GTK_WIDGET(gtk_builder_get_object(builder, "wrapBoxMacroEvents"));
+    data->macro_data.wrap_box_macro_events = (AdwWrapBox*) adw_wrap_box_new();
+    adw_wrap_box_set_child_spacing(data->macro_data.wrap_box_macro_events, 10);
+    gtk_widget_set_size_request(GTK_WIDGET(data->macro_data.wrap_box_macro_events), -1, 500);
+    adw_wrap_box_set_wrap_policy(data->macro_data.wrap_box_macro_events, ADW_WRAP_NATURAL);
+    
+    data->macro_data.box_wrap_box_macro_events = GTK_BOX(GTK_WIDGET(gtk_builder_get_object(builder, "boxWrapBoxMacroEvents")));
+    gtk_box_append(
+        data->macro_data.box_wrap_box_macro_events,
+        GTK_WIDGET(data->macro_data.wrap_box_macro_events)
+    );
     
     data->macro_data.drop_down_repeat_mode = (GtkDropDown*) GTK_WIDGET(gtk_builder_get_object(builder, "dropDownRepeatMode"));
 
