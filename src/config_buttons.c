@@ -179,8 +179,7 @@ static void set_mouse_button(GtkMenuButton *menu_button, GParamSpec *param_spec,
  * @param popover The popover containing the stack
  */
 G_MODULE_EXPORT void reset_stack_menu(GtkStack* stack, GtkPopover *popover) {
-	GtkSelectionModel *stack_pages = gtk_stack_get_pages(stack);
-	gtk_selection_model_select_item(stack_pages, 0, true);
+	gtk_stack_set_page(stack, 0);
 }
 
 /**

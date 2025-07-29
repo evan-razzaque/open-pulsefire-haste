@@ -7,7 +7,11 @@ data
 
 # Config
 .vscode
-gtk_settings.ini
 
 # Cambalache
 .cmb.db*
+
+# Misc
+suppress.txt
+scripts
+log

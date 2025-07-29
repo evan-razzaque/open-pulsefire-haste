@@ -2,9 +2,10 @@
 #include <stdint.h>
 
 #include "macro_event_item.h"
+#include "util.h"
 
-#define ICON_DOWN_ARROW ("go-down")
-#define ICON_UP_ARROW ("go-up")
+#define ICON_DOWN_ARROW "go-down"
+#define ICON_UP_ARROW "go-up"
 
 struct _MacroEventItem {
     GtkBox parent_instance;
@@ -38,7 +39,7 @@ static void macro_event_item_init(MacroEventItem *self) {
 
 MacroEventItem* macro_event_item_new(const char* action_name, uint16_t delay, MACRO_EVENT_TYPE event_type) {
     MacroEventItem *self = g_object_new(MACRO_TYPE_EVENT_ITEM, NULL);
-
+    
     if (delay > 0) {
         char delay_string[8];
         sprintf(delay_string, "%d", delay);

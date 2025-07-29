@@ -191,7 +191,15 @@ GtkMenuButton* get_active_menu_button(app_data* data);
 void menu_button_set_popover_visibility(GtkMenuButton *self, bool visible);
 
 /**
- * @brief A functioon switch the displayed page in a GtkStack
+ * @brief A method to set the stack's page.
+ * 
+ * @param stack The GtkStack widget
+ * @param page The page number
+ */
+void gtk_stack_set_page(GtkStack *stack, uint32_t page);
+
+/**
+ * @brief A function switch the displayed page in a GtkStack
  * 
  * @param stack The GtkStack widget
  * @param button The GtkActionable of the button for switching the stack page

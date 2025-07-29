@@ -46,8 +46,6 @@ struct app_widgets {
 
 	GtkStack *stack_main; // The stack containing the main page and the macro page
 	GtkBox *box_main; // The box that contains the content of the main page
-
-	GtkAlertDialog *alert;
 } typedef app_widgets;
 
 /**
@@ -158,7 +156,8 @@ struct config_macro_data {
 	GtkGesture *gesture_button_record_macro_claim_click;
 
 	GtkEventController *macro_key_events; // Listens to key events for macros
-	AdwWrapBox *wrap_box_macro_events; // Displays each generic macro event creating/editing a macro
+	GtkBox *box_wrap_box_macro_events; // Holds the WrapBox for the generic macro events
+	AdwWrapBox *wrap_box_macro_events; // Displays each generic macro event when creating/editing a macro
 
 	GtkButton *button_record_macro; // The actual button used to toggle the macro recording
 	GtkImage *image_recording_macro;

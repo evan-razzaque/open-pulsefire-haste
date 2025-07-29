@@ -4,8 +4,11 @@
 #include <stdio.h>
 #include <string.h>
 
-#define printval(val, format_specifier, additional_string)\
-    printf(#val ": " format_specifier additional_string, (val))
+/**
+ * @brief Prints `expression` along with its value given `format`.
+ */
+#define printval(format, expression)\
+    printf(#expression ": " format, (expression))
 
 /**
  * @brief Removes the element at `index` from `array` and decrements `length`.

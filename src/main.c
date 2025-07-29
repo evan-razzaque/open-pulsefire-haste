@@ -28,7 +28,11 @@
 	g_signal_connect(gtk_builder_get_object(builder, widget_name), detailed_signal, G_CALLBACK(c_handler), data);
 
 const char* __asan_default_options() {
-	return "detect_leaks=0";
+	return "detect_leaks=1";
+}
+
+const char* __lsan_default_options() {
+	return "suppressions=suppress.txt";
 }
 
 /**
@@ -95,11 +99,8 @@ static void load_mouse_settings(app_data *data) {
 } */
 
 void unref_widgets(app_data *data) {
-	g_object_ref_sink(data->sensor_data.check_button_group_dpi_profile);
-	g_object_unref(data->sensor_data.check_button_group_dpi_profile);
-
-	g_object_ref_sink(data->widgets->alert);
-	g_object_unref(data->widgets->alert);
+	// g_object_ref_sink(data->sensor_data.check_button_group_dpi_profile);
+	// g_object_unref(data->sensor_data.check_button_group_dpi_profile);
 }
 
 /**
@@ -147,8 +148,7 @@ void activate(GtkApplication *app, app_data *data) {
 	g_type_ensure(STACK_TYPE_MENU_BUTTON);
 	g_type_ensure(STACK_TYPE_MENU_BUTTON_BACK);
 	g_type_ensure(MOUSE_TYPE_MACRO_BUTTON);
-	
-	// g_resources_register(g_resource_load("resources/templates.gresource", NULL));
+
 	g_resources_register(gresources_get_resource());
 	
 	GtkBuilder *builder = gtk_builder_new_from_resource("/org/haste/window.ui");
@@ -252,7 +252,7 @@ void* mouse_update_loop(app_data *data) {
 void set_env() {
 	// Fixes memory leaks when switching pages with GtkStack
 	g_setenv("GSK_RENDERER", "cairo", true);
-	printval(g_getenv("GSK_RENDERER"), "%s", "\n");
+	printval("%s\n", g_getenv("GSK_RENDERER"));
 }
 
 /**
@@ -275,11 +275,15 @@ int main() {
 	hotplug_listener_init(&hotplug_data, &mouse);
 	
 	struct hid_device_info *dev_list = get_devices(&mouse.type);
-	setup_mouse_removal_callbacks(&hotplug_data, dev_list);
+
+	#ifdef _WIN32
+		setup_mouse_removal_callbacks(&hotplug_data, dev_list);
+	#endif
+
 	mouse.dev = open_device(dev_list);
 	dev_list = NULL;
 	
-	app_widgets widgets = {.alert = gtk_alert_dialog_new(" ")};
+	app_widgets widgets = {0};
 	
 	app_data data = {
 		.mouse = &mouse,

@@ -408,7 +408,6 @@
                 <property name="margin-start">5</property>
                 <property name="margin-top">5</property>
                 <property name="orientation">vertical</property>
-                <property name="vexpand">True</property>
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
@@ -456,23 +455,18 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkBox">
+                      <object class="GtkBox" id="boxWrapBoxMacroEvents">
                         <property name="halign">start</property>
                         <property name="margin-top">10</property>
                         <property name="orientation">vertical</property>
                         <property name="overflow">hidden</property>
-                        <child>
-                          <object class="AdwWrapBox" id="wrapBoxMacroEvents">
-                            <property name="child-spacing">10</property>
-                            <property name="height-request">500</property>
-                          </object>
-                        </child>
                       </object>
                     </child>
                   </object>
                 </child>
                 <child>
                   <object class="GtkBox">
+                    <property name="valign">start</property>
                     <child>
                       <object class="GtkBox">
                         <property name="halign">start</property>

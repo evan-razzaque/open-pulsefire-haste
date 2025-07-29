@@ -21,9 +21,11 @@ enum {
  * @brief Every macro data packet seems to have a sum byte after the button byte that alternates between adding 1 and 2 each packet.
  * Another way of thinking about it is half of the numbers in the sum are 1 and half are 2.
  * 
- * Thus, we get the following formula: x / 2 + (2*x) / 2. Which is simplified to (3*x) / 2. Note that this is int division, so there would be no fractional part.
+ * Thus, we get the following formula: (1x / 2) + (2x / 2). Which is simplified to 3x / 2. Note that this is int division, so there would be no fractional part.
  * 
  * For example, the sum bytes for 6 packets would be: 0x00, 0x01, 0x03, 0x04, 0x06, 0x07
+ *
+ * TODO: explain 80+ events
  */
 #define MACRO_PACKET_SUM(x) ((3*(x)) / 2)
 
