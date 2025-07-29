@@ -2,14 +2,11 @@
 #include <hidapi/hidapi.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <gtk/gtk.h>
 
 #include "types.h"
 #include "device/mouse.h"
 #include "hotplug/hotplug.h"
-
-void setup_mouse_removal_callbacks(mouse_hotplug_data *hotplug_data, struct hid_device_info *dev_list) {
-    return;
-}
 
 struct hotplug_listener_data {
     libusb_hotplug_callback_handle hotplug_cb_handle_wired;
