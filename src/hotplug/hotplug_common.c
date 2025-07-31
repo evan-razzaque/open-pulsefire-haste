@@ -1,8 +1,10 @@
 #define HOTPLUG_COMMON_PRIVATE
+
+#include <hidapi/hidapi.h>
+#include <adwaita.h>
 #include "hotplug/hotplug_common.h"
 
 void update_device_connection_detached(mouse_data *mouse) {
-    // Wireless was disconnected with wired plugged in, do nothing
     if (mouse->type == CONNECTION_TYPE_WIRED) return;
 
     if (mouse->dev != NULL) {
@@ -11,7 +13,6 @@ void update_device_connection_detached(mouse_data *mouse) {
         mouse->dev = NULL;
     }
 
-    // Reconnect to wireless
     if (mouse->type == CONNECTION_TYPE_WIRELESS) mouse->state = RECONNECT;
 }
 

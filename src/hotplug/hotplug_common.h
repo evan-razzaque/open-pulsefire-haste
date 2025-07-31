@@ -15,10 +15,10 @@
 #define DEVICE_REMOVE (LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT)
 #endif
 
-#include <stdint.h>
-#include <hidapi/hidapi.h>
-
 #include "hotplug/hotplug.h"
+#include "types.h"
+
+#include <stdint.h>
 
 /**
  * @brief Updates the mouse connection when the device connection changes.

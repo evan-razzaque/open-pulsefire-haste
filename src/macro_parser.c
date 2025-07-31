@@ -1,7 +1,6 @@
 #define MACRO_PARSER_PRIVATE
 #include "macro_parser.h"
-#include "macro_types.h"
-#include "mouse_config.h"
+#include "config_macro.h"
 #include "hid_keyboard_map.h"
 
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))

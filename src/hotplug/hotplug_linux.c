@@ -4,9 +4,9 @@
 #include <stdlib.h>
 #include <gtk/gtk.h>
 
-#include "types.h"
-#include "device/mouse.h"
 #include "hotplug/hotplug.h"
+#include "device/mouse.h"
+#include "types.h"
 
 struct hotplug_listener_data {
     libusb_hotplug_callback_handle hotplug_cb_handle_wired;

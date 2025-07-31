@@ -6,6 +6,25 @@
 #include "device/buttons.h"
 #include "device/rgb.h"
 #include "mouse_config.h"
+#include "config_buttons.h"
+
+#include "util.h"
+
+GtkMenuButton* get_active_menu_button(config_button_data *button_data) {
+    return button_data->menu_button_bindings[button_data->selected_button];
+}
+
+void menu_button_set_popover_visibility(GtkMenuButton *self, bool is_visible) {
+    if (is_visible) {
+        gtk_menu_button_popup(self);
+    } else {
+        gtk_menu_button_popdown(self);
+    }
+}
+
+void gtk_stack_set_page(GtkStack *stack, uint32_t page) {
+    gtk_selection_model_select_item(gtk_stack_get_pages(stack), page, TRUE);
+}
 
 /**
  * @brief Re-binds a mouse button.
@@ -33,10 +52,10 @@ static void change_mouse_binding(mouse_data *mouse, MOUSE_BUTTON button, uint16_
  * @param data Application wide data structure
  */
 static void show_keyboard_actions_window(GSimpleAction *action, GVariant *variant, app_data *data) {
-	menu_button_set_popover_visibility(get_active_menu_button(data), false);
+	menu_button_set_popover_visibility(get_active_menu_button(data->button_data), false);
 
-	gtk_label_set_text(data->button_data.label_selected_button, data->button_data.selected_button_name);
-	gtk_window_present(data->button_data.window_keyboard_action);
+	gtk_label_set_text(data->button_data->label_selected_button, data->button_data->selected_button_name);
+	gtk_window_present(data->button_data->window_keyboard_action);
 }
 
 /**
@@ -56,7 +75,7 @@ static void clear_key_pressed_label(GtkWindow *self, GtkLabel *label_pressed_key
  * @param data Application wide data structure
  */
 static void close_keyboard_actions_window(GtkButton *self, app_data *data) {
-	gtk_window_close(data->button_data.window_keyboard_action);
+	gtk_window_close(data->button_data->window_keyboard_action);
 }
 
 /**
@@ -66,17 +85,17 @@ static void close_keyboard_actions_window(GtkButton *self, app_data *data) {
  * @param data Application wide data structure
  */
 static void confirm_keyboard_action_binding(GtkButton *self, app_data *data) {
-	byte hid_usage_id = data->button_data.current_keyboard_action;
+	byte hid_usage_id = data->button_data->current_keyboard_action;
 
 	change_mouse_binding(
 		data->mouse,
-		data->button_data.selected_button,
-		data->button_data.current_keyboard_action,
-		get_active_menu_button(data),
-		data->button_data.key_names[hid_usage_id]
+		data->button_data->selected_button,
+		data->button_data->current_keyboard_action,
+		get_active_menu_button(data->button_data),
+		data->button_data->key_names[hid_usage_id]
 	);
 
-	gtk_window_close(data->button_data.window_keyboard_action);
+	gtk_window_close(data->button_data->window_keyboard_action);
 }
 
 /**
@@ -101,13 +120,13 @@ static void change_mouse_simple_binding(GSimpleAction *action, GVariant *mapping
 	
 	change_mouse_binding(
 		data->mouse,
-		data->button_data.selected_button,
+		data->button_data->selected_button,
 		action_value,
-		get_active_menu_button(data), 
+		get_active_menu_button(data->button_data), 
 		action_name
 	);
 	
-	data->button_data.bindings[data->button_data.selected_button] = action_value;
+	data->button_data->bindings[data->button_data->selected_button] = action_value;
 }
 
 /**
@@ -122,14 +141,14 @@ static void change_mouse_simple_binding(GSimpleAction *action, GVariant *mapping
  */
 static int set_keyboard_action(GtkEventControllerKey *self, guint keyval, guint keycode, GdkModifierType state, app_data* data) {
 	if (keyval > 0xffff) return true; // Bounds check for keyboard_keys
-	GtkLabel *label_pressed_key = data->button_data.label_pressed_key;
+	GtkLabel *label_pressed_key = data->button_data->label_pressed_key;
 
-	byte hid_usage_id = data->button_data.keyboard_keys[keyval];
-	data->button_data.current_keyboard_action = 0x0200 + hid_usage_id;
+	byte hid_usage_id = data->button_data->keyboard_keys[keyval];
+	data->button_data->current_keyboard_action = 0x0200 + hid_usage_id;
 
-	data->button_data.bindings[data->button_data.selected_button] = 0x0200 + hid_usage_id;
+	data->button_data->bindings[data->button_data->selected_button] = 0x0200 + hid_usage_id;
 	
-	const char *key_name = data->button_data.key_names[hid_usage_id];
+	const char *key_name = data->button_data->key_names[hid_usage_id];
 	gtk_label_set_text(label_pressed_key, key_name);
 	
 	return true;
@@ -161,15 +180,15 @@ static void set_mouse_button(GtkMenuButton *menu_button, GParamSpec *param_spec,
 	
 	int *button = g_object_get_data(G_OBJECT(menu_button), "button");
 	
-	if (*button != data->button_data.selected_button) {
-		gtk_popover_set_child(gtk_menu_button_get_popover(get_active_menu_button(data)), NULL);
+	if (*button != data->button_data->selected_button) {
+		gtk_popover_set_child(gtk_menu_button_get_popover(get_active_menu_button(data->button_data)), NULL);
 	}
 	
-	data->button_data.selected_button = *button;
+	data->button_data->selected_button = *button;
 	
-	gtk_popover_set_child(popover, GTK_WIDGET(data->button_data.stack_button_actions));
+	gtk_popover_set_child(popover, GTK_WIDGET(data->button_data->stack_button_actions));
 	
-	data->button_data.selected_button_name = gtk_widget_get_tooltip_text(GTK_WIDGET(menu_button));
+	data->button_data->selected_button_name = gtk_widget_get_tooltip_text(GTK_WIDGET(menu_button));
 }
 
 /**
@@ -209,10 +228,10 @@ static void set_menu_button_label(GtkMenuButton *menu_button, uint16_t action, c
  * @param data Application wide data structure
  */
 static void setup_action_menu_buttons(GtkBuilder *builder, app_data *data) {
-	GtkMenuButton **menu_buttons = data->button_data.menu_button_bindings;
-	uint16_t *bindings = data->button_data.bindings;
+	GtkMenuButton **menu_buttons = data->button_data->menu_button_bindings;
+	uint16_t *bindings = data->button_data->bindings;
 	
-	const char **key_names = data->button_data.key_names;
+	const char **key_names = data->button_data->key_names;
 	char *simple_action_names[(DPI_TOGGLE >> 8) + 1][(DPI_TOGGLE & 0x00ff) + 1] = SIMPLE_ACTION_NAMES();
 	
 	menu_buttons[0] = GTK_MENU_BUTTON(GTK_WIDGET(gtk_builder_get_object(builder, "menuButtonLeft")));
@@ -223,14 +242,14 @@ static void setup_action_menu_buttons(GtkBuilder *builder, app_data *data) {
 	menu_buttons[5] = GTK_MENU_BUTTON(GTK_WIDGET(gtk_builder_get_object(builder, "menuButtonDPI")));
 	
 	for (int i = 0; i < BUTTON_COUNT; i++) {
-		g_object_set_data(G_OBJECT(menu_buttons[i]), "button", (void*) &data->button_data.buttons[i]);
+		g_object_set_data(G_OBJECT(menu_buttons[i]), "button", (void*) &data->button_data->buttons[i]);
 		
 		g_signal_connect(menu_buttons[i], "notify::active", G_CALLBACK(set_mouse_button), data);
 		g_signal_connect_swapped(
 			gtk_menu_button_get_popover(menu_buttons[i]),
 			"closed",
 			G_CALLBACK(reset_stack_menu),
-			data->button_data.stack_button_actions
+			data->button_data->stack_button_actions
 		);
 
 		if (bindings[i] >> 8 == MOUSE_ACTION_TYPE_MACRO) continue;
@@ -245,20 +264,20 @@ static void setup_action_menu_buttons(GtkBuilder *builder, app_data *data) {
  * @param data Application wide data structure
  */
 static void get_button_data_widgets(GtkBuilder *builder, app_data *data) {
-	data->button_data.window_keyboard_action = GTK_WINDOW(GTK_WIDGET(gtk_builder_get_object(builder, "windowKeyboardAction")));
-    data->button_data.event_key_controller = GTK_EVENT_CONTROLLER(gtk_builder_get_object(builder, "eventKeyController"));
-	data->button_data.label_selected_button = GTK_LABEL(GTK_WIDGET(gtk_builder_get_object(builder, "labelSelectedButton")));
-    data->button_data.label_pressed_key = GTK_LABEL(GTK_WIDGET(gtk_builder_get_object(builder, "labelPressedKey")));
-	data->button_data.stack_button_actions = GTK_STACK(GTK_WIDGET(gtk_builder_get_object(builder, "stackButtonActions")));
+	data->button_data->window_keyboard_action = GTK_WINDOW(GTK_WIDGET(gtk_builder_get_object(builder, "windowKeyboardAction")));
+    data->button_data->event_key_controller = GTK_EVENT_CONTROLLER(gtk_builder_get_object(builder, "eventKeyController"));
+	data->button_data->label_selected_button = GTK_LABEL(GTK_WIDGET(gtk_builder_get_object(builder, "labelSelectedButton")));
+    data->button_data->label_pressed_key = GTK_LABEL(GTK_WIDGET(gtk_builder_get_object(builder, "labelPressedKey")));
+	data->button_data->stack_button_actions = GTK_STACK(GTK_WIDGET(gtk_builder_get_object(builder, "stackButtonActions")));
 }
 
 void app_config_buttons_init(GtkBuilder *builder, app_data *data) {
 	get_button_data_widgets(builder, data);
 
-	gtk_window_set_application(data->button_data.window_keyboard_action, data->widgets->app);
-	gtk_widget_add_controller(GTK_WIDGET(data->button_data.window_keyboard_action), data->button_data.event_key_controller);
-	g_signal_connect(data->button_data.window_keyboard_action, "close-request", G_CALLBACK(clear_key_pressed_label), data->button_data.label_pressed_key);
-    g_signal_connect(data->button_data.event_key_controller, "key-pressed", G_CALLBACK(set_keyboard_action), data);
+	gtk_window_set_application(data->button_data->window_keyboard_action, data->widgets->app);
+	gtk_widget_add_controller(GTK_WIDGET(data->button_data->window_keyboard_action), data->button_data->event_key_controller);
+	g_signal_connect(data->button_data->window_keyboard_action, "close-request", G_CALLBACK(clear_key_pressed_label), data->button_data->label_pressed_key);
+    g_signal_connect(data->button_data->event_key_controller, "key-pressed", G_CALLBACK(set_keyboard_action), data);
 	
 	setup_action_menu_buttons(builder, data);
 	

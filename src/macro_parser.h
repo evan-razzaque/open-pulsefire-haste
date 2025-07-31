@@ -5,7 +5,7 @@
 #error "You cannot include this header directly"
 #endif
 
-#include "mouse_config.h"
+#include "config_macro.h"
 
 /**
  * @brief Converts a mouse macro into an array of macro events

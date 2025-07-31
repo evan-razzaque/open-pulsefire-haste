@@ -13,8 +13,14 @@
 #include "device/sensor.h"
 #include "hotplug/hotplug.h"
 
+#include "settings_storage.h"
+
 #include "hid_keyboard_map.h"
 #include "mouse_config.h"
+#include "config_led.h"
+#include "config_buttons.h"
+#include "config_macro.h"
+#include "config_sensor.h"
 
 #include "templates/stack_menu_button.h"
 #include "templates/stack_menu_button_back.h"
@@ -47,7 +53,7 @@ void save_mouse_settings(GtkWidget *self, app_data *data) {
 	gtk_widget_set_sensitive(self, false);
 	
 	g_mutex_lock(mouse->mutex);
-	save_device_settings(mouse->dev, &data->color_data.mouse_led);
+	save_device_settings(mouse->dev, &data->color_data->mouse_led);
 	g_mutex_unlock(mouse->mutex);
 
 	gtk_widget_set_sensitive(self, true);
@@ -62,17 +68,17 @@ static void load_mouse_settings(app_data *data) {
 	hid_device *dev = data->mouse->dev;
 
 	for (int i = 0; i < BUTTON_COUNT; i++) {
-		if (data->button_data.bindings[i] >> 8 == MOUSE_ACTION_TYPE_MACRO) {
-			assign_macro(data->macro_data.macro_indicies[i], i, data);
+		if (data->button_data->bindings[i] >> 8 == MOUSE_ACTION_TYPE_MACRO) {
+			assign_macro(data->macro_data->macro_indicies[i], i, data);
 			continue;
 		}
 
-		data->macro_data.macro_indicies[i] = -1;
-		assign_button_action(dev, i, data->button_data.bindings[i]);
+		data->macro_data->macro_indicies[i] = -1;
+		assign_button_action(dev, i, data->button_data->bindings[i]);
 	}
 
-	set_polling_rate(dev, data->sensor_data.polling_rate_value);
-	save_dpi_settings(dev, &data->sensor_data.dpi_config, data->sensor_data.lift_off_distance);
+	set_polling_rate(dev, data->sensor_data->polling_rate_value);
+	save_dpi_settings(dev, &data->sensor_data->dpi_config, data->sensor_data->lift_off_distance);
 }
 
 /**
@@ -99,8 +105,8 @@ static void load_mouse_settings(app_data *data) {
 } */
 
 void unref_widgets(app_data *data) {
-	// g_object_ref_sink(data->sensor_data.check_button_group_dpi_profile);
-	// g_object_unref(data->sensor_data.check_button_group_dpi_profile);
+	// g_object_ref_sink(data->sensor_data->check_button_group_dpi_profile);
+	// g_object_unref(data->sensor_data->check_button_group_dpi_profile);
 }
 
 /**
@@ -113,17 +119,17 @@ void close_application(GtkWindow *window, app_data *data) {
 	save_settings_to_file(data);
 	save_macros_to_file(data);
 	
-	for (int i = 0; i < data->macro_data.macro_count; i++) {
-		free(data->macro_data.macros[i].events);
-		free(data->macro_data.macros[i].name);
+	for (int i = 0; i < data->macro_data->macro_count; i++) {
+		free(data->macro_data->macros[i].events);
+		free(data->macro_data->macros[i].name);
 	}
 
-	free(data->macro_data.macros);
+	free(data->macro_data->macros);
 
 	unref_widgets(data);
 	
 	gtk_window_destroy(data->widgets->window);
-	gtk_window_destroy(data->button_data.window_keyboard_action);
+	gtk_window_destroy(data->button_data->window_keyboard_action);
 	
 	printf("window closed\n");
 }
@@ -211,7 +217,7 @@ void reconnect_mouse(app_data *data) {
  */
 void* mouse_update_loop(app_data *data) {	
 	mouse_data *mouse = data->mouse;
-	color_options *led = &data->color_data.mouse_led;
+	color_options *led = &data->color_data->mouse_led;
 
 	int res;
 	
@@ -288,13 +294,15 @@ int main() {
 	app_data data = {
 		.mouse = &mouse,
 		.widgets = &widgets,
-		.button_data = {
+		.color_data = &(config_color_data) {0},
+		.sensor_data = &(config_sensor_data) {0},
+		.button_data = &(config_button_data) {
 			.buttons = {0, 1, 2, 3, 4, 5},
 			.default_bindings = {LEFT_CLICK, RIGHT_CLICK, MIDDLE_CLICK, BACK, FORWARD, DPI_TOGGLE},
 			.keyboard_keys = KEYBOARD_MAP(),
 			.key_names = KEY_NAMES()
 		},
-		.macro_data = {
+		.macro_data = &(config_macro_data) {
 			.modifier_map = MACRO_MODIFIER_MAP(),
 			.mouse_buttons = MOUSE_MAP(),
 			.repeat_mode_map = {

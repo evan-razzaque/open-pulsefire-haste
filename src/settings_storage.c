@@ -4,13 +4,18 @@
 #include <string.h>
 #include <gtk/gtk.h>
 
+#include "settings_storage.h"
+
 #include "device/rgb.h"
 #include "device/mouse.h"
 #include "device/buttons.h"
 #include "device/sensor.h"
 #include "types.h"
 
-#include "mouse_config.h"
+#include "config_led.h"
+#include "config_buttons.h"
+#include "config_macro.h"
+#include "config_sensor.h"
 
 #define SETTINGS_FILE "data/mouse_settings.bin"
 #define MACROS_FILE "data/macros.bin"
@@ -104,25 +109,25 @@ int load_settings_from_file(app_data *data) {
         fclose(data->settings_file);
     }
 
-    memcpy(data->button_data.bindings, settings.bindings, sizeof(settings.bindings));
+    memcpy(data->button_data->bindings, settings.bindings, sizeof(settings.bindings));
     
-    data->color_data.mouse_led = settings.led;
-    data->sensor_data.dpi_config = settings.dpi_config;
-    data->sensor_data.polling_rate_value = settings.polling_rate_value;
-    data->sensor_data.lift_off_distance = settings.lift_off_distance;
+    data->color_data->mouse_led = settings.led;
+    data->sensor_data->dpi_config = settings.dpi_config;
+    data->sensor_data->polling_rate_value = settings.polling_rate_value;
+    data->sensor_data->lift_off_distance = settings.lift_off_distance;
 
     return 0;
 }
 
 int save_settings_to_file(app_data *data) {
     mouse_settings settings = {
-        .led = data->color_data.mouse_led,
-        .dpi_config = data->sensor_data.dpi_config,
-        .polling_rate_value = data->sensor_data.polling_rate_value,
-        .lift_off_distance = data->sensor_data.lift_off_distance
+        .led = data->color_data->mouse_led,
+        .dpi_config = data->sensor_data->dpi_config,
+        .polling_rate_value = data->sensor_data->polling_rate_value,
+        .lift_off_distance = data->sensor_data->lift_off_distance
     };
 
-    memcpy(settings.bindings, data->button_data.bindings, sizeof(data->button_data.bindings));
+    memcpy(settings.bindings, data->button_data->bindings, sizeof(data->button_data->bindings));
     
     data->settings_file = fopen(SETTINGS_FILE, "wb");
     if (handle_file_error(data->settings_file, SETTINGS_FILE, true) < 0) return -1;
@@ -149,16 +154,16 @@ int load_macros_from_file(app_data *data) {
         fread(&macro_info, sizeof(mouse_macro_info), 1, data->macros_file);
     }
 
-    memcpy(data->macro_data.macro_indicies, macro_info.macro_indicies, sizeof(macro_info.macro_indicies));
+    memcpy(data->macro_data->macro_indicies, macro_info.macro_indicies, sizeof(macro_info.macro_indicies));
 
-    data->macro_data.macro_array_size = MAX(macro_info.macro_count, 1);
-    data->macro_data.macros = malloc(sizeof(recorded_macro) * data->macro_data.macro_array_size);
+    data->macro_data->macro_array_size = MAX(macro_info.macro_count, 1);
+    data->macro_data->macros = malloc(sizeof(recorded_macro) * data->macro_data->macro_array_size);
 
     if (macro_info.macro_count == 0) return 0;
     
-    data->macro_data.macro_count = macro_info.macro_count;
+    data->macro_data->macro_count = macro_info.macro_count;
 
-    recorded_macro *macros = data->macro_data.macros;
+    recorded_macro *macros = data->macro_data->macros;
 
     for (int i = 0; i < macro_info.macro_count; i++) {
         macro_detail detail = {0};
@@ -182,17 +187,17 @@ int load_macros_from_file(app_data *data) {
 
 int save_macros_to_file(app_data *data) {
     mouse_macro_info macro_info = {
-        .macro_count = data->macro_data.macro_count,
+        .macro_count = data->macro_data->macro_count,
     };
 
-    memcpy(macro_info.macro_indicies, data->macro_data.macro_indicies, sizeof(int) * BUTTON_COUNT);
+    memcpy(macro_info.macro_indicies, data->macro_data->macro_indicies, sizeof(int) * BUTTON_COUNT);
 
     data->macros_file = fopen(MACROS_FILE, "wb");
     if (handle_file_error(data->macros_file, MACROS_FILE, true) < 0) return -1;
 
     fwrite(&macro_info, sizeof(mouse_macro_info), 1, data->macros_file);
 
-    recorded_macro *macros = data->macro_data.macros;
+    recorded_macro *macros = data->macro_data->macros;
     
     for (int i = 0; i < macro_info.macro_count; i++) {
         macro_detail detail = {

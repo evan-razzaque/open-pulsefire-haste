@@ -4,7 +4,7 @@
 #include <gtk/gtk.h>
 #include <stdint.h>
 
-#include "macro_types.h"
+#include "config_macro.h"
 
 G_DECLARE_FINAL_TYPE(MacroEventItem, macro_event_item, MACRO, EVENT_ITEM, GtkBox)
 

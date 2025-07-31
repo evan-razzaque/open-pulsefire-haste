@@ -25,67 +25,29 @@ ifeq ($(OS),Windows_NT)
 	LDLIBS = -lm -lhidapi -lhid -lcfgmgr32 $$(pkg-config --libs libadwaita-1 gmodule-export-2.0) -I /mingw64/include/hidapi
 endif
 
+VPATH = resources src src/device src/hotplug src/templates
+
 all: $(TARGET) 
 	
 $(TARGET) : $(OBJFILES)
 	@mkdir -p data bin
 	$(CC) -o $(TARGET) $(OBJFILES) $(LDLIBS) $(LDFLAGS)
 
-# Device
-
-build/%.o: src/device/%.c src/device/%.h
+build/main.o : src/main.c
 	@mkdir -p build
 	$(CC) -c $(CFLAGS) $< -o $@
 
-# Hotplug
-
-build/hotplug.o: $(HOTPLUG_SOURCE) src/hotplug/hotplug.h
+build/hotplug.o : $(HOTPLUG_SOURCE) hotplug.h
 	@mkdir -p build
 	$(CC) -c $(CFLAGS) $< -o $@
 
-build/hotplug_common.o: src/hotplug/hotplug_common.c src/hotplug/hotplug_common.h
-	@mkdir -p build
-	$(CC) -c $(CFLAGS) $< -o $@
-
-# Application
-
-$(APP_OBJFILES) : src/types.h src/mouse_config.h src/util.h
-
-build/main.o: src/main.c src/hid_keyboard_map.h
-	@mkdir -p build
-	$(CC) -c $(CFLAGS) $< -o $@
-
-build/config_macro.o build/macro_event_item.o build/macro_parser.o: src/macro_types.h
-
-build/macro_parser.o: src/macro_parser.c src/macro_parser.h src/macro_types.h
-	@mkdir -p build
-	$(CC) -c $(CFLAGS) $< -o $@
-
-build/%.o: src/%.c
-	@mkdir -p build
-	$(CC) -c $(CFLAGS) $< -o $@
-
-# Templates
-
-build/main.o: src/templates/stack_menu_button.h src/templates/stack_menu_button_back.h
-build/config_sensor.o: src/templates/dpi_profile_config.h
-build/config_macro.o: src/templates/macro_event_item.h
-
-build/%.o: src/templates/%.c src/templates/%.h
-	@mkdir -p build
-	$(CC) -c $(CFLAGS) $< -o $@
-
-# Gresources
-
-$(GRESOURCES_OBJFILE) : resources/gresources.c
+build/%.o : %.c %.h
 	@mkdir -p build
 	$(CC) -c $(CFLAGS) $< -o $@
 
 resources/gresources.c : $(UI_FILES)
 	@mkdir -p resources
 	glib-compile-resources $< --sourcedir ui --target resources/gresources.c --generate
-
-# Clean
 
 clean:
 	rm -rf bin build resources data

@@ -1,13 +1,11 @@
 #ifndef HOTPLUG_H
 #define HOTPLUG_H
-
 #define HOTPLUG_COMMON_PRIVATE
 
-#include <glib.h>
 #include <hidapi/hidapi.h>
 
-#include "types.h"
 #include "hotplug/hotplug_common.h"
+#include "types.h"
 
 /**
  * @brief An opaque struct for storing platform specific hotplug listener data.

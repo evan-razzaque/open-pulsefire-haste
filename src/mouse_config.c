@@ -3,10 +3,7 @@
 
 #include "types.h"
 #include "mouse_config.h"
-
-void gtk_stack_set_page(GtkStack *stack, uint32_t page) {
-    gtk_selection_model_select_item(gtk_stack_get_pages(stack), page, TRUE);
-}
+#include "config_buttons.h"
 
 int toggle_mouse_settings_visibility(app_data *data) {
     mouse_data *mouse = data->mouse;
@@ -38,22 +35,6 @@ int toggle_mouse_settings_visibility(app_data *data) {
     return G_SOURCE_CONTINUE;
 }
 
-GtkMenuButton* get_active_menu_button(app_data *data) {
-    return data->button_data.menu_button_bindings[data->button_data.selected_button];
-}
-
-void menu_button_set_popover_visibility(GtkMenuButton *self, bool is_visible) {
-    if (is_visible) {
-        gtk_menu_button_popup(self);
-    } else {
-        gtk_menu_button_popdown(self);
-    }
-}
-
-void enter_macro_stack_page(GtkStack *stack, GtkActionable *button) {
-    gtk_stack_set_page(stack, STACK_PAGE_MACRO);
-}
-
 /**
  * @brief A function to switch to the main stack page.
  * 
@@ -77,9 +58,4 @@ G_MODULE_EXPORT void disable_main_stack_page(GtkBox *box_main, GtkActionable *bu
 
 G_MODULE_EXPORT void enable_main_stack_page(GtkBox *box_main, GtkActionable *button) {
     gtk_widget_set_sensitive(GTK_WIDGET(box_main), true);
-}
-
-G_MODULE_EXPORT void drop_down_activate(GtkDropDown *self, GParamSpec *param_spec, void *data) {
-    printf("param name: %s", param_spec->name);
-    printf("Selected: %d\n", gtk_drop_down_get_selected(self));
 }
