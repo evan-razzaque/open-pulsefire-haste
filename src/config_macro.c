@@ -5,12 +5,12 @@
 #include <gtk/gtk.h>
 #include <adwaita.h>
 
-#include "device/buttons.h"
+#include "config_macro.h"
 
+#include "device/buttons.h"
 #include "types.h"
 #include "util.h"
 #include "mouse_config.h"
-#include "config_macro.h"
 #include "config_buttons.h"
 
 #define MACRO_PARSER_PRIVATE

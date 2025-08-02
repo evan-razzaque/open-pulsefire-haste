@@ -1,5 +1,5 @@
-#ifndef __RESOURCE_templates_H__
-#define __RESOURCE_templates_H__
+#ifndef __RESOURCE_gresources_H__
+#define __RESOURCE_gresources_H__
 
 #include <gio/gio.h>
 

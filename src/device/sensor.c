@@ -1,8 +1,8 @@
 #include <stdint.h>
 #include <hidapi/hidapi.h>
 
-#include "mouse.h"
 #include "sensor.h"
+#include "mouse.h"
 
 int set_polling_rate(hid_device *dev, byte polling_rate_value) {
 	byte data[PACKET_SIZE] = {REPORT_FIRST_BYTE(SEND_BYTE_POLLING_RATE), 0x00, 0x00, 0x01, polling_rate_value};

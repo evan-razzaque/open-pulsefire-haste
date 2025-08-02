@@ -25,10 +25,10 @@
 #include "templates/stack_menu_button.h"
 #include "templates/stack_menu_button_back.h"
 #include "templates/mouse_macro_button.h"
+#include "templates/gresources.h"
 
 #include "util.h"
 
-#include "templates/gresources.h"
 
 #define widget_add_event(builder, widget_name, detailed_signal, c_handler, data)\
 	g_signal_connect(gtk_builder_get_object(builder, widget_name), detailed_signal, G_CALLBACK(c_handler), data);

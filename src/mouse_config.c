@@ -1,8 +1,8 @@
 #include <gtk/gtk.h>
 #include <stdint.h>
 
-#include "types.h"
 #include "mouse_config.h"
+#include "types.h"
 #include "config_buttons.h"
 
 int toggle_mouse_settings_visibility(app_data *data) {

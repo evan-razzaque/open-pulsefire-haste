@@ -3,8 +3,8 @@
 #include <string.h>
 #include <math.h>
 
-#include "mouse.h"
 #include "buttons.h"
+#include "mouse.h"
 
 #define MIN(a, b) (((a) < (b))? (a) : (b))
 

@@ -4,12 +4,13 @@
 #include <sys/time.h>
 #include <gtk/gtk.h>
 
+#include "config_sensor.h"
+
 #include "device/mouse.h"
 #include "device/sensor.h"
 
 #include "types.h"
 #include "util.h"
-#include "config_sensor.h"
 
 #include "templates/dpi_profile_config.h"
 

@@ -2,10 +2,10 @@
 #include <stdbool.h>
 #include <gtk/gtk.h>
 
+#include "config_buttons.h"
 #include "types.h"
 #include "device/buttons.h"
 #include "device/rgb.h"
-#include "config_buttons.h"
 
 #include "util.h"
 

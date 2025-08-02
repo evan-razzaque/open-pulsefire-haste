@@ -1,9 +1,9 @@
 #include <gtk/gtk.h>
 #include <gtk/gtkapplication.h>
 
+#include "config_led.h"
 #include "types.h"
 #include "device/rgb.h"
-#include "config_led.h"
 
 /**
  * @brief Updates the led rgb color from the color chooser wigdet

@@ -3,8 +3,8 @@
 #include <hidapi/hidapi.h>
 #include <gtk/gtk.h>
 
-#include "mouse.h"
 #include "rgb.h"
+#include "mouse.h"
 
 int change_color(hid_device *dev, color_options *options) {
 	if (options->brightness < 0 || options->brightness > 100) {
