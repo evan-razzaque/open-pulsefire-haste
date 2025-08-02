@@ -5,13 +5,14 @@ build
 resources
 data
 
-# Config
-.vscode
+# Clangd
+.cache
+compile_commands.json
 
 # Cambalache
 .cmb.db*
 
 # Misc
+.vscode
 suppress.txt
-scripts
 log
