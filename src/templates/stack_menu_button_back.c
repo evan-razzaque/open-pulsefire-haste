@@ -1,5 +1,4 @@
 #include <gtk/gtk.h>
-#include <string.h>
 
 #include "stack_menu_button_back.h"
 

@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -10,7 +9,6 @@
 
 #include "types.h"
 #include "util.h"
-#include "mouse_config.h"
 #include "config_sensor.h"
 
 #include "templates/dpi_profile_config.h"

@@ -1,7 +1,6 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include <string.h>
 #include <hidapi/hidapi.h>
 #include <unistd.h>
 
@@ -94,13 +93,10 @@ int mouse_read(hid_device *dev, REPORT_BYTE report_type, byte *data) {
 		printf("Device Error: %S\n", hid_error(dev));
 		return res;
 	}
-	
-	int i = 0;
 
 	do {
 		res = hid_read_timeout(dev, data, PACKET_SIZE, 100);
 		if (res <= 0) break;
-		i++;
 	} while (data[0] != report_type);
 
 	return res;

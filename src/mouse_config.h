@@ -3,8 +3,6 @@
 
 #include <gtk/gtk.h>
 #include "types.h"
-#include "device/buttons.h"
-#include "device/rgb.h"
 
 enum {
     STACK_PAGE_MAIN,

@@ -3,7 +3,6 @@
 
 #include "types.h"
 #include "device/rgb.h"
-#include "mouse_config.h"
 #include "config_led.h"
 
 /**

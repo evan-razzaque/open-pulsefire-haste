@@ -15,7 +15,6 @@
 #define DEVICE_REMOVE (LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT)
 #endif
 
-#include "hotplug/hotplug.h"
 #include "types.h"
 
 #include <stdint.h>

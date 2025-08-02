@@ -4,11 +4,7 @@
 #include <stdint.h>
 #include <hidapi/hidapi.h>
 #include <adwaita.h>
-
-#include "device/rgb.h"
 #include "device/mouse.h"
-#include "device/buttons.h"
-#include "device/sensor.h"
 
 /**
  * @brief Used to cast function pointers to GAction callbacks.

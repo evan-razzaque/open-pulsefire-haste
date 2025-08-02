@@ -6,7 +6,6 @@
 #include <adwaita.h>
 
 #include "device/buttons.h"
-#include "hid_keyboard_map.h"
 
 #include "types.h"
 #include "util.h"

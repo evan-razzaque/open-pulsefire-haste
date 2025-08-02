@@ -2,7 +2,6 @@
 #include <stdint.h>
 
 #include "macro_event_item.h"
-#include "util.h"
 
 #define ICON_DOWN_ARROW "go-down"
 #define ICON_UP_ARROW "go-up"

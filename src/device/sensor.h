@@ -3,8 +3,6 @@
 
 #include <stdint.h>
 #include <hidapi/hidapi.h>
-
-#include "mouse.h"
 #include "rgb.h"
 
 /**

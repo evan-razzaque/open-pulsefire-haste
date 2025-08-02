@@ -1,9 +1,6 @@
 #ifndef UTIL_H
 #define UTIL_H
 
-#include <stdio.h>
-#include <string.h>
-
 /**
  * @brief Prints `expression` along with its value given `format`.
  */

@@ -3,7 +3,6 @@
 
 #include <gtk/gtk.h>
 #include "device/buttons.h"
-#include "config_buttons.h"
 #include "types.h"
 
 /**
@@ -148,7 +147,7 @@ struct config_macro_data {
 	GtkButton *button_save_macro; // The actual button used to save the macro
 	GtkListBox *box_saved_macros; // Holds the MouseMacroButton widgets
 	GtkEditable *editable_macro_name; // Contains the name of the macro that is being created/edited
-} typedef config_macro_data;
+};
 
 /**
  * @brief Assigns a macro to a mouse button.

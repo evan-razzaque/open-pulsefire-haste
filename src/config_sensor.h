@@ -17,7 +17,7 @@ struct config_sensor_data {
 	GtkWidget *button_add_dpi_profile; // The button used to add a dpi profile
 	GtkCheckButton* check_button_group_dpi_profile; // The check button group for the dpi profiles' check button
 	GtkListBox *list_box_dpi_profiles; // Holds each DpiProfileConfig widget
-} typedef config_sensor_data;
+};
 
 /**
  * Init for mouse sensor related settings.

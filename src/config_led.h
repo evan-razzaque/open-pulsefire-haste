@@ -13,7 +13,7 @@ struct config_color_data {
 	color_options mouse_led; // The mouse's led color and brightness
 	GtkColorChooser *color_chooser; // Used to set the color of the mouse's led
 	GtkRange *range_brightness; // Used to set the brightness for the mouse's led
-} typedef config_color_data;
+};
 
 /**
  * Init for mouse led settings.

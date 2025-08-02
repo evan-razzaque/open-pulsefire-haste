@@ -1,5 +1,4 @@
 #include <stdint.h>
-#include <stdio.h>
 #include <hidapi/hidapi.h>
 
 #include "mouse.h"
