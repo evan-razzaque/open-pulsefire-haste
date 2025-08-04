@@ -77,15 +77,12 @@ static void add_macro_event(MACRO_ACTION_TYPE action_type, byte action, MACRO_EV
     int previous_event_index = macro->generic_event_count - 1;
 
     generic_macro_event event = {.action_type = action_type, .event_type = event_type, .action = action};
-
-    struct timeval t;
-    gettimeofday(&t, NULL);
-
-    long current_time = (t.tv_sec * 1000) + (t.tv_usec / 1000);
-    int delay = 0;
+    
+    time_t current_time_ms = clock_gettime_ms();
+    time_t delay = 0;
 
     if (previous_event_index >= 0) {
-        delay = current_time - (long) macro->events[previous_event_index].delay_next_event;
+        delay = current_time_ms - (time_t) macro->events[previous_event_index].delay_next_event;
         delay = MIN(delay, 9999);
         
         if (data->macro_data->is_resuming_macro_recording) {
@@ -99,7 +96,7 @@ static void add_macro_event(MACRO_ACTION_TYPE action_type, byte action, MACRO_EV
     resize_array((void**) &macro->events, sizeof(generic_macro_event), &macro->generic_event_array_size, macro->generic_event_count);
     
     event.delay = delay;
-    event.delay_next_event = current_time;
+    event.delay_next_event = current_time_ms;
     macro->events[macro->generic_event_count] = event;
     
     wrap_box_add_macro_event(

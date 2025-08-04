@@ -1,11 +1,7 @@
 #ifndef UTIL_H
 #define UTIL_H
 
-/**
- * @brief Prints `expression` along with its value given `format`.
- */
-#define printval(format, expression)\
-    printf(#expression ": " format, (expression))
+#include <time.h>
 
 /**
  * @brief Removes the element at `index` from `array` and decrements `length`.
@@ -32,7 +28,20 @@
     i;                                         \
 })
 
+/**
+ * @brief Prints `expression` along with its value given `format`.
+ */
+#define printval(format, expression)\
+    printf(#expression ": " format, (expression))
+
 #define widget_add_event(builder, widget_name, detailed_signal, c_handler, data)\
 	g_signal_connect(gtk_builder_get_object(builder, widget_name), detailed_signal, G_CALLBACK(c_handler), data);
+
+/**
+ * @brief Gets the clocks current time in milliseconds.
+ * 
+ * @return time_t the clocks time in ms
+ */
+time_t clock_gettime_ms();
 
 #endif
