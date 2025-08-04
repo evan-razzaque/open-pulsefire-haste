@@ -29,12 +29,11 @@
 
 #include "util.h"
 
-
 #define widget_add_event(builder, widget_name, detailed_signal, c_handler, data)\
 	g_signal_connect(gtk_builder_get_object(builder, widget_name), detailed_signal, G_CALLBACK(c_handler), data);
 
 const char* __asan_default_options() {
-	return "detect_leaks=1";
+	return "detect_leaks=1:handle_ioctl=true";
 }
 
 const char* __lsan_default_options() {
@@ -82,27 +81,26 @@ static void load_mouse_settings(app_data *data) {
 }
 
 /**
- * @brief Updates the mouse battery display.
+ * @brief Updates the mouse battery level display.
  * 
  * @param battery_data mouse_battery_data instance
  * @return value indicating to leave this in the gtk main loop
  */
-/* int update_battery_display(mouse_battery_data *battery_data) {
+int update_battery_display(mouse_battery_data *battery_data) {
+	mouse_data *mouse = battery_data->mouse;
+
+	if (mouse->battery_level < 0) return G_SOURCE_CONTINUE;
+	if (mouse->current_battery_level == mouse->battery_level) return G_SOURCE_CONTINUE;
+
+	mouse->current_battery_level = mouse->battery_level;
+
 	char battery[5];
-
-	GMutex *mutex = battery_data->mouse->mutex;
-
-	g_mutex_lock(mutex);
-
-	int res = get_battery_level(battery_data->mouse->dev);
-	sprintf(battery, "%d%%", res);
+	sprintf(battery, "%d%%", mouse->battery_level);
 	
-	g_mutex_unlock(mutex);
-
-	if (res > 0) gtk_label_set_text(battery_data->label_battery, battery);
-	
+	gtk_label_set_text(battery_data->label_battery, battery);
+	printf("battery updated\n");
 	return G_SOURCE_CONTINUE;
-} */
+}
 
 void unref_widgets(app_data *data) {
 	// g_object_ref_sink(data->sensor_data->check_button_group_dpi_profile);
@@ -135,6 +133,39 @@ void close_application(GtkWindow *window, app_data *data) {
 }
 
 /**
+ * @brief A function to initialize the GtkBuilder instance and 
+ * obtain widgets to store into `data->widgets`.
+ *
+ * @param data Application wide data structure
+ * @return the GtkBuilder instance
+ */
+GtkBuilder* init_builder(app_data *data) {
+	g_type_ensure(STACK_TYPE_MENU_BUTTON);
+	g_type_ensure(STACK_TYPE_MENU_BUTTON_BACK);
+	g_type_ensure(MOUSE_TYPE_MACRO_BUTTON);
+
+	g_resources_register(gresources_get_resource());
+
+	GtkBuilder *builder = gtk_builder_new_from_resource("/org/haste/window.ui");
+	data->widgets->window = GTK_WINDOW(GTK_WIDGET(gtk_builder_get_object(builder, "window")));
+
+	GtkCssProvider *provider = gtk_css_provider_new();
+	gtk_css_provider_load_from_resource(provider, "/org/haste/window.css");
+	gtk_style_context_add_provider_for_display(
+		gtk_widget_get_display(GTK_WIDGET(data->widgets->window)),
+		GTK_STYLE_PROVIDER(provider),
+		GTK_STYLE_PROVIDER_PRIORITY_APPLICATION
+	);
+
+	data->widgets->stack_main = GTK_STACK(GTK_WIDGET(gtk_builder_get_object(builder, "stackMain")));
+	data->widgets->box_main = GTK_BOX(GTK_WIDGET(gtk_builder_get_object(builder, "boxMain")));
+
+	data->widgets->label_battery = GTK_LABEL(GTK_WIDGET(gtk_builder_get_object(builder, "labelBattery")));
+
+	return builder;
+}
+
+/**
  * @brief A function to setup and activate the application.
  * 
  * @param app GtkApplication instance
@@ -151,25 +182,8 @@ void activate(GtkApplication *app, app_data *data) {
 		NULL
 	);
 
-	g_type_ensure(STACK_TYPE_MENU_BUTTON);
-	g_type_ensure(STACK_TYPE_MENU_BUTTON_BACK);
-	g_type_ensure(MOUSE_TYPE_MACRO_BUTTON);
-
-	g_resources_register(gresources_get_resource());
-	
-	GtkBuilder *builder = gtk_builder_new_from_resource("/org/haste/window.ui");
+	GtkBuilder *builder = init_builder(data);
 	data->widgets->builder = builder;
-
-	GtkWindow *window = GTK_WINDOW(GTK_WIDGET(gtk_builder_get_object(builder, "window")));
-	GtkLabel *label_battery = GTK_LABEL(GTK_WIDGET(gtk_builder_get_object(builder, "labelBattery")));
-
-	GtkCssProvider *provider = gtk_css_provider_new();
-	gtk_css_provider_load_from_resource(provider, "/org/haste/window.css");
-	gtk_style_context_add_provider_for_display(gtk_widget_get_display(GTK_WIDGET(window)), GTK_STYLE_PROVIDER(provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
-
-	data->widgets->window = window;
-	data->widgets->stack_main = GTK_STACK(GTK_WIDGET(gtk_builder_get_object(builder, "stackMain")));
-	data->widgets->box_main = GTK_BOX(GTK_WIDGET(gtk_builder_get_object(builder, "boxMain")));
 	
 	app_config_led_init(builder, data);
 	app_config_buttons_init(builder, data);
@@ -180,15 +194,16 @@ void activate(GtkApplication *app, app_data *data) {
 		load_mouse_settings(data);
 	}
 
-	data->battery_data = (mouse_battery_data) {.mouse = mouse, .label_battery = label_battery};
+	data->battery_data = (mouse_battery_data) {.mouse = mouse, .label_battery = data->widgets->label_battery};
 
-	g_signal_connect(window, "close-request", G_CALLBACK(close_application), data);
+	g_signal_connect(data->widgets->window, "close-request", G_CALLBACK(close_application), data);
 	widget_add_event(builder, "buttonSave", "clicked", save_mouse_settings, data);
 
 	g_timeout_add(100, G_SOURCE_FUNC(toggle_mouse_settings_visibility), data);
+	g_timeout_add(100, G_SOURCE_FUNC(update_battery_display), &data->battery_data);
 	
-	gtk_window_set_application(window, app);
-	gtk_window_present(window);
+	gtk_window_set_application(data->widgets->window, app);
+	gtk_window_present(data->widgets->window);
 }
 
 /**
@@ -209,8 +224,7 @@ void reconnect_mouse(app_data *data) {
 }
 
 /**
- * @brief Updates the mouse connection and led settings, which in turn saves every other
- * setting while the mouse is actively being updated.
+ * @brief Updates the mouse's status and settings.
  * 
  * @param mouse mouse_data instance
  * @return Unused
@@ -219,31 +233,53 @@ void* mouse_update_loop(app_data *data) {
 	mouse_data *mouse = data->mouse;
 	color_options *led = &data->color_data->mouse_led;
 
-	int res;
+	const int update_interval_ms = 25;
+	const int update_color_interval_ms = 100;
+
+	byte report_data[PACKET_SIZE] = {0};
+
+	int read_count = 0;
 	
 	while (mouse->state != CLOSED) {
 		if (mouse->state == RECONNECT) reconnect_mouse(data);
 		if (mouse->dev == NULL || mouse->state != UPDATE) {
-			g_usleep(1000 * 100);
+			g_usleep(1000 * update_interval_ms);
 			continue;
 		}
 
 		g_mutex_lock(mouse->mutex);
+		if (mouse->dev == NULL) goto mutex_unlock;
 
-		res = change_color(mouse->dev, led);
+		int res = 0;
 		
-		if (res < 0 && mouse->state != RECONNECT) {
-			printf("%d\n", res);
-			res = 0;
+		if (read_count == 0) {
+			res = change_color(mouse->dev, led);
 
+			if (res != -1) {
+				res = mouse_send_read_request(mouse->dev, REPORT_TYPE_HEARTBEAT);
+			}
+		} else {
+			int battery_level;
+			battery_level = mouse_get_battery_level(mouse->dev, report_data);
+
+			if (battery_level >= 0) {
+				mouse->battery_level = battery_level;
+			}
+		}
+		
+		if (res == -1 && mouse->state != RECONNECT) {
 			if (mouse->dev != NULL) {
 				hid_close(mouse->dev);
 				mouse->dev = NULL;
 			}
 		}
 
-		g_mutex_unlock(mouse->mutex);
-		g_usleep(1000 * 100);
+		read_count = (read_count + 1) % (update_color_interval_ms / update_interval_ms);
+
+		mutex_unlock:
+			g_mutex_unlock(mouse->mutex);
+
+		g_usleep(1000 * update_interval_ms);
 	}
 	
 	if (mouse->dev) hid_close(mouse->dev);
@@ -258,7 +294,6 @@ void* mouse_update_loop(app_data *data) {
 void set_env() {
 	// Fixes memory leaks when switching pages with GtkStack
 	g_setenv("GSK_RENDERER", "cairo", true);
-	printval("%s\n", g_getenv("GSK_RENDERER"));
 }
 
 /**
@@ -275,7 +310,7 @@ int main() {
 	res = hid_init();
 	if (res < 0) return 1;
 	
-	mouse_data mouse = {.mutex = &mutex};
+	mouse_data mouse = {.mutex = &mutex, .battery_level = -1};
 
 	mouse_hotplug_data hotplug_data = {0};
 	hotplug_listener_init(&hotplug_data, &mouse);
@@ -334,7 +369,7 @@ int main() {
 	g_object_unref(app);
 	mouse.state = CLOSED;
 	
-	g_thread_join(update_thread);
+	g_thread_join(update_thread);	
 	g_thread_unref(update_thread);
 	
 	hotplug_listener_exit(&hotplug_data);

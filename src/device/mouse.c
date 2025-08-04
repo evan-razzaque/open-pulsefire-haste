@@ -78,44 +78,54 @@ hid_device* open_device(struct hid_device_info *dev_list) {
 int mouse_write(hid_device *dev, byte *data) {
 	if (dev == NULL) return -1;
 	int bytes_written = hid_write(dev, data, PACKET_SIZE);
+
+	if (bytes_written == -1) {
+		printf("mouse_write: %S\n", hid_error(dev));
+	}
 	
 	return bytes_written;
 }
 
-int mouse_read(hid_device *dev, REPORT_BYTE report_type, byte *data) {
+int mouse_send_read_request(hid_device *dev, REPORT_TYPE report_type) {
 	int res;
 
 	byte temp[PACKET_SIZE] = {REPORT_FIRST_BYTE(report_type)};
 	
-	res = hid_write(dev, temp, PACKET_SIZE);
+	res = mouse_write(dev, temp);
 	
 	if (res < 0) {
-		printf("Device Error: %S\n", hid_error(dev));
-		return res;
+		printf("mouse_send_read_request: %S\n", hid_error(dev));
 	}
-
-	do {
-		res = hid_read_timeout(dev, data, PACKET_SIZE, 100);
-		if (res <= 0) break;
-	} while (data[0] != report_type);
 
 	return res;
 }
 
-int get_battery_level(hid_device* dev) {
-	byte data[PACKET_SIZE] = {0};
-	int res = mouse_read(dev, REPORT_BYTE_HEARTBEAT, data);
+MOUSE_IO_STATUS mouse_read(hid_device *dev, REPORT_TYPE report_type, byte *data) {
+	data[FIRST_BYTE] = report_type;
 
-	if (res <= 0) return -1;
-	return (int) data[REPORT_INDEX_BATTERY];
+	int res = hid_read_timeout(dev, data, PACKET_SIZE, 100);
+
+	if (res < 0) {
+		printf("mouse_read: %S\n", hid_read_error(dev));
+		return res;
+	}
+
+	return (data[FIRST_BYTE] == report_type && res != 0)? res : MOUSE_IO_STATUS_READ_MISS;
+}
+
+MOUSE_IO_STATUS mouse_get_battery_level(hid_device* dev, byte *data) {
+	int res = mouse_read(dev, REPORT_TYPE_HEARTBEAT, data);
+	data[FIRST_BYTE] = 0; // Clear report type byte for next read
+
+	return (res > 0)? (int) data[REPORT_INDEX_BATTERY] : res;
 }
 
 int save_device_settings(hid_device *dev, color_options *color) {
-	/* byte d1[PACKET_SIZE] = {REPORT_FIRST_BYTE(SAVE_SETTINGS), 0x01, 0x00, 0x3c, color->red, color->green, color->blue};
+	/* byte d1[PACKET_SIZE] = {REPORT_FIRST_BYTE(SEND_BYTE_SAVE_SETTINGS), 0x01, 0x00, 0x3c, color->red, color->green, color->blue};
 	mouse_write(dev, d1);
 
 	for (int i = 0; i < 5; i++) {
-		byte d2[PACKET_SIZE] = {REPORT_FIRST_BYTE(SAVE_SETTINGS), 0x01, i + 1, 0x3c};
+		byte d2[PACKET_SIZE] = {REPORT_FIRST_BYTE(SEND_BYTE_SAVE_SETTINGS_OLD), 0x01, i + 1, 0x3c};
 		mouse_write(dev, d2); 
 	}
 

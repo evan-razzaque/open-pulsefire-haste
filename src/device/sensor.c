@@ -51,7 +51,7 @@ int save_dpi_settings(hid_device *dev, dpi_settings *settings, byte lift_off_dis
             0x02,
             settings->profiles[i].dpi_value / 100
         };
-
+        
         res = mouse_write(dev, data_dpi_value);
         if (res < 0) return -1;
 

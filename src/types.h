@@ -36,7 +36,8 @@ struct mouse_data {
 	
 	CONNECTION_TYPE type; // The CONNECTION_TYPE flags
 	MOUSE_STATE state; // The MOUSE_STATE value
-	int battery_level; // The battery percentage of the mouse
+	int battery_level; // The battery percentage of the mouse. A value of -1 indicates that the battery level is unknown.
+	int current_battery_level; // Used to check if the battery level has changed
 } typedef mouse_data;
 
 /**

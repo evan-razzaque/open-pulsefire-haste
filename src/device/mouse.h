@@ -23,8 +23,18 @@
 #define PACKET_SIZE (64)
 #endif
 
+// The first byte of packet data
 #define FIRST_BYTE (PACKET_SIZE - TRUE_PACKET_SIZE)
 #define BUTTON_COUNT 6
+
+/**
+ * An enum for the status code when performing IO with the mouse.
+ * Currently, this is only used for reading from the mouse.
+ */
+enum MOUSE_IO_STATUS {
+    MOUSE_IO_STATUS_DEVICE_ERROR = -1,
+    MOUSE_IO_STATUS_READ_MISS = -2
+} typedef MOUSE_IO_STATUS;
 
 /**
  * An enum that represents how the mouse is connected.
@@ -44,7 +54,9 @@ enum SEND_BYTE {
     SEND_BYTE_BUTTON_ASSIGNMENT             = 0xd4,
     SEND_BYTE_MACRO_ASSIGNMENT              = 0xd5,
     SEND_BYTE_MACRO_DATA                    = 0xd6,
-    SEND_BYTE_SAVE_SETTINGS_OLD             = 0xda, // Ngenuity sends packets starting with this byte when saving settings, but AFAIK it seems to be unessesary
+    
+    // Ngenuity sends packets starting with this byte when saving settings, but as far as I can tell it seems to be unessesary
+    SEND_BYTE_SAVE_SETTINGS_OLD             = 0xda, 
     SEND_BYTE_SAVE_SETTINGS                 = 0xde
 } typedef SEND_BYTE;
 
@@ -58,23 +70,23 @@ enum SAVE_BYTE {
 } typedef SAVE_BYTE;
 
 /**
- * @brief An enum for report byte for reading data.
+ * @brief An enum for report type for reading data.
  * Note that this is NOT the hid report id, so these
  * values must be wrapped with the REPORT_FIRST_BYTE macro
- * to ensure correct behaviour on both windows and *nix.
+ * to ensure correct behaviour on both windows and *nix systems.
  */
-enum REPORT_BYTE {
-    REPORT_BYTE_CONNECTION           = 0x46,
-    REPORT_BYTE_HARDWARE             = 0x50,
-    REPORT_BYTE_HEARTBEAT            = 0x51,
-    REPORT_BYTE_ONBOARD_LED_SETTINGS = 0x52
-} typedef REPORT_BYTE;
+enum REPORT_TYPE {
+    REPORT_TYPE_CONNECTION           = 0x46,
+    REPORT_TYPE_HARDWARE             = 0x50,
+    REPORT_TYPE_HEARTBEAT            = 0x51,
+    REPORT_TYPE_ONBOARD_LED_SETTINGS = 0x52
+} typedef REPORT_TYPE;
 
 /**
  * @brief An enum used to extract data from a specific index from read reports.
  */
 enum REPORT_INDEX {
-    REPORT_INDEX_BATTERY = 0x04
+    REPORT_INDEX_BATTERY = FIRST_BYTE + 0x04
 } typedef REPORT_INDEX;
 
 /**
@@ -109,7 +121,7 @@ struct hid_device_info* get_active_devices(CONNECTION_TYPE connection_type);
 hid_device* open_device(struct hid_device_info *dev_list);
 
 /**
- * Write data to the device.
+ * Write data to the mouse.
  * 
  * @param dev The mouse device handle
  * @param data The packet data containing a request byte
@@ -118,22 +130,33 @@ hid_device* open_device(struct hid_device_info *dev_list);
 int mouse_write(hid_device *dev, byte *data);
 
 /**
- * Read data from the device.
+ * Read data from the mouse.
  *
  * @param dev The mouse device handle
- * @param reportType The report to request
- * @param data A buffer to store the output data
- * @return the actual number of bytes read or -1 on error
+ * @param report_type The type of report to read
+ * @param data A buffer to store the data into
+ * @return the actual number of bytes read or a MOUSE_IO_STATUS value on error
  */
-int mouse_read(hid_device *dev, REPORT_BYTE reportType, byte *data);
+MOUSE_IO_STATUS mouse_read(hid_device *dev, REPORT_TYPE report_type, byte *data);
 
 /**
- * Returns the battery level of the mouse.
+ * Send a read request to the mouse.
+ *
+ * @param dev The mouse device handle
+ * @param report_type The type of report to request
+ * @return the actual number of bytes read or -1 on error
+ */
+int mouse_send_read_request(hid_device *dev, REPORT_TYPE report_type);
+
+/**
+ * Gets the battery level of the mouse. mouse_send_read_request() must be called before hand in
+ * order to eventually recieve data.
  * 
  * @param dev The mouse device handle
- * @return the battery level of the mouse, or -1 on error
+ * @param data A buffer to recieve read report data
+ * @return the battery level of the mouse, or MOUSE_IO_STATUS value on error
  */
-int get_battery_level(hid_device* dev);
+MOUSE_IO_STATUS mouse_get_battery_level(hid_device* dev, byte *data);
 
 /**
  * @brief Set the polling rate for the mouse.
