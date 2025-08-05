@@ -289,7 +289,7 @@ void* mouse_update_loop(app_data *data) {
 }
 
 /**
- * @brief A function to set various enviorment variables.
+ * @brief A function to set various environment variables.
  */
 void set_env() {
 	// Fixes memory leaks when switching pages with GtkStack
