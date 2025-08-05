@@ -1,10 +1,13 @@
 CC             = gcc
 UI_FILES       = ui/gresources.gresource.xml ui/window.ui ui/window.css ui/dpi-profile-config.ui ui/stack-menu-button.ui ui/stack-menu-button-back.ui ui/mouse-macro-button.ui ui/macro-event-item.ui
 BUILD_DIR      = build
-TARGET         = bin/main
+BIN_DIR        = bin
+NAME           = main
+TARGET         = $(BIN_DIR)/$(NAME)
 
 HOTPLUG_SRC    = src/hotplug/hotplug_linux.c
 GRESOURCES_SRC = resources/gresources.c
+GRESOURCES_HEADER = resources/gresources.h
 GRESOURCES_OBJ = $(BUILD_DIR)/gresources.o
 
 LOCAL_LIB      = /usr/local/lib
@@ -29,40 +32,44 @@ OBJS    := $(patsubst %.c,$(BUILD_DIR)/%.o,$(SRCS))
 DEPDIR   = $(BUILD_DIR)/.deps
 DEPFLAGS = -MT $@ -MM -MP -MF $(DEPDIR)/$*.d
 
+GEN_DIRS = resources data $(DEPDIR) $(BUILD_DIR) $(BIN_DIR)
+
 all: $(TARGET)
 	
-$(TARGET) : $(OBJS)
-	@mkdir -p data bin
+$(TARGET) : $(GEN_DIRS) $(OBJS)
+# 	@mkdir -p data bin
 	$(CC) -o $(TARGET) $(OBJS) $(LDLIBS) $(LDFLAGS)
 
 $(GRESOURCES_OBJ): $(GRESOURCES_SRC)
-	@mkdir -p $(BUILD_DIR)
+# 	@mkdir -p $(BUILD_DIR)
 	$(CC) -c $(CFLAGS) $< -o $@
 
+$(BUILD_DIR)/main.o : $(GRESOURCES_HEADER)
+
 $(BUILD_DIR)/%.o : %.c $(DEPDIR)/%.d | $(DEPDIR)
-	@mkdir -p $(BUILD_DIR)
+# 	@mkdir -p $(BUILD_DIR)
 	$(CC) $(DEPFLAGS) -Isrc $<
 	$(CC) -c $(CFLAGS) $< -o $@
 
-src/templates/gresources.h: $(UI_FILES) $(GRESOURCES_SRC)
-	glib-compile-resources $< --sourcedir ui --target $@ --generate-header
-
+$(GRESOURCES_HEADER):
+	glib-compile-resources ui/gresources.gresource.xml --sourcedir ui --target $@ --generate-header
+	
 $(GRESOURCES_SRC) : $(UI_FILES)
-	@mkdir -p resources
+# 	@mkdir -p resources
 	glib-compile-resources $< --sourcedir ui --target $@ --generate-source
 
-$(DEPDIR): 
-	@mkdir -p $@
+$(GEN_DIRS): 
+	mkdir -p $@
 
 DEPFILES := $(SRCS:%.c=$(DEPDIR)/%.d)
 $(DEPFILES):
 include $(wildcard $(DEPFILES))
 
 clean:
-	rm -rf bin $(BUILD_DIR) resources data
+	rm -rf $(GEN_DIRS)
 
 clean-partial:
-	rm -rf bin $(BUILD_DIR) resources
+	rm -rf $(BIN_DIR) $(BUILD_DIR) $(DEPDIR) resources
 
 clean-data:
 	rm -rf data/*
