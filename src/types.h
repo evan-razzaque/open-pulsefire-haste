@@ -54,15 +54,6 @@ struct app_widgets {
 } typedef app_widgets;
 
 /**
- * @brief A struct to store battery data for the mosue.
- * 
- */
-struct mouse_battery_data {
-	mouse_data *mouse;
-	GtkLabel *label_battery;
-} typedef mouse_battery_data;
-
-/**
  * @brief A struct used to store all the variables and structs needed in the application. 
  * This includes mouse data, application widgets, and mouse config.
  */
@@ -73,7 +64,6 @@ struct app_data {
 	FILE *settings_file; // File used to store mouse settings
 	FILE *macros_file; // File used to store recorded macros
 	
-	mouse_battery_data battery_data; // Mouse battery data
 	config_color_data *color_data; // Mouse led data and settings
 	config_button_data *button_data; // Mouse button data and settings 
 	config_macro_data *macro_data; // Macro data and macro bindings for the mouse

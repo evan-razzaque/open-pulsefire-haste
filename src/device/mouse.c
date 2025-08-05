@@ -100,9 +100,7 @@ int mouse_send_read_request(hid_device *dev, REPORT_TYPE report_type) {
 	return res;
 }
 
-MOUSE_IO_STATUS mouse_read(hid_device *dev, REPORT_TYPE report_type, byte *data) {
-	data[FIRST_BYTE] = report_type;
-
+int mouse_read(hid_device *dev, byte *data) {
 	int res = hid_read_timeout(dev, data, PACKET_SIZE, 100);
 
 	if (res < 0) {
@@ -110,14 +108,7 @@ MOUSE_IO_STATUS mouse_read(hid_device *dev, REPORT_TYPE report_type, byte *data)
 		return res;
 	}
 
-	return (data[FIRST_BYTE] == report_type && res != 0)? res : MOUSE_IO_STATUS_READ_MISS;
-}
-
-MOUSE_IO_STATUS mouse_get_battery_level(hid_device* dev, byte *data) {
-	int res = mouse_read(dev, REPORT_TYPE_HEARTBEAT, data);
-	data[FIRST_BYTE] = 0; // Clear report type byte for next read
-
-	return (res > 0)? (int) data[REPORT_INDEX_BATTERY] : res;
+	return data[FIRST_BYTE];
 }
 
 int save_device_settings(hid_device *dev, color_options *color) {

@@ -86,8 +86,8 @@ static void load_mouse_settings(app_data *data) {
  * @param battery_data mouse_battery_data instance
  * @return value indicating to leave this in the gtk main loop
  */
-int update_battery_display(mouse_battery_data *battery_data) {
-	mouse_data *mouse = battery_data->mouse;
+int update_battery_display(app_data *data) {
+	mouse_data *mouse = data->mouse;
 
 	if (mouse->battery_level < 0) return G_SOURCE_CONTINUE;
 	if (mouse->current_battery_level == mouse->battery_level) return G_SOURCE_CONTINUE;
@@ -97,7 +97,7 @@ int update_battery_display(mouse_battery_data *battery_data) {
 	char battery[5];
 	sprintf(battery, "%d%%", mouse->battery_level);
 	
-	gtk_label_set_text(battery_data->label_battery, battery);
+	gtk_label_set_text(data->widgets->label_battery, battery);
 	printf("battery updated\n");
 	return G_SOURCE_CONTINUE;
 }
@@ -194,13 +194,11 @@ void activate(GtkApplication *app, app_data *data) {
 		load_mouse_settings(data);
 	}
 
-	data->battery_data = (mouse_battery_data) {.mouse = mouse, .label_battery = data->widgets->label_battery};
-
 	g_signal_connect(data->widgets->window, "close-request", G_CALLBACK(close_application), data);
 	widget_add_event(builder, "buttonSave", "clicked", save_mouse_settings, data);
 
 	g_timeout_add(100, G_SOURCE_FUNC(toggle_mouse_settings_visibility), data);
-	g_timeout_add(100, G_SOURCE_FUNC(update_battery_display), &data->battery_data);
+	g_timeout_add(100, G_SOURCE_FUNC(update_battery_display), data);
 	
 	gtk_window_set_application(data->widgets->window, app);
 	gtk_window_present(data->widgets->window);
@@ -224,6 +222,43 @@ void reconnect_mouse(app_data *data) {
 }
 
 /**
+ * @brief Reads mouse reports in order to update the mouse's status.
+ * 
+ * @param data Application wide data structure
+ * @param output_data The buffer to read the data into
+ * @return int The report type of the report that was read, or -1 on error
+ */
+int read_mouse_reports(app_data *data, byte *output_data) {
+	mouse_data *mouse = data->mouse;
+
+	REPORT_TYPE report_type = mouse_read(mouse->dev, output_data);
+	
+	union report_packet_data *report_data = (union report_packet_data*) output_data;
+
+	switch (report_type) {
+	case REPORT_TYPE_CONNECTION:
+		break;
+	case REPORT_TYPE_HARDWARE:
+		break;
+	case REPORT_TYPE_HEARTBEAT:
+		mouse->battery_level = report_data->heartbeat.battery_level;
+		break;
+	case REPORT_TYPE_ONBOARD_LED_SETTINGS:
+		break;
+	case REPORT_TYPE_GENERIC_EVENT:
+		if (report_data->generic_event.selected_dpi_profile != data->sensor_data->dpi_config.selected_profile) {
+			printf("dpi profile: %d\n", report_data->generic_event.selected_dpi_profile);
+		}
+
+		break;
+	default:
+		break;
+	}
+
+	return report_type;
+}
+
+/**
  * @brief Updates the mouse's status and settings.
  * 
  * @param mouse mouse_data instance
@@ -236,7 +271,7 @@ void* mouse_update_loop(app_data *data) {
 	const int update_interval_ms = 25;
 	const int update_color_interval_ms = 100;
 
-	byte report_data[PACKET_SIZE] = {0};
+	byte output_data[PACKET_SIZE] = {0};
 
 	int read_count = 0;
 	
@@ -259,12 +294,7 @@ void* mouse_update_loop(app_data *data) {
 				res = mouse_send_read_request(mouse->dev, REPORT_TYPE_HEARTBEAT);
 			}
 		} else {
-			int battery_level;
-			battery_level = mouse_get_battery_level(mouse->dev, report_data);
-
-			if (battery_level >= 0) {
-				mouse->battery_level = battery_level;
-			}
+			res = read_mouse_reports(data, output_data);
 		}
 		
 		if (res == -1 && mouse->state != RECONNECT) {

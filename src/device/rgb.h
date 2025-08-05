@@ -16,6 +16,12 @@ struct color_options {
 	byte brightness;
 } typedef color_options;
 
+struct rgb {
+	byte red; 
+	byte green; 
+	byte blue;
+};
+
 /**
  * Changes the LED settings for the mouse.
  * 

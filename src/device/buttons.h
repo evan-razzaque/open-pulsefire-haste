@@ -78,6 +78,19 @@ enum MOUSE_BUTTON {
 } typedef MOUSE_BUTTON;
 
 /**
+ * @brief An enum for the buttons pressed in a generic event.
+ * 
+ */
+enum GENERIC_EVENT_BUTTON {
+    GENERIC_EVENT_BUTTON_LEFT       = 0x01,
+    GENERIC_EVENT_BUTTON_RIGHT      = 0x02,
+    GENERIC_EVENT_BUTTON_MIDDLE     = 0x04,
+    GENERIC_EVENT_BUTTON_BACK       = 0x08,
+    GENERIC_EVENT_BUTTON_FORWARD    = 0x10,
+    GENERIC_EVENT_BUTTON_DPI_TOGGLE = 0x20
+} typedef GENERIC_EVENT_BUTTON;
+
+/**
  * An enum for simple mouse actions (mouse, media, and windows shortcut).
  * Each member is a uint16_t composed of the type of action and the action itself.
  * Format (in hex bytes): <type> <action>

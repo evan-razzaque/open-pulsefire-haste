@@ -2,6 +2,7 @@
 #define MOUSE_H
 
 #include <stdint.h>
+#include <stdbool.h>
 #include <hidapi/hidapi.h>
 
 #include "rgb.h"
@@ -70,17 +71,76 @@ enum SAVE_BYTE {
 } typedef SAVE_BYTE;
 
 /**
- * @brief An enum for report type for reading data.
+ * @brief An enum for the report type of a packet sent by the mouse.
  * Note that this is NOT the hid report id, so these
  * values must be wrapped with the REPORT_FIRST_BYTE macro
  * to ensure correct behaviour on both windows and *nix systems.
  */
 enum REPORT_TYPE {
+    // Mouse connection status
     REPORT_TYPE_CONNECTION           = 0x46,
+    // Mouse hardware information
     REPORT_TYPE_HARDWARE             = 0x50,
+    // Mouse battery status
     REPORT_TYPE_HEARTBEAT            = 0x51,
-    REPORT_TYPE_ONBOARD_LED_SETTINGS = 0x52
+    // Mouse led settings
+    REPORT_TYPE_ONBOARD_LED_SETTINGS = 0x52,
+    // Mouse state change
+    REPORT_TYPE_GENERIC_EVENT        = 0xff
 } typedef REPORT_TYPE;
+
+/**
+ * @brief A union for reading information from report packets
+ * sent by the mouse.
+ * 
+ */
+union report_packet_data {
+    byte _data[PACKET_SIZE];
+
+    struct {
+        byte _padding[FIRST_BYTE + 3];
+        byte type;
+        union {
+            struct {
+                bool is_mouse_active;
+            } wireless;
+            struct {
+                byte unknown[2]; // Maybe charging?
+            } wired;
+        };
+    } connection_status;
+
+    struct {
+        byte _padding[FIRST_BYTE + 4];
+        uint16_t product_id;
+        uint16_t vendor_id;
+        uint32_t bcd_release_number;
+        byte __padding[8];
+        char product_string[32]; // null-terminated
+    } hardware_info;
+
+    struct {
+        byte _padding[FIRST_BYTE + 4];
+        byte battery_level;
+        byte charing_status; // 0x00 (wireless) or 0x02 (wired)
+    } heartbeat;
+
+    struct {
+        byte _padding[FIRST_BYTE + 7];
+        byte brightness;
+        struct rgb color;
+        struct rgb effect_color;
+    } led_settings;
+
+    struct {
+        byte _padding[FIRST_BYTE + 2];
+        byte selected_dpi_profile;
+        byte power_state; // 0x00 (wireless) or 0x02 (wired)
+        bool is_awake;
+        byte __padding[2];
+        byte button_bitmask; // GENERIC_EVENT_BUTTON value(s)
+    } generic_event;
+};
 
 /**
  * @brief An enum used to extract data from a specific index from read reports.
@@ -135,9 +195,9 @@ int mouse_write(hid_device *dev, byte *data);
  * @param dev The mouse device handle
  * @param report_type The type of report to read
  * @param data A buffer to store the data into
- * @return the actual number of bytes read or a MOUSE_IO_STATUS value on error
+ * @return the report type of the report that was read or -1 on error
  */
-MOUSE_IO_STATUS mouse_read(hid_device *dev, REPORT_TYPE report_type, byte *data);
+int mouse_read(hid_device *dev, byte *data);
 
 /**
  * Send a read request to the mouse.
@@ -147,16 +207,6 @@ MOUSE_IO_STATUS mouse_read(hid_device *dev, REPORT_TYPE report_type, byte *data)
  * @return the actual number of bytes read or -1 on error
  */
 int mouse_send_read_request(hid_device *dev, REPORT_TYPE report_type);
-
-/**
- * Gets the battery level of the mouse. mouse_send_read_request() must be called before hand in
- * order to eventually recieve data.
- * 
- * @param dev The mouse device handle
- * @param data A buffer to recieve read report data
- * @return the battery level of the mouse, or MOUSE_IO_STATUS value on error
- */
-MOUSE_IO_STATUS mouse_get_battery_level(hid_device* dev, byte *data);
 
 /**
  * @brief Set the polling rate for the mouse.
