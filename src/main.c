@@ -25,7 +25,7 @@
 #include "templates/stack_menu_button.h"
 #include "templates/stack_menu_button_back.h"
 #include "templates/mouse_macro_button.h"
-#include "templates/gresources.h"
+#include "../resources/gresources.h"
 
 #include "util.h"
 

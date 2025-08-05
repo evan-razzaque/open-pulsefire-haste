@@ -9,6 +9,13 @@
 #define MIN(a, b) (((a) < (b))? (a) : (b))
 
 int assign_button_action(hid_device *dev, MOUSE_BUTTON button, uint16_t action) {
+	if (
+		(button == MOUSE_BUTTON_LEFT || button == MOUSE_BUTTON_RIGHT) && 
+		!(action == LEFT_CLICK || action == RIGHT_CLICK)) 
+	{
+		return BUTTON_ASSIGN_ERROR_INVALID_ASSIGNMENT;
+	}
+
 	byte type = action >> 8;
 	byte data[PACKET_SIZE] = {REPORT_FIRST_BYTE(SEND_BYTE_BUTTON_ASSIGNMENT), button, type, 0x02, action};
 	
@@ -38,7 +45,7 @@ int assign_button_macro(hid_device *dev, MOUSE_BUTTON button, REPEAT_MODE repeat
 	int res;
 
 	res = assign_button_action(dev, button, (MOUSE_ACTION_TYPE_MACRO << 8) + button);
-	if (res < 0) return -1;
+	if (res < 0) return res;
 
 	byte data[PACKET_SIZE] = {REPORT_FIRST_BYTE(SEND_BYTE_MACRO_DATA), button, 0x00, event_count};
 

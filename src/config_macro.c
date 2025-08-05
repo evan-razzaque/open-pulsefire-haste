@@ -457,6 +457,8 @@ static void delete_macro(GSimpleAction *action, GVariant *variant_index, app_dat
 }
 
 void assign_macro(uint32_t macro_index, byte button, app_data *data) {
+    if (button == MOUSE_BUTTON_LEFT || button == MOUSE_BUTTON_RIGHT) return;
+
     recorded_macro *macro = data->macro_data->macros + macro_index;
 
     macro_event *events = malloc(sizeof(macro_event) * macro->generic_event_count);
@@ -468,7 +470,7 @@ void assign_macro(uint32_t macro_index, byte button, app_data *data) {
     }
 
     g_mutex_lock(data->mouse->mutex);
-    assign_button_macro(
+    int res = assign_button_macro(
         data->mouse->dev,
         button, 
         macro->repeat_mode,
@@ -476,6 +478,8 @@ void assign_macro(uint32_t macro_index, byte button, app_data *data) {
         event_count
     );
     g_mutex_unlock(data->mouse->mutex);
+
+    if (res < 0) return;
 
     free(events);
 

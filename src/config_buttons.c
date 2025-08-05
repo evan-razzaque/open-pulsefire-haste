@@ -34,13 +34,17 @@ void gtk_stack_set_page(GtkStack *stack, uint32_t page) {
  * @param menu_button_active The menu button corresponding to the button being re-binded
  * @param action_name The name of the action for updating the label of mouse button menu button
  */
-static void change_mouse_binding(mouse_data *mouse, MOUSE_BUTTON button, uint16_t action, GtkMenuButton *menu_button_active, const char *action_name) {
+static int change_mouse_binding(mouse_data *mouse, MOUSE_BUTTON button, uint16_t action, GtkMenuButton *menu_button_active, const char *action_name) {
 	g_mutex_lock(mouse->mutex);
-	assign_button_action(mouse->dev, button, action);
+	int res = assign_button_action(mouse->dev, button, action);
 	g_mutex_unlock(mouse->mutex);
+
+	if (res == BUTTON_ASSIGN_ERROR_INVALID_ASSIGNMENT) return res;
 
 	gtk_menu_button_set_label(menu_button_active, action_name);
 	gtk_menu_button_popdown(menu_button_active);
+	
+	return 0;
 }
 
 /**
@@ -85,14 +89,19 @@ static void close_keyboard_actions_window(GtkButton *self, app_data *data) {
  */
 static void confirm_keyboard_action_binding(GtkButton *self, app_data *data) {
 	byte hid_usage_id = data->button_data->current_keyboard_action;
+	MOUSE_BUTTON button = data->button_data->selected_button;
 
-	change_mouse_binding(
+	int res = change_mouse_binding(
 		data->mouse,
-		data->button_data->selected_button,
+		button,
 		data->button_data->current_keyboard_action,
 		get_active_menu_button(data->button_data),
 		data->button_data->key_names[hid_usage_id]
 	);
+
+	if (res == BUTTON_ASSIGN_ERROR_INVALID_ASSIGNMENT) {
+		data->button_data->bindings[button] = (button == MOUSE_BUTTON_LEFT)? LEFT_CLICK : RIGHT_CLICK;
+	}
 
 	gtk_window_close(data->button_data->window_keyboard_action);
 }
@@ -117,13 +126,15 @@ static void change_mouse_simple_binding(GSimpleAction *action, GVariant *mapping
 	
 	uint16_t action_value = (uint16_t) strtol(hex_value, NULL, 16);
 	
-	change_mouse_binding(
+	int res = change_mouse_binding(
 		data->mouse,
 		data->button_data->selected_button,
 		action_value,
 		get_active_menu_button(data->button_data), 
 		action_name
 	);
+
+	if (res == BUTTON_ASSIGN_ERROR_INVALID_ASSIGNMENT) return;
 	
 	data->button_data->bindings[data->button_data->selected_button] = action_value;
 }

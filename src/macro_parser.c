@@ -88,6 +88,8 @@ static void parse_mouse_event(macro_parser_data *p, generic_macro_event *generic
 }
 
 int parse_macro(recorded_macro *macro, macro_event *events, const byte *modifier_map) {
+    if (macro->generic_event_count <= 0) return -1;
+
     macro_parser_data parser_data = {
         .recored_macro = macro,
         .events = events,

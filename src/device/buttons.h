@@ -7,9 +7,15 @@
 
 typedef uint8_t byte;
 
+enum BUTTON_ASSIGN_ERROR {
+    BUTTON_ASSIGN_ERROR_DEVICE_ERROR = -1,
+    BUTTON_ASSIGN_ERROR_INVALID_ASSIGNMENT = -2
+} typedef BUTTON_ASSIGN_ERROR;
+
 enum {
+    MOUSE_ACTION_TYPE_MOUSE    = 0x01,
     MOUSE_ACTION_TYPE_KEYBOARD = 0x02,
-    MOUSE_ACTION_TYPE_MACRO    = 0x04
+    MOUSE_ACTION_TYPE_MACRO    = 0x04,
 };
 
 /**
@@ -170,7 +176,7 @@ union marcro_event {
  * @param dev The mouse device handle
  * @param button The mouse button to re-assign
  * @param action The action to assign to the button
- * @return the number of bytes written or -1 on error
+ * @return the number of bytes written or a BUTTON_ASSIGN_ERROR value on error
  */
 int assign_button_action(hid_device *dev, MOUSE_BUTTON button, uint16_t action);
 
@@ -182,7 +188,7 @@ int assign_button_action(hid_device *dev, MOUSE_BUTTON button, uint16_t action);
  * @param repeat_mode The repeat behavior of the macro
  * @param events The macro events
  * @param event_count The number of events
- * @return the number of bytes written or -1 on error
+ * @return the number of bytes written or a BUTTON_ASSIGN_ERROR value on error
  */
 int assign_button_macro(hid_device *dev, MOUSE_BUTTON button,  REPEAT_MODE repeat_mode, macro_event *events, int event_count);
 
