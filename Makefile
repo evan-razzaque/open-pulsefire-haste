@@ -12,12 +12,12 @@ LOCAL_LIB      = /usr/local/lib
 # libadwaita wip/alice/wrap-layout-leak
 LIBADWAITA     = $(LOCAL_LIB)/pkgconfig/libadwaita-1.pc
 
-ASAN    = -fsanitize=address
-LDLIBS  = -g $(ASAN) -lm -lhidapi-hidraw -lusb-1.0 $$(pkg-config --libs $(LIBADWAITA) gmodule-export-2.0) -Wl,-rpath,$(LOCAL_LIB)
-CFLAGS += -g $(ASAN) -Isrc/ $$(pkg-config --cflags $(LIBADWAITA) gmodule-export-2.0) -Wall -Werror -Werror=vla -Wno-deprecated-declarations -std=c99 -Og
+DEBUG    = -fsanitize=address -g -Og
+LDLIBS   = $(DEBUG) -lm -lhidapi-hidraw -lusb-1.0 $$(pkg-config --libs $(LIBADWAITA) gmodule-export-2.0) -Wl,-rpath,$(LOCAL_LIB)
+CFLAGS  += $(DEBUG) -Isrc/ $$(pkg-config --cflags $(LIBADWAITA) gmodule-export-2.0) -Wall -Werror -Werror=vla -Wno-deprecated-declarations -std=c99
 
 ifeq ($(OS),Windows_NT)
-	ASAN=
+	DEBUG=
 	HOTPLUG_SRC  = src/hotplug/hotplug_windows.c
 	LDLIBS      = -lm -lhidapi -lhid -lcfgmgr32 $$(pkg-config --libs libadwaita-1 gmodule-export-2.0) -I /mingw64/include/hidapi
 endif
