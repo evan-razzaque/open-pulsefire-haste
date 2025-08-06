@@ -20,6 +20,25 @@ struct config_sensor_data {
 };
 
 /**
+ * @brief A struct for used as argurments
+ * for `update_dpi_profile_selection`.
+ */
+struct dpi_profile_selection_args {
+	byte index; // The index of the dpi profile row to select
+	app_data *data; // Application wide data structure
+	// A function pointer to free this struct instance. Must be set to NULL if the struct is not heap-allocated.
+	GDestroyNotify free_func;
+} typedef dpi_profile_selection_args;
+
+/**
+ * @brief A function to change which dpi profile row is visually selected
+ * when a DPI toggle event is emitted from the mouse.
+ * 
+ * @param args A dpi_profile_selection_args struct instance.
+ */
+void update_dpi_profile_selection(dpi_profile_selection_args *args);
+
+/**
  * Init for mouse sensor related settings.
  * 
  * @param builder GtkBuilder object to obtain widgets

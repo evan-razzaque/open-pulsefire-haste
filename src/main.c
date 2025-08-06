@@ -29,9 +29,6 @@
 
 #include "util.h"
 
-#define widget_add_event(builder, widget_name, detailed_signal, c_handler, data)\
-	g_signal_connect(gtk_builder_get_object(builder, widget_name), detailed_signal, G_CALLBACK(c_handler), data);
-
 const char* __asan_default_options() {
 	return "detect_leaks=1:handle_ioctl=true";
 }
@@ -213,7 +210,7 @@ void reconnect_mouse(app_data *data) {
 	while (data->mouse->dev == NULL) {
 		printf("Reconnecting...\n");
 		data->mouse->dev = open_device(get_active_devices(data->mouse->type));
-		g_usleep(1000 * 50);
+		sleep_ms(50);
 	}
 
 	printf("Connected\n");
@@ -222,7 +219,7 @@ void reconnect_mouse(app_data *data) {
 }
 
 /**
- * @brief Reads mouse reports in order to update the mouse's status.
+ * @brief Reads mouse reports and events.
  * 
  * @param data Application wide data structure
  * @param output_data The buffer to read the data into
@@ -246,10 +243,18 @@ int read_mouse_reports(app_data *data, byte *output_data) {
 	case REPORT_TYPE_ONBOARD_LED_SETTINGS:
 		break;
 	case REPORT_TYPE_GENERIC_EVENT:
-		if (report_data->generic_event.selected_dpi_profile != data->sensor_data->dpi_config.selected_profile) {
-			printf("dpi profile: %d\n", report_data->generic_event.selected_dpi_profile);
+		if (report_data->generic_event.selected_dpi_profile == data->sensor_data->dpi_config.selected_profile) {
+			break;
 		}
+		
+		dpi_profile_selection_args *args = g_new(dpi_profile_selection_args, 1);
+		*args = (dpi_profile_selection_args) {
+			.data = data,
+			.index = report_data->generic_event.selected_dpi_profile,
+			.free_func = g_free
+		};
 
+		g_idle_add_once((GSourceOnceFunc) update_dpi_profile_selection, args);
 		break;
 	default:
 		break;
@@ -270,15 +275,17 @@ void* mouse_update_loop(app_data *data) {
 
 	const int update_interval_ms = 25;
 	const int update_color_interval_ms = 100;
+	const int poll_battery_level_interval_ms = 1000;
 
 	byte output_data[PACKET_SIZE] = {0};
 
-	int read_count = 0;
+	int clock = 0;
+	const int clock_reset_ms = poll_battery_level_interval_ms; 
 	
 	while (mouse->state != CLOSED) {
 		if (mouse->state == RECONNECT) reconnect_mouse(data);
 		if (mouse->dev == NULL || mouse->state != UPDATE) {
-			g_usleep(1000 * update_interval_ms);
+			sleep_ms(100);
 			continue;
 		}
 
@@ -286,30 +293,31 @@ void* mouse_update_loop(app_data *data) {
 		if (mouse->dev == NULL) goto mutex_unlock;
 
 		int res = 0;
+		clock += update_interval_ms;
 		
-		if (read_count == 0) {
+		if (clock % update_color_interval_ms == 0) {
 			res = change_color(mouse->dev, led);
-
-			if (res != -1) {
-				res = mouse_send_read_request(mouse->dev, REPORT_TYPE_HEARTBEAT);
-			}
-		} else {
-			res = read_mouse_reports(data, output_data);
 		}
+
+		if (clock == poll_battery_level_interval_ms && res >= 0) {
+			res = mouse_send_read_request(mouse->dev, REPORT_TYPE_HEARTBEAT);
+		}
+
+		clock = clock % clock_reset_ms;
+
+		if (res >= 0) res = read_mouse_reports(data, output_data);
 		
-		if (res == -1 && mouse->state != RECONNECT) {
+		if (res < 0 && mouse->state != RECONNECT) {
 			if (mouse->dev != NULL) {
 				hid_close(mouse->dev);
 				mouse->dev = NULL;
 			}
 		}
 
-		read_count = (read_count + 1) % (update_color_interval_ms / update_interval_ms);
-
 		mutex_unlock:
 			g_mutex_unlock(mouse->mutex);
 
-		g_usleep(1000 * update_interval_ms);
+		sleep_ms(update_interval_ms);
 	}
 	
 	if (mouse->dev) hid_close(mouse->dev);

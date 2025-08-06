@@ -101,11 +101,12 @@ int mouse_send_read_request(hid_device *dev, REPORT_TYPE report_type) {
 }
 
 int mouse_read(hid_device *dev, byte *data) {
+	if (dev == NULL) return -1;
 	int res = hid_read_timeout(dev, data, PACKET_SIZE, 100);
 
 	if (res < 0) {
 		printf("mouse_read: %S\n", hid_read_error(dev));
-		return res;
+		return -1;
 	}
 
 	return data[FIRST_BYTE];
