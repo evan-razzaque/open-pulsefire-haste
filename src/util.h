@@ -2,6 +2,7 @@
 #define UTIL_H
 
 #include <time.h>
+#include <glib.h>
 
 /**
  * @brief Removes the element at `index` from `array` and decrements `length`.
@@ -10,35 +11,38 @@
  * @param length A variable containing the number of elements in the array
  * @param index The index of the element to remove
  */
-#define array_delete_element(array, length, index) ({\
-    memmove(                                         \
-        (array) + (index),                           \
-        (array) + (index) + 1,                       \
-        ((length) - 1 - (index)) * sizeof(*array)    \
-    );                                               \
-    (length)--;                                      \
+#define array_delete_element(array, length, index) ({ \
+    memmove(                                          \
+        (array) + (index),                            \
+        (array) + (index) + 1,                        \
+        ((length) - 1 - (index)) * sizeof((array)[0]) \
+    );                                                \
+    (length)--;                                       \
 })
 
-#define array_index_of(array, length, value) ({\
-    int i;                                     \
-    for (i = 0; i < (length); i++) {           \
-        if ((array)[i] == (value)) break;      \
-    }                                          \
-    if (i == (length)) i = -1;                 \
-    i;                                         \
+#define array_index_of(array, length, value) ({ \
+    int i;                                      \
+    for (i = 0; i < (length); i++) {            \
+        if ((array)[i] == (value)) break;       \
+    }                                           \
+    if (i == (length)) i = -1;                  \
+    i;                                          \
 })
+
+#define sleep_ms(milliseconds) g_usleep(1000 * (milliseconds))
+
+#define widget_add_event(builder, widget_name, detailed_signal, c_handler, data) \
+	g_signal_connect(gtk_builder_get_object(builder, widget_name), detailed_signal, G_CALLBACK(c_handler), data);
+
 
 /**
  * @brief Prints `expression` along with its value given `format`.
  */
-#define printval(format, expression)\
+#define printval(format, expression) \
     printf(#expression ": " format, (expression))
 
-#define widget_add_event(builder, widget_name, detailed_signal, c_handler, data)\
-	g_signal_connect(gtk_builder_get_object(builder, widget_name), detailed_signal, G_CALLBACK(c_handler), data);
-
 /**
- * @brief Gets the clocks current time in milliseconds.
+ * @brief Gets current time in milliseconds from the clock `CLOCK_MONOTONIC`.
  * 
  * @return time_t the clocks time in ms
  */

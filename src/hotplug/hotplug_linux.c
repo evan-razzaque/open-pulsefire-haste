@@ -7,6 +7,8 @@
 #include "hotplug/hotplug.h"
 #include "device/mouse.h"
 #include "types.h"
+#include "util.h"
+#include <utils.h>
 
 struct hotplug_listener_data {
     libusb_hotplug_callback_handle hotplug_cb_handle_wired;
@@ -43,7 +45,7 @@ static void* handle_events(mouse_hotplug_data *hotplug_data) {
 
     while (mouse->state != CLOSED) {
         libusb_handle_events_completed(NULL, NULL);
-        g_usleep(1000 * 100);
+        sleep_ms(100);
     }
 
     printf("hotplug listener exit\n");

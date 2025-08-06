@@ -15,6 +15,7 @@
 #include <glib.h>
 
 #include "hotplug/hotplug.h"
+#include "util.h"
 
 struct device_connection_data {
     HANDLE device_handle;
@@ -171,8 +172,7 @@ static void* handle_events(mouse_hotplug_data *hotplug_data) {
     mouse_data *mouse = hotplug_data->mouse;
 
     while (mouse->state != CLOSED) {
-        g_usleep(1000 * 50);
-        continue;
+        sleep_ms(100);
     }
 
     printf("hotplug listener exit\n");

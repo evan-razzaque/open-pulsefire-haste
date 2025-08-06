@@ -1,4 +1,5 @@
 #include <time.h>
+#include "util.h"
 
 time_t clock_gettime_ms() {
     struct timespec t;
