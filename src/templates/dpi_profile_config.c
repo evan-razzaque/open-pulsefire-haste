@@ -1,6 +1,7 @@
 #include <gtk/gtk.h>
 
 #include "dpi_profile_config.h"
+#include "util.h"
 
 struct _DpiProfileConfig {
     GtkListBoxRow parent_instance;
@@ -25,6 +26,81 @@ enum {
 };
 
 static guint signals[N_SIGNALS] = {0};
+
+/**
+ * @brief A no-op callback to be used to prevent propigation of any events it receives.
+ *
+ * @param widget Unused
+ */
+void disable_event_cb(GtkWidget *widget) {
+    // Prevents this function from being optimized out
+    volatile int c = 0;
+    c++;
+}
+
+/**
+ * @brief A function to stop propigation for arrow key events.
+ * 
+ * @param self The event controller that emmited the key event
+ * @param keyval The value of the key pressed
+ * @param keycode Unused
+ * @param state Unused
+ * @param data Unused
+ */
+void disable_arrow_key_event(GtkEventController *self, guint keyval, guint keycode, GdkModifierType state, void* data) {
+    if (keyval == GDK_KEY_Up || keyval == GDK_KEY_Down || keyval == GDK_KEY_KP_Up || keyval == GDK_KEY_KP_Down) {
+        return;
+    }
+
+    gtk_event_controller_set_propagation_phase(self, GTK_PHASE_BUBBLE);
+}
+
+/**
+ * @brief Disable scroll events updating the dpi value. 
+ * 
+ * @param self The DpiProfileConfig instance
+ */
+static void disable_scroll(DpiProfileConfig *self) {
+    GtkEventController *ec_array[2] = {0};
+
+    for (int i = 0; i < 2; i++) {
+        ec_array[i] = gtk_event_controller_scroll_new(GTK_EVENT_CONTROLLER_SCROLL_VERTICAL);
+        gtk_event_controller_set_propagation_phase(ec_array[i], GTK_PHASE_CAPTURE);
+        g_signal_connect(ec_array[i], "scroll", G_CALLBACK(disable_event_cb), NULL);
+    }
+
+    gtk_widget_add_controller(GTK_WIDGET(self->range_dpi_value), ec_array[0]);
+    gtk_widget_add_controller(GTK_WIDGET(self->spinner_dpi_value), ec_array[1]);    
+}
+
+/**
+ * @brief Disable arrow keys updating the dpi value.
+ * 
+ * @param self The DpiProfileConfig instance
+ */
+static void disable_arrows_keys(DpiProfileConfig *self) {
+    GtkEventController *ec_array[2] = {0};
+
+    for (int i = 0; i < G_N_ELEMENTS(ec_array); i++) {
+        ec_array[i] = gtk_event_controller_key_new();
+        gtk_event_controller_set_propagation_phase(ec_array[i], GTK_PHASE_CAPTURE);
+    }
+
+    g_signal_connect(ec_array[0], "key-pressed", G_CALLBACK(disable_event_cb), NULL);
+    g_signal_connect(ec_array[1], "key-pressed", G_CALLBACK(disable_arrow_key_event), NULL);
+    
+    gtk_widget_add_controller(GTK_WIDGET(self->range_dpi_value), ec_array[0]);
+    gtk_widget_add_controller(GTK_WIDGET(self->spinner_dpi_value), ec_array[1]);
+    
+    // Hide spin button buttons
+    GtkWidget *button_decrease_value = gtk_widget_get_next_sibling(
+        gtk_widget_get_first_child(GTK_WIDGET(self->spinner_dpi_value))
+    );
+    GtkWidget *button_increase_value = gtk_widget_get_next_sibling(button_decrease_value);
+    
+    gtk_widget_set_visible(button_decrease_value, false);
+    gtk_widget_set_visible(button_increase_value, false);
+}
 
 /**
  * @brief Syncs the DpiProfileConfig's spinner value with its range value.
@@ -145,14 +221,6 @@ static void dpi_profile_config_init(DpiProfileConfig *self) {
         GTK_WIDGET(self->box_range_dpi_value),
         GTK_EVENT_CONTROLLER(self->gesture_click_controller)
     );
-
-    GtkWidget *button_decrease_value = gtk_widget_get_next_sibling(
-        gtk_widget_get_first_child(GTK_WIDGET(self->spinner_dpi_value))
-    );
-    GtkWidget *button_increase_value = gtk_widget_get_next_sibling(button_decrease_value);
-    
-    gtk_widget_set_visible(button_decrease_value, false);
-    gtk_widget_set_visible(button_increase_value, false);
     
     g_signal_connect_swapped(self->range_dpi_value, "value-changed", G_CALLBACK(dpi_profile_config_update_spinner_dpi_value), self->spinner_dpi_value);
 
@@ -164,6 +232,9 @@ static void dpi_profile_config_init(DpiProfileConfig *self) {
 
 DpiProfileConfig* dpi_profile_config_new(GtkCheckButton *check_button_group, uint8_t profile_index) {
     DpiProfileConfig* self = g_object_new(DPI_TYPE_PROFILE_CONFIG, NULL);
+    disable_scroll(self);
+    disable_arrows_keys(self);
+
     dpi_profile_config_set_index(self, profile_index);
     gtk_check_button_set_group(self->check_button, check_button_group);
 
