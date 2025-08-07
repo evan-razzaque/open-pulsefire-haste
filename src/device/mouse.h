@@ -28,6 +28,8 @@
 #define FIRST_BYTE (PACKET_SIZE - TRUE_PACKET_SIZE)
 #define BUTTON_COUNT 6
 
+#define READ_TIMEOUT (10) 
+
 /**
  * An enum that represents how the mouse is connected.
  * Can be a combination of any of these values,

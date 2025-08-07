@@ -317,7 +317,7 @@ void* mouse_update_loop(app_data *data) {
 		mutex_unlock:
 			g_mutex_unlock(mouse->mutex);
 
-		sleep_ms(update_interval_ms);
+		sleep_ms(update_interval_ms - READ_TIMEOUT);
 	}
 	
 	if (mouse->dev) hid_close(mouse->dev);
