@@ -37,17 +37,14 @@ GEN_DIRS = resources data $(DEPDIR) $(BUILD_DIR) $(BIN_DIR)
 all: $(TARGET)
 	
 $(TARGET) : $(GEN_DIRS) $(OBJS)
-# 	@mkdir -p data bin
 	$(CC) -o $(TARGET) $(OBJS) $(LDLIBS) $(LDFLAGS)
 
 $(GRESOURCES_OBJ): $(GRESOURCES_SRC)
-# 	@mkdir -p $(BUILD_DIR)
 	$(CC) -c $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/main.o : $(GRESOURCES_HEADER)
 
 $(BUILD_DIR)/%.o : %.c $(DEPDIR)/%.d | $(DEPDIR)
-# 	@mkdir -p $(BUILD_DIR)
 	$(CC) $(DEPFLAGS) -Isrc $<
 	$(CC) -c $(CFLAGS) $< -o $@
 
@@ -55,7 +52,6 @@ $(GRESOURCES_HEADER):
 	glib-compile-resources ui/gresources.gresource.xml --sourcedir ui --target $@ --generate-header
 	
 $(GRESOURCES_SRC) : $(UI_FILES)
-# 	@mkdir -p resources
 	glib-compile-resources $< --sourcedir ui --target $@ --generate-source
 
 $(GEN_DIRS): 
