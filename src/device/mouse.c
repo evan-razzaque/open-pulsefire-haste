@@ -106,7 +106,7 @@ int mouse_read(hid_device *dev, byte *data) {
 
 	if (res < 0) {
 		printf("mouse_read: %S\n", hid_read_error(dev));
-		return -1;
+		return res;
 	}
 
 	return data[FIRST_BYTE];

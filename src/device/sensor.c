@@ -41,7 +41,7 @@ int save_dpi_settings(hid_device *dev, dpi_settings *settings, byte lift_off_dis
     };
 
     res = mouse_write(dev, data_enabled_profiles);
-    if (res < 0) return -1;
+    if (res < 0) return res;
 
     for (int i = 0; i < settings->profile_count; i++) {
         byte data_dpi_value[PACKET_SIZE] = {
@@ -53,7 +53,7 @@ int save_dpi_settings(hid_device *dev, dpi_settings *settings, byte lift_off_dis
         };
         
         res = mouse_write(dev, data_dpi_value);
-        if (res < 0) return -1;
+        if (res < 0) return res;
 
         byte data_dpi_color_indicator[PACKET_SIZE] = {
             REPORT_FIRST_BYTE(SEND_BYTE_DPI),
@@ -66,15 +66,15 @@ int save_dpi_settings(hid_device *dev, dpi_settings *settings, byte lift_off_dis
         };
 
         res = mouse_write(dev, data_dpi_color_indicator);
-        if (res < 0) return -1;
+        if (res < 0) return res;
     }
     
     res = set_lift_off_distance(dev, lift_off_distance);
-    if (res < 0) return -1;
+    if (res < 0) return res;
 
     byte data_select_profile[PACKET_SIZE] = {REPORT_FIRST_BYTE(SEND_BYTE_DPI), SENSOR_CONFIG_BYTE_SELECTED_DPI_PROFILE, 0x00, 0x01, settings->selected_profile};
     res = mouse_write(dev, data_select_profile);
-    if (res < 0) return -1;
+    if (res < 0) return res;
 
     byte data_save_sensor_settings[PACKET_SIZE] = {REPORT_FIRST_BYTE(SEND_BYTE_SAVE_SETTINGS), SAVE_BYTE_DPI_PROFILE_INDICATORS};
     res = mouse_write(dev, data_save_sensor_settings);

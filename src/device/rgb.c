@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <hidapi/hidapi.h>
-#include <gtk/gtk.h>
 
 #include "rgb.h"
 #include "mouse.h"

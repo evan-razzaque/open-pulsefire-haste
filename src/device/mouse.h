@@ -29,15 +29,6 @@
 #define BUTTON_COUNT 6
 
 /**
- * An enum for the status code when performing IO with the mouse.
- * Currently, this is only used for reading from the mouse.
- */
-enum MOUSE_IO_STATUS {
-    MOUSE_IO_STATUS_DEVICE_ERROR = -1,
-    MOUSE_IO_STATUS_READ_MISS = -2
-} typedef MOUSE_IO_STATUS;
-
-/**
  * An enum that represents how the mouse is connected.
  * Can be a combination of any of these values,
  * or none to signify that the mouse is disconnected.

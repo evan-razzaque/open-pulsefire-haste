@@ -3,7 +3,6 @@
 
 #include <stdint.h>
 #include <hidapi/hidapi.h>
-#include <gtk-4.0/gdk/gdkkeysyms.h>
 
 typedef uint8_t byte;
 
