@@ -20,9 +20,8 @@ typedef struct config_sensor_data config_sensor_data;
 // An enum for describing the current state of the mouse.
 typedef enum MOUSE_STATE {
 	UPDATE,
-	CONNECTED,
 	DISCONNECTED,
-	NOT_FOUND,
+	IDLE,
 	RECONNECT,
 	CLOSED
 } MOUSE_STATE;
@@ -44,13 +43,15 @@ struct mouse_data {
  * @brief The widgets being shared across the entire application.
  */
 struct app_widgets {
-	GtkBuilder *builder; // The builder used to get widgets from window.ui
+	GtkBuilder *builder; // The builder used to get widgets
 	GtkApplication *app; // The application instance
 	GtkWindow *window; // The main application window
 	GtkLabel *label_battery; // Displays the mouse's battery level
 
 	GtkStack *stack_main; // The stack containing the main page and the macro page
 	GtkBox *box_main; // The box that contains the content of the main page
+	GtkOverlay *overlay_main; // Holds the overlay widget to display when the connection to the mouse is lost
+	GtkWidget *box_connection_lost; // The widget that displays when the connection to the mouse is lost
 } typedef app_widgets;
 
 /**

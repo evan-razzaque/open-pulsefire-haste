@@ -35,3 +35,11 @@ box.macro-event .action {
 	border-style: solid;
 	border-color: white;
 }
+
+.connection-lost {
+	background-color: rgba(0,0,0,0.5);
+}
+
+.connection-lost box {
+	background-color: rgba(40,40,40,1);
+}

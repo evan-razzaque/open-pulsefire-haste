@@ -5,10 +5,33 @@
 #include "types.h"
 #include "config_buttons.h"
 
-int toggle_mouse_settings_visibility(app_data *data) {
-    mouse_data *mouse = data->mouse;
+void show_connection_lost_overlay(app_data *data) {
+    GtkStack *stack_main = data->widgets->stack_main;
+    GtkBox *box_main = data->widgets->box_main;
+    GtkOverlay *overlay_main = data->widgets->overlay_main;
 
-    if (mouse->dev == NULL) {
+    gtk_stack_set_page(stack_main, STACK_PAGE_MAIN);
+    gtk_widget_set_sensitive(GTK_WIDGET(box_main), false);
+    gtk_overlay_add_overlay(overlay_main, data->widgets->box_connection_lost);
+}
+
+void remove_connnection_lost_overlay(app_data *data) {
+    GtkBox *box_main = data->widgets->box_main;
+    GtkOverlay *overlay_main = data->widgets->overlay_main;
+
+    gtk_widget_set_sensitive(GTK_WIDGET(box_main), true);
+    gtk_overlay_remove_overlay(overlay_main, data->widgets->box_connection_lost);
+}
+
+/**
+ * @brief A function that will enable the mouse settings screen
+ * when the mouse is plugged in and disable it when the mouse is unplugged.
+ * 
+ * @param data Application wide data structure
+ * @return value indicating to leave this in the gtk main loop
+ */
+static void toggle_mouse_settings_visibility(app_data *data, bool show_mouse_settings) {
+    if (!show_mouse_settings) {
         gtk_stack_set_page(
             data->widgets->stack_main,
             STACK_PAGE_DEVICE_NOT_FOUND
@@ -18,7 +41,7 @@ int toggle_mouse_settings_visibility(app_data *data) {
             GTK_WIDGET(data->widgets->box_main),
             false
         );
-    } else if (mouse->state == CONNECTED) {
+    } else {
         gtk_stack_set_page(
             data->widgets->stack_main,
             STACK_PAGE_MAIN
@@ -28,11 +51,15 @@ int toggle_mouse_settings_visibility(app_data *data) {
             GTK_WIDGET(data->widgets->box_main),
             true
         );
-
-        mouse->state = UPDATE;
     }
+}
 
-    return G_SOURCE_CONTINUE;
+void hide_mouse_settings_visibility(app_data *data) {
+    toggle_mouse_settings_visibility(data, false);
+}
+
+void show_mouse_settings_visibility(app_data *data) {
+    toggle_mouse_settings_visibility(data, true);
 }
 
 /**

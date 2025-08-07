@@ -11,13 +11,23 @@ enum {
 };
 
 /**
- * @brief A function that will enable the mouse settings screen
- * when the mouse is plugged in and disable it when the mouse is unplugged.
+ * @brief Displays an overlay when the connection to the mouse
+ * is lost or the mouse goes to sleep (wireless only).
  * 
  * @param data Application wide data structure
- * @return value indicating to leave this in the gtk main loop
  */
-int toggle_mouse_settings_visibility(app_data *data);
+void show_connection_lost_overlay(app_data *data);
+
+/**
+ * @brief Removes the overlay displayed by `show_connection_lost_overlay`
+ * when the mouse connection is found or the mouse wakes up.
+ * 
+ * @param data Application wide data structure
+ */
+void remove_connnection_lost_overlay(app_data *data);
+
+void hide_mouse_settings_visibility(app_data *data);
+void show_mouse_settings_visibility(app_data *data);
 
 /**
  * @brief A function switch the displayed page in a GtkStack

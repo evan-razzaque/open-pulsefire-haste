@@ -99,11 +99,6 @@ int update_battery_display(app_data *data) {
 	return G_SOURCE_CONTINUE;
 }
 
-void unref_widgets(app_data *data) {
-	// g_object_ref_sink(data->sensor_data->check_button_group_dpi_profile);
-	// g_object_unref(data->sensor_data->check_button_group_dpi_profile);
-}
-
 /**
  * @brief Destroys all windows when the main window is closed.
  * 
@@ -120,8 +115,6 @@ void close_application(GtkWindow *window, app_data *data) {
 	}
 
 	free(data->macro_data->macros);
-
-	unref_widgets(data);
 	
 	gtk_window_destroy(data->widgets->window);
 	gtk_window_destroy(data->button_data->window_keyboard_action);
@@ -156,6 +149,8 @@ GtkBuilder* init_builder(app_data *data) {
 
 	data->widgets->stack_main = GTK_STACK(GTK_WIDGET(gtk_builder_get_object(builder, "stackMain")));
 	data->widgets->box_main = GTK_BOX(GTK_WIDGET(gtk_builder_get_object(builder, "boxMain")));
+	data->widgets->overlay_main = GTK_OVERLAY(GTK_WIDGET(gtk_builder_get_object(builder, "overlayMain")));
+	data->widgets->box_connection_lost = GTK_WIDGET(gtk_builder_get_object(builder, "boxConnectionLost"));
 
 	data->widgets->label_battery = GTK_LABEL(GTK_WIDGET(gtk_builder_get_object(builder, "labelBattery")));
 
@@ -194,7 +189,6 @@ void activate(GtkApplication *app, app_data *data) {
 	g_signal_connect(data->widgets->window, "close-request", G_CALLBACK(close_application), data);
 	widget_add_event(builder, "buttonSave", "clicked", save_mouse_settings, data);
 
-	g_timeout_add(100, G_SOURCE_FUNC(toggle_mouse_settings_visibility), data);
 	g_timeout_add(100, G_SOURCE_FUNC(update_battery_display), data);
 	
 	gtk_window_set_application(data->widgets->window, app);
@@ -214,7 +208,7 @@ void reconnect_mouse(app_data *data) {
 	}
 
 	printf("Connected\n");
-	data->mouse->state = CONNECTED;
+	g_idle_add_once((GSourceOnceFunc) show_mouse_settings_visibility, data);
 	load_mouse_settings(data);
 }
 
@@ -222,35 +216,41 @@ void reconnect_mouse(app_data *data) {
  * @brief Reads mouse reports and events.
  * 
  * @param data Application wide data structure
- * @param output_data The buffer to read the data into
- * @return int The report type of the report that was read, or -1 on error
+ * @return the report type of the report that was read, or -1 on error
  */
-int read_mouse_reports(app_data *data, byte *output_data) {
+int read_mouse_reports(app_data *data) {
 	mouse_data *mouse = data->mouse;
 
-	REPORT_TYPE report_type = mouse_read(mouse->dev, output_data);
+	union report_packet_data report_data = {0};
+	REPORT_TYPE report_type = mouse_read(mouse->dev, report_data.packet_data);
 	
-	union report_packet_data *report_data = (union report_packet_data*) output_data;
-
 	switch (report_type) {
 	case REPORT_TYPE_CONNECTION:
-		break;
 	case REPORT_TYPE_HARDWARE:
-		break;
-	case REPORT_TYPE_HEARTBEAT:
-		mouse->battery_level = report_data->heartbeat.battery_level;
-		break;
 	case REPORT_TYPE_ONBOARD_LED_SETTINGS:
 		break;
+	case REPORT_TYPE_HEARTBEAT:
+		mouse->battery_level = report_data.heartbeat.battery_level;
+		break;
 	case REPORT_TYPE_GENERIC_EVENT:
-		if (report_data->generic_event.selected_dpi_profile == data->sensor_data->dpi_config.selected_profile) {
+		if (!report_data.generic_event.is_awake && mouse->state != IDLE) {
+			printf("idle\n");
+			mouse->state = IDLE;
+			g_idle_add_once((GSourceOnceFunc) show_connection_lost_overlay, data);
+		} else if (report_data.generic_event.is_awake && mouse->state == IDLE) {
+			printf("not idle\n");
+			mouse->state = UPDATE;
+			g_idle_add_once((GSourceOnceFunc) remove_connnection_lost_overlay, data);
+		}
+
+		if (report_data.generic_event.selected_dpi_profile == data->sensor_data->dpi_config.selected_profile) {
 			break;
 		}
 		
 		dpi_profile_selection_args *args = g_new(dpi_profile_selection_args, 1);
 		*args = (dpi_profile_selection_args) {
 			.data = data,
-			.index = report_data->generic_event.selected_dpi_profile,
+			.index = report_data.generic_event.selected_dpi_profile,
 			.free_func = g_free
 		};
 
@@ -277,41 +277,53 @@ void* mouse_update_loop(app_data *data) {
 	const int update_color_interval_ms = 100;
 	const int poll_battery_level_interval_ms = 1000;
 
-	byte output_data[PACKET_SIZE] = {0};
-
 	int clock = 0;
 	const int clock_reset_ms = poll_battery_level_interval_ms; 
 	
 	while (mouse->state != CLOSED) {
-		if (mouse->state == RECONNECT) reconnect_mouse(data);
-		if (mouse->dev == NULL || mouse->state != UPDATE) {
+		int res = 0;
+
+		switch (mouse->state) {
+		case RECONNECT:
+			reconnect_mouse(data);
+			mouse->state = UPDATE;
+			continue;
+		case IDLE:
+			res = mouse_send_read_request(mouse->dev, REPORT_TYPE_HEARTBEAT);
+			read_mouse_reports(data);
+			sleep_ms(500);
+			continue;
+		case DISCONNECTED:
 			sleep_ms(100);
 			continue;
+		default:
+			break;
 		}
 
 		g_mutex_lock(mouse->mutex);
-		if (mouse->dev == NULL) goto mutex_unlock;
+		if (mouse->dev == NULL || mouse->state == DISCONNECTED) goto mutex_unlock;
 
-		int res = 0;
 		clock += update_interval_ms;
 		
 		if (clock % update_color_interval_ms == 0) {
 			res = change_color(mouse->dev, led);
 		}
-
+		
 		if (clock == poll_battery_level_interval_ms && res >= 0) {
 			res = mouse_send_read_request(mouse->dev, REPORT_TYPE_HEARTBEAT);
 		}
-
+		
 		clock = clock % clock_reset_ms;
-
-		if (res >= 0) res = read_mouse_reports(data, output_data);
+		
+		if (res >= 0) res = read_mouse_reports(data);
 		
 		if (res < 0 && mouse->state != RECONNECT) {
-			if (mouse->dev != NULL) {
-				hid_close(mouse->dev);
-				mouse->dev = NULL;
-			}
+			if (mouse->dev == NULL) goto mutex_unlock;
+
+			hid_close(mouse->dev);
+			mouse->dev = NULL;
+			mouse->state = DISCONNECTED;
+			g_idle_add_once((GSourceOnceFunc) hide_mouse_settings_visibility, data);
 		}
 
 		mutex_unlock:

@@ -88,7 +88,7 @@ enum REPORT_TYPE {
  * 
  */
 union report_packet_data {
-    byte _data[PACKET_SIZE];
+    byte packet_data[PACKET_SIZE];
 
     struct {
         byte _padding[FIRST_BYTE + 3];
@@ -169,7 +169,7 @@ struct hid_device_info* get_active_devices(CONNECTION_TYPE connection_type);
  * Opens the mouse device handle.
  * 
  * @param connection_type Output location to store the type of connection
- * @return the mouse device handle
+ * @return the mouse device handle, or NULL if no device was found
  */
 hid_device* open_device(struct hid_device_info *dev_list);
 

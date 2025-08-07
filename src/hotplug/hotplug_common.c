@@ -11,6 +11,7 @@ void update_device_connection_detached(mouse_data *mouse) {
         printf("disconnect\n");
         hid_close(mouse->dev);
         mouse->dev = NULL;
+        mouse->state = DISCONNECTED;
     }
 
     if (mouse->type == CONNECTION_TYPE_WIRELESS) mouse->state = RECONNECT;
