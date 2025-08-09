@@ -4,8 +4,10 @@
 #include <adwaita.h>
 #include "hotplug/hotplug_common.h"
 
-void update_device_connection_detached(mouse_data *mouse) {
-    if (mouse->type == CONNECTION_TYPE_WIRED) return;
+void update_device_connection_detached(mouse_hotplug_data *hotplug_data) {
+    mouse_data *mouse = hotplug_data->mouse;
+
+    if (mouse->connection_type == CONNECTION_TYPE_WIRED) return;
 
     if (mouse->dev != NULL) {
         printf("disconnect\n");
@@ -13,13 +15,18 @@ void update_device_connection_detached(mouse_data *mouse) {
         mouse->dev = NULL;
         mouse->state = DISCONNECTED;
     }
+    
+    bool device_connected = mouse->connection_type == CONNECTION_TYPE_WIRELESS;
+    if (device_connected) mouse->state = RECONNECT;
 
-    if (mouse->type == CONNECTION_TYPE_WIRELESS) mouse->state = RECONNECT;
+    hotplug_data->hotplug_callback(device_connected, hotplug_data->hotplug_callback_user_data);
 }
 
-void update_device_connection_attached(mouse_data *mouse, CONNECTION_TYPE last_connection_type) {
+void update_device_connection_attached(mouse_hotplug_data *hotplug_data, CONNECTION_TYPE last_connection_type) {
     // Wireless was plugged in with wired, do nothing
     if (last_connection_type == CONNECTION_TYPE_WIRED) return;
+
+    mouse_data *mouse = hotplug_data->mouse;
 
     // Wired plugged in with wireless, reconnect to wired
     if (last_connection_type == CONNECTION_TYPE_WIRELESS) {
@@ -28,9 +35,12 @@ void update_device_connection_attached(mouse_data *mouse, CONNECTION_TYPE last_c
     }
 
     mouse->state = RECONNECT;
+    hotplug_data->hotplug_callback(true, hotplug_data->hotplug_callback_user_data);
 }
 
-void update_mouse_connection_type(mouse_data *mouse, uint16_t product_id, int event) {
+void update_mouse_connection_type(mouse_hotplug_data *hotplug_data, uint16_t product_id, int event) {
+    mouse_data *mouse = hotplug_data->mouse;
+
     CONNECTION_TYPE connection_type = 
         (product_id == PID_WIRED)?
         CONNECTION_TYPE_WIRED:
@@ -38,14 +48,14 @@ void update_mouse_connection_type(mouse_data *mouse, uint16_t product_id, int ev
 
     g_mutex_lock(mouse->mutex);
 
-    CONNECTION_TYPE last_connection_type = mouse->type;
+    CONNECTION_TYPE last_connection_type = mouse->connection_type;
     
     if (event == DEVICE_REMOVE) {
-        mouse->type -= connection_type;
-        update_device_connection_detached(mouse);
+        mouse->connection_type -= connection_type;
+        update_device_connection_detached(hotplug_data);
     } else {
-        mouse->type += connection_type;
-        update_device_connection_attached(mouse, last_connection_type);
+        mouse->connection_type += connection_type;
+        update_device_connection_attached(hotplug_data, last_connection_type);
     }
 
     g_mutex_unlock(mouse->mutex);

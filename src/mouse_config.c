@@ -18,9 +18,12 @@ void show_connection_lost_overlay(app_data *data) {
 void remove_connnection_lost_overlay(app_data *data) {
     GtkBox *box_main = data->widgets->box_main;
     GtkOverlay *overlay_main = data->widgets->overlay_main;
+    GtkWidget *box_connection_lost = data->widgets->box_connection_lost;
 
-    gtk_widget_set_sensitive(GTK_WIDGET(box_main), true);
-    gtk_overlay_remove_overlay(overlay_main, data->widgets->box_connection_lost);
+    if (data->mouse->state != DISCONNECTED) gtk_widget_set_sensitive(GTK_WIDGET(box_main), true);
+    if (gtk_widget_get_parent(box_connection_lost) == NULL) return;
+
+    gtk_overlay_remove_overlay(overlay_main, box_connection_lost);
 }
 
 /**
@@ -31,34 +34,31 @@ void remove_connnection_lost_overlay(app_data *data) {
  * @return value indicating to leave this in the gtk main loop
  */
 static void toggle_mouse_settings_visibility(app_data *data, bool show_mouse_settings) {
-    if (!show_mouse_settings) {
-        gtk_stack_set_page(
-            data->widgets->stack_main,
-            STACK_PAGE_DEVICE_NOT_FOUND
-        );
-
-        gtk_widget_set_sensitive(
-            GTK_WIDGET(data->widgets->box_main),
-            false
-        );
-    } else {
+    if (show_mouse_settings) {
         gtk_stack_set_page(
             data->widgets->stack_main,
             STACK_PAGE_MAIN
         );
-
-        gtk_widget_set_sensitive(
-            GTK_WIDGET(data->widgets->box_main),
-            true
+    } else {
+        gtk_stack_set_page(
+            data->widgets->stack_main,
+            STACK_PAGE_DEVICE_NOT_FOUND
         );
     }
+
+    gtk_widget_set_sensitive(
+        GTK_WIDGET(data->widgets->box_main),
+        show_mouse_settings
+    );
 }
 
 void hide_mouse_settings_visibility(app_data *data) {
+    remove_connnection_lost_overlay(data);
     toggle_mouse_settings_visibility(data, false);
 }
 
 void show_mouse_settings_visibility(app_data *data) {
+    remove_connnection_lost_overlay(data);
     toggle_mouse_settings_visibility(data, true);
 }
 

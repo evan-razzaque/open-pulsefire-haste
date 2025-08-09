@@ -17,6 +17,8 @@
 #include "hotplug/hotplug.h"
 #include "util.h"
 
+// TODO: Adpat callback data to reflect changes in hotplug_common.c 
+
 struct device_connection_data {
     HANDLE device_handle;
     CM_NOTIFY_FILTER notify_filter_removal;
@@ -205,8 +207,7 @@ void setup_mouse_removal_callbacks(mouse_hotplug_data *hotplug_data, struct hid_
     }
 }
 
-void hotplug_listener_init(mouse_hotplug_data *hotplug_data, mouse_data *mouse) {
-    hotplug_data->mouse = mouse;
+void hotplug_listener_init(mouse_hotplug_data *hotplug_data) {
     hotplug_data->listener_data = malloc(sizeof(hotplug_listener_data));
     
     hotplug_listener_data *listener_data = hotplug_data->listener_data;
@@ -222,7 +223,7 @@ void hotplug_listener_init(mouse_hotplug_data *hotplug_data, mouse_data *mouse) 
             .cbSize = sizeof(CM_NOTIFY_FILTER),
             .FilterType = CM_NOTIFY_FILTER_TYPE_DEVICEHANDLE
         },
-        .mouse = mouse
+        .mouse = hotplug_data->mouse
     };
 
     listener_data->connection_data_wired = connection_data;

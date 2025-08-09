@@ -95,12 +95,12 @@ union report_packet_data {
         byte type;
         union {
             struct {
-                bool is_mouse_active;
+                bool is_awake;
             } wireless;
             struct {
                 byte unknown[2]; // Maybe charging?
             } wired;
-        };
+        } test;
     } connection_status;
 
     struct {
@@ -150,10 +150,10 @@ enum REPORT_INDEX {
 void print_data(byte *data);
 
 /**
- * Gets a list of device info objects for each connection type.
+ * Gets a list of device info objects for ths mouse for each connection type.
  * 
  * @param connection_type Output location to store the type of connection
- * @return a list of device info objects
+ * @return a linked list of device info objects
  */
 struct hid_device_info* get_devices(CONNECTION_TYPE *connection_type);
 
@@ -161,14 +161,14 @@ struct hid_device_info* get_devices(CONNECTION_TYPE *connection_type);
  * @brief Gets a list of device info objects for the active mouse connection.
  * 
  * @param connection_type The active mouse connection type
- * @return struct hid_device_info* a list of device info objects
+ * @return struct hid_device_info* a linked list of device info objects
  */
 struct hid_device_info* get_active_devices(CONNECTION_TYPE connection_type);
 
 /**
  * Opens the mouse device handle.
  * 
- * @param connection_type Output location to store the type of connection
+ * @param dev_list a linked list of device info objects. Will be freed once this function returns.
  * @return the mouse device handle, or NULL if no device was found
  */
 hid_device* open_device(struct hid_device_info *dev_list);

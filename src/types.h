@@ -30,10 +30,11 @@ typedef enum MOUSE_STATE {
  * @brief Data required to directly interact with the mouse.
  */
 struct mouse_data {
+	GThread *update_thread; // The thread responsible for updating mouse status and led settings
 	GMutex *mutex; // The mutex to lock when sending/recieving data to/from the mouse
 	hid_device *dev; // The underlying device for the mouse
 	
-	CONNECTION_TYPE type; // The CONNECTION_TYPE flags
+	CONNECTION_TYPE connection_type; // The CONNECTION_TYPE flags
 	MOUSE_STATE state; // The MOUSE_STATE value
 	int battery_level; // The battery percentage of the mouse. A value of -1 indicates that the battery level is unknown.
 	int current_battery_level; // Used to check if the battery level has changed

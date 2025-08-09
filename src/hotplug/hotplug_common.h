@@ -15,9 +15,10 @@
 #define DEVICE_REMOVE (LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT)
 #endif
 
-#include "types.h"
-
 #include <stdint.h>
+
+#include "types.h"
+#include "hotplug/hotplug.h"
 
 /**
  * @brief Updates the mouse connection when the device connection changes.
@@ -27,14 +28,14 @@
  * @param event The device event that has occured
  *
  */
-void update_mouse_connection_type(mouse_data *mouse, uint16_t product_id, int event);
+void update_mouse_connection_type(mouse_hotplug_data *hotplug_data, uint16_t product_id, int event);
 
 /**
  * @brief Updates the mouse connection status when the device is detached.
  * 
  * @param mouse A mouse_data struct
  */
-void update_device_connection_detached(mouse_data *mouse);
+void update_device_connection_detached(mouse_hotplug_data *hotplug_data);
 
 /**
  * @brief Updates the mouse connection status when the device is attached.
@@ -42,6 +43,6 @@ void update_device_connection_detached(mouse_data *mouse);
  * @param mouse A mouse_data struct
  * @param last_connection_type The last CONNECTION_TYPE of the mouse
  */
-void update_device_connection_attached(mouse_data *mouse, CONNECTION_TYPE last_connection_type);
+void update_device_connection_attached(mouse_hotplug_data *hotplug_data, CONNECTION_TYPE last_connection_type);
 
 #endif

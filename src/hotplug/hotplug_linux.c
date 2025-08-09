@@ -9,6 +9,9 @@
 #include "types.h"
 #include "util.h"
 #include <utils.h>
+#define HOTPLUG_COMMON_PRIVATE
+#include "hotplug/hotplug_common.h"
+
 
 struct hotplug_listener_data {
     libusb_hotplug_callback_handle hotplug_cb_handle_wired;
@@ -25,12 +28,12 @@ struct hotplug_listener_data {
  * @return indicates whether this callback should stop handling hotplug events or not
  */
 static int device_hotplug_callback(libusb_context *ctx, libusb_device *device,
-    libusb_hotplug_event event, mouse_data *mouse
+    libusb_hotplug_event event, mouse_hotplug_data *hotplug_data
 ) {
     struct libusb_device_descriptor device_desc = {0};
     libusb_get_device_descriptor(device, &device_desc);
 
-    update_mouse_connection_type(mouse, device_desc.idProduct, event);
+    update_mouse_connection_type(hotplug_data, device_desc.idProduct, event);
     return false;
 }
 
@@ -53,7 +56,7 @@ static void* handle_events(mouse_hotplug_data *hotplug_data) {
     return NULL;
 }
 
-void hotplug_listener_init(mouse_hotplug_data *hotplug_data, mouse_data *mouse) {
+void hotplug_listener_init(mouse_hotplug_data *hotplug_data) {
     int res = libusb_init_context(NULL, NULL, 0);
 
     if (res != LIBUSB_SUCCESS) {
@@ -62,7 +65,6 @@ void hotplug_listener_init(mouse_hotplug_data *hotplug_data, mouse_data *mouse) 
         exit(-1);
     }
 
-    hotplug_data->mouse = mouse;
     hotplug_data->listener_data = malloc(sizeof(hotplug_listener_data));
 
     libusb_hotplug_register_callback(
@@ -72,7 +74,7 @@ void hotplug_listener_init(mouse_hotplug_data *hotplug_data, mouse_data *mouse) 
         0, VID, PID_WIRED,
         LIBUSB_HOTPLUG_MATCH_ANY,
         (libusb_hotplug_callback_fn) device_hotplug_callback,
-        hotplug_data->mouse,
+        hotplug_data,
         &hotplug_data->listener_data->hotplug_cb_handle_wired
     );
     
@@ -83,7 +85,7 @@ void hotplug_listener_init(mouse_hotplug_data *hotplug_data, mouse_data *mouse) 
         0, VID, PID_WIRELESS,
         LIBUSB_HOTPLUG_MATCH_ANY,
         (libusb_hotplug_callback_fn) device_hotplug_callback,
-        hotplug_data->mouse,
+        hotplug_data,
         &hotplug_data->listener_data->hotplug_cb_handle_wireless
     );
 

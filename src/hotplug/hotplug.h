@@ -4,7 +4,6 @@
 
 #include <hidapi/hidapi.h>
 
-#include "hotplug/hotplug_common.h"
 #include "types.h"
 
 /**
@@ -13,23 +12,25 @@
  */
 typedef struct hotplug_listener_data hotplug_listener_data;
 
+typedef void (*hotplug_listener_callback)(bool connected, void *user_data);
+
 /**
  * @brief A struct for storing mouse hotplug data.
- * 
  */
 struct mouse_hotplug_data {
     hotplug_listener_data *listener_data;
     mouse_data *mouse;
     GThread *hotplug_thread;
+    hotplug_listener_callback hotplug_callback;
+    void* hotplug_callback_user_data;
 } typedef mouse_hotplug_data;
 
 /**
  * @brief Initializes the hotplug listener.
  * 
  * @param hotplug_data A pointer to a mouse_hotplug_data struct to store the hotplug listener into
- * @param mouse The mouse_data object to store into the mouse_hotplug_data object 
  */
-void hotplug_listener_init(mouse_hotplug_data *hotplug_data, mouse_data *mouse);
+void hotplug_listener_init(mouse_hotplug_data *hotplug_data);
 
 /**
  * @brief Deinitialize the hotplug listener 
