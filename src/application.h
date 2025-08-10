@@ -3,6 +3,7 @@
 
 #include <gtk/gtk.h>
 
+#include "device/buttons.h"
 #include "types.h"
 
 enum {
@@ -27,7 +28,18 @@ void show_connection_lost_overlay(app_data *data);
  */
 void remove_connnection_lost_overlay(app_data *data);
 
+/**
+ * @brief A function to hides and disable the mouse settings screen.
+ * 
+ * @param data Application wide data structure
+ */
 void hide_mouse_settings_visibility(app_data *data);
+
+/**
+ * @brief A function to show and enable the mouse settings screen.
+ * 
+ * @param data Application wide data structure
+ */
 void show_mouse_settings_visibility(app_data *data);
 
 /**
@@ -37,6 +49,15 @@ void show_mouse_settings_visibility(app_data *data);
  * @param button The GtkActionable of the button for switching the stack page
  */
 void switch_stack_page(GtkStack *stack, GtkActionable* button);
+
+/**
+ * @brief A function to update the label of a menu button for a mouse button.
+ * 
+ * @param button The index of the mouse button
+ * @param action The new action of the mouse button
+ * @param data Application wide data structure
+ */
+void update_menu_button_label(MOUSE_BUTTON button, uint16_t action, app_data *data);
 
 /**
  * @brief Sets the settings for the mouse.

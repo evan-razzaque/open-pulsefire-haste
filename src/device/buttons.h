@@ -12,9 +12,13 @@ enum BUTTON_ASSIGN_ERROR {
 } typedef BUTTON_ASSIGN_ERROR;
 
 enum {
+    MOUSE_ACTION_TYPE_DISABLED = 0x00,
     MOUSE_ACTION_TYPE_MOUSE    = 0x01,
     MOUSE_ACTION_TYPE_KEYBOARD = 0x02,
+    MOUSE_ACTION_TYPE_MEDIA    = 0x03,
     MOUSE_ACTION_TYPE_MACRO    = 0x04,
+    MOUSE_ACTION_TYPE_SHORTCUT = 0x05,
+    MOUSE_ACTION_TYPE_DPI      = 0x07,
 };
 
 /**
@@ -56,7 +60,7 @@ enum MODIFIER_KEY {
  * to its corresponding modifier bit.
  * 
  */
-#define MACRO_MODIFIER_MAP() {\
+#define MACRO_MODIFIER_MAP {\
     [0xE0] = L_CTRL,\
     [0xE1] = L_SHIFT,\
     [0xE2] = L_ALT,\

@@ -399,27 +399,19 @@ static void edit_macro(GSimpleAction *action, GVariant *macro_index, app_data *d
 static void update_macro_assignments(uint32_t macro_index, app_data *data) {
     for (int i = 0; i < BUTTON_COUNT; i++) {
         int button_macro_index = data->macro_data->macro_indicies[i];
-
+        
         // All macros to the right of the deleted macro are shifted to the left,
         // so we update the macro indicies accordingly.
         if (button_macro_index > macro_index) {
             data->macro_data->macro_indicies[i]--;
         }
-
+        
         if (button_macro_index != macro_index) continue;
-
+        
         data->button_data->bindings[i] = data->button_data->default_bindings[i];
         data->macro_data->macro_indicies[i] = -1;
-
-        g_mutex_lock(data->mouse->mutex);
-        assign_button_action(data->mouse->dev, i, data->button_data->bindings[i]);
-        g_mutex_unlock(data->mouse->mutex);
-
-        GtkMenuButton *menu_button = data->button_data->menu_button_bindings[i];
-        gtk_menu_button_set_label(
-            menu_button,
-            gtk_widget_get_tooltip_text(GTK_WIDGET(menu_button))
-        );
+        
+        assign_button(i, data->button_data->bindings[i], data);
     }
 }
 
@@ -486,10 +478,7 @@ void assign_macro(uint32_t macro_index, byte button, app_data *data) {
     data->button_data->bindings[button] = MOUSE_ACTION_TYPE_MACRO << 8;
     data->macro_data->macro_indicies[button] = macro_index;
 
-    gtk_menu_button_set_label(
-        data->button_data->menu_button_bindings[button],
-        data->macro_data->macros[macro_index].name
-    );
+    update_menu_button_label(button, data->button_data->bindings[button], data);
 }
 
 /**

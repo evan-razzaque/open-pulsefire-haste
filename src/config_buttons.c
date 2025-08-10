@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <gtk/gtk.h>
 
+#include "application.h"
 #include "config_buttons.h"
 #include "types.h"
 #include "device/buttons.h"
@@ -28,20 +29,23 @@ void gtk_stack_set_page(GtkStack *stack, uint32_t page) {
 /**
  * @brief Re-binds a mouse button.
  * 
- * @param mouse The mouse_data instance
  * @param button The button to rebind
  * @param action The action to bind to
  * @param menu_button_active The menu button corresponding to the button being re-binded
- * @param action_name The name of the action for updating the label of mouse button menu button
+ * @param action_name The name of the action
+ * @param app_data Application wide data structure
  */
-static int change_mouse_binding(mouse_data *mouse, MOUSE_BUTTON button, uint16_t action, GtkMenuButton *menu_button_active, const char *action_name) {
+int assign_button(MOUSE_BUTTON button, uint16_t action, app_data *data) {
+	GtkMenuButton *menu_button_active = get_active_menu_button(data->button_data);
+	mouse_data *mouse = data->mouse;
+
 	g_mutex_lock(mouse->mutex);
 	int res = assign_button_action(mouse->dev, button, action);
 	g_mutex_unlock(mouse->mutex);
 
-	if (res == BUTTON_ASSIGN_ERROR_INVALID_ASSIGNMENT) return res;
+	if (res < 0) return res;
 
-	gtk_menu_button_set_label(menu_button_active, action_name);
+	update_menu_button_label(button, action, data);
 	gtk_menu_button_popdown(menu_button_active);
 	
 	return 0;
@@ -88,15 +92,12 @@ static void close_keyboard_actions_window(GtkButton *self, app_data *data) {
  * @param data Application wide data structure
  */
 static void confirm_keyboard_action_binding(GtkButton *self, app_data *data) {
-	byte hid_usage_id = data->button_data->current_keyboard_action;
 	MOUSE_BUTTON button = data->button_data->selected_button;
 
-	int res = change_mouse_binding(
-		data->mouse,
+	int res = assign_button(
 		button,
 		data->button_data->current_keyboard_action,
-		get_active_menu_button(data->button_data),
-		data->button_data->key_names[hid_usage_id]
+		data
 	);
 
 	if (res == BUTTON_ASSIGN_ERROR_INVALID_ASSIGNMENT) {
@@ -119,19 +120,15 @@ static void change_mouse_simple_binding(GSimpleAction *action, GVariant *mapping
 
 	const char *menu_item_value = g_variant_get_string(mapping_data, &size);
 	char hex_value[5] = {};
-	char action_name[25] = {};
 	
 	strncpy(hex_value, menu_item_value, 5);
-	strncpy(action_name, menu_item_value + 5, 25);
 	
 	uint16_t action_value = (uint16_t) strtol(hex_value, NULL, 16);
 	
-	int res = change_mouse_binding(
-		data->mouse,
+	int res = assign_button(
 		data->button_data->selected_button,
 		action_value,
-		get_active_menu_button(data->button_data), 
-		action_name
+		data
 	);
 
 	if (res == BUTTON_ASSIGN_ERROR_INVALID_ASSIGNMENT) return;
@@ -212,26 +209,6 @@ G_MODULE_EXPORT void reset_stack_menu(GtkStack* stack, GtkPopover *popover) {
 }
 
 /**
- * @brief Set the menu button label to the action 
- * that was assigned to the mouse button corresponding to the menu button. 
- * 
- * @param menu_button The menu button 
- * @param action The action that was assigned
- * @param simple_action_names The array of simple action names from action type / action value pairs 
- * @param key_names The array of key_names from hid usage ids
- */
-static void set_menu_button_label(GtkMenuButton *menu_button, uint16_t action, char *simple_action_names[8][9], const char **key_names) {
-	byte action_type = action >> 8;
-	byte action_value = action & 0x00ff;
-	
-	if (action_type == MOUSE_ACTION_TYPE_KEYBOARD) {
-		gtk_menu_button_set_label(menu_button, key_names[action_value]);
-	} else {
-		gtk_menu_button_set_label(menu_button, simple_action_names[action_type][action_value]);
-	}
-}
-
-/**
  * @brief Sets up the menu buttons used for re-assigning each mouse button.
  * 
  * @param builder GtkBuilder object to obtain widgets
@@ -239,10 +216,6 @@ static void set_menu_button_label(GtkMenuButton *menu_button, uint16_t action, c
  */
 static void setup_action_menu_buttons(GtkBuilder *builder, app_data *data) {
 	GtkMenuButton **menu_buttons = data->button_data->menu_button_bindings;
-	uint16_t *bindings = data->button_data->bindings;
-	
-	const char **key_names = data->button_data->key_names;
-	char *simple_action_names[(DPI_TOGGLE >> 8) + 1][(DPI_TOGGLE & 0x00ff) + 1] = SIMPLE_ACTION_NAMES();
 	
 	menu_buttons[0] = GTK_MENU_BUTTON(GTK_WIDGET(gtk_builder_get_object(builder, "menuButtonLeft")));
 	menu_buttons[1] = GTK_MENU_BUTTON(GTK_WIDGET(gtk_builder_get_object(builder, "menuButtonRight")));
@@ -261,9 +234,6 @@ static void setup_action_menu_buttons(GtkBuilder *builder, app_data *data) {
 			G_CALLBACK(reset_stack_menu),
 			data->button_data->stack_button_actions
 		);
-
-		if (bindings[i] >> 8 == MOUSE_ACTION_TYPE_MACRO) continue;
-		set_menu_button_label(menu_buttons[i], bindings[i], simple_action_names, key_names);
 	}
 }
 

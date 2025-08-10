@@ -92,6 +92,24 @@ static int update_battery_display(app_data *data) {
 	return G_SOURCE_CONTINUE;
 }
 
+void update_menu_button_label(MOUSE_BUTTON button, uint16_t action, app_data *data) {
+	GtkMenuButton *menu_button = data->button_data->menu_button_bindings[button];
+
+	byte action_type = action >> 8;
+	byte action_value = action & 0x00ff;
+
+	if (action_type == MOUSE_ACTION_TYPE_KEYBOARD) {
+		gtk_menu_button_set_label(menu_button, data->button_data->key_names[action_value]);
+	} else if (action_type == MOUSE_ACTION_TYPE_MACRO) {
+		int macro_index = data->macro_data->macro_indicies[button];
+		recorded_macro macro = data->macro_data->macros[macro_index];
+
+		gtk_menu_button_set_label(menu_button, macro.name);
+	} else {
+		gtk_menu_button_set_label(menu_button, data->button_data->simple_action_names[action_type][action_value]);
+	}
+}
+
 void load_mouse_settings(app_data *data) {
 	hid_device *dev = data->mouse->dev;
 
@@ -102,7 +120,7 @@ void load_mouse_settings(app_data *data) {
 		}
 
 		data->macro_data->macro_indicies[i] = -1;
-		assign_button_action(dev, i, data->button_data->bindings[i]);
+		assign_button(i, data->button_data->bindings[i], data);
 	}
 
 	set_polling_rate(dev, data->sensor_data->polling_rate_value);

@@ -5,18 +5,47 @@
 #include "device/buttons.h"
 #include "types.h"
 
-#define SIMPLE_ACTION_NAMES() {\
-    [DISABLED     >> 8] = {\
+#define MOUSE_ACTION_NAMES {\
+    [LEFT_CLICK     & 0x00ff] = "Left Click",\
+    [RIGHT_CLICK    & 0x00ff] = "Right Click",\
+    [MIDDLE_CLICK   & 0x00ff] = "Middle Click",\
+    [BACK           & 0x00ff] = "Back",\
+    [FORWARD        & 0x00ff] = "Forward"\
+}
+
+#define MEDIA_ACTION_NAMES {\
+    [PLAY_PAUSE     & 0x00ff] = "Play/Pause",\
+    [STOP           & 0x00ff] = "Stop",\
+    [PREVIOUS       & 0x00ff] = "Previous",\
+    [NEXT           & 0x00ff] = "Next",\
+    [MUTE           & 0x00ff] = "Volume Mute",\
+    [VOLUME_DOWN    & 0x00ff] = "Volume Down",\
+    [VOLUME_UP      & 0x00ff] = "Volume Up",\
+}
+
+#define SHORTCUT_ACTION_NAMES {\
+    [TASK_MANAGER   & 0x00ff] = "Launch Task Mananger",\
+    [SYSTEM_UTILITY & 0x00ff] = "Open System Utility",\
+    [SHOW_DESKTOP   & 0x00ff] = "Show desktop",\
+    [CYCLE_APPS     & 0x00ff] = "Cycle apps",\
+    [CLOSE_APPS     & 0x00ff] = "Close window",\
+    [CUT            & 0x00ff] = "Cut",\
+    [COPY           & 0x00ff] = "Copy",\
+    [PASTE          & 0x00ff] = "Paste"\
+}
+
+#define SIMPLE_ACTION_NAMES {\
+    [MOUSE_ACTION_TYPE_DISABLED] = (const char *[]) {\
         [DISABLED       & 0x00ff] = "Disabled"\
     },\
-    [LEFT_CLICK   >> 8] = {\
+    [MOUSE_ACTION_TYPE_MOUSE] = (const char *[])  {\
         [LEFT_CLICK     & 0x00ff] = "Left Click",\
         [RIGHT_CLICK    & 0x00ff] = "Right Click",\
         [MIDDLE_CLICK   & 0x00ff] = "Middle Click",\
         [BACK           & 0x00ff] = "Back",\
         [FORWARD        & 0x00ff] = "Forward"\
     },\
-    [PLAY_PAUSE  >> 8] = {\
+    [MOUSE_ACTION_TYPE_MEDIA] = (const char *[])  {\
         [PLAY_PAUSE     & 0x00ff] = "Play/Pause",\
         [STOP           & 0x00ff] = "Stop",\
         [PREVIOUS       & 0x00ff] = "Previous",\
@@ -25,7 +54,7 @@
         [VOLUME_DOWN    & 0x00ff] = "Volume Down",\
         [VOLUME_UP      & 0x00ff] = "Volume Up",\
     },\
-    [TASK_MANAGER >> 8] = {\
+    [MOUSE_ACTION_TYPE_SHORTCUT] = (const char *[])  {\
         [TASK_MANAGER   & 0x00ff] = "Launch Task Mananger",\
         [SYSTEM_UTILITY & 0x00ff] = "Open System Utility",\
         [SHOW_DESKTOP   & 0x00ff] = "Show desktop",\
@@ -35,7 +64,7 @@
         [COPY           & 0x00ff] = "Copy",\
         [PASTE          & 0x00ff] = "Paste"\
     },\
-    [DPI_TOGGLE   >> 8] = {\
+    [MOUSE_ACTION_TYPE_DPI] = (const char *[])  {\
         [DPI_TOGGLE     & 0x00ff] = "DPI Toggle"\
     }\
 }
@@ -54,8 +83,10 @@ struct config_button_data {
 	const char *selected_button_name; // The name of the selected mouse button
 
 	const byte keyboard_keys[1 << 16]; // An array for mapping Gdk keyvals to hid usage ids 
-	const char *key_names[256]; // An array for mapping hid usage ids to key names
 	uint16_t current_keyboard_action; // The current keyboard action when re-assigning a button to a keyboard action
+
+    const char **simple_action_names[MOUSE_ACTION_TYPE_DPI + 1]; // A 2d array for storing the names of simple mouse actions, grouped by action type
+	const char *key_names[256]; // An array for mapping hid usage ids to key names
 
 	GtkMenuButton *menu_button_bindings[BUTTON_COUNT]; // Menu buttons for each mouse button binding
 	GtkStack *stack_button_actions; // The stack containing stack pages for each action type (mouse, keyboard, etc)
@@ -65,14 +96,6 @@ struct config_button_data {
 	GtkLabel *label_pressed_key; // Displays the key that will be assigned to selected mouse button
 	GtkEventController *event_key_controller; // Used to listen to key events when assigning a keyboard action
 };
-
-/**
- * Init for mouse button remapping.
- * 
- * @param builder GtkBuilder object to obtain widgets
- * @param data Application wide data structure
- */
-void app_config_buttons_init(GtkBuilder *builder, app_data *data);
 
 /**
  * @brief Gets the menu button that has its popover shown.
@@ -97,5 +120,24 @@ void menu_button_set_popover_visibility(GtkMenuButton *self, bool visible);
  * @param page The page number
  */
 void gtk_stack_set_page(GtkStack *stack, uint32_t page);
+
+/**
+ * @brief Re-binds a mouse button.
+ * 
+ * @param button The button being rebound
+ * @param action The action to bind to
+ * @param menu_button_active The menu button corresponding to the button being re-binded
+ * @param app_data Application wide data structure
+ * @return 0 if the button was assigned successfully or a `BUTTON_ASSIGN_ERROR` value on error.
+ */
+int assign_button(MOUSE_BUTTON button, uint16_t action, app_data *data);
+
+/**
+ * Init for mouse button remapping.
+ * 
+ * @param builder GtkBuilder object to obtain widgets
+ * @param data Application wide data structure
+ */
+void app_config_buttons_init(GtkBuilder *builder, app_data *data);
 
 #endif

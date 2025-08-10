@@ -10,7 +10,7 @@
 /**
  * @brief Used to initialize an array for mapping gdk key values to hid usage ids.
  */
-#define KEYBOARD_MAP() {\
+#define KEYBOARD_MAP {\
     [GDK_KEY_a]            = 0x04,\
     [GDK_KEY_b]            = 0x05,\
     [GDK_KEY_c]            = 0x06,\
@@ -197,7 +197,7 @@
 /**
  * @brief Used to initialize an array for mapping hid usage ids to key names.
  */
-#define KEY_NAMES() {\
+#define KEY_NAMES {\
     [0x04] = "A",\
     [0x05] = "B",\
     [0x06] = "C",\

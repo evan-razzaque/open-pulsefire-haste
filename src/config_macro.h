@@ -41,7 +41,7 @@
 /**
  * @brief Used to map GTK mouse button values to mouse button values for macros.
  */
-#define MOUSE_MAP() {\
+#define MOUSE_MAP {\
     [1] = GENERIC_EVENT_BUTTON_LEFT   ,\
     [3] = GENERIC_EVENT_BUTTON_RIGHT  ,\
     [2] = GENERIC_EVENT_BUTTON_MIDDLE ,\
@@ -49,7 +49,7 @@
     [9] = GENERIC_EVENT_BUTTON_FORWARD\
 }
 
-#define MOUSE_BUTTON_NAMES() {\
+#define MOUSE_BUTTON_NAMES {\
     [GENERIC_EVENT_BUTTON_LEFT]    = "Left Click",\
     [GENERIC_EVENT_BUTTON_RIGHT]   = "Right Click",\
     [GENERIC_EVENT_BUTTON_MIDDLE]  = "Middle Click",\

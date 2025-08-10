@@ -222,18 +222,19 @@ int main() {
 		.button_data = &(config_button_data) {
 			.buttons = {0, 1, 2, 3, 4, 5},
 			.default_bindings = {LEFT_CLICK, RIGHT_CLICK, MIDDLE_CLICK, BACK, FORWARD, DPI_TOGGLE},
-			.keyboard_keys = KEYBOARD_MAP(),
-			.key_names = KEY_NAMES()
+			.keyboard_keys = KEYBOARD_MAP,
+			.key_names = KEY_NAMES,
+			.simple_action_names = SIMPLE_ACTION_NAMES
 		},
 		.macro_data = &(config_macro_data) {
-			.modifier_map = MACRO_MODIFIER_MAP(),
-			.mouse_buttons = MOUSE_MAP(),
+			.modifier_map = MACRO_MODIFIER_MAP,
+			.mouse_buttons = MOUSE_MAP,
 			.repeat_mode_map = {
 				REPEAT_MODE_PLAY_ONCE,
 				REPEAT_MODE_TOGGLE_REPEAT,
 				REPEAT_MODE_HOLD_REPEAT
 			},
-			.mouse_button_names = MOUSE_BUTTON_NAMES(),
+			.mouse_button_names = MOUSE_BUTTON_NAMES,
 			.is_recording_macro = false,
 			.is_resuming_macro_recording = false
 		}
