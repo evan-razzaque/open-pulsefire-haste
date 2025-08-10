@@ -17,18 +17,12 @@
 #include "settings_storage.h"
 
 #include "hid_keyboard_map.h"
-#include "mouse_config.h"
 #include "config_led.h"
 #include "config_buttons.h"
 #include "config_macro.h"
 #include "config_sensor.h"
 
 #include "application.h"
-
-#include "templates/stack_menu_button.h"
-#include "templates/stack_menu_button_back.h"
-#include "templates/mouse_macro_button.h"
-#include "../resources/gresources.h"
 
 #include "util.h"
 

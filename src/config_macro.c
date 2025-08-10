@@ -10,8 +10,8 @@
 #include "device/buttons.h"
 #include "types.h"
 #include "util.h"
-#include "mouse_config.h"
 #include "config_buttons.h"
+#include "application.h"
 
 #define MACRO_PARSER_PRIVATE
 #include "macro_parser.h"
