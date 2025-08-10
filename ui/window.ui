@@ -502,7 +502,7 @@
                             <property name="label">Cancel</property>
                             <property name="valign">end</property>
                             <signal name="clicked" handler="switch_stack_page" object="stackMain"/>
-                            <signal name="clicked" handler="enable_main_stack_page" swapped="yes"/>
+                            <signal name="clicked" handler="enable_main_stack_page" object="boxMain"/>
                           </object>
                         </child>
                         <child>
@@ -801,7 +801,7 @@ Hold Repeat</property>
                 </property>
                 <property name="has-frame">False</property>
                 <signal name="clicked" handler="switch_stack_page" object="stackMain"/>
-                <signal name="clicked" handler="disable_main_stack_page" swapped="yes"/>
+                <signal name="clicked" handler="disable_main_stack_page" object="boxMain"/>
               </object>
             </child>
             <child>
@@ -975,7 +975,7 @@ Hold Repeat</property>
   <object class="GtkGestureClick" id="gestureButtonSaveMacro">
     <property name="button">0</property>
     <signal name="pressed" handler="enter_main_stack_page" object="stackMain"/>
-    <signal name="pressed" handler="enable_main_stack_page" swapped="yes"/>
+    <signal name="pressed" handler="enable_main_stack_page" object="boxMain"/>
   </object>
   <object class="GtkGestureClick" id="gestureMacroMouseEvents">
     <property name="button">0</property>
