@@ -145,14 +145,7 @@ void* mouse_update_loop(app_data *data) {
 		g_mutex_lock(mouse->mutex);
 		switch (mouse->state) {
 		case IDLE:
-			res = mouse_send_read_request(mouse->dev, REPORT_TYPE_CONNECTION);
-			if (res >= 0) res = read_mouse_reports(data);
-			
-			if (res < 0) mouse->state = DISCONNECTED;
-
-			g_mutex_unlock(mouse->mutex);
-			sleep_ms(500);
-			continue;
+			goto poll_connection;
 		case DISCONNECTED:
 			g_mutex_unlock(mouse->mutex);
 			sleep_ms(100);
@@ -169,6 +162,8 @@ void* mouse_update_loop(app_data *data) {
 			res = mouse_send_read_request(mouse->dev, REPORT_TYPE_HEARTBEAT);
 		}
 		
+		poll_connection:
+
 		if (clock % poll_connection_status_interval_ms == 0 && res >= 0) {
 			res = mouse_send_read_request(mouse->dev, REPORT_TYPE_CONNECTION);
 		}
