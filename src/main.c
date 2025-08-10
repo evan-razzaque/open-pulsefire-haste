@@ -64,6 +64,8 @@ int read_mouse_reports(app_data *data) {
 		} else if (report_data.generic_event.is_awake && mouse->state == IDLE) {
 			printf("not idle\n");
 			mouse->state = UPDATE;
+
+			g_idle_add_once((GSourceOnceFunc) load_mouse_settings, data);
 			g_idle_add_once((GSourceOnceFunc) remove_connnection_lost_overlay, data);
 		}
 
@@ -143,7 +145,7 @@ void* mouse_update_loop(app_data *data) {
 		g_mutex_lock(mouse->mutex);
 		switch (mouse->state) {
 		case IDLE:
-			res = mouse_send_read_request(mouse->dev, REPORT_TYPE_HEARTBEAT);
+			res = mouse_send_read_request(mouse->dev, REPORT_TYPE_CONNECTION);
 			if (res >= 0) res = read_mouse_reports(data);
 			
 			if (res < 0) mouse->state = DISCONNECTED;
@@ -162,7 +164,7 @@ void* mouse_update_loop(app_data *data) {
 		if (clock % update_color_interval_ms == 0) {
 			res = change_color(mouse->dev, led);
 		}
-		
+
 		if (clock % poll_battery_level_interval_ms == 0 && res >= 0) {
 			res = mouse_send_read_request(mouse->dev, REPORT_TYPE_HEARTBEAT);
 		}
