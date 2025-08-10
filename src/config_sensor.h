@@ -13,6 +13,7 @@ struct config_sensor_data {
 	LIFT_OFF_DISTANCE lift_off_distance; // The lift off distance for the mouse
 
 	dpi_settings dpi_config; // The dpi settings for the mouse
+	bool user_changed_dpi_profile; // A flag that indicates if a dpi profile change was done by the user (GUI) or the mouse (DPI toggle event)
 
 	GtkWidget *button_add_dpi_profile; // The button used to add a dpi profile
 	GtkCheckButton* check_button_group_dpi_profile; // The check button group for the dpi profiles' check button
@@ -34,7 +35,7 @@ struct dpi_profile_selection_args {
  * @brief A function to change which dpi profile row is visually selected
  * when a DPI toggle event is emitted from the mouse.
  * 
- * @param args A dpi_profile_selection_args struct instance.
+ * @param args A dpi_profile_selection_args struct instance
  */
 void update_dpi_profile_selection(dpi_profile_selection_args *args);
 

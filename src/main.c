@@ -75,13 +75,18 @@ int read_mouse_reports(app_data *data) {
 			break;
 		}
 		
+		if (data->sensor_data->user_changed_dpi_profile) {
+			data->sensor_data->user_changed_dpi_profile = false;
+			break;
+		}
+
 		dpi_profile_selection_args *args = g_new(dpi_profile_selection_args, 1);
 		*args = (dpi_profile_selection_args) {
 			.data = data,
 			.index = report_data.generic_event.selected_dpi_profile,
 			.free_func = g_free
 		};
-
+	
 		g_idle_add_once((GSourceOnceFunc) update_dpi_profile_selection, args);
 		break;
 	default:

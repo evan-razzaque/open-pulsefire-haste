@@ -164,13 +164,30 @@ static void select_dpi_profile(GSimpleAction *action, GVariant *value_profile_in
     g_simple_action_set_state(action, value_profile_index);
 
     dpi_settings *dpi_config = &data->sensor_data->dpi_config;
-
+    
     // Return if the DPI profile was changed from a DPI toggle event from the mouse
     if (dpi_config->selected_profile == profile_index) return;
-    printf("User selected\n");
+    data->sensor_data->user_changed_dpi_profile = true;
 
     data->sensor_data->dpi_config.selected_profile = profile_index;
     update_dpi_settings(data);
+}
+
+void update_dpi_profile_selection(dpi_profile_selection_args *args) {
+    dpi_settings *dpi_config = &args->data->sensor_data->dpi_config;
+    GtkListBox *list_box_dpi_profiles = args->data->sensor_data->list_box_dpi_profiles;
+
+    GtkListBoxRow *dpi_profile_row = gtk_list_box_get_row_at_index(
+        list_box_dpi_profiles,
+        args->index
+    );
+    
+    dpi_config->selected_profile = args->index;
+    dpi_profile_config_activate(DPI_PROFILE_CONFIG(dpi_profile_row));
+
+    if (args->free_func != NULL) {
+        args->free_func(args);
+    }
 }
 
 /**
@@ -219,23 +236,6 @@ static void delete_dpi_profile(GSimpleAction* action, GVariant *value_profile_in
     );
 
     gtk_widget_set_visible(sensor_data->button_add_dpi_profile, true);
-}
-
-void update_dpi_profile_selection(dpi_profile_selection_args *args) {
-    dpi_settings *dpi_config = &args->data->sensor_data->dpi_config;
-    GtkListBox *list_box_dpi_profiles = args->data->sensor_data->list_box_dpi_profiles;
-
-    GtkListBoxRow *dpi_profile_row = gtk_list_box_get_row_at_index(
-        list_box_dpi_profiles,
-        args->index
-    );
-    
-    dpi_config->selected_profile = args->index;
-    dpi_profile_config_activate(DPI_PROFILE_CONFIG(dpi_profile_row));
-
-    if (args->free_func != NULL) {
-        args->free_func(args);
-    }
 }
 
 void app_config_sensor_init(GtkBuilder *builder, app_data *data) {
