@@ -1,0 +1,163 @@
+#include "application.h"
+
+#include "mouse_config.h"
+#include "config_led.h"
+#include "config_buttons.h"
+#include "config_macro.h"
+#include "config_sensor.h"
+
+#include "templates/stack_menu_button.h"
+#include "templates/stack_menu_button_back.h"
+#include "templates/mouse_macro_button.h"
+#include "../resources/gresources.h"
+#include "settings_storage.h"
+
+#include "util.h"
+
+/**
+ * @brief Updates the mouse battery level display.
+ * 
+ * @param battery_data mouse_battery_data instance
+ * @return value indicating to leave this in the gtk main loop
+ */
+static int update_battery_display(app_data *data) {
+	mouse_data *mouse = data->mouse;
+
+	if (mouse->battery_level < 0) return G_SOURCE_CONTINUE;
+	if (mouse->current_battery_level == mouse->battery_level) return G_SOURCE_CONTINUE;
+
+	mouse->current_battery_level = mouse->battery_level;
+
+	char battery[5];
+	sprintf(battery, "%d%%", mouse->battery_level);
+	
+	gtk_label_set_text(data->widgets->label_battery, battery);
+	printf("battery updated\n");
+	return G_SOURCE_CONTINUE;
+}
+
+void load_mouse_settings(app_data *data) {
+	hid_device *dev = data->mouse->dev;
+
+	for (int i = 0; i < BUTTON_COUNT; i++) {
+		if (data->button_data->bindings[i] >> 8 == MOUSE_ACTION_TYPE_MACRO) {
+			assign_macro(data->macro_data->macro_indicies[i], i, data);
+			continue;
+		}
+
+		data->macro_data->macro_indicies[i] = -1;
+		assign_button_action(dev, i, data->button_data->bindings[i]);
+	}
+
+	set_polling_rate(dev, data->sensor_data->polling_rate_value);
+	save_dpi_settings(dev, &data->sensor_data->dpi_config, data->sensor_data->lift_off_distance);
+}
+
+/**
+ * @brief Saves the settings to the mouse.
+ * 
+ * @param self The save button
+ * @param mouse mouse_data instance
+ */
+void save_mouse_settings(GtkWidget *self, app_data *data) {
+	mouse_data *mouse = data->mouse;
+
+	gtk_widget_set_sensitive(self, false);
+	
+	g_mutex_lock(mouse->mutex);
+	save_device_settings(mouse->dev, &data->color_data->mouse_led);
+	g_mutex_unlock(mouse->mutex);
+
+	gtk_widget_set_sensitive(self, true);
+}
+
+/**
+ * @brief Destroys all windows when the main window is closed.
+ * 
+ * @param window The main application window
+ * @param data Application wide data structure
+ */
+static void close_application(GtkWindow *window, app_data *data) {
+	save_settings_to_file(data);
+	save_macros_to_file(data);
+	
+	for (int i = 0; i < data->macro_data->macro_count; i++) {
+		free(data->macro_data->macros[i].events);
+		free(data->macro_data->macros[i].name);
+	}
+
+	free(data->macro_data->macros);
+	
+	gtk_window_destroy(data->widgets->window);
+	gtk_window_destroy(data->button_data->window_keyboard_action);
+	
+	printf("window closed\n");
+}
+
+
+/**
+ * @brief A function to initialize the GtkBuilder instance and 
+ * obtain widgets to store into `data->widgets`.
+ *
+ * @param data Application wide data structure
+ * @return the GtkBuilder instance
+ */
+static GtkBuilder* init_builder(app_data *data) {
+	g_type_ensure(STACK_TYPE_MENU_BUTTON);
+	g_type_ensure(STACK_TYPE_MENU_BUTTON_BACK);
+	g_type_ensure(MOUSE_TYPE_MACRO_BUTTON);
+
+	g_resources_register(gresources_get_resource());
+
+	GtkBuilder *builder = gtk_builder_new_from_resource("/org/haste/window.ui");
+	data->widgets->window = GTK_WINDOW(GTK_WIDGET(gtk_builder_get_object(builder, "window")));
+
+	GtkCssProvider *provider = gtk_css_provider_new();
+	gtk_css_provider_load_from_resource(provider, "/org/haste/window.css");
+	gtk_style_context_add_provider_for_display(
+		gtk_widget_get_display(GTK_WIDGET(data->widgets->window)),
+		GTK_STYLE_PROVIDER(provider),
+		GTK_STYLE_PROVIDER_PRIORITY_APPLICATION
+	);
+
+	data->widgets->stack_main = GTK_STACK(GTK_WIDGET(gtk_builder_get_object(builder, "stackMain")));
+	data->widgets->box_main = GTK_BOX(GTK_WIDGET(gtk_builder_get_object(builder, "boxMain")));
+	data->widgets->overlay_main = GTK_OVERLAY(GTK_WIDGET(gtk_builder_get_object(builder, "overlayMain")));
+	data->widgets->box_connection_lost = GTK_WIDGET(gtk_builder_get_object(builder, "boxConnectionLost"));
+
+	data->widgets->label_battery = GTK_LABEL(GTK_WIDGET(gtk_builder_get_object(builder, "labelBattery")));
+
+	return builder;
+}
+
+void activate(GtkApplication *app, app_data *data) {
+	GtkSettings *settings = gtk_settings_get_default();
+	g_object_set(settings, 
+		"gtk-application-prefer-dark-theme", true, 
+		"gtk-enable-animations", 0,
+		"gtk-theme-name", "Adwaita",
+		NULL
+	);
+
+	GtkBuilder *builder = init_builder(data);
+	data->widgets->builder = builder;
+	
+	app_config_led_init(builder, data);
+	app_config_buttons_init(builder, data);
+	app_config_macro_init(builder, data);
+	app_config_sensor_init(builder, data);
+	
+	g_signal_connect(data->widgets->window, "close-request", G_CALLBACK(close_application), data);
+	widget_add_event(builder, "buttonSave", "clicked", save_mouse_settings, data);
+	
+	g_timeout_add(100, G_SOURCE_FUNC(update_battery_display), data);
+
+	if (data->mouse->dev == NULL) {
+		hide_mouse_settings_visibility(data);
+	} else {
+		load_mouse_settings(data);
+	}
+	
+	gtk_window_set_application(data->widgets->window, app);
+	gtk_window_present(data->widgets->window);
+}
