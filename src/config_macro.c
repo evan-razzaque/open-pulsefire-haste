@@ -39,23 +39,37 @@ static void resize_array(void** array, size_t type_size, int *capacity, int elem
 }
 
 /**
+ * @brief Updates the delay value for the underlying `generic_macro_event`
+ * of the `MacroEventItem` that had its delay updated.
+ * 
+ * @param self The MacroEventItem instance
+ * @param event_index The index of the event in the macro being modified
+ * @param delay The updated delay value
+ * @param data Application wide data structure
+ */
+static void update_macro_event_delay_next_event(MacroEventItem *self, int event_index, int delay, app_data *data) {
+    recorded_macro *macro = &data->macro_data->macros[data->macro_data->macro_index];
+    macro->events[event_index].delay = delay;
+    macro->events[event_index - 1].delay_next_event = delay;
+}
+
+/**
  * @brief Stores a MacroEventItem widget into a wrap box.
  * 
  * @param wrap_box The wrap box
  * @param event The macro event for the MacroEventItem widget
+ * @param event_index The event's index in the macro
  * @param data Application wide data structure
  */
-static void wrap_box_add_macro_event(AdwWrapBox *wrap_box, generic_macro_event *event, app_data *data) {
+static void wrap_box_add_macro_event(AdwWrapBox *wrap_box, generic_macro_event *event, int event_index, app_data *data) {
     const char* action_name = (event->action_type == MACRO_ACTION_TYPE_KEYBOARD)?
         data->button_data->key_names[event->action]:
         data->macro_data->mouse_button_names[event->action];
 
-    adw_wrap_box_append(
-        wrap_box, 
-        GTK_WIDGET(
-            macro_event_item_new(action_name, event->delay, event->event_type)
-        )
-    );    
+    MacroEventItem *macro_event_item = macro_event_item_new(action_name, event->delay, event->event_type, event_index);
+    g_signal_connect(macro_event_item, "delay-changed", G_CALLBACK(update_macro_event_delay_next_event), data);
+
+    adw_wrap_box_append(wrap_box, GTK_WIDGET(macro_event_item));
 }
 
 /**
@@ -81,12 +95,13 @@ static void add_macro_event(MACRO_ACTION_TYPE action_type, byte action, MACRO_EV
     time_t current_time_ms = clock_gettime_ms();
     time_t delay = 0;
 
+    // Setting the delay of the next event for the previous event, aka the delay of the current event
     if (previous_event_index >= 0) {
         delay = current_time_ms - (time_t) macro->events[previous_event_index].delay_next_event;
-        delay = MIN(delay, 9999);
+        delay = MIN(delay, MACRO_MAX_DELAY);
         
         if (data->macro_data->is_resuming_macro_recording) {
-            delay = 20;
+            delay = MACRO_MIN_DELAY;
             data->macro_data->is_resuming_macro_recording = false;
         }
 
@@ -101,7 +116,8 @@ static void add_macro_event(MACRO_ACTION_TYPE action_type, byte action, MACRO_EV
     
     wrap_box_add_macro_event(
         data->macro_data->wrap_box_macro_events,
-        macro->events + macro->generic_event_count,
+        &macro->events[macro->generic_event_count],
+        macro->generic_event_count,
         data
     );
     macro->generic_event_count++;
@@ -192,6 +208,8 @@ static void toggle_macro_recording(GtkGesture *gesture, int n_press, double x, d
         true
     );
 
+    gtk_root_set_focus(GTK_ROOT(data->widgets->window), NULL);
+
     gtk_widget_set_visible(GTK_WIDGET(data->macro_data->image_recording_macro), is_recording);
     gtk_widget_set_sensitive(GTK_WIDGET(data->macro_data->editable_macro_name), !is_recording);
 }
@@ -248,6 +266,7 @@ static void stop_macro_recording(app_data *data) {
  * @param data Application wide data structure
  */
 static void close_macro_overlay(GtkButton *button, app_data *data) {
+    gtk_root_set_focus(GTK_ROOT(data->widgets->window), NULL);
     stop_macro_recording(data);
     
     recorded_macro *macro = &(data->macro_data->macros[data->macro_data->macro_index]);
@@ -260,6 +279,8 @@ static void close_macro_overlay(GtkButton *button, app_data *data) {
         macro->repeat_mode = data->macro_data->macro_previous_repeat_mode;
     }
 }
+
+
 
 /**
  * @brief Creates a mouse macro button widget with the signals 
@@ -373,7 +394,7 @@ static void edit_macro(GSimpleAction *action, GVariant *macro_index, app_data *d
     int event_count = macro->generic_event_count;
 
     for (int i = 0; i < event_count; i++) {
-        wrap_box_add_macro_event(data->macro_data->wrap_box_macro_events, macro_events + i, data);
+        wrap_box_add_macro_event(data->macro_data->wrap_box_macro_events, macro_events + i, i, data);
     }
 
     data->macro_data->macro_index = index;

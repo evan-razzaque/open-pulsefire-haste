@@ -93,13 +93,7 @@ static void disable_arrows_keys(DpiProfileConfig *self) {
     gtk_widget_add_controller(GTK_WIDGET(self->spinner_dpi_value), ec_array[1]);
     
     // Hide spin button buttons
-    GtkWidget *button_decrease_value = gtk_widget_get_next_sibling(
-        gtk_widget_get_first_child(GTK_WIDGET(self->spinner_dpi_value))
-    );
-    GtkWidget *button_increase_value = gtk_widget_get_next_sibling(button_decrease_value);
-    
-    gtk_widget_set_visible(button_decrease_value, false);
-    gtk_widget_set_visible(button_increase_value, false);
+    gtk_spin_button_hide_buttons(self->spinner_dpi_value);
 }
 
 /**

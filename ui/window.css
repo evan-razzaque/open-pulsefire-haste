@@ -36,6 +36,10 @@ box.macro-event .action {
 	border-color: white;
 }
 
+.macro-event-delay {
+	font-size: 13px;
+}
+
 .connection-lost {
 	background-color: rgba(0,0,0,0.5);
 }

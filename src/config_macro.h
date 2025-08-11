@@ -82,7 +82,7 @@ struct generic_macro_event {
 	MACRO_ACTION_TYPE action_type; // A MACRO_ACTION_TYPE value
 	MACRO_EVENT_TYPE event_type;  // A MACRO_EVENT_TYPE value
 	byte action; // The action value
-	uint16_t delay; // The delay of this event
+	uint16_t delay; // The delay between this event and the previous event
 	time_t delay_next_event; // The delay between this event and the next event
 } typedef generic_macro_event;
 

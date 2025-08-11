@@ -27,7 +27,7 @@ enum {
 #define MACRO_EVENT_SIZE (10)
 
 /**
- * @brief Every macro data packet seems to have a sum byte after the button byte that alternates between adding 1 and 2 each packet.
+ * @brief Every macro data packet seems to have a sum byte? after the button byte that alternates between adding 1 and 2 each packet.
  * Another way of thinking about it is half of the numbers in the sum are 1 and half are 2.
  * 
  * Thus, we get the following formula: (1x / 2) + (2x / 2). Which is simplified to 3x / 2. Note that this is int division, so there would be no fractional part.
@@ -39,10 +39,13 @@ enum {
 #define MACRO_PACKET_SUM(x) ((3*(x)) / 2)
 
 /**
- * @brief The event count byte in odd macro data packets have 0x80 added to it.
- * 
+ * @brief The event count byte in odd numbered macro data packets have 0x80 added to it.
+ * For example, an event with 2 events would be 0x02 if it was even, and 0x82 if it was odd.
  */
 #define MACRO_PACKET_EVENT_COUNT(x) (((x) % 2) * 0x80)
+
+#define MACRO_MIN_DELAY (20)
+#define MACRO_MAX_DELAY (9999)
 
 enum MODIFIER_KEY {
     L_CTRL	= 0b00000001,

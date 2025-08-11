@@ -48,6 +48,7 @@
               </object>
             </property>
             <property name="max-width-chars">6</property>
+            <property name="numeric">True</property>
             <property name="text">1000</property>
             <property name="update-policy">if-valid</property>
             <!-- Custom object fragments -->

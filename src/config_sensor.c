@@ -123,7 +123,7 @@ static DpiProfileConfig* create_dpi_profile_row(byte profile_index, dpi_profile 
 }
 
 /**
- * @brief Creates a dpi profile
+ * @brief Creates a dpi profile.
  * 
  * @param action Unused
  * @param value Unused

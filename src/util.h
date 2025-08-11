@@ -2,7 +2,7 @@
 #define UTIL_H
 
 #include <time.h>
-#include <glib.h>
+#include <gtk/gtk.h>
 
 /**
  * @brief Removes the element at `index` from `array` and decrements `length`.
@@ -47,5 +47,12 @@
  * @return time_t the clocks time in ms
  */
 time_t clock_gettime_ms();
+
+/**
+ * @brief A function to hide the buttons for a GtkSpinButton widget.
+ * 
+ * @param self The GtkSpinButton instance
+ */
+void gtk_spin_button_hide_buttons(GtkSpinButton *self);
 
 #endif
