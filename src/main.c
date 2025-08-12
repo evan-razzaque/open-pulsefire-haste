@@ -279,7 +279,7 @@ int main() {
 	int status;
 	
 	set_env();
-	app = gtk_application_new("org.gtk.pulsefire-haste", G_APPLICATION_DEFAULT_FLAGS);
+	app = gtk_application_new("com.github.evan-razzaque.open-pulsefire-haste", G_APPLICATION_DEFAULT_FLAGS);
 	widgets.app = app;
 	
 	g_signal_connect(app, "activate", G_CALLBACK(activate), &data);
