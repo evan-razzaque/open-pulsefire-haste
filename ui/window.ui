@@ -11,7 +11,7 @@
     <property name="default-width">700</property>
     <property name="destroy-with-parent">True</property>
     <property name="height-request">800</property>
-    <property name="title">HyperX Pulsefire Haste</property>
+    <property name="title">Open Pulsefire Haste</property>
     <property name="width-request">700</property>
     <child>
       <object class="GtkStack" id="stackMain">

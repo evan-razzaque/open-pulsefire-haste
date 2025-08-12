@@ -6,7 +6,7 @@ TARGET            = $(BIN_DIR)/$(NAME)
 
 VPATH             = src src/device src/hotplug src/templates
 
-UI_FILES         := ui/gresources.gresource.xml $(shell find ui -name *.ui -name *.css)
+UI_FILES         := ui/gresources.gresource.xml $(shell find ui -name *.ui -o -name *.css)
 GRESOURCES_SRC    = resources/gresources.c
 GRESOURCES_HEADER = resources/gresources.h
 GRESOURCES_OBJ    = $(BUILD_DIR)/gresources.o
