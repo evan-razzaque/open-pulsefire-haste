@@ -262,7 +262,7 @@ void app_config_buttons_init(GtkBuilder *builder, app_data *data) {
 	setup_action_menu_buttons(builder, data);
 	
 	const GActionEntry entries[] = {
-        {.name = "show-test-window", .activate = (g_action) show_keyboard_actions_window},
+        {.name = "show-keyboard-action-window", .activate = (g_action) show_keyboard_actions_window},
         {.name = "change-binding", .activate = (g_action) change_mouse_simple_binding, .parameter_type = (const char*) G_VARIANT_TYPE_STRING}
     };
 
