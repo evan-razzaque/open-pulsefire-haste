@@ -1,36 +1,40 @@
-CC             = gcc
-UI_FILES       = ui/gresources.gresource.xml ui/window.ui ui/window.css ui/dpi-profile-config.ui ui/stack-menu-button.ui ui/stack-menu-button-back.ui ui/mouse-macro-button.ui ui/macro-event-item.ui
-BUILD_DIR      = build
-BIN_DIR        = bin
-NAME           = main
-TARGET         = $(BIN_DIR)/$(NAME)
+CC                = gcc
+BUILD_DIR         = build
+BIN_DIR           = bin
+NAME              = main
+TARGET            = $(BIN_DIR)/$(NAME)
 
-HOTPLUG_SRC    = src/hotplug/hotplug_linux.c
-GRESOURCES_SRC = resources/gresources.c
+VPATH             = src src/device src/hotplug src/templates
+
+UI_FILES         := ui/gresources.gresource.xml $(shell find ui -name *.ui -name *.css)
+GRESOURCES_SRC    = resources/gresources.c
 GRESOURCES_HEADER = resources/gresources.h
-GRESOURCES_OBJ = $(BUILD_DIR)/gresources.o
+GRESOURCES_OBJ    = $(BUILD_DIR)/gresources.o
 
-LOCAL_LIB      = /usr/local/lib
+LOCAL_LIB         = /usr/local/lib
 
 # libadwaita wip/alice/wrap-layout-leak
-LIBADWAITA     = $(LOCAL_LIB)/pkgconfig/libadwaita-1.pc
+LIBADWAITA        = $(LOCAL_LIB)/pkgconfig/libadwaita-1.pc
 
-DEBUG    = -fsanitize=address -g -Og
-LDLIBS   = $(DEBUG) -lm -lhidapi-hidraw -lusb-1.0 $$(pkg-config --libs $(LIBADWAITA) gmodule-export-2.0) -Wl,-rpath,$(LOCAL_LIB)
-CFLAGS  += $(DEBUG) -Isrc/ $$(pkg-config --cflags $(LIBADWAITA) gmodule-export-2.0) -Wall -Werror -Werror=vla -Wno-deprecated-declarations -std=c99
+DEBUG   = -fsanitize=address -g -Og
+LDLIBS  = $(DEBUG) -lm -lhidapi-hidraw -lusb-1.0 $$(pkg-config --libs $(LIBADWAITA) gmodule-export-2.0) -Wl,-rpath,$(LOCAL_LIB)
+CFLAGS += $(DEBUG) -Isrc/ $$(pkg-config --cflags $(LIBADWAITA) gmodule-export-2.0) -Wall -Werror -Werror=vla -Wno-deprecated-declarations -std=c99
 
 ifeq ($(OS),Windows_NT)
-	DEBUG=
-	HOTPLUG_SRC  = src/hotplug/hotplug_windows.c
-	LDLIBS      = -lm -lhidapi -lhid -lcfgmgr32 $$(pkg-config --libs libadwaita-1 gmodule-export-2.0) -I /mingw64/include/hidapi
+	DEBUG  =
+	LDLIBS = -lm -lhidapi -lhid -lcfgmgr32 $$(pkg-config --libs libadwaita-1 gmodule-export-2.0) -I /mingw64/include/hidapi
+	VPATH += src/windows
+else
+	VPATH += src/linux
 endif
 
-VPATH    = resources src src/device src/hotplug src/templates
-
-SRCS    := $(shell basename -a $$(find src/ -name "*.c" ! -name hotplug_linux.c ! -name hotplug_windows.c) $(HOTPLUG_SRC) $(GRESOURCES_SRC)) 
+SRCS    := $(shell basename -a $$(find $(VPATH) -maxdepth 1 -name "*.c") $(GRESOURCES_SRC))
 OBJS    := $(patsubst %.c,$(BUILD_DIR)/%.o,$(SRCS)) 
 DEPDIR   = $(BUILD_DIR)/.deps
 DEPFLAGS = -MT $@ -MM -MP -MF $(DEPDIR)/$*.d
+
+# The find command in SRCS will error if resources/ does not exist
+VPATH += resources
 
 GEN_DIRS = resources data $(DEPDIR) $(BUILD_DIR) $(BIN_DIR)
 
