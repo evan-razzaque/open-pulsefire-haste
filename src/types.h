@@ -63,6 +63,9 @@ struct app_data {
 	mouse_data *mouse; // The mouse_data struct
 	app_widgets *widgets; // Shared application widgets
 	
+	char *app_data_dir; // XDG data base directory
+	int app_data_dir_length; // Length of `app_data_dir`, including the null-byte
+
 	FILE *settings_file; // File used to store mouse settings
 	FILE *macros_file; // File used to store recorded macros
 	

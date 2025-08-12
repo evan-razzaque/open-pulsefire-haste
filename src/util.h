@@ -34,12 +34,13 @@
 #define widget_add_event(builder, widget_name, detailed_signal, c_handler, data) \
 	g_signal_connect(gtk_builder_get_object(builder, widget_name), detailed_signal, G_CALLBACK(c_handler), data);
 
-
 /**
  * @brief Prints `expression` along with its value given `format`.
  */
 #define printval(format, expression) \
     printf(#expression ": " format, (expression))
+
+#define debug(format, args...) printf(__FILE__ ":%d: " format, __LINE__ args);
 
 /**
  * @brief Gets current time in milliseconds from the clock `CLOCK_MONOTONIC`.

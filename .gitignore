@@ -12,6 +12,9 @@ compile_commands.json
 # Cambalache
 .cmb.db*
 
+# Application data directory symlink
+open-pulsefire-haste
+
 # Misc
 .vscode
 suppress.txt

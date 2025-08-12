@@ -36,7 +36,7 @@ DEPFLAGS = -MT $@ -MM -MP -MF $(DEPDIR)/$*.d
 # The find command in SRCS will error if resources/ does not exist
 VPATH += resources
 
-GEN_DIRS = resources data $(DEPDIR) $(BUILD_DIR) $(BIN_DIR)
+GEN_DIRS = resources $(DEPDIR) $(BUILD_DIR) $(BIN_DIR)
 
 all: $(TARGET)
 	
@@ -67,16 +67,4 @@ include $(wildcard $(DEPFILES))
 
 clean:
 	rm -rf $(GEN_DIRS)
-
-clean-partial:
-	rm -rf $(BIN_DIR) $(BUILD_DIR) $(DEPDIR) resources
-
-clean-data:
-	rm -rf data/*
-
-clean-macros:
-	rm data/macros.bin
-
-clean-settings:
-	rm data/mouse_settings.bin
 	

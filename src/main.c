@@ -242,14 +242,26 @@ int main() {
 		}
 	};
 
+	res = create_data_directory(&data);
+	if (res < 0) {
+		printf("Couldn't create data directory\n");
+		free(data.app_data_dir);
+		exit(-1);
+	}
+
 	mouse_hotplug_data hotplug_data = {
 		.mouse = &mouse,
 		.hotplug_callback = (hotplug_listener_callback) mouse_hotplug_callback,
 		.hotplug_callback_user_data = &data
 	};
 	
-	if (load_settings_from_file(&data) < 0) return -1;
-	if (load_macros_from_file(&data) < 0) return -1;
+	if (
+		load_settings_from_file(&data) < 0 ||
+		load_macros_from_file(&data) < 0
+	) {
+		free(data.app_data_dir);
+		return -1;
+	}
 
 	struct hid_device_info *dev_list = get_devices(&mouse.connection_type);
 	
@@ -276,7 +288,7 @@ int main() {
 	g_object_unref(app);
 	mouse.state = CLOSED;
 	
-	g_thread_join(update_thread);	
+	g_thread_join(update_thread);
 	g_thread_unref(update_thread);
 	
 	hotplug_listener_exit(&hotplug_data);
