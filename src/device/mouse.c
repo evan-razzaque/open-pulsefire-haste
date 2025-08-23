@@ -112,7 +112,7 @@ int mouse_read(hid_device *dev, byte *data) {
 	return data[FIRST_BYTE];
 }
 
-int save_device_settings(hid_device *dev, color_options *color) {
+int save_device_settings(hid_device *dev) {
 	/* byte d1[PACKET_SIZE] = {REPORT_FIRST_BYTE(SEND_BYTE_SAVE_SETTINGS), 0x01, 0x00, 0x3c, color->red, color->green, color->blue};
 	mouse_write(dev, d1);
 

@@ -216,6 +216,6 @@ int set_polling_rate(hid_device *dev, byte polling_rate_value);
  * @param dev The mouse device handle
  * @return the number of bytes written or -1 on error
  */
-int save_device_settings(hid_device *dev, color_options *color);
+int save_device_settings(hid_device *dev);
 
 #endif

@@ -72,7 +72,7 @@ void load_mouse_settings(app_data *data);
  * @param self The save button
  * @param mouse mouse_data instance
  */
-void save_mouse_settings(GtkWidget *self, app_data *data);
+void save_mouse_settings(GtkWidget *self, mouse_data *mouse);
 
 /**
  * @brief A function to setup and activate the application.

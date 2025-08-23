@@ -133,13 +133,11 @@ void load_mouse_settings(app_data *data) {
  * @param self The save button
  * @param mouse mouse_data instance
  */
-void save_mouse_settings(GtkWidget *self, app_data *data) {
-	mouse_data *mouse = data->mouse;
-
+void save_mouse_settings(GtkWidget *self, mouse_data *mouse) {
 	gtk_widget_set_sensitive(self, false);
 	
 	g_mutex_lock(mouse->mutex);
-	save_device_settings(mouse->dev, &data->color_data->mouse_led);
+	save_device_settings(mouse->dev);
 	g_mutex_unlock(mouse->mutex);
 
 	gtk_widget_set_sensitive(self, true);
@@ -223,7 +221,7 @@ void activate(GtkApplication *app, app_data *data) {
 	app_config_sensor_init(builder, data);
 	
 	g_signal_connect(data->widgets->window, "close-request", G_CALLBACK(close_application), data);
-	widget_add_event(builder, "buttonSave", "clicked", save_mouse_settings, data);
+	widget_add_event(builder, "buttonSave", "clicked", save_mouse_settings, data->mouse);
 	
 	g_timeout_add(100, G_SOURCE_FUNC(update_battery_display), data);
 
