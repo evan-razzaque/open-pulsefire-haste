@@ -16,16 +16,19 @@ LOCAL_LIB         = /usr/local/lib
 # libadwaita wip/alice/wrap-layout-leak
 LIBADWAITA        = $(LOCAL_LIB)/pkgconfig/libadwaita-1.pc
 
-DEBUG   = -fsanitize=address -g -Og
-LDLIBS  = $(DEBUG) -lm -lhidapi-hidraw -lusb-1.0 $$(pkg-config --libs $(LIBADWAITA) gmodule-export-2.0) -Wl,-rpath,$(LOCAL_LIB)
-CFLAGS += $(DEBUG) -Isrc/ $$(pkg-config --cflags $(LIBADWAITA) gmodule-export-2.0) -Wall -Werror -Werror=vla -Wno-deprecated-declarations -std=c99
+ifeq ($(debug), 1)
+	DEBUG_FLAGS = -fsanitize=address -g -Og
+endif
+
+LDLIBS  = $(DEBUG_FLAGS) -lm -lhidapi-hidraw -lusb-1.0 $$(pkg-config --libs $(LIBADWAITA) gmodule-export-2.0) -Wl,-rpath,$(LOCAL_LIB)
+CFLAGS += $(DEBUG_FLAGS) -Isrc/ $$(pkg-config --cflags $(LIBADWAITA) gmodule-export-2.0) -Wall -Werror -Werror=vla -Wno-deprecated-declarations -std=c99
 
 ifeq ($(OS),Windows_NT)
-	DEBUG  =
-	LDLIBS = -lm -lhidapi -lhid -lcfgmgr32 $$(pkg-config --libs libadwaita-1 gmodule-export-2.0) -I /mingw64/include/hidapi
-	VPATH += src/windows
+	DEBUG_FLAGS =
+	LDLIBS      = -lm -lhidapi -lhid -lcfgmgr32 $$(pkg-config --libs libadwaita-1 gmodule-export-2.0) -I /mingw64/include/hidapi
+	VPATH      += src/windows
 else
-	VPATH += src/linux
+	VPATH      += src/linux
 endif
 
 SRCS    := $(shell basename -a $$(find $(VPATH) -maxdepth 1 -name "*.c") $(GRESOURCES_SRC))
@@ -64,6 +67,8 @@ $(GEN_DIRS):
 DEPFILES := $(SRCS:%.c=$(DEPDIR)/%.d)
 $(DEPFILES):
 include $(wildcard $(DEPFILES))
+
+.PHONY: all clean
 
 clean:
 	rm -rf $(GEN_DIRS)
