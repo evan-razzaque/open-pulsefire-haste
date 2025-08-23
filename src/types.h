@@ -32,7 +32,7 @@ typedef enum MOUSE_STATE {
 struct mouse_data {
 	GThread *update_thread; // The thread responsible for updating mouse status and led settings
 	GMutex *mutex; // The mutex to lock when sending/recieving data to/from the mouse
-	hid_device *dev; // The underlying device for the mouse
+	hid_device *dev; // The underlying device handle for the mouse
 	
 	CONNECTION_TYPE connection_type; // The CONNECTION_TYPE flags
 	MOUSE_STATE state; // The MOUSE_STATE value

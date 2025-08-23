@@ -151,7 +151,6 @@ void save_mouse_settings(GtkWidget *self, mouse_data *mouse) {
  */
 static void close_application(GtkWindow *window, app_data *data) {
 	save_settings_to_file(data);
-	save_macros_to_file(data);
 	free(data->app_data_dir);
 	
 	for (int i = 0; i < data->macro_data->macro_count; i++) {

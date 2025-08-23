@@ -255,10 +255,8 @@ int main() {
 		.hotplug_callback_user_data = &data
 	};
 	
-	if (
-		load_settings_from_file(&data) < 0 ||
-		load_macros_from_file(&data) < 0
-	) {
+	if (load_settings_from_file(&data) < 0) {
+		printf("Couldn't load mouse settings");
 		free(data.app_data_dir);
 		return -1;
 	}
