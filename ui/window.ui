@@ -26,6 +26,7 @@
                     <property name="margin-start">5</property>
                     <property name="margin-top">5</property>
                     <property name="orientation">vertical</property>
+                    <property name="spacing">5</property>
                     <child>
                       <object class="GtkBox">
                         <property name="margin-bottom">5</property>
@@ -37,6 +38,7 @@
                           <object class="GtkBox">
                             <property name="css-classes">button-config</property>
                             <property name="orientation">vertical</property>
+                            <property name="spacing">5</property>
                             <child>
                               <object class="GtkBox">
                                 <child>
@@ -371,7 +373,7 @@
                     </child>
                     <child>
                       <object class="GtkBox">
-                        <property name="halign">start</property>
+                        <property name="hexpand">True</property>
                         <property name="homogeneous">True</property>
                         <property name="margin-bottom">5</property>
                         <property name="margin-end">5</property>
@@ -382,27 +384,78 @@
                         <property name="vexpand">True</property>
                         <property name="visible">True</property>
                         <child>
-                          <object class="GtkButton" id="buttonSave">
-                            <property name="can-focus">True</property>
-                            <property name="label" translatable="yes">Save</property>
-                            <property name="receives-default">True</property>
-                            <property name="visible">True</property>
+                          <object class="GtkBox">
+                            <property name="halign">start</property>
+                            <child>
+                              <object class="GtkButton" id="buttonSave">
+                                <property name="can-focus">True</property>
+                                <property name="hexpand">True</property>
+                                <property name="label" translatable="yes">Save settings to mouse</property>
+                                <property name="receives-default">True</property>
+                                <property name="valign">end</property>
+                                <property name="vexpand">True</property>
+                                <property name="visible">True</property>
+                              </object>
+                            </child>
                           </object>
                         </child>
                         <child>
-                          <object class="GtkButton" id="buttonImport">
-                            <property name="can-focus">True</property>
-                            <property name="label" translatable="yes">Import</property>
-                            <property name="receives-default">True</property>
-                            <property name="visible">True</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkButton" id="buttonExport">
-                            <property name="can-focus">True</property>
-                            <property name="label" translatable="yes">Export</property>
-                            <property name="receives-default">True</property>
-                            <property name="visible">True</property>
+                          <object class="GtkBox">
+                            <property name="halign">end</property>
+                            <property name="hexpand">True</property>
+                            <property name="orientation">vertical</property>
+                            <property name="spacing">5</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="css-classes">title
+</property>
+                                <property name="halign">start</property>
+                                <property name="hexpand">True</property>
+                                <property name="label">Profile</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkMenuButton" id="menuButtonProfile">
+                                <property name="direction">right</property>
+                                <property name="hexpand">True</property>
+                                <property name="label">Default</property>
+                                <property name="popover">
+                                  <object class="GtkPopover">
+                                    <property name="child">
+                                      <object class="GtkBox">
+                                        <property name="orientation">vertical</property>
+                                        <child>
+                                          <object class="MouseProfileButton">
+                                            <property name="name">Default</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </property>
+                                  </object>
+                                </property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkBox">
+                                <property name="spacing">5</property>
+                                <child>
+                                  <object class="GtkButton" id="buttonImport">
+                                    <property name="can-focus">True</property>
+                                    <property name="label" translatable="yes">Import</property>
+                                    <property name="receives-default">True</property>
+                                    <property name="visible">True</property>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkButton" id="buttonExport">
+                                    <property name="can-focus">True</property>
+                                    <property name="label" translatable="yes">Export</property>
+                                    <property name="receives-default">True</property>
+                                    <property name="visible">True</property>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
                           </object>
                         </child>
                       </object>

@@ -8,6 +8,7 @@
 #include "templates/stack_menu_button.h"
 #include "templates/stack_menu_button_back.h"
 #include "templates/mouse_macro_button.h"
+#include "templates/mouse_profile_button.h"
 #include "../resources/gresources.h"
 #include "settings_storage.h"
 
@@ -178,6 +179,7 @@ static GtkBuilder* init_builder(app_data *data) {
 	g_type_ensure(STACK_TYPE_MENU_BUTTON);
 	g_type_ensure(STACK_TYPE_MENU_BUTTON_BACK);
 	g_type_ensure(MOUSE_TYPE_MACRO_BUTTON);
+	g_type_ensure(MOUSE_TYPE_PROFILE_BUTTON);
 
 	g_resources_register(gresources_get_resource());
 

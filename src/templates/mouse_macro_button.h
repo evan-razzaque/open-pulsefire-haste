@@ -14,7 +14,7 @@ G_DECLARE_FINAL_TYPE(MouseMacroButton, mouse_macro_button, MOUSE, MACRO_BUTTON, 
  * 
  * @param name The name of the macro
  * @param index The index of the macro
- * @return a nes MouseMacroButton
+ * @return a new MouseMacroButton
  */
 MouseMacroButton* mouse_macro_button_new(char* name, uint32_t index);
 

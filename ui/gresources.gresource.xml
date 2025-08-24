@@ -9,5 +9,6 @@
     <file>macro-event-item.ui</file>
     <file>window.ui</file>
     <file>window.css</file>
+    <file>mouse-profile-button.ui</file>
   </gresource>
 </gresources>
