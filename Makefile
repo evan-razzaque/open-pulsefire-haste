@@ -11,20 +11,15 @@ GRESOURCES_SRC    = resources/gresources.c
 GRESOURCES_HEADER = resources/gresources.h
 GRESOURCES_OBJ    = $(BUILD_DIR)/gresources.o
 
-LOCAL_LIB         = /usr/local/lib
-
-# Release 1.8.beta
-LIBADWAITA        = $(LOCAL_LIB)/pkgconfig/libadwaita-1.pc
-
 ifeq ($(debug), 1)
 	DEBUG_FLAGS = -fsanitize=address -g -Og
 endif
 
-LDLIBS  = $(DEBUG_FLAGS) -lm -lhidapi-hidraw -lusb-1.0 $$(pkg-config --libs $(LIBADWAITA) gmodule-export-2.0) -Wl,-rpath,$(LOCAL_LIB)
-CFLAGS += $(DEBUG_FLAGS) -Isrc/ $$(pkg-config --cflags $(LIBADWAITA) gmodule-export-2.0) -Wall -Werror -Werror=vla -Wno-deprecated-declarations -std=c99
+LDLIBS  = $(DEBUG_FLAGS) -lm -lhidapi-hidraw -lusb-1.0 $$(pkg-config --libs libadwaita-1 gmodule-export-2.0)
+CFLAGS += $(DEBUG_FLAGS) -Isrc/ $$(pkg-config --cflags libadwaita-1 gmodule-export-2.0) -Wall -Werror -Werror=vla -Wno-deprecated-declarations -std=c99
 
 ifeq ($(OS),Windows_NT)
-# Asan doesn't work with gcc on windows
+# Asan isn't available with gcc on Windows
 	DEBUG_FLAGS =
 	LDLIBS      = -lm -lhidapi -lhid -lcfgmgr32 $$(pkg-config --libs libadwaita-1 gmodule-export-2.0) -I /mingw64/include/hidapi
 	VPATH      += src/windows

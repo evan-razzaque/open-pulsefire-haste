@@ -21,7 +21,7 @@
 
 #include <stdint.h>
 #include <hidapi/hidapi.h>
-#include <adwaita.h>
+#include <gtk/gtk.h>
 #include "device/mouse.h"
 
 /**

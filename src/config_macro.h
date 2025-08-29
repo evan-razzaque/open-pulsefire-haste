@@ -19,7 +19,7 @@
 #ifndef CONFIG_MACRO_H
 #define CONFIG_MACRO_H
 
-#include <gtk/gtk.h>
+#include <adwaita.h>
 #include "device/buttons.h"
 #include "types.h"
 

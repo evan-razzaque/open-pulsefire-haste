@@ -267,8 +267,8 @@ void app_config_sensor_init(GtkBuilder *builder, app_data *data) {
         create_dpi_profile_row(i, dpi_config->profiles + i, data);
     }
 
-    char profile_state[10];
-    sprintf(profile_state, "byte %d", data->sensor_data->dpi_config.selected_profile);
+    char selected_profile_state[10];
+    sprintf(selected_profile_state, "byte %d", data->sensor_data->dpi_config.selected_profile);
 
     char polling_rate_string[10];
     sprintf(polling_rate_string, "byte %d", data->sensor_data->polling_rate_value);
@@ -279,7 +279,7 @@ void app_config_sensor_init(GtkBuilder *builder, app_data *data) {
     const GActionEntry entries[] = {
         {.name = "change-polling-rate", .change_state = (g_action) change_polling_rate, .parameter_type = (const char*) G_VARIANT_TYPE_BYTE, .state = polling_rate_string},
         {.name = "change-lift-off-distance", .change_state = (g_action) change_lift_off_distance, .parameter_type = (const char*) G_VARIANT_TYPE_BYTE, lift_off_distance_string},
-        {.name = "select-dpi-profile", .change_state = (g_action) select_dpi_profile, .parameter_type = (const char*) G_VARIANT_TYPE_BYTE, .state = profile_state},
+        {.name = "select-dpi-profile", .change_state = (g_action) select_dpi_profile, .parameter_type = (const char*) G_VARIANT_TYPE_BYTE, .state = selected_profile_state},
         {.name = "add-dpi-level", .activate = (g_action) add_dpi_profile},
         {.name = "delete-dpi-profile", .activate = (g_action) delete_dpi_profile, .parameter_type = (const char*) G_VARIANT_TYPE_BYTE}
     };

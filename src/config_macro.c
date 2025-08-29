@@ -72,6 +72,21 @@ static void update_macro_event_delay_next_event(MacroEventItem *self, int event_
 }
 
 /**
+ * @brief Removes all children from an AdwWrapBox.
+ * 
+ * @param self The AdwWrapBox instance
+ */
+void adw_wrap_box_remove_all(AdwWrapBox *self) {
+    GtkWidget *widget;
+
+    g_return_if_fail(ADW_IS_WRAP_BOX(self));
+
+    while ((widget = gtk_widget_get_first_child(GTK_WIDGET(self))))
+        adw_wrap_box_remove(self, widget);
+}
+
+
+/**
  * @brief Stores a MacroEventItem widget into a wrap box.
  * 
  * @param wrap_box The wrap box
