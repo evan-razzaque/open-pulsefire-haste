@@ -13,7 +13,12 @@ GRESOURCES_OBJ    = $(BUILD_DIR)/gresources.o
 
 ifeq ($(debug), 1)
 	DEBUG_FLAGS = -fsanitize=address -g -Og
+else
+	debug = 0
 endif
+
+# a bit of sanity checking for the build mode
+ACTUAL_TARGET := $(shell ./check_build_mode.sh $(BIN_DIR)/$(NAME) $(debug))
 
 LDLIBS  = $(DEBUG_FLAGS) -lm -lhidapi-hidraw -lusb-1.0 $$(pkg-config --libs libadwaita-1 gmodule-export-2.0)
 CFLAGS += $(DEBUG_FLAGS) -Isrc/ $$(pkg-config --cflags libadwaita-1 gmodule-export-2.0) -Wall -Werror -Werror=vla -Wno-deprecated-declarations -std=c99
@@ -37,7 +42,7 @@ VPATH += resources
 
 GEN_DIRS = resources $(DEPDIR) $(BUILD_DIR) $(BIN_DIR)
 
-all: $(TARGET)
+all: $(ACTUAL_TARGET)
 	
 $(TARGET) : $(GEN_DIRS) $(OBJS)
 	$(CC) -o $(TARGET) $(OBJS) $(LDLIBS) $(LDFLAGS)
@@ -64,8 +69,16 @@ DEPFILES := $(SRCS:%.c=$(DEPDIR)/%.d)
 $(DEPFILES):
 include $(wildcard $(DEPFILES))
 
-.PHONY: all clean
+.PHONY: all clean build_mode_mismatch_debug build_mode_mismatch_release
+
+build_mode_mismatch_release:
+	@echo Specified build mode \(release\) does not match target build mode \(debug\)
+	@test
+
+build_mode_mismatch_debug:
+	@echo Specified build mode \(debug\) does not match target build mode \(release\)
+	@test
 
 clean:
 	rm -rf $(GEN_DIRS)
-	
+
