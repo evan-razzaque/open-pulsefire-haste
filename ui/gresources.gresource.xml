@@ -2,13 +2,13 @@
 <!-- Created with Cambalache 0.96.1 -->
 <gresources>
   <gresource prefix="/open_pulsefire_haste">
-    <file>dpi-profile-config.ui</file>
-    <file>stack-menu-button.ui</file>
-    <file>stack-menu-button-back.ui</file>
-    <file>mouse-macro-button.ui</file>
-    <file>macro-event-item.ui</file>
-    <file>window.ui</file>
-    <file>window.css</file>
-    <file>mouse-profile-button.ui</file>
+    <file compressed="true" preprocess="xml-stripblanks">window.ui</file>
+    <file compressed="true" preprocess="xml-stripblanks">dpi-profile-config.ui</file>
+    <file compressed="true" preprocess="xml-stripblanks">stack-menu-button.ui</file>
+    <file compressed="true" preprocess="xml-stripblanks">stack-menu-button-back.ui</file>
+    <file compressed="true" preprocess="xml-stripblanks">mouse-macro-button.ui</file>
+    <file compressed="true" preprocess="xml-stripblanks">macro-event-item.ui</file>
+    <file compressed="true" preprocess="xml-stripblanks">mouse-profile-button.ui</file>
+    <file compressed="true">window.css</file>
   </gresource>
 </gresources>
