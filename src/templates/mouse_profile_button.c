@@ -39,7 +39,7 @@ static void mouse_profile_button_class_init(MouseProfileButtonClass *klass) {
 
     GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
 
-    gtk_widget_class_set_template_from_resource(widget_class, "/org/haste/mouse-profile-button.ui");
+    gtk_widget_class_set_template_from_resource(widget_class, "/open_pulsefire_haste/mouse-profile-button.ui");
     gtk_widget_class_set_layout_manager_type(widget_class, GTK_TYPE_BOX_LAYOUT);
     
     gtk_widget_class_bind_template_child(widget_class, MouseProfileButton, button_name);

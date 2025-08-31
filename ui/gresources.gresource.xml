@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- Created with Cambalache 0.96.1 -->
 <gresources>
-  <gresource prefix="/org/haste">
+  <gresource prefix="/open_pulsefire_haste">
     <file>dpi-profile-config.ui</file>
     <file>stack-menu-button.ui</file>
     <file>stack-menu-button-back.ui</file>

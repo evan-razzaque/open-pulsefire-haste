@@ -68,7 +68,7 @@ static void macro_event_item_class_init(MacroEventItemClass *klass) {
 
     GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
 
-    gtk_widget_class_set_template_from_resource(widget_class, "/org/haste/macro-event-item.ui");
+    gtk_widget_class_set_template_from_resource(widget_class, "/open_pulsefire_haste/macro-event-item.ui");
     gtk_widget_class_set_layout_manager_type(widget_class, GTK_TYPE_BOX_LAYOUT);
 
     signals[DELAY_CHANGED] = g_signal_new(

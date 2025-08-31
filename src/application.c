@@ -213,11 +213,11 @@ static GtkBuilder* init_builder(app_data *data) {
 
 	g_resources_register(gresources_get_resource());
 
-	GtkBuilder *builder = gtk_builder_new_from_resource("/org/haste/window.ui");
+	GtkBuilder *builder = gtk_builder_new_from_resource("/open_pulsefire_haste/window.ui");
 	data->widgets->window = GTK_WINDOW(GTK_WIDGET(gtk_builder_get_object(builder, "window")));
 
 	GtkCssProvider *provider = gtk_css_provider_new();
-	gtk_css_provider_load_from_resource(provider, "/org/haste/window.css");
+	gtk_css_provider_load_from_resource(provider, "/open_pulsefire_haste/window.css");
 	gtk_style_context_add_provider_for_display(
 		gtk_widget_get_display(GTK_WIDGET(data->widgets->window)),
 		GTK_STYLE_PROVIDER(provider),
