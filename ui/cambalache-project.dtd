@@ -1,7 +1,5 @@
 <!-- Root element -->
-<!ELEMENT cambalache-project (ui*,
-                              css*,
-                              gresources*)>
+<!ELEMENT cambalache-project (ui | css | gresources)*>
 
 <!-- Required project attrs -->
 <!ATTLIST cambalache-project

@@ -2,7 +2,7 @@
 <!DOCTYPE cambalache-project SYSTEM "cambalache-project.dtd">
 <!-- Created with Cambalache 0.96.1 -->
 <cambalache-project version="0.96.0" target_tk="gtk-4.0">
-  <gresources filename="gresources.gresource.xml" sha256="90aafd2c8b5facce070ff20b82e1e030a37d8c0752348e6f455d36fdbe107faa"/>
+  <gresources filename="gresources.gresource.xml" sha256="a21cd23a9e0b9ad0c64473faae6b491984693771634b171677beeef5ad847056"/>
   <css filename="window.css" is_global="1"/>
   <ui template-class="DpiProfileConfig" filename="dpi-profile-config.ui" sha256="d2bc93378d90ba435eb94045b858e8f0d16e1b510d0efc94ad119480a4af7072"/>
   <ui template-class="StackMenuButton" filename="stack-menu-button.ui" sha256="c8cad1c34294f71d606bd8802afd7eb228377d71200b4b8b828a343bb40fa541"/>
@@ -11,9 +11,9 @@
   <ui template-class="MacroEventItem" filename="macro-event-item.ui" sha256="931ec12bc20ae36c0335ba83142c26c1665b072dc95fa353253b813224a9d17f"/>
   <ui template-class="MouseProfileButton" filename="mouse-profile-button.ui" sha256="9b6b63a50de4753e1618a38acfff97a9d5e30ad9aab6449675c7b85a21e5a932"/>
   <ui filename="window.ui" sha256="b67d3ebf06cbe87a67c1332b6b75918d5f932f27fff5ee37ab5e842f63022e49">
+    <requires>MouseProfileButton</requires>
     <requires>StackMenuButton</requires>
     <requires>StackMenuButtonBack</requires>
-    <requires>MouseProfileButton</requires>
     <css-provider>window.css</css-provider>
   </ui>
 </cambalache-project>
