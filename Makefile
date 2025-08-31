@@ -44,6 +44,14 @@ VPATH += resources
 
 GEN_DIRS = resources $(DEPDIR) $(BUILD_DIR) $(BIN_DIR)
 
+# Required by application.c, therefore this must be ran first regardless if make is parallel or not
+$(shell \
+	if [ ! -d resources -a ! -f $(GRESOURCES_HEADER) ]; then \
+		mkdir resources; \
+		glib-compile-resources $(GRESOURCE_BUNDLE) --sourcedir ui --target $(GRESOURCES_HEADER) --generate-header; \
+	fi \
+)
+
 all: $(ACTUAL_TARGET)
 	
 $(TARGET): $(GEN_DIRS) $(GRESOURCES_OBJ) $(OBJS)
