@@ -6,7 +6,8 @@ TARGET            = $(BIN_DIR)/$(NAME)
 
 VPATH             = src src/device src/hotplug src/templates
 
-UI_FILES         := ui/gresources.gresource.xml $(shell find ui -name *.ui -o -name *.css)
+RESOURCES         := $(shell find ui -name *.ui -o -name *.css)
+GRESOURCE_BUNDLE  = ui/gresources.gresource.xml 
 GRESOURCES_SRC    = resources/gresources.c
 GRESOURCES_HEADER = resources/gresources.h
 GRESOURCES_OBJ    = $(BUILD_DIR)/gresources.o
@@ -17,7 +18,7 @@ else
 	debug = 0
 endif
 
-# a bit of sanity checking for the build mode
+# Checks if the program build mode matches the user-specified build mode
 ACTUAL_TARGET := $(shell ./check_build_mode.sh $(BIN_DIR)/$(NAME) $(debug))
 
 LDLIBS  = $(DEBUG_FLAGS) -lm -lhidapi-hidraw -lusb-1.0 $$(pkg-config --libs libadwaita-1 gmodule-export-2.0)
@@ -33,9 +34,10 @@ else
 endif
 
 SRCS    := $(shell basename -a $$(find $(VPATH) -maxdepth 1 -name "*.c") $(GRESOURCES_SRC))
-OBJS    := $(patsubst %.c,$(BUILD_DIR)/%.o,$(SRCS)) 
+OBJS    := $(SRCS:%.c=$(BUILD_DIR)/%.o)
 DEPDIR   = $(BUILD_DIR)/.deps
 DEPFLAGS = -MT $@ -MM -MP -MF $(DEPDIR)/$*.d
+DEPS    := $(SRCS:%.c=$(DEPDIR)/%.d)
 
 # The find command in SRCS will error if resources/ does not exist
 VPATH += resources
@@ -44,30 +46,27 @@ GEN_DIRS = resources $(DEPDIR) $(BUILD_DIR) $(BIN_DIR)
 
 all: $(ACTUAL_TARGET)
 	
-$(TARGET) : $(GEN_DIRS) $(OBJS)
+$(TARGET): $(GEN_DIRS) $(GRESOURCES_OBJ) $(OBJS)
 	$(CC) -o $(TARGET) $(OBJS) $(LDLIBS) $(LDFLAGS)
 
-$(GRESOURCES_OBJ): $(GRESOURCES_SRC)
-	$(CC) -c $(CFLAGS) $< -o $@
-
-$(BUILD_DIR)/main.o : $(GRESOURCES_HEADER)
-
-$(BUILD_DIR)/%.o : %.c $(DEPDIR)/%.d | $(DEPDIR)
+$(BUILD_DIR)/%.o : %.c
 	$(CC) $(DEPFLAGS) -Isrc $<
 	$(CC) -c $(CFLAGS) $< -o $@
-
-$(GRESOURCES_HEADER):
-	glib-compile-resources ui/gresources.gresource.xml --sourcedir ui --target $@ --generate-header
-	
-$(GRESOURCES_SRC) : $(UI_FILES)
-	glib-compile-resources $< --sourcedir ui --target $@ --generate-source
 
 $(GEN_DIRS): 
 	mkdir -p $@
 
-DEPFILES := $(SRCS:%.c=$(DEPDIR)/%.d)
-$(DEPFILES):
-include $(wildcard $(DEPFILES))
+# Generated files
+
+$(GRESOURCES_OBJ): $(GRESOURCES_SRC) $(GRESOURCES_HEADER)
+	$(CC) -c $(CFLAGS) $< -o $@
+
+$(GRESOURCES_HEADER): $(GRESOURCE_BUNDLE)
+	glib-compile-resources $< --sourcedir ui --target $@ --generate-header
+	
+$(GRESOURCES_SRC): $(GRESOURCE_BUNDLE) $(RESOURCES)
+	glib-compile-resources $< --sourcedir ui --target $@ --generate-source
+
 
 .PHONY: all clean build_mode_mismatch_debug build_mode_mismatch_release
 
@@ -82,3 +81,4 @@ build_mode_mismatch_debug:
 clean:
 	rm -rf $(GEN_DIRS)
 
+-include $(wildcard $(DEPS))
