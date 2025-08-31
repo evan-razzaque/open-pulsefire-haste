@@ -28,7 +28,7 @@
 #include "templates/mouse_macro_button.h"
 #include "templates/mouse_profile_button.h"
 #include "../resources/gresources.h"
-#include "settings_storage.h"
+#include "mouse_profile_storage.h"
 
 #include "util.h"
 
@@ -130,7 +130,8 @@ void update_menu_button_label(MOUSE_BUTTON button, uint16_t action, app_data *da
 }
 
 void load_mouse_settings(app_data *data) {
-	hid_device *dev = data->mouse->dev;
+	mouse_data *mouse = data->mouse;
+	hid_device *dev = mouse->dev;
 
 	for (int i = 0; i < BUTTON_COUNT; i++) {
 		if (data->button_data->bindings[i] >> 8 == MOUSE_ACTION_TYPE_MACRO) {
@@ -142,7 +143,18 @@ void load_mouse_settings(app_data *data) {
 		assign_button(i, data->button_data->bindings[i], data);
 	}
 
+	g_mutex_lock(mouse->mutex);
 	set_polling_rate(dev, data->sensor_data->polling_rate_value);
+	g_mutex_unlock(mouse->mutex);
+
+	GVariant *variant_polling_rate = g_variant_new_byte(data->sensor_data->polling_rate_value);
+	GVariant *variant_lift_off_distance = g_variant_new_byte(data->sensor_data->lift_off_distance);
+	GVariant *variant_selected_dpi_profile = g_variant_new_byte(data->sensor_data->dpi_config.selected_profile);
+
+	g_action_group_activate_action(G_ACTION_GROUP(data->widgets->app), CHANGE_POLLING_RATE, variant_polling_rate);
+	g_action_group_activate_action(G_ACTION_GROUP(data->widgets->app), CHANGE_LIFT_OFF_DISTANCE, variant_lift_off_distance);
+	g_action_group_activate_action(G_ACTION_GROUP(data->widgets->app), SELECT_DPI_PROFILE, variant_selected_dpi_profile);
+
 	save_dpi_settings(dev, &data->sensor_data->dpi_config, data->sensor_data->lift_off_distance);
 }
 
@@ -169,7 +181,7 @@ void save_mouse_settings(GtkWidget *self, mouse_data *mouse) {
  * @param data Application wide data structure
  */
 static void close_application(GtkWindow *window, app_data *data) {
-	save_settings_to_file(data);
+	save_profile_to_file(data);
 	free(data->app_data_dir);
 	
 	for (int i = 0; i < data->macro_data->macro_count; i++) {

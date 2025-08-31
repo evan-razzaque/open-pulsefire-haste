@@ -84,8 +84,8 @@ struct app_data {
 	char *app_data_dir; // XDG data base directory
 	int app_data_dir_length; // Length of `app_data_dir`, including the null-byte
 
-	FILE *settings_file; // File used to store mouse settings
-	FILE *macros_file; // File used to store recorded macros
+	FILE *profile_file; // File used to store mouse settings
+	char *settings_filename; // Name of the settings file
 	
 	config_color_data *color_data; // Mouse led data and settings
 	config_button_data *button_data; // Mouse button data and settings 

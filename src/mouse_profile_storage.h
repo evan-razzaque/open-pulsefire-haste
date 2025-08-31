@@ -16,10 +16,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>. 
  */
 
-#ifndef SETTINGS_STORAGE_H
-#define SETTINGS_STORAGE_H
+#ifndef MOUSE_PROFILE_STORAGE_H
+#define MOUSE_PROFILE_STORAGE_H
 
 #include "types.h"
+
+#ifdef _WIN32
+#define PATH_SEP "\\"
+#else
+#define PATH_SEP "/"
+#endif
+
+#define APP_DIR PATH_SEP "open-pulsefire-haste" PATH_SEP
+#define DEFAULT_PROFILE_NAME "default.bin"
 
 /**
  * @brief Creates the application data directory
@@ -38,7 +47,7 @@ int create_data_directory(app_data *data);
  * @param data Application wide data structure
  * @return 0 if the settings were loaded or -1 if there was an error
  */
-int load_settings_from_file(app_data *data);
+int load_profile_from_file(app_data *data);
 
 /**
  * @brief Save the mouse settings to disk.
@@ -46,6 +55,6 @@ int load_settings_from_file(app_data *data);
  * @param data Application wide data structure
  * @return 0 if the settings were saved or -1 if there was an error
  */
-int save_settings_to_file(app_data *data);
+int save_profile_to_file(app_data *data);
 
 #endif

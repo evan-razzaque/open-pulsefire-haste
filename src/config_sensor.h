@@ -23,6 +23,10 @@
 #include "device/sensor.h"
 #include "types.h"
 
+#define CHANGE_POLLING_RATE "change-polling-rate"
+#define CHANGE_LIFT_OFF_DISTANCE "change-lift-off-distance"
+#define SELECT_DPI_PROFILE "select-dpi-profile"
+
 /**
  * @brief A struct to store sensor config for the mouse.
  */
@@ -34,7 +38,7 @@ struct config_sensor_data {
 	bool user_changed_dpi_profile; // A flag that indicates if a dpi profile change was done by the user (GUI) or the mouse (DPI toggle event)
 
 	GtkWidget *button_add_dpi_profile; // The button used to add a dpi profile
-	GtkCheckButton* check_button_group_dpi_profile; // The check button group for the dpi profiles' check button
+	GtkCheckButton *check_button_group_dpi_profile; // The check button group for the dpi profiles' check button
 	GtkListBox *list_box_dpi_profiles; // Holds each DpiProfileConfig widget
 };
 
@@ -56,6 +60,14 @@ struct dpi_profile_selection_args {
  * @param args A dpi_profile_selection_args struct instance
  */
 void update_dpi_profile_selection(dpi_profile_selection_args *args);
+
+/**
+ * @brief A function to create dpi profile rows for each dpi profile.
+ * 
+ * @param dpi_config The dpi config for the mouse
+ * @param data Application wide data struture
+ */
+void create_dpi_profile_rows(dpi_settings *dpi_config, app_data *data);
 
 /**
  * Init for mouse sensor related settings.

@@ -220,15 +220,6 @@ int mouse_read(hid_device *dev, byte *data);
 int mouse_send_read_request(hid_device *dev, REPORT_TYPE report_type);
 
 /**
- * @brief Set the polling rate for the mouse.
- * 
- * @param dev The mouse device handle
- * @param polling_rate_value The polling rate value
- * @return the number of bytes written or -1 on error
- */
-int set_polling_rate(hid_device *dev, byte polling_rate_value);
-
-/**
  * Saves the mouse settings to its on-board memory.
  * 
  * @param dev The mouse device handle

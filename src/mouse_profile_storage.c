@@ -23,7 +23,7 @@
 #include <sys/stat.h>
 #include <gtk/gtk.h>
 
-#include "settings_storage.h"
+#include "mouse_profile_storage.h"
 
 #include "device/rgb.h"
 #include "device/mouse.h"
@@ -37,19 +37,10 @@
 #include "config_sensor.h"
 #include "util.h"
 
-#ifdef _WIN32
-#define PATH_SEP "\\"
-#else
-#define PATH_SEP "/"
-#endif
-
-#define APP_DIR PATH_SEP "open-pulsefire-haste"
-#define SETTINGS_FILE PATH_SEP "default.bin"
-
 /**
  * @brief A struct used for reading and writing mouse settings with the disk.
  */
-struct mouse_settings {
+struct mouse_profile {
 	color_options led;
 
 	uint16_t bindings[6];
@@ -62,7 +53,7 @@ struct mouse_settings {
         int macro_count;
         int macro_indicies[6]; // Contains a macro index for each mouse button. Non-macro bindings are -1.
     } macro_info;
-} typedef mouse_settings;
+} typedef mouse_profile;
 
 /**
  * @brief A struct used for reading and writing information about a `recorded_macro` with the disk.
@@ -87,6 +78,21 @@ static int handle_file_error(FILE *file, const char* filename, bool file_should_
     return 0;
 }
 
+int create_data_directory(app_data *data) {
+    const char *user_data_dir = g_get_user_data_dir();
+    size_t user_data_dir_len = strlen(user_data_dir) + 1;
+
+    size_t app_data_dir_size = user_data_dir_len * sizeof(char) + sizeof(APP_DIR);
+    data->app_data_dir = malloc(app_data_dir_size);
+    data->app_data_dir_length = app_data_dir_size / sizeof(char);
+
+    strncpy(data->app_data_dir, user_data_dir, user_data_dir_len);
+    strncat(data->app_data_dir, APP_DIR, sizeof(APP_DIR) / sizeof(char));
+    
+    int res = g_mkdir_with_parents(data->app_data_dir, S_IRWXU);
+    return res;
+}
+
 static char* application_data_get_file_path(app_data *data, char* filename) {
     int filename_length = strlen(filename) + 1;
 
@@ -98,14 +104,15 @@ static char* application_data_get_file_path(app_data *data, char* filename) {
 }
 
 /**
- * @brief Creates a settings file for the mouse if none exists.
+ * @brief Creates a mouse profile.
  * 
- * @param settings The mouse_settings object
+ * @param settings The mouse_profile object
+ * @param profile_path The path to save the profile to
  * @param data Application wide data structure
- * @return 0 if the settings file was created or -1 if there was an error
+ * @return 0 if the profile file was created or -1 if there was an error
  */
-static int create_settings_file(mouse_settings *settings, char *settings_file_path, app_data *data) {
-    *settings = (mouse_settings) {
+static int create_profile(mouse_profile *profile, char *profile_path, app_data *data) {
+    *profile = (mouse_profile) {
         .led = {.red = 0xff, .brightness = 100},
         .bindings = {
             LEFT_CLICK,
@@ -129,49 +136,34 @@ static int create_settings_file(mouse_settings *settings, char *settings_file_pa
         .macro_info.macro_indicies = {-1, -1, -1, -1, -1, -1}
     };
     
-    data->settings_file = fopen(settings_file_path, "wb");
+    data->profile_file = fopen(profile_path, "wb");
 
-    int res = handle_file_error(data->settings_file, settings_file_path, true);
+    int res = handle_file_error(data->profile_file, profile_path, true);
     if (res < 0) return res;
 
-    res = fwrite(settings, sizeof(mouse_settings), 1, data->settings_file);
+    res = fwrite(profile, sizeof(mouse_profile), 1, data->profile_file);
     if (res != 1) {
         debug("Error\n");
         res = -1;
-        fclose(data->settings_file);
+        fclose(data->profile_file);
     }
 
     return res;
 }
 
-int create_data_directory(app_data *data) {
-    const char *user_data_dir = g_get_user_data_dir();
-    size_t user_data_dir_len = strlen(user_data_dir) + 1;
-
-    size_t app_data_dir_size = user_data_dir_len * sizeof(char) + sizeof(APP_DIR);
-    data->app_data_dir = malloc(app_data_dir_size);
-    data->app_data_dir_length = app_data_dir_size / sizeof(char);
-
-    strncpy(data->app_data_dir, user_data_dir, user_data_dir_len);
-    strncat(data->app_data_dir, APP_DIR, sizeof(APP_DIR) / sizeof(char));
-    
-    int res = g_mkdir_with_parents(data->app_data_dir, S_IRWXU);
-    return res;
-}
-
-static void load_settings(app_data *data, char *settings_file_path) {
-    mouse_settings settings = {0};
+static void load_profile_settings(app_data *data, char *profile_path) {
+    mouse_profile settings = {0};
 
     int res;
 
-    if (data->settings_file == NULL) {
-        res = create_settings_file(&settings, settings_file_path, data);
+    if (data->profile_file == NULL) {
+        res = create_profile(&settings, profile_path, data);
         if (res < 0) {
             debug("Error: %d\n",, res);
             return;
         };
     } else {
-        res = fread(&settings, sizeof(mouse_settings), 1, data->settings_file);
+        res = fread(&settings, sizeof(mouse_profile), 1, data->profile_file);
 
         if (res != 1) {
             debug("Error: %d\n",, res);
@@ -194,7 +186,7 @@ static void load_settings(app_data *data, char *settings_file_path) {
     );
 }
 
-static void load_macros(app_data *data) {
+static void load_profile_macros(app_data *data) {
     data->macro_data->macro_array_size = MAX(data->macro_data->macro_count, 1);
     data->macro_data->macros = malloc(sizeof(recorded_macro) * data->macro_data->macro_array_size);
 
@@ -202,22 +194,22 @@ static void load_macros(app_data *data) {
 
     for (int i = 0; i < data->macro_data->macro_count; i++) {
         macro_detail detail = {0};
-        fread(&detail, sizeof(macro_detail), 1, data->settings_file);
+        fread(&detail, sizeof(macro_detail), 1, data->profile_file);
 
         macros[i].name = malloc(sizeof(char) * detail.macro_name_length);
-        fread(macros[i].name, sizeof(char), detail.macro_name_length, data->settings_file);
+        fread(macros[i].name, sizeof(char), detail.macro_name_length, data->profile_file);
 
         macros[i].generic_event_count = detail.event_count;
         macros[i].generic_event_array_size = detail.event_count;
         macros[i].events = malloc(sizeof(generic_macro_event) * detail.event_count);
-        fread(macros[i].events, sizeof(generic_macro_event), detail.event_count, data->settings_file);
+        fread(macros[i].events, sizeof(generic_macro_event), detail.event_count, data->profile_file);
 
         macros[i].repeat_mode = detail.repeat_mode;
     }
 }
 
-static void save_settings(app_data *data) {
-    mouse_settings settings = {
+static void save_profile_settings(app_data *data) {
+    mouse_profile profile = {
         .led = data->color_data->mouse_led,
         .dpi_config = data->sensor_data->dpi_config,
         .polling_rate_value = data->sensor_data->polling_rate_value,
@@ -225,20 +217,20 @@ static void save_settings(app_data *data) {
         .macro_info.macro_count = data->macro_data->macro_count
     };
 
-    memcpy(settings.bindings, data->button_data->bindings, sizeof(data->button_data->bindings));
+    memcpy(profile.bindings, data->button_data->bindings, sizeof(data->button_data->bindings));
     memcpy(
-        settings.macro_info.macro_indicies,
+        profile.macro_info.macro_indicies,
         data->macro_data->macro_indicies,
-        sizeof(settings.macro_info.macro_indicies)
+        sizeof(profile.macro_info.macro_indicies)
     );
     
-    int res = fwrite(&settings, sizeof(mouse_settings), 1, data->settings_file);
+    int res = fwrite(&profile, sizeof(mouse_profile), 1, data->profile_file);
     if (res != 1) {
         debug("Error\n");
     }
 }
 
-static void save_macros(app_data *data) {
+static void save_profile_macros(app_data *data) {
     recorded_macro *macros = data->macro_data->macros;
     int macro_count = data->macro_data->macro_count;
 
@@ -249,44 +241,44 @@ static void save_macros(app_data *data) {
             .repeat_mode = macros[i].repeat_mode
         };
 
-        fwrite(&detail, sizeof(macro_detail), 1, data->settings_file);
-        fwrite(macros[i].name, sizeof(char), detail.macro_name_length, data->settings_file);
-        fwrite(macros[i].events, sizeof(generic_macro_event), detail.event_count, data->settings_file);
+        fwrite(&detail, sizeof(macro_detail), 1, data->profile_file);
+        fwrite(macros[i].name, sizeof(char), detail.macro_name_length, data->profile_file);
+        fwrite(macros[i].events, sizeof(generic_macro_event), detail.event_count, data->profile_file);
     }
 }
 
-int load_settings_from_file(app_data *data) {
-    char *settings_file_path = application_data_get_file_path(data, SETTINGS_FILE);
+int load_profile_from_file(app_data *data) {
+    char *profile_path = application_data_get_file_path(data, data->settings_filename);
 
-    data->settings_file = fopen(settings_file_path, "rb");
-    int res = handle_file_error(data->settings_file, settings_file_path, false);
+    data->profile_file = fopen(profile_path, "rb");
+    int res = handle_file_error(data->profile_file, profile_path, false);
     if (res < 0) goto free_path;
     
-    load_settings(data, settings_file_path);
-    load_macros(data);
+    load_profile_settings(data, profile_path);
+    load_profile_macros(data);
 
-    fclose(data->settings_file);
+    fclose(data->profile_file);
 
     free_path:
-        free(settings_file_path);
+        free(profile_path);
 
     return res;
 }
 
-int save_settings_to_file(app_data *data) {
-    char *settings_file_path = application_data_get_file_path(data, SETTINGS_FILE);
+int save_profile_to_file(app_data *data) {
+    char *profile_path = application_data_get_file_path(data, data->settings_filename);
 
-    data->settings_file = fopen(settings_file_path, "wb");
-    int res = handle_file_error(data->settings_file, settings_file_path, true);
+    data->profile_file = fopen(profile_path, "wb");
+    int res = handle_file_error(data->profile_file, profile_path, true);
     if (res < 0) goto free_path;
 
-    save_settings(data);
-    save_macros(data);
+    save_profile_settings(data);
+    save_profile_macros(data);
     
-    fclose(data->settings_file);
+    fclose(data->profile_file);
 
     free_path:
-        free(settings_file_path);
+        free(profile_path);
 
     return res;
 }

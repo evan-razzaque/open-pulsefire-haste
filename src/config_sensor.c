@@ -46,7 +46,7 @@ static void update_dpi_settings(app_data *data) {
 /**
  * @brief Updates a dpi profile.
  * 
- * @param self The widget representing the dpi profile
+ * @param self The DpiProfileConfig instance representing the dpi profile
  * @param profile_index The index of the dpi_profile
  * @param dpi_value The dpi value
  * @param indicator The profile indicator color
@@ -74,13 +74,18 @@ static void change_polling_rate(GSimpleAction* action, GVariant *value, app_data
     byte polling_rate_value = g_variant_get_byte(value);
     g_simple_action_set_state(action, value);
 
-    set_polling_rate(data->mouse->dev, g_variant_get_byte(value));
+    if (data->sensor_data->polling_rate_value == polling_rate_value) return;
+    
+    g_mutex_lock(data->mouse->mutex);
+
     data->sensor_data->polling_rate_value = polling_rate_value;
+    set_polling_rate(data->mouse->dev, polling_rate_value);
+
+    g_mutex_unlock(data->mouse->mutex);
 }
 
-
 /**
- * @brief Change the lift off distance of the mouse
+ * @brief Change the lift off distance of the mouse.
  * 
  * @param action The simple action containing the check button state for the lift off distance
  * @param value The lift off distance value (in milimeters)
@@ -90,7 +95,33 @@ static void change_lift_off_distance(GSimpleAction* action, GVariant *value, app
     byte lift_off_distance = g_variant_get_byte(value);
     g_simple_action_set_state(action, value);
 
+    if (data->sensor_data->lift_off_distance == lift_off_distance) return;
+
     data->sensor_data->lift_off_distance = lift_off_distance;
+    update_dpi_settings(data);
+}
+
+/**
+ * @brief Selects a dpi profile.
+ * 
+ * @param action The simple action containing the state for the selected dpi profile index
+ * @param value_profile_index The index of the dpi profile to select
+ * @param data Application wide data structure
+ */
+static void select_dpi_profile(GSimpleAction *action, GVariant *value_profile_index, app_data *data) {
+    byte profile_index = g_variant_get_byte(value_profile_index);
+    g_simple_action_set_state(action, value_profile_index);
+
+    dpi_settings *dpi_config = &data->sensor_data->dpi_config;
+    
+    if (dpi_config->selected_profile == profile_index) return;
+
+    /* Prevents `update_dpi_profile_selection` from being called 
+    when a dpi profile change is read directly from the mouse
+    when `update_dpi_settings` is called */
+    data->sensor_data->user_changed_dpi_profile = true; 
+
+    data->sensor_data->dpi_config.selected_profile = profile_index;
     update_dpi_settings(data);
 }
 
@@ -125,7 +156,7 @@ static DpiProfileConfig* create_dpi_profile_row(byte profile_index, dpi_profile 
     g_signal_connect(self, "profile-updated", G_CALLBACK(update_dpi_profile_data), data);
     
     GtkListBox *list_box_dpi_profiles = data->sensor_data->list_box_dpi_profiles;
-    gtk_list_box_append(data->sensor_data->list_box_dpi_profiles, GTK_WIDGET(self));
+    gtk_list_box_append(list_box_dpi_profiles, GTK_WIDGET(self));
 
     gtk_widget_set_visible(
         data->sensor_data->button_add_dpi_profile,
@@ -167,27 +198,6 @@ static void add_dpi_profile(GSimpleAction* action, GVariant *value, app_data *da
     dpi_config->enabled_profile_bit_mask += 1 << dpi_config->profile_count; // Sets the bit to allow an additional profile to be enabled
     dpi_config->profile_count++;
 
-    update_dpi_settings(data);
-}
-
-/**
- * @brief A function to select a dpi profile
- * 
- * @param action The simple action containing the state for the selected dpi profile index
- * @param value_profile_index The index of the dpi profile to select
- * @param data Application wide data structure
- */
-static void select_dpi_profile(GSimpleAction *action, GVariant *value_profile_index, app_data *data) {
-    byte profile_index = g_variant_get_byte(value_profile_index);
-    g_simple_action_set_state(action, value_profile_index);
-
-    dpi_settings *dpi_config = &data->sensor_data->dpi_config;
-    
-    // Return if the DPI profile was changed from a DPI toggle event from the mouse
-    if (dpi_config->selected_profile == profile_index) return;
-    data->sensor_data->user_changed_dpi_profile = true;
-
-    data->sensor_data->dpi_config.selected_profile = profile_index;
     update_dpi_settings(data);
 }
 
@@ -256,16 +266,20 @@ static void delete_dpi_profile(GSimpleAction* action, GVariant *value_profile_in
     gtk_widget_set_visible(sensor_data->button_add_dpi_profile, true);
 }
 
-void app_config_sensor_init(GtkBuilder *builder, app_data *data) {
-    data->sensor_data->button_add_dpi_profile = GTK_WIDGET(gtk_builder_get_object(builder, "buttonAddDpiProfile"));
-    data->sensor_data->list_box_dpi_profiles = GTK_LIST_BOX(GTK_WIDGET(gtk_builder_get_object(builder, "listBoxDpiProfiles")));
-    data->sensor_data->check_button_group_dpi_profile = GTK_CHECK_BUTTON(gtk_check_button_new());
-    
-    dpi_settings* dpi_config = &data->sensor_data->dpi_config;
+void create_dpi_profile_rows(dpi_settings *dpi_config, app_data *data) {
+    gtk_list_box_remove_all(data->sensor_data->list_box_dpi_profiles);
 
     for (byte i = 0; i < dpi_config->profile_count; i++) {
         create_dpi_profile_row(i, dpi_config->profiles + i, data);
     }
+}
+
+void app_config_sensor_init(GtkBuilder *builder, app_data *data) {
+    data->sensor_data->button_add_dpi_profile = GTK_WIDGET(gtk_builder_get_object(builder, "buttonAddDpiProfile"));
+    data->sensor_data->list_box_dpi_profiles = GTK_LIST_BOX(GTK_WIDGET(gtk_builder_get_object(builder, "listBoxDpiProfiles")));
+    data->sensor_data->check_button_group_dpi_profile = GTK_CHECK_BUTTON(gtk_check_button_new());
+
+    create_dpi_profile_rows(&data->sensor_data->dpi_config, data);
 
     char selected_profile_state[10];
     sprintf(selected_profile_state, "byte %d", data->sensor_data->dpi_config.selected_profile);
@@ -277,9 +291,9 @@ void app_config_sensor_init(GtkBuilder *builder, app_data *data) {
     sprintf(lift_off_distance_string, "byte %d", data->sensor_data->lift_off_distance);
     
     const GActionEntry entries[] = {
-        {.name = "change-polling-rate", .change_state = (g_action) change_polling_rate, .parameter_type = (const char*) G_VARIANT_TYPE_BYTE, .state = polling_rate_string},
-        {.name = "change-lift-off-distance", .change_state = (g_action) change_lift_off_distance, .parameter_type = (const char*) G_VARIANT_TYPE_BYTE, lift_off_distance_string},
-        {.name = "select-dpi-profile", .change_state = (g_action) select_dpi_profile, .parameter_type = (const char*) G_VARIANT_TYPE_BYTE, .state = selected_profile_state},
+        {.name = CHANGE_POLLING_RATE, .change_state = (g_action) change_polling_rate, .parameter_type = (const char*) G_VARIANT_TYPE_BYTE, .state = polling_rate_string},
+        {.name = CHANGE_LIFT_OFF_DISTANCE, .change_state = (g_action) change_lift_off_distance, .parameter_type = (const char*) G_VARIANT_TYPE_BYTE, lift_off_distance_string},
+        {.name = SELECT_DPI_PROFILE, .change_state = (g_action) select_dpi_profile, .parameter_type = (const char*) G_VARIANT_TYPE_BYTE, .state = selected_profile_state},
         {.name = "add-dpi-level", .activate = (g_action) add_dpi_profile},
         {.name = "delete-dpi-profile", .activate = (g_action) delete_dpi_profile, .parameter_type = (const char*) G_VARIANT_TYPE_BYTE}
     };

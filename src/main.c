@@ -32,7 +32,7 @@
 #include "device/sensor.h"
 #include "hotplug/hotplug.h"
 
-#include "settings_storage.h"
+#include "mouse_profile_storage.h"
 
 #include "hid_keyboard_map.h"
 #include "config_led.h"
@@ -257,7 +257,8 @@ int main() {
 			.mouse_button_names = MOUSE_BUTTON_NAMES,
 			.is_recording_macro = false,
 			.is_resuming_macro_recording = false
-		}
+		},
+		.settings_filename = DEFAULT_PROFILE_NAME
 	};
 
 	res = create_data_directory(&data);
@@ -273,7 +274,7 @@ int main() {
 		.hotplug_callback_user_data = &data
 	};
 	
-	if (load_settings_from_file(&data) < 0) {
+	if (load_profile_from_file(&data) < 0) {
 		printf("Couldn't load mouse settings");
 		free(data.app_data_dir);
 		return -1;
