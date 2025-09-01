@@ -258,7 +258,7 @@ int main() {
 			.is_recording_macro = false,
 			.is_resuming_macro_recording = false
 		},
-		.settings_filename = DEFAULT_PROFILE_NAME
+		.profile_name = DEFAULT_PROFILE_NAME
 	};
 
 	res = create_data_directory(&data);
@@ -274,8 +274,9 @@ int main() {
 		.hotplug_callback_user_data = &data
 	};
 	
-	if (load_profile_from_file(&data) < 0) {
-		printf("Couldn't load mouse settings");
+	mouse_profile *profile = load_profile_from_file(data.profile_name, &data);
+	if (profile == NULL) {
+		printf("Couldn't load mouse profile '%s'", data.profile_name);
 		free(data.app_data_dir);
 		return -1;
 	}

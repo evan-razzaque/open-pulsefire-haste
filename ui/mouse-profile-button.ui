@@ -6,13 +6,15 @@
   <template class="MouseProfileButton" parent="GtkBox">
     <child>
       <object class="GtkButton" id="button_name">
+        <property name="action-name">app.select-mouse-profile</property>
         <property name="has-frame">False</property>
         <property name="hexpand">True</property>
-        <property name="label" bind-source="MouseProfileButton" bind-property="name" bind-flags="bidirectional | sync-create">Default</property>
+        <property name="label" bind-source="MouseProfileButton" bind-property="name" bind-flags="bidirectional | sync-create"/>
       </object>
     </child>
     <child>
       <object class="GtkButton" id="button_edit">
+        <property name="action-name">app.rename-mouse-profile</property>
         <property name="has-frame">False</property>
         <property name="icon-name">document-edit-symbolic</property>
         <property name="visible">False</property>
@@ -20,6 +22,7 @@
     </child>
     <child>
       <object class="GtkButton" id="button_delete">
+        <property name="action-name">app.delete-mouse-profile</property>
         <property name="has-frame">False</property>
         <property name="icon-name">user-trash-symbolic</property>
         <property name="visible">False</property>

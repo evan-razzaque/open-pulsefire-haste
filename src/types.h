@@ -34,6 +34,7 @@ typedef struct config_color_data config_color_data;
 typedef struct config_button_data config_button_data;
 typedef struct config_macro_data config_macro_data;
 typedef struct config_sensor_data config_sensor_data;
+typedef struct mouse_profile mouse_profile;
 
 // An enum for describing the current state of the mouse.
 typedef enum MOUSE_STATE {
@@ -85,8 +86,11 @@ struct app_data {
 	int app_data_dir_length; // Length of `app_data_dir`, including the null-byte
 
 	FILE *profile_file; // File used to store mouse settings
-	char *settings_filename; // Name of the settings file
+	char *profile_name; // Name of the profile 
 	
+	GHashTable *mouse_profiles;
+	mouse_profile *profile;
+
 	config_color_data *color_data; // Mouse led data and settings
 	config_button_data *button_data; // Mouse button data and settings 
 	config_macro_data *macro_data; // Macro data and macro bindings for the mouse

@@ -426,7 +426,7 @@
                                         <property name="orientation">vertical</property>
                                         <child>
                                           <object class="MouseProfileButton">
-                                            <property name="name">Default</property>
+                                            <property name="name">default</property>
                                           </object>
                                         </child>
                                       </object>

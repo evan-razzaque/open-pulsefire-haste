@@ -20,6 +20,8 @@
 #define MOUSE_PROFILE_STORAGE_H
 
 #include "types.h"
+#include "device/sensor.h"
+#include "config_macro.h"
 
 #ifdef _WIN32
 #define PATH_SEP "\\"
@@ -29,6 +31,26 @@
 
 #define APP_DIR PATH_SEP "open-pulsefire-haste" PATH_SEP
 #define DEFAULT_PROFILE_NAME "default.bin"
+
+/**
+ * @brief A struct containing a mouse profile with its settings and macros.
+ */
+struct mouse_profile {
+	color_options led;
+
+	uint16_t bindings[6];
+
+	dpi_settings dpi_config;
+	byte polling_rate_value;
+	byte lift_off_distance;
+
+    struct {
+        int macro_count;
+        int macro_indicies[6]; // Contains a macro index for each mouse button. Non-macro bindings are -1.
+    } macro_info;
+
+    recorded_macro *macros; // An array containing the profile's recorded macros. MUST be set to NULL when writing the profile to disk.
+};
 
 /**
  * @brief Creates the application data directory
@@ -42,19 +64,48 @@
 int create_data_directory(app_data *data);
 
 /**
+ * @brief Frees the memory allocated for mouse profile
+ * when it's removed from `app_data->mouse_profiles`.
+ * 
+ * @param profile The mouse profile being removed
+ */
+void destroy_profile(mouse_profile *profile);
+
+/**
+ * @brief A function to delete a mouse profile.
+ * 
+ * @param name The name of the profile to remove
+ * @param data Application wide data structure
+ * @return int 0 if the profile was deleted, -1 if an error has occured
+ */
+int delete_profile(char *name, app_data *data);
+
+/**
  * @brief Load the mouse settings from disk.
  * 
  * @param data Application wide data structure
- * @return 0 if the settings were loaded or -1 if there was an error
+ * @param name The name of the profile
+ * @return A `mouse_profile` object if the profile was found or NULL if an error has occured
  */
-int load_profile_from_file(app_data *data);
+mouse_profile* load_profile_from_file(char *name, app_data *data);
 
 /**
  * @brief Save the mouse settings to disk.
  * 
+ * @param name The name of the profile
+ * @param profile The profile to save
  * @param data Application wide data structure
  * @return 0 if the settings were saved or -1 if there was an error
  */
-int save_profile_to_file(app_data *data);
+int save_profile_to_file(char *name, mouse_profile *profile, app_data *data);
+
+/**
+ * @brief A function to switch to a different mouse profile.
+ * 
+ * @param data Application wide data structure
+ * @param name The name of the profile to switch to
+ * @return int 
+ */
+int switch_profile(char *name, app_data *data);
 
 #endif

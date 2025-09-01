@@ -38,26 +38,7 @@
 #include "util.h"
 
 /**
- * @brief A struct used for reading and writing mouse settings with the disk.
- */
-struct mouse_profile {
-	color_options led;
-
-	uint16_t bindings[6];
-
-	dpi_settings dpi_config;
-	byte polling_rate_value;
-	byte lift_off_distance;
-
-    struct {
-        int macro_count;
-        int macro_indicies[6]; // Contains a macro index for each mouse button. Non-macro bindings are -1.
-    } macro_info;
-} typedef mouse_profile;
-
-/**
  * @brief A struct used for reading and writing information about a `recorded_macro` with the disk.
- * 
  */
 struct macro_detail {
     size_t macro_name_length;
@@ -65,13 +46,21 @@ struct macro_detail {
     REPEAT_MODE repeat_mode;
 } typedef macro_detail;
 
-static int handle_file_error(FILE *file, const char* filename, bool file_should_exist) {
+/**
+ * @brief A function to handle errors with fopen() and remove().
+ * 
+ * @param file The accessed file that caused the error. Should be NULL when using remove()
+ * @param filename The path of the file
+ * @param file_should_exist Whether or not this file should exist or not
+ * @return int 0 if there were no errors or -1 if there was an error
+ */
+static int handle_file_error(FILE *file, const char* path, bool file_should_exist) {
     int error = errno;
     
-    if (error == 2 && !file_should_exist) return 0;
+    if (error == ENOENT && !file_should_exist) return 0;
 
     if (file == NULL && error != 0) {
-        printf("Error opening %s: %s\n", filename, strerror(error));
+        printf("Error accessing %s: %s\n", path, strerror(error));
         return -1;
     }
 
@@ -93,7 +82,7 @@ int create_data_directory(app_data *data) {
     return res;
 }
 
-static char* application_data_get_file_path(app_data *data, char* filename) {
+static char* application_data_get_file_path(char* filename, app_data *data) {
     int filename_length = strlen(filename) + 1;
 
     char *path = malloc((data->app_data_dir_length * sizeof(char)) + (filename_length * sizeof(char)));
@@ -104,14 +93,15 @@ static char* application_data_get_file_path(app_data *data, char* filename) {
 }
 
 /**
- * @brief Creates a mouse profile.
+ * @brief Creates a `mouse_profile`.
  * 
  * @param settings The mouse_profile object
  * @param profile_path The path to save the profile to
  * @param data Application wide data structure
- * @return 0 if the profile file was created or -1 if there was an error
+ * @return A `mouse_profile` object if the profile was created or NULL if an error has occured
  */
-static int create_profile(mouse_profile *profile, char *profile_path, app_data *data) {
+static mouse_profile* create_profile(char *profile_path, app_data *data) {
+    mouse_profile *profile = malloc(sizeof(mouse_profile));
     *profile = (mouse_profile) {
         .led = {.red = 0xff, .brightness = 100},
         .bindings = {
@@ -130,8 +120,8 @@ static int create_profile(mouse_profile *profile, char *profile_path, app_data *
             .profile_count = 1,
             .selected_profile = 0
         },
-        .polling_rate_value = 3,
-        .lift_off_distance = 2,
+        .polling_rate_value = POLLING_RATE_1000HZ,
+        .lift_off_distance = LIFT_OFF_DISTANCE_LOW, // TODO: Find default value
         .macro_info.macro_count = 0,
         .macro_info.macro_indicies = {-1, -1, -1, -1, -1, -1}
     };
@@ -139,58 +129,66 @@ static int create_profile(mouse_profile *profile, char *profile_path, app_data *
     data->profile_file = fopen(profile_path, "wb");
 
     int res = handle_file_error(data->profile_file, profile_path, true);
-    if (res < 0) return res;
+    if (res < 0) goto free_profile;
 
     res = fwrite(profile, sizeof(mouse_profile), 1, data->profile_file);
+
     if (res != 1) {
         debug("Error\n");
-        res = -1;
         fclose(data->profile_file);
+        goto free_profile;
     }
+
+    return profile;
+
+    free_profile:
+        free(profile);
+        return NULL;
+}
+
+void destroy_profile(mouse_profile *profile) {
+    int macro_count = profile->macro_info.macro_count;
+
+    for (int i = 0; i < macro_count; i++) {
+        recorded_macro macro = profile->macros[i];
+        free(macro.name);
+        free(macro.events);
+    }
+
+    free(profile);
+}
+
+int delete_profile(char *name, app_data *data) {
+    char *profile_path = application_data_get_file_path(name, data);
+    remove(profile_path);
+
+    int res = handle_file_error(NULL, profile_path, true);
+    if (res < 0) goto free_path;
+
+    g_hash_table_remove(data->mouse_profiles, profile_path);
+
+    free_path:
+        free(profile_path);
 
     return res;
 }
 
-static void load_profile_settings(app_data *data, char *profile_path) {
-    mouse_profile settings = {0};
+static int load_profile_settings(mouse_profile *profile, app_data *data) {
+    int res = fread(profile, sizeof(mouse_profile), 1, data->profile_file);
 
-    int res;
-
-    if (data->profile_file == NULL) {
-        res = create_profile(&settings, profile_path, data);
-        if (res < 0) {
-            debug("Error: %d\n",, res);
-            return;
-        };
-    } else {
-        res = fread(&settings, sizeof(mouse_profile), 1, data->profile_file);
-
-        if (res != 1) {
-            debug("Error: %d\n",, res);
-            return;
-        }
+    if (res != 1) {
+        debug("Error: %d\n",, res);
+        return -1;
     }
 
-    memcpy(data->button_data->bindings, settings.bindings, sizeof(settings.bindings));
-    
-    data->color_data->mouse_led = settings.led;
-    data->sensor_data->dpi_config = settings.dpi_config;
-    data->sensor_data->polling_rate_value = settings.polling_rate_value;
-    data->sensor_data->lift_off_distance = settings.lift_off_distance;
-
-    data->macro_data->macro_count = settings.macro_info.macro_count;
-    memcpy(
-        data->macro_data->macro_indicies,
-        settings.macro_info.macro_indicies,
-        sizeof(settings.macro_info.macro_indicies)
-    );
+    return 0;
 }
 
-static void load_profile_macros(app_data *data) {
-    data->macro_data->macro_array_size = MAX(data->macro_data->macro_count, 1);
-    data->macro_data->macros = malloc(sizeof(recorded_macro) * data->macro_data->macro_array_size);
+static void load_profile_macros(mouse_profile *profile, app_data *data) {
+    data->macro_data->macro_array_size = MAX(profile->macro_info.macro_count, 1);
+    profile->macros = malloc(sizeof(recorded_macro) * data->macro_data->macro_array_size);
 
-    recorded_macro *macros = data->macro_data->macros;
+    recorded_macro *macros = profile->macros;
 
     for (int i = 0; i < data->macro_data->macro_count; i++) {
         macro_detail detail = {0};
@@ -208,31 +206,59 @@ static void load_profile_macros(app_data *data) {
     }
 }
 
-static void save_profile_settings(app_data *data) {
-    mouse_profile profile = {
-        .led = data->color_data->mouse_led,
-        .dpi_config = data->sensor_data->dpi_config,
-        .polling_rate_value = data->sensor_data->polling_rate_value,
-        .lift_off_distance = data->sensor_data->lift_off_distance,
-        .macro_info.macro_count = data->macro_data->macro_count
-    };
+mouse_profile* load_profile_from_file(char *name, app_data *data) {
+    mouse_profile *profile = NULL;
 
-    memcpy(profile.bindings, data->button_data->bindings, sizeof(data->button_data->bindings));
-    memcpy(
-        profile.macro_info.macro_indicies,
-        data->macro_data->macro_indicies,
-        sizeof(profile.macro_info.macro_indicies)
-    );
-    
-    int res = fwrite(&profile, sizeof(mouse_profile), 1, data->profile_file);
-    if (res != 1) {
-        debug("Error\n");
+    char *profile_path = application_data_get_file_path(name, data);
+
+    data->profile_file = fopen(profile_path, "rb");
+    int res = handle_file_error(data->profile_file, profile_path, false);
+    if (res < 0) goto free_path;
+
+    if (data->profile_file == NULL) {
+        profile = create_profile(profile_path, data);
+        if (profile == NULL) {
+            debug("Error: %d\n",, res);
+            goto free_path;
+        };
+
+        goto add_profile;
     }
+
+    profile = malloc(sizeof(mouse_profile));
+    
+    load_profile_settings(profile, data);
+    load_profile_macros(profile, data);
+    
+    add_profile:
+        g_hash_table_insert(data->mouse_profiles, name, profile);
+
+    fclose(data->profile_file);
+
+    free_path:
+        free(profile_path);
+
+    return profile;
 }
 
-static void save_profile_macros(app_data *data) {
-    recorded_macro *macros = data->macro_data->macros;
-    int macro_count = data->macro_data->macro_count;
+static int save_profile_settings(mouse_profile *profile, app_data *data) {
+    recorded_macro *macros = profile->macros;
+
+    profile->macros = NULL;
+    int res = fwrite(profile, sizeof(mouse_profile), 1, data->profile_file);
+    profile->macros = macros;
+
+    if (res != 1) {
+        debug("Error\n");
+        return -1;
+    }
+
+    return 0;
+}
+
+static void save_profile_macros(mouse_profile *profile, app_data *data) {
+    recorded_macro *macros = profile->macros;
+    int macro_count = profile->macro_info.macro_count;
 
     for (int i = 0; i < macro_count; i++) {
         macro_detail detail = {
@@ -247,16 +273,16 @@ static void save_profile_macros(app_data *data) {
     }
 }
 
-int load_profile_from_file(app_data *data) {
-    char *profile_path = application_data_get_file_path(data, data->settings_filename);
+int save_profile_to_file(char *name, mouse_profile *profile, app_data *data) {
+    char *profile_path = application_data_get_file_path(name, data);
 
-    data->profile_file = fopen(profile_path, "rb");
-    int res = handle_file_error(data->profile_file, profile_path, false);
+    data->profile_file = fopen(profile_path, "wb");
+    int res = handle_file_error(data->profile_file, profile_path, true);
     if (res < 0) goto free_path;
-    
-    load_profile_settings(data, profile_path);
-    load_profile_macros(data);
 
+    save_profile_settings(profile, data);
+    save_profile_macros(profile, data);
+    
     fclose(data->profile_file);
 
     free_path:
@@ -265,20 +291,16 @@ int load_profile_from_file(app_data *data) {
     return res;
 }
 
-int save_profile_to_file(app_data *data) {
-    char *profile_path = application_data_get_file_path(data, data->settings_filename);
+int switch_profile(char *name, app_data *data) {
+    mouse_profile *profile = g_hash_table_lookup(data->mouse_profiles, name);
 
-    data->profile_file = fopen(profile_path, "wb");
-    int res = handle_file_error(data->profile_file, profile_path, true);
-    if (res < 0) goto free_path;
+    if (profile == NULL) {
+        profile = load_profile_from_file(name, data);
+        if (profile == NULL) return -1;
 
-    save_profile_settings(data);
-    save_profile_macros(data);
-    
-    fclose(data->profile_file);
+        g_hash_table_insert(data->mouse_profiles, name, profile);
+    }
 
-    free_path:
-        free(profile_path);
-
-    return res;
+    data->profile = profile;
+    return 0;
 }

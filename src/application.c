@@ -181,7 +181,7 @@ void save_mouse_settings(GtkWidget *self, mouse_data *mouse) {
  * @param data Application wide data structure
  */
 static void close_application(GtkWindow *window, app_data *data) {
-	save_profile_to_file(data);
+	save_profile_to_file(data->profile_name, data->profile, data);
 	free(data->app_data_dir);
 	
 	for (int i = 0; i < data->macro_data->macro_count; i++) {
@@ -190,13 +190,14 @@ static void close_application(GtkWindow *window, app_data *data) {
 	}
 
 	free(data->macro_data->macros);
+
+	g_hash_table_destroy(data->mouse_profiles);
 	
 	gtk_window_destroy(data->widgets->window);
 	gtk_window_destroy(data->button_data->window_keyboard_action);
 
 	printf("window closed\n");
 }
-
 
 /**
  * @brief A function to initialize the GtkBuilder instance and 
@@ -246,6 +247,13 @@ void activate(GtkApplication *app, app_data *data) {
 	GtkBuilder *builder = init_builder(data);
 	data->widgets->builder = builder;
 	
+	data->mouse_profiles = g_hash_table_new_full(
+		g_str_hash,
+		g_str_equal,
+		g_free,
+		(GDestroyNotify) destroy_profile
+	);
+
 	app_config_led_init(builder, data);
 	app_config_buttons_init(builder, data);
 	app_config_macro_init(builder, data);
