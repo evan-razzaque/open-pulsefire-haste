@@ -122,8 +122,8 @@ static mouse_profile* create_profile(char *profile_path, app_data *data) {
         },
         .polling_rate_value = POLLING_RATE_1000HZ,
         .lift_off_distance = LIFT_OFF_DISTANCE_LOW, // TODO: Find default value
-        .macro_info.macro_count = 0,
-        .macro_info.macro_indicies = {-1, -1, -1, -1, -1, -1}
+        .macro_count = 0,
+        .macro_indices = {-1, -1, -1, -1, -1, -1}
     };
     
     data->profile_file = fopen(profile_path, "wb");
@@ -147,7 +147,7 @@ static mouse_profile* create_profile(char *profile_path, app_data *data) {
 }
 
 void destroy_profile(mouse_profile *profile) {
-    int macro_count = profile->macro_info.macro_count;
+    int macro_count = profile->macro_count;
 
     for (int i = 0; i < macro_count; i++) {
         recorded_macro macro = profile->macros[i];
@@ -184,12 +184,12 @@ static int load_profile_settings(mouse_profile *profile, app_data *data) {
 }
 
 static void load_profile_macros(mouse_profile *profile, app_data *data) {
-    data->macro_data->macro_array_size = MAX(profile->macro_info.macro_count, 1);
+    data->macro_data->macro_array_size = MAX(profile->macro_count, 1);
     profile->macros = malloc(sizeof(recorded_macro) * data->macro_data->macro_array_size);
 
     recorded_macro *macros = profile->macros;
 
-    for (int i = 0; i < profile->macro_info.macro_count; i++) {
+    for (int i = 0; i < profile->macro_count; i++) {
         macro_detail detail = {0};
         fread(&detail, sizeof(macro_detail), 1, data->profile_file);
 
@@ -254,7 +254,7 @@ static int save_profile_settings(mouse_profile *profile, app_data *data) {
 
 static void save_profile_macros(mouse_profile *profile, app_data *data) {
     recorded_macro *macros = profile->macros;
-    int macro_count = profile->macro_info.macro_count;
+    int macro_count = profile->macro_count;
 
     for (int i = 0; i < macro_count; i++) {
         macro_detail detail = {

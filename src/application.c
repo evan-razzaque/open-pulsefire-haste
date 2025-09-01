@@ -120,8 +120,8 @@ void update_menu_button_label(MOUSE_BUTTON button, uint16_t action, app_data *da
 	if (action_type == MOUSE_ACTION_TYPE_KEYBOARD) {
 		gtk_menu_button_set_label(menu_button, data->button_data->key_names[action_value]);
 	} else if (action_type == MOUSE_ACTION_TYPE_MACRO) {
-		int macro_index = data->macro_data->macro_indicies[button];
-		recorded_macro macro = data->macro_data->macros[macro_index];
+		int macro_index = data->profile->macro_indices[button];
+		recorded_macro macro = data->profile->macros[macro_index];
 
 		gtk_menu_button_set_label(menu_button, macro.name);
 	} else {
@@ -134,28 +134,28 @@ void load_mouse_settings(app_data *data) {
 	hid_device *dev = mouse->dev;
 
 	for (int i = 0; i < BUTTON_COUNT; i++) {
-		if (data->button_data->bindings[i] >> 8 == MOUSE_ACTION_TYPE_MACRO) {
-			assign_macro(data->macro_data->macro_indicies[i], i, data);
+		if (data->profile->bindings[i] >> 8 == MOUSE_ACTION_TYPE_MACRO) {
+			assign_macro(data->profile->macro_indices[i], i, data);
 			continue;
 		}
 
-		data->macro_data->macro_indicies[i] = -1;
-		assign_button(i, data->button_data->bindings[i], data);
+		data->profile->macro_indices[i] = -1;
+		assign_button(i, data->profile->bindings[i], data);
 	}
 
 	g_mutex_lock(mouse->mutex);
-	set_polling_rate(dev, data->sensor_data->polling_rate_value);
+	set_polling_rate(dev, data->profile->polling_rate_value);
 	g_mutex_unlock(mouse->mutex);
 
-	GVariant *variant_polling_rate = g_variant_new_byte(data->sensor_data->polling_rate_value);
-	GVariant *variant_lift_off_distance = g_variant_new_byte(data->sensor_data->lift_off_distance);
-	GVariant *variant_selected_dpi_profile = g_variant_new_byte(data->sensor_data->dpi_config.selected_profile);
+	GVariant *variant_polling_rate = g_variant_new_byte(data->profile->polling_rate_value);
+	GVariant *variant_lift_off_distance = g_variant_new_byte(data->profile->lift_off_distance);
+	GVariant *variant_selected_dpi_profile = g_variant_new_byte(data->profile->dpi_config.selected_profile);
 
 	g_action_group_activate_action(G_ACTION_GROUP(data->widgets->app), CHANGE_POLLING_RATE, variant_polling_rate);
 	g_action_group_activate_action(G_ACTION_GROUP(data->widgets->app), CHANGE_LIFT_OFF_DISTANCE, variant_lift_off_distance);
 	g_action_group_activate_action(G_ACTION_GROUP(data->widgets->app), SELECT_DPI_PROFILE, variant_selected_dpi_profile);
 
-	save_dpi_settings(dev, &data->sensor_data->dpi_config, data->sensor_data->lift_off_distance);
+	save_dpi_settings(dev, &data->profile->dpi_config, data->profile->lift_off_distance);
 }
 
 /**
@@ -175,22 +175,26 @@ void save_mouse_settings(GtkWidget *self, mouse_data *mouse) {
 }
 
 /**
- * @brief Destroys all windows when the main window is closed.
+ * A function to save mouse profiles to disk then remove them from `app_data->mouse_profiles`.
+ * This is used exclusively with `g_hash_table_foreach_remove` when the application is closed. 
+ * See also: `save_profile_to_file`.
+ */
+static bool remove_saved_mouse_profile_from_hash_map(char *name, mouse_profile *profile, app_data *data) {
+	save_profile_to_file(name, profile, data);
+	return true;
+}
+
+/**
+ * @brief Destroys all windows and saves all mouse profiles when the main window is closed.
  * 
- * @param window The main application window
+ * @param window The main window
  * @param data Application wide data structure
  */
 static void close_application(GtkWindow *window, app_data *data) {
 	save_profile_to_file(data->profile_name, data->profile, data);
 	free(data->app_data_dir);
-	
-	for (int i = 0; i < data->macro_data->macro_count; i++) {
-		free(data->macro_data->macros[i].events);
-		free(data->macro_data->macros[i].name);
-	}
 
-	free(data->macro_data->macros);
-
+	g_hash_table_foreach_remove(data->mouse_profiles, (GHRFunc) remove_saved_mouse_profile_from_hash_map, data);
 	g_hash_table_destroy(data->mouse_profiles);
 	
 	gtk_window_destroy(data->widgets->window);
@@ -247,13 +251,6 @@ void activate(GtkApplication *app, app_data *data) {
 	GtkBuilder *builder = init_builder(data);
 	data->widgets->builder = builder;
 	
-	data->mouse_profiles = g_hash_table_new_full(
-		g_str_hash,
-		g_str_equal,
-		g_free,
-		(GDestroyNotify) destroy_profile
-	);
-
 	app_config_led_init(builder, data);
 	app_config_buttons_init(builder, data);
 	app_config_macro_init(builder, data);

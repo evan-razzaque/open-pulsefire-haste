@@ -31,10 +31,6 @@
  * @brief A struct to store sensor config for the mouse.
  */
 struct config_sensor_data {
-	POLLING_RATE polling_rate_value; // The polling rate value for the mouse
-	LIFT_OFF_DISTANCE lift_off_distance; // The lift off distance for the mouse
-
-	dpi_settings dpi_config; // The dpi settings for the mouse
 	bool user_changed_dpi_profile; // A flag that indicates if a dpi profile change was done by the user (GUI) or the mouse (DPI toggle event)
 
 	GtkWidget *button_add_dpi_profile; // The button used to add a dpi profile

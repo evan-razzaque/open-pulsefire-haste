@@ -18,6 +18,8 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#define MACRO_PARSER_PRIVATE
+
 #include <stdbool.h>
 #include <sys/time.h>
 #include <gtk/gtk.h>
@@ -31,11 +33,12 @@
 #include "config_buttons.h"
 #include "application.h"
 
-#define MACRO_PARSER_PRIVATE
 #include "macro_parser.h"
 
 #include "templates/mouse_macro_button.h"
 #include "templates/macro_event_item.h"
+
+#include "mouse_profile_storage.h"
 
 #define MAX_MACRO_EVENT_COUNT (80)
 
@@ -66,7 +69,7 @@ static void resize_array(void** array, size_t type_size, int *capacity, int elem
  * @param data Application wide data structure
  */
 static void update_macro_event_delay_next_event(MacroEventItem *self, int event_index, int delay, app_data *data) {
-    recorded_macro *macro = &data->macro_data->macros[data->macro_data->macro_index];
+    recorded_macro *macro = &data->profile->macros[data->macro_data->macro_index];
     macro->events[event_index].delay = delay;
     macro->events[event_index - 1].delay_next_event = delay;
 }
@@ -117,7 +120,7 @@ static void add_macro_event(MACRO_ACTION_TYPE action_type, byte action, MACRO_EV
     if (!data->macro_data->is_recording_macro) return;
 
     uint32_t macro_index = data->macro_data->macro_index;
-    recorded_macro *macro = &(data->macro_data->macros[macro_index]);
+    recorded_macro *macro = &(data->profile->macros[macro_index]);
 
     if (macro->generic_event_count >= MAX_MACRO_EVENT_COUNT) return;
 
@@ -231,7 +234,7 @@ static void toggle_macro_recording(GtkGesture *gesture, int n_press, double x, d
     bool is_resuming_recording = 
         is_recording &&
         !data->macro_data->is_resuming_macro_recording && 
-        data->macro_data->macros[data->macro_data->macro_index].generic_event_count > 0;
+        data->profile->macros[data->macro_data->macro_index].generic_event_count > 0;
 
     data->macro_data->is_recording_macro = is_recording;
     data->macro_data->is_resuming_macro_recording = is_resuming_recording;
@@ -255,9 +258,13 @@ static void toggle_macro_recording(GtkGesture *gesture, int n_press, double x, d
  * @param data Application wide data structure
  */
 static void create_macro(GSimpleAction *action, GVariant *variant, app_data *data) {
-    resize_array((void **) &data->macro_data->macros, sizeof(recorded_macro), &data->macro_data->macro_array_size, data->macro_data->macro_count);
+    resize_array(
+        (void **) &data->profile->macros,
+        sizeof(recorded_macro), &data->macro_data->macro_array_size,
+        data->profile->macro_count
+    );
 
-    recorded_macro *macro = &(data->macro_data->macros[data->macro_data->macro_count]);
+    recorded_macro *macro = &(data->profile->macros[data->profile->macro_count]);
     macro->generic_event_array_size = 2;    
     macro->events = malloc(sizeof(generic_macro_event) * macro->generic_event_array_size);
     macro->generic_event_count = 0;
@@ -265,7 +272,7 @@ static void create_macro(GSimpleAction *action, GVariant *variant, app_data *dat
     macro->repeat_mode = REPEAT_MODE_PLAY_ONCE;
     macro->name = NULL;
 
-    data->macro_data->macro_index = data->macro_data->macro_count;
+    data->macro_data->macro_index = data->profile->macro_count;
     
     gtk_editable_set_text(data->macro_data->editable_macro_name, "New Macro");
     gtk_drop_down_set_selected(data->macro_data->drop_down_repeat_mode, 0);
@@ -281,7 +288,7 @@ static void stop_macro_recording(app_data *data) {
     data->macro_data->is_recording_macro = false;
     gtk_widget_set_visible(GTK_WIDGET(data->macro_data->image_recording_macro), false);
 
-    recorded_macro *macro = data->macro_data->macros + data->macro_data->macro_index;
+    recorded_macro *macro = &data->profile->macros[data->macro_data->macro_index];
     int last_event_index = macro->generic_event_count - 1;
 
     adw_wrap_box_remove_all(data->macro_data->wrap_box_macro_events);
@@ -302,9 +309,9 @@ static void close_macro_overlay(GtkButton *button, app_data *data) {
     gtk_root_set_focus(GTK_ROOT(data->widgets->window), NULL);
     stop_macro_recording(data);
     
-    recorded_macro *macro = &(data->macro_data->macros[data->macro_data->macro_index]);
+    recorded_macro *macro = &(data->profile->macros[data->macro_data->macro_index]);
 
-    if (data->macro_data->macro_index == data->macro_data->macro_count) {
+    if (data->macro_data->macro_index == data->profile->macro_count) {
         free(macro->events);
         free(macro->name);
     } else {
@@ -339,7 +346,7 @@ static MouseMacroButton* create_macro_item(char *macro_name, byte index, app_dat
 }
 
 /**
- * @brief A function edit a macro and re-assigned to buttons that are binded to the macro.
+ * @brief A function modify a macro and re-assign to buttons that are binded to the modified macro.
  * 
  * @param macro_index The index of the macro
  * @param macro_name The name of the macro
@@ -353,11 +360,12 @@ static void modify_recorded_macro(uint32_t macro_index, char *macro_name, app_da
 
     gtk_widget_set_name(GTK_WIDGET(macro_button), macro_name);
 
-    int *macro_indicies = data->macro_data->macro_indicies;
+    int *macro_indicies = data->profile->macro_indices;
+    uint16_t *bindings = data->profile->bindings;
 
     for (int i = 0; i < BUTTON_COUNT; i++) {
         if (
-            data->button_data->bindings[i] >> 8 == MOUSE_ACTION_TYPE_MACRO
+            bindings[i] >> 8 == MOUSE_ACTION_TYPE_MACRO
             && macro_indicies[i] == macro_index
         ) {
             assign_macro(macro_indicies[i], i, data);
@@ -379,16 +387,16 @@ static void save_recorded_macro(GtkGesture *gesture, int n_press, double x, doub
     stop_macro_recording(data);
 
     uint32_t macro_index = data->macro_data->macro_index;
-    recorded_macro *macro = data->macro_data->macros + macro_index;
+    recorded_macro *macro = data->profile->macros + macro_index;
     free(macro->name);
 
     char *macro_name = gtk_editable_get_chars(data->macro_data->editable_macro_name, 0, -1);
     macro->name = macro_name;
 
     // New macro
-    if (data->macro_data->macro_index == data->macro_data->macro_count) {
-        create_macro_item(macro_name, data->macro_data->macro_count, data);
-        data->macro_data->macro_count++;
+    if (data->macro_data->macro_index == data->profile->macro_count) {
+        create_macro_item(macro_name, data->profile->macro_count, data);
+        data->profile->macro_count++;
     } else {
         modify_recorded_macro(macro_index, macro_name, data);
     }
@@ -403,7 +411,7 @@ static void save_recorded_macro(GtkGesture *gesture, int n_press, double x, doub
  */
 static void change_macro_repeat_mode(GtkDropDown *dropdown, GParamSpec *param_spec, app_data *data) {
     uint32_t macro_index = data->macro_data->macro_index;
-    recorded_macro *macro = data->macro_data->macros + macro_index;
+    recorded_macro *macro = data->profile->macros + macro_index;
 
     byte selected_index = gtk_drop_down_get_selected(dropdown);
     macro->repeat_mode = data->macro_data->repeat_mode_map[selected_index];
@@ -422,7 +430,7 @@ static void edit_macro(GSimpleAction *action, GVariant *macro_index, app_data *d
 
     uint32_t index = g_variant_get_uint32(macro_index);
     
-    recorded_macro *macro = data->macro_data->macros + index;
+    recorded_macro *macro = data->profile->macros + index;
     generic_macro_event *macro_events = macro->events;
     int event_count = macro->generic_event_count;
 
@@ -452,20 +460,20 @@ static void edit_macro(GSimpleAction *action, GVariant *macro_index, app_data *d
  */
 static void update_macro_assignments(uint32_t macro_index, app_data *data) {
     for (int i = 0; i < BUTTON_COUNT; i++) {
-        int button_macro_index = data->macro_data->macro_indicies[i];
+        int button_macro_index = data->profile->macro_indices[i];
         
         // All macros to the right of the deleted macro are shifted to the left,
         // so we update the macro indicies accordingly.
         if (button_macro_index > macro_index) {
-            data->macro_data->macro_indicies[i]--;
+            data->profile->macro_indices[i]--;
         }
         
         if (button_macro_index != macro_index) continue;
         
-        data->button_data->bindings[i] = data->button_data->default_bindings[i];
-        data->macro_data->macro_indicies[i] = -1;
+        data->profile->bindings[i] = data->button_data->default_bindings[i];
+        data->profile->macro_indices[i] = -1;
         
-        assign_button(i, data->button_data->bindings[i], data);
+        assign_button(i, data->profile->bindings[i], data);
     }
 }
 
@@ -479,11 +487,11 @@ static void update_macro_assignments(uint32_t macro_index, app_data *data) {
 static void delete_macro(GSimpleAction *action, GVariant *variant_index, app_data *data) {
     uint32_t macro_index = g_variant_get_uint32(variant_index);
 
-    recorded_macro *macros = data->macro_data->macros;
+    recorded_macro *macros = data->profile->macros;
     free(macros[macro_index].events);
     free(macros[macro_index].name);
 
-    array_delete_element(macros, data->macro_data->macro_count, macro_index);
+    array_delete_element(macros, data->profile->macro_count, macro_index);
     
     GtkListBox *box_saved_macros = data->macro_data->box_saved_macros;
     gtk_list_box_remove(
@@ -491,7 +499,7 @@ static void delete_macro(GSimpleAction *action, GVariant *variant_index, app_dat
         GTK_WIDGET(gtk_list_box_get_row_at_index(box_saved_macros, macro_index))
     );
 
-    for (int i = 0; i < data->macro_data->macro_count; i++) {
+    for (int i = 0; i < data->profile->macro_count; i++) {
         MouseMacroButton *macro_button = MOUSE_MACRO_BUTTON(
             gtk_list_box_row_get_child(gtk_list_box_get_row_at_index(box_saved_macros, i))
         );
@@ -505,7 +513,7 @@ static void delete_macro(GSimpleAction *action, GVariant *variant_index, app_dat
 void assign_macro(uint32_t macro_index, byte button, app_data *data) {
     if (button == MOUSE_BUTTON_LEFT || button == MOUSE_BUTTON_RIGHT) return;
 
-    recorded_macro *macro = data->macro_data->macros + macro_index;
+    recorded_macro *macro = data->profile->macros + macro_index;
 
     macro_event *events = malloc(sizeof(macro_event) * macro->generic_event_count);
     int event_count = parse_macro(macro, events, data->macro_data->modifier_map);
@@ -529,10 +537,10 @@ void assign_macro(uint32_t macro_index, byte button, app_data *data) {
 
     free(events);
 
-    data->button_data->bindings[button] = MOUSE_ACTION_TYPE_MACRO << 8;
-    data->macro_data->macro_indicies[button] = macro_index;
+    data->profile->bindings[button] = MOUSE_ACTION_TYPE_MACRO << 8;
+    data->profile->macro_indices[button] = macro_index;
 
-    update_menu_button_label(button, data->button_data->bindings[button], data);
+    update_menu_button_label(button, data->profile->bindings[button], data);
 }
 
 /**
@@ -628,9 +636,9 @@ void app_config_macro_init(GtkBuilder *builder, app_data *data) {
 
     g_action_map_add_action_entries(G_ACTION_MAP(data->widgets->app), entries, G_N_ELEMENTS(entries), data);
     
-    recorded_macro *macros = data->macro_data->macros;
+    recorded_macro *macros = data->profile->macros;
     
-    for (int i = 0; i < data->macro_data->macro_count; i++) {
+    for (int i = 0; i < data->profile->macro_count; i++) {
         create_macro_item(macros[i].name, i, data);
     }
 

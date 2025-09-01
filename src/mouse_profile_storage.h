@@ -36,20 +36,22 @@
  * @brief A struct containing a mouse profile with its settings and macros.
  */
 struct mouse_profile {
-	color_options led;
+	color_options led; // The mouse's led color and brightness
 
+    // Bindings for the mouse button. Each binding is 2 bytes,
+	// where the upper byte is the action type and the lower byte is the action value.
 	uint16_t bindings[6];
 
-	dpi_settings dpi_config;
-	byte polling_rate_value;
-	byte lift_off_distance;
+	dpi_settings dpi_config; // The dpi settings for the mouse
+	byte polling_rate_value; // A `POLLING_RATE` value
+	byte lift_off_distance; // A `LIFT_OFF_DISTANCE` value
 
-    struct {
-        int macro_count;
-        int macro_indicies[6]; // Contains a macro index for each mouse button. Non-macro bindings are -1.
-    } macro_info;
+    // An array of macro indices for each button that is assigned to a macro. Non-macro bindings must be -1.
+    int macro_indices[6];   
+    int macro_count;
 
-    recorded_macro *macros; // An array containing the profile's recorded macros. MUST be set to NULL when writing the profile to disk.
+    // An array containing the profile's recorded macros. MUST be set to NULL when writing the profile to disk.
+    recorded_macro *macros;
 };
 
 /**
@@ -64,7 +66,7 @@ struct mouse_profile {
 int create_data_directory(app_data *data);
 
 /**
- * @brief Frees the memory allocated for mouse profile
+ * @brief Frees the memory allocated for a mouse profile
  * when it's removed from `app_data->mouse_profiles`.
  * 
  * @param profile The mouse profile being removed

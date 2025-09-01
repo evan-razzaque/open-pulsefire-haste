@@ -94,9 +94,6 @@ struct config_button_data {
 	MOUSE_BUTTON selected_button; // The mouse button that is being rebinded
 	const MOUSE_BUTTON buttons[BUTTON_COUNT]; // An array of buttons for setting gobject data for each menu button
 
-	// Bindings for the mouse. Each binding is 2 bytes,
-	// where the upper byte is the action type and the lower byte is the action value.
-	uint16_t bindings[BUTTON_COUNT];
 	const uint16_t default_bindings[BUTTON_COUNT]; // Default binding for the mouse buttons
 	const char *selected_button_name; // The name of the selected mouse button
 

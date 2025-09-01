@@ -26,6 +26,8 @@
 #include "device/buttons.h"
 #include "device/rgb.h"
 
+#include "mouse_profile_storage.h"
+
 #include "util.h"
 
 GtkMenuButton* get_active_menu_button(config_button_data *button_data) {
@@ -119,7 +121,7 @@ static void confirm_keyboard_action_binding(GtkButton *self, app_data *data) {
 	);
 
 	if (res == BUTTON_ASSIGN_ERROR_INVALID_ASSIGNMENT) {
-		data->button_data->bindings[button] = (button == MOUSE_BUTTON_LEFT)? LEFT_CLICK : RIGHT_CLICK;
+		data->profile->bindings[button] = (button == MOUSE_BUTTON_LEFT)? LEFT_CLICK : RIGHT_CLICK;
 	}
 
 	gtk_window_close(data->button_data->window_keyboard_action);
@@ -151,7 +153,7 @@ static void change_mouse_simple_binding(GSimpleAction *action, GVariant *mapping
 
 	if (res == BUTTON_ASSIGN_ERROR_INVALID_ASSIGNMENT) return;
 	
-	data->button_data->bindings[data->button_data->selected_button] = action_value;
+	data->profile->bindings[data->button_data->selected_button] = action_value;
 }
 
 /**
@@ -171,7 +173,7 @@ static int set_keyboard_action(GtkEventControllerKey *self, guint keyval, guint 
 	byte hid_usage_id = data->button_data->keyboard_keys[keyval];
 	data->button_data->current_keyboard_action = 0x0200 + hid_usage_id;
 
-	data->button_data->bindings[data->button_data->selected_button] = 0x0200 + hid_usage_id;
+	data->profile->bindings[data->button_data->selected_button] = 0x0200 + hid_usage_id;
 	
 	const char *key_name = data->button_data->key_names[hid_usage_id];
 	gtk_label_set_text(label_pressed_key, key_name);

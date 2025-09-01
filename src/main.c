@@ -89,7 +89,7 @@ int read_mouse_reports(app_data *data) {
 
 		if (report_type == REPORT_TYPE_CONNECTION) break;
 
-		if (report_data.generic_event.selected_dpi_profile == data->sensor_data->dpi_config.selected_profile) {
+		if (report_data.generic_event.selected_dpi_profile == data->profile->dpi_config.selected_profile) {
 			break;
 		}
 		
@@ -152,7 +152,7 @@ void mouse_hotplug_callback(bool connected, app_data *data) {
  */
 void* mouse_update_loop(app_data *data) {	
 	mouse_data *mouse = data->mouse;
-	color_options *led = &data->color_data->mouse_led;
+	color_options *led = &data->profile->led;
 
 	const int update_interval_ms = 25;
 	const int update_color_interval_ms = 100;
@@ -273,13 +273,6 @@ int main() {
 		.hotplug_callback = (hotplug_listener_callback) mouse_hotplug_callback,
 		.hotplug_callback_user_data = &data
 	};
-	
-	mouse_profile *profile = load_profile_from_file(data.profile_name, &data);
-	if (profile == NULL) {
-		printf("Couldn't load mouse profile '%s'", data.profile_name);
-		free(data.app_data_dir);
-		return -1;
-	}
 
 	struct hid_device_info *dev_list = get_devices(&mouse.connection_type);
 	
@@ -290,6 +283,21 @@ int main() {
 	#endif
 
 	mouse.dev = open_device(dev_list);
+
+	data.mouse_profiles = g_hash_table_new_full(
+		g_str_hash,
+		g_str_equal,
+		g_free,
+		(GDestroyNotify) destroy_profile
+	);
+
+	data.profile = load_profile_from_file(data.profile_name, &data);
+	
+	if (data.profile == NULL) {
+		printf("Couldn't load mouse profile '%s'", data.profile_name);
+		free(data.app_data_dir);
+		return -1;
+	}
 	
 	GThread *update_thread = g_thread_new("mouse_update_loop", (GThreadFunc) mouse_update_loop, &data);
 	
