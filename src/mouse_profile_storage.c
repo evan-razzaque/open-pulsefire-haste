@@ -163,12 +163,11 @@ int delete_profile(char *name, app_data *data) {
     remove(profile_path);
 
     int res = handle_file_error(NULL, profile_path, true);
-    if (res < 0) goto free_path;
+    if (res == 0) {
+        g_hash_table_remove(data->mouse_profiles, profile_path);
+    }
 
-    g_hash_table_remove(data->mouse_profiles, profile_path);
-
-    free_path:
-        free(profile_path);
+    free(profile_path);
 
     return res;
 }
@@ -190,7 +189,7 @@ static void load_profile_macros(mouse_profile *profile, app_data *data) {
 
     recorded_macro *macros = profile->macros;
 
-    for (int i = 0; i < data->macro_data->macro_count; i++) {
+    for (int i = 0; i < profile->macro_info.macro_count; i++) {
         macro_detail detail = {0};
         fread(&detail, sizeof(macro_detail), 1, data->profile_file);
 
@@ -210,7 +209,7 @@ mouse_profile* load_profile_from_file(char *name, app_data *data) {
     mouse_profile *profile = NULL;
 
     char *profile_path = application_data_get_file_path(name, data);
-
+    
     data->profile_file = fopen(profile_path, "rb");
     int res = handle_file_error(data->profile_file, profile_path, false);
     if (res < 0) goto free_path;
@@ -220,18 +219,15 @@ mouse_profile* load_profile_from_file(char *name, app_data *data) {
         if (profile == NULL) {
             debug("Error: %d\n",, res);
             goto free_path;
-        };
-
-        goto add_profile;
+        }
+    } else {
+        profile = malloc(sizeof(mouse_profile));
+        
+        load_profile_settings(profile, data);
+        load_profile_macros(profile, data);
     }
-
-    profile = malloc(sizeof(mouse_profile));
     
-    load_profile_settings(profile, data);
-    load_profile_macros(profile, data);
-    
-    add_profile:
-        g_hash_table_insert(data->mouse_profiles, name, profile);
+    g_hash_table_insert(data->mouse_profiles, name, profile);
 
     fclose(data->profile_file);
 
@@ -278,15 +274,15 @@ int save_profile_to_file(char *name, mouse_profile *profile, app_data *data) {
 
     data->profile_file = fopen(profile_path, "wb");
     int res = handle_file_error(data->profile_file, profile_path, true);
-    if (res < 0) goto free_path;
-
-    save_profile_settings(profile, data);
-    save_profile_macros(profile, data);
     
-    fclose(data->profile_file);
+    if (res == 0) {
+        save_profile_settings(profile, data);
+        save_profile_macros(profile, data);
 
-    free_path:
-        free(profile_path);
+        fclose(data->profile_file);
+    }
+    
+    free(profile_path);
 
     return res;
 }
@@ -297,8 +293,6 @@ int switch_profile(char *name, app_data *data) {
     if (profile == NULL) {
         profile = load_profile_from_file(name, data);
         if (profile == NULL) return -1;
-
-        g_hash_table_insert(data->mouse_profiles, name, profile);
     }
 
     data->profile = profile;
