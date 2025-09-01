@@ -160,6 +160,9 @@ enum MACRO_ACTION_TYPE {
     MACRO_ACTION_TYPE_MOUSE    = 0x25
 } typedef MACRO_ACTION_TYPE;
 
+/**
+ * @brief An enum for the repeat behavior of a mouse macro.
+ */
 enum REPEAT_MODE {
     REPEAT_MODE_PLAY_ONCE     = 0x00,
     REPEAT_MODE_TOGGLE_REPEAT = 0x02,

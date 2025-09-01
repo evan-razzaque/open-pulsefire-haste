@@ -85,7 +85,7 @@ enum SAVE_BYTE {
  * @brief An enum for the report type of a packet sent by the mouse.
  * Note that this is NOT the hid report id, so these
  * values must be wrapped with the REPORT_FIRST_BYTE macro
- * to ensure correct behaviour on both windows and *nix systems.
+ * to ensure correct behavior on both windows and *nix systems.
  */
 enum REPORT_TYPE {
     // Mouse connection status
