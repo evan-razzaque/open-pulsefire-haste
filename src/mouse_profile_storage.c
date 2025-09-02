@@ -72,21 +72,21 @@ int create_data_directory(app_data *data) {
     size_t user_data_dir_len = strlen(user_data_dir) + 1;
 
     size_t app_data_dir_size = user_data_dir_len * sizeof(char) + sizeof(APP_DIR);
-    data->app_data_dir = malloc(app_data_dir_size);
-    data->app_data_dir_length = app_data_dir_size / sizeof(char);
+    data->app_data_path = malloc(app_data_dir_size);
+    data->app_data_path_length = app_data_dir_size / sizeof(char);
 
-    strncpy(data->app_data_dir, user_data_dir, user_data_dir_len);
-    strncat(data->app_data_dir, APP_DIR, sizeof(APP_DIR) / sizeof(char));
+    strncpy(data->app_data_path, user_data_dir, user_data_dir_len);
+    strncat(data->app_data_path, APP_DIR, sizeof(APP_DIR) / sizeof(char));
     
-    int res = g_mkdir_with_parents(data->app_data_dir, S_IRWXU);
+    int res = g_mkdir_with_parents(data->app_data_path, S_IRWXU);
     return res;
 }
 
 static char* application_data_get_file_path(char* filename, app_data *data) {
     int filename_length = strlen(filename) + 1;
 
-    char *path = malloc((data->app_data_dir_length * sizeof(char)) + (filename_length * sizeof(char)));
-    strncpy(path, data->app_data_dir, data->app_data_dir_length);
+    char *path = malloc((data->app_data_path_length * sizeof(char)) + (filename_length * sizeof(char)));
+    strncpy(path, data->app_data_path, data->app_data_path_length);
     strncat(path, filename, filename_length);
 
     return path;
@@ -150,11 +150,12 @@ void destroy_profile(mouse_profile *profile) {
     int macro_count = profile->macro_count;
 
     for (int i = 0; i < macro_count; i++) {
-        recorded_macro macro = profile->macros[i];
-        free(macro.name);
-        free(macro.events);
+        recorded_macro *macro = &profile->macros[i];
+        free(macro->name);
+        free(macro->events);
     }
 
+    free(profile->macros);
     free(profile);
 }
 
@@ -164,7 +165,7 @@ int delete_profile(char *name, app_data *data) {
 
     int res = handle_file_error(NULL, profile_path, true);
     if (res == 0) {
-        g_hash_table_remove(data->mouse_profiles, profile_path);
+        g_hash_table_remove(data->mouse_profiles, name);
     }
 
     free(profile_path);
@@ -176,7 +177,7 @@ static int load_profile_settings(mouse_profile *profile, app_data *data) {
     int res = fread(profile, sizeof(mouse_profile), 1, data->profile_file);
 
     if (res != 1) {
-        debug("Error: %d\n",, res);
+        debug("Error: %d\n", res);
         return -1;
     }
 
@@ -217,7 +218,7 @@ mouse_profile* load_profile_from_file(char *name, app_data *data) {
     if (data->profile_file == NULL) {
         profile = create_profile(profile_path, data);
         if (profile == NULL) {
-            debug("Error: %d\n",, res);
+            debug("Error: %d\n", res);
             goto free_path;
         }
     } else {
@@ -227,7 +228,7 @@ mouse_profile* load_profile_from_file(char *name, app_data *data) {
         load_profile_macros(profile, data);
     }
     
-    g_hash_table_insert(data->mouse_profiles, name, profile);
+    g_hash_table_insert(data->mouse_profiles, g_strdup(name), profile);
 
     fclose(data->profile_file);
 
@@ -245,7 +246,7 @@ static int save_profile_settings(mouse_profile *profile, app_data *data) {
     profile->macros = macros;
 
     if (res != 1) {
-        debug("Error\n");
+        debug("Error %s", "f");
         return -1;
     }
 

@@ -363,7 +363,7 @@
                             <child>
                               <object class="GtkButton" id="buttonAddDpiProfile">
                                 <property name="action-name">app.add-dpi-level</property>
-                                <property name="label">Add Profile</property>
+                                <property name="label">Add DPI Profile</property>
                                 <property name="valign">start</property>
                               </object>
                             </child>
@@ -415,18 +415,18 @@
                               </object>
                             </child>
                             <child>
-                              <object class="GtkMenuButton" id="menuButtonProfile">
+                              <object class="GtkMenuButton" id="menuButtonMouseProfile">
                                 <property name="direction">right</property>
                                 <property name="hexpand">True</property>
-                                <property name="label">Default</property>
                                 <property name="popover">
                                   <object class="GtkPopover">
                                     <property name="child">
-                                      <object class="GtkBox">
+                                      <object class="GtkBox" id="boxMouseProfiles">
                                         <property name="orientation">vertical</property>
                                         <child>
-                                          <object class="MouseProfileButton">
-                                            <property name="name">default</property>
+                                          <object class="GtkButton" id="buttonAddMouseProfile">
+                                            <property name="has-frame">False</property>
+                                            <property name="label">Add Profile</property>
                                           </object>
                                         </child>
                                       </object>

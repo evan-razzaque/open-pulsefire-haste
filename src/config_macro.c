@@ -631,7 +631,7 @@ void app_config_macro_init(GtkBuilder *builder, app_data *data) {
         {.name = "add-macro",    .activate = (g_action) create_macro, .parameter_type = (const char*) G_VARIANT_TYPE_INT32},
         {.name = "select-macro", .activate = (g_action) select_macro, .parameter_type = (const char*) G_VARIANT_TYPE_UINT32},
         {.name = "edit-macro",   .activate = (g_action) edit_macro,   .parameter_type = (const char*) G_VARIANT_TYPE_UINT32},
-        {.name = "delete-macro", .activate = (g_action) delete_macro, .parameter_type = (const char*) G_VARIANT_TYPE_UINT32}
+        {.name = "delete-macro", .activate = (g_action) delete_macro, .parameter_type = (const char*) G_VARIANT_TYPE_UINT32},
     };
 
     g_action_map_add_action_entries(G_ACTION_MAP(data->widgets->app), entries, G_N_ELEMENTS(entries), data);

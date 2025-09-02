@@ -83,16 +83,17 @@ void destroy_profile(mouse_profile *profile);
 int delete_profile(char *name, app_data *data);
 
 /**
- * @brief Load the mouse settings from disk.
+ * @brief Load a mouse profile from disk. 
+ * If the profile file does not exist, a mouse profile will be created.
  * 
  * @param data Application wide data structure
  * @param name The name of the profile
- * @return A `mouse_profile` object if the profile was found or NULL if an error has occured
+ * @return A `mouse_profile` object if the profile was loaded or NULL if an error has occured
  */
 mouse_profile* load_profile_from_file(char *name, app_data *data);
 
 /**
- * @brief Save the mouse settings to disk.
+ * @brief Save a mouse profile to disk.
  * 
  * @param name The name of the profile
  * @param profile The profile to save
@@ -104,9 +105,9 @@ int save_profile_to_file(char *name, mouse_profile *profile, app_data *data);
 /**
  * @brief A function to switch to a different mouse profile.
  * 
- * @param data Application wide data structure
  * @param name The name of the profile to switch to
- * @return int 
+ * @param data Application wide data structure
+ * @return 0 if the the mouse profile was successfully switch to or -1 if there was an error 
  */
 int switch_profile(char *name, app_data *data);
 

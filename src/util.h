@@ -58,7 +58,10 @@
 #define printval(format, expression) \
     printf(#expression ": " format, (expression))
 
-#define debug(format, args...) printf(__FILE__ ":%d: " format, __LINE__ args);
+#define debug(...) printf(__FILE__ ":" stringify(__LINE__) ": " __VA_ARGS__)
+
+#define stringify(x) stringify0(x)
+#define stringify0(x) #x
 
 /**
  * @brief Gets current time in milliseconds from the clock `CLOCK_MONOTONIC`.

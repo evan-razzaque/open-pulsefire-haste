@@ -83,7 +83,7 @@ int read_mouse_reports(app_data *data) {
 			printf("not idle\n");
 			mouse->state = UPDATE;
 
-			g_idle_add_once((GSourceOnceFunc) load_mouse_settings, data);
+			g_idle_add_once((GSourceOnceFunc) load_mouse_profile_to_mouse, data);
 			g_idle_add_once((GSourceOnceFunc) remove_connnection_lost_overlay, data);
 		}
 
@@ -127,7 +127,7 @@ void reconnect_mouse(app_data *data) {
 	}
 
 	printf("Connected\n");
-	g_idle_add_once((GSourceOnceFunc) load_mouse_settings, data);
+	g_idle_add_once((GSourceOnceFunc) load_mouse_profile_to_mouse, data);
 }
 
 void mouse_hotplug_callback(bool connected, app_data *data) {
@@ -166,6 +166,7 @@ void* mouse_update_loop(app_data *data) {
 		int res = 0;
 
 		g_mutex_lock(mouse->mutex);
+
 		switch (mouse->state) {
 		case IDLE:
 			goto poll_connection;
@@ -173,6 +174,10 @@ void* mouse_update_loop(app_data *data) {
 			g_mutex_unlock(mouse->mutex);
 			sleep_ms(100);
 			continue;
+		case CLOSED:
+			g_mutex_unlock(mouse->mutex);
+			debug("mouse update thread exit\n");
+			goto exit_update_loop;
 		default:
 			break;
 		}
@@ -198,12 +203,16 @@ void* mouse_update_loop(app_data *data) {
 		}
 		
 		clock = (clock + update_interval_ms) % clock_reset_ms;
+
 		g_mutex_unlock(mouse->mutex);
 		sleep_ms(update_interval_ms - READ_TIMEOUT);
 	}
 	
+	debug("mouse update thread exit\n");
+
+	exit_update_loop:
+
 	if (mouse->dev) hid_close(mouse->dev);
-	printf("mouse update thread exit\n");
 	g_thread_exit(NULL);
 	return NULL;
 }
@@ -264,7 +273,7 @@ int main() {
 	res = create_data_directory(&data);
 	if (res < 0) {
 		printf("Couldn't create data directory\n");
-		free(data.app_data_dir);
+		free(data.app_data_path);
 		exit(-1);
 	}
 
@@ -295,7 +304,7 @@ int main() {
 	
 	if (data.profile == NULL) {
 		printf("Couldn't load mouse profile '%s'", data.profile_name);
-		free(data.app_data_dir);
+		free(data.app_data_path);
 		return -1;
 	}
 	

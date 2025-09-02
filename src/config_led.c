@@ -25,6 +25,8 @@
 
 #include "mouse_profile_storage.h"
 
+#include "util.h"
+
 /**
  * @brief Updates the led rgb color from the color chooser wigdet
  * 
@@ -32,6 +34,11 @@
  * @return return value telling gtk to keep this function in its main loop
  */
 static int update_color(app_data *data) {
+	if (data->profile == NULL) {
+		debug("Profile is NULL\n");
+		return G_SOURCE_CONTINUE;
+	}
+	
 	color_options *mouse_led = &data->profile->led;
     
 	GdkRGBA color = {};
@@ -70,6 +77,6 @@ void app_config_led_init(GtkBuilder *builder, app_data *data) {
 	gtk_color_chooser_set_rgba(data->color_data->color_chooser, &rgba);
 	gtk_range_set_value(data->color_data->range_brightness, data->profile->led.brightness);
 
-    g_timeout_add(10, G_SOURCE_FUNC(update_color), data->color_data);
-    g_signal_connect(data->color_data->range_brightness, "value-changed", G_CALLBACK(update_brightness), data);
+    g_timeout_add(10, G_SOURCE_FUNC(update_color), data);
+    g_signal_connect(data->color_data->range_brightness, "value-changed", G_CALLBACK(update_brightness), &data->profile->led.brightness);
 }

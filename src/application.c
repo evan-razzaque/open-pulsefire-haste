@@ -129,27 +129,31 @@ void update_menu_button_label(MOUSE_BUTTON button, uint16_t action, app_data *da
 	}
 }
 
-void load_mouse_settings(app_data *data) {
+void load_mouse_profile_to_mouse(app_data *data) {
 	mouse_data *mouse = data->mouse;
 	hid_device *dev = mouse->dev;
 
+	mouse_profile *profile = data->profile;
+
 	for (int i = 0; i < BUTTON_COUNT; i++) {
-		if (data->profile->bindings[i] >> 8 == MOUSE_ACTION_TYPE_MACRO) {
-			assign_macro(data->profile->macro_indices[i], i, data);
+		if (profile->bindings[i] >> 8 == MOUSE_ACTION_TYPE_MACRO) {
+			assign_macro(profile->macro_indices[i], i, data);
 			continue;
 		}
 
-		data->profile->macro_indices[i] = -1;
-		assign_button(i, data->profile->bindings[i], data);
+		profile->macro_indices[i] = -1;
+		assign_button(i, profile->bindings[i], data);
 	}
 
+	create_dpi_profile_rows(&data->profile->dpi_config, data);
+
 	g_mutex_lock(mouse->mutex);
-	set_polling_rate(dev, data->profile->polling_rate_value);
+	set_polling_rate(dev, profile->polling_rate_value);
 	g_mutex_unlock(mouse->mutex);
 
-	GVariant *variant_polling_rate = g_variant_new_byte(data->profile->polling_rate_value);
-	GVariant *variant_lift_off_distance = g_variant_new_byte(data->profile->lift_off_distance);
-	GVariant *variant_selected_dpi_profile = g_variant_new_byte(data->profile->dpi_config.selected_profile);
+	GVariant *variant_polling_rate = g_variant_new_byte(profile->polling_rate_value);
+	GVariant *variant_lift_off_distance = g_variant_new_byte(profile->lift_off_distance);
+	GVariant *variant_selected_dpi_profile = g_variant_new_byte(profile->dpi_config.selected_profile);
 
 	g_action_group_activate_action(G_ACTION_GROUP(data->widgets->app), CHANGE_POLLING_RATE, variant_polling_rate);
 	g_action_group_activate_action(G_ACTION_GROUP(data->widgets->app), CHANGE_LIFT_OFF_DISTANCE, variant_lift_off_distance);
@@ -176,10 +180,10 @@ void save_mouse_settings(GtkWidget *self, mouse_data *mouse) {
 
 /**
  * A function to save mouse profiles to disk then remove them from `app_data->mouse_profiles`.
- * This is used exclusively with `g_hash_table_foreach_remove` when the application is closed. 
- * See also: `save_profile_to_file`.
+ * See also: `save_profile_to_file`, `close_application`.
  */
 static bool remove_saved_mouse_profile_from_hash_map(char *name, mouse_profile *profile, app_data *data) {
+	printf("Removed Profile: %s\n", name);
 	save_profile_to_file(name, profile, data);
 	return true;
 }
@@ -192,15 +196,91 @@ static bool remove_saved_mouse_profile_from_hash_map(char *name, mouse_profile *
  */
 static void close_application(GtkWindow *window, app_data *data) {
 	save_profile_to_file(data->profile_name, data->profile, data);
-	free(data->app_data_dir);
 
+	g_mutex_lock(data->mouse->mutex);
+
+	data->profile = NULL;
+	
 	g_hash_table_foreach_remove(data->mouse_profiles, (GHRFunc) remove_saved_mouse_profile_from_hash_map, data);
 	g_hash_table_destroy(data->mouse_profiles);
-	
+
+	free(data->app_data_path);
+
 	gtk_window_destroy(data->widgets->window);
 	gtk_window_destroy(data->button_data->window_keyboard_action);
 
+	g_mutex_unlock(data->mouse->mutex);
+
 	printf("window closed\n");
+}
+
+/**
+ * @brief Switches to the mouse profile corresponding to the button that was clicked
+ * 
+ * @param self The MouseProfileButton instance
+ * @param name The name of the profile
+ * @param data Application wide data structure
+ */
+static void switch_mouse_profile(MouseProfileButton *self, char *profile_name, app_data *data) {
+	printf("Switched to %s\n", profile_name);
+
+	g_mutex_lock(data->mouse->mutex);
+	int res = switch_profile(profile_name, data);
+	g_mutex_unlock(data->mouse->mutex);
+
+	if (res < 0) {
+		debug("Couldn't switch to profile %s\n", profile_name);
+		return;
+	}
+
+	load_mouse_profile_to_mouse(data);
+
+	gtk_menu_button_set_label(
+		data->widgets->menu_button_mouse_profiles,
+		profile_name
+	);
+}
+
+static void add_mouse_profile_button(char *profile_name, app_data *data, bool is_default_profile) {
+	MouseProfileButton *profile_button = mouse_profile_button_new(profile_name, false);
+	g_signal_connect(profile_button, "select-profile", G_CALLBACK(switch_mouse_profile), data);
+
+	gtk_box_append(
+		data->widgets->box_mouse_profiles,
+		GTK_WIDGET(profile_button)
+	);
+}
+
+static void add_new_mouse_profile(GtkButton *button, app_data *data) {
+	char *profile_name = g_strdup_printf("profile%u.bin", g_hash_table_size(data->mouse_profiles));
+	add_mouse_profile_button(profile_name, data, false);
+	switch_mouse_profile(NULL, profile_name, data);
+
+	free(profile_name);
+}
+
+/**
+ * @brief Adds the mouse profiles entries to the profile menu button.
+ * 
+ * @param data Application wide data structure
+ */
+static void add_mouse_profile_entries(app_data *data) {
+	add_mouse_profile_button((char*) DEFAULT_PROFILE_NAME, data, true);
+	gtk_menu_button_set_label(data->widgets->menu_button_mouse_profiles, data->profile_name);
+
+	GDir *app_data_dir = g_dir_open(data->app_data_path, 0, NULL);
+	if (app_data_dir == NULL) {
+		debug("Error\n");
+	} else {
+		const char *profile_name;
+	
+		while ((profile_name = g_dir_read_name(app_data_dir))) {
+			if (strcmp(profile_name, DEFAULT_PROFILE_NAME) == 0) continue;
+			add_mouse_profile_button((char*) profile_name, data, false);
+		}
+	}
+
+	g_dir_close(app_data_dir);
 }
 
 /**
@@ -234,6 +314,9 @@ static GtkBuilder* init_builder(app_data *data) {
 	data->widgets->overlay_main = GTK_OVERLAY(GTK_WIDGET(gtk_builder_get_object(builder, "overlayMain")));
 	data->widgets->box_connection_lost = GTK_WIDGET(gtk_builder_get_object(builder, "boxConnectionLost"));
 
+	data->widgets->box_mouse_profiles = GTK_BOX(GTK_WIDGET(gtk_builder_get_object(builder, "boxMouseProfiles")));
+	data->widgets->menu_button_mouse_profiles = GTK_MENU_BUTTON(GTK_WIDGET(gtk_builder_get_object(builder, "menuButtonMouseProfile")));
+
 	data->widgets->label_battery = GTK_LABEL(GTK_WIDGET(gtk_builder_get_object(builder, "labelBattery")));
 
 	return builder;
@@ -255,16 +338,19 @@ void activate(GtkApplication *app, app_data *data) {
 	app_config_buttons_init(builder, data);
 	app_config_macro_init(builder, data);
 	app_config_sensor_init(builder, data);
-	
+
+	add_mouse_profile_entries(data);
+
 	g_signal_connect(data->widgets->window, "close-request", G_CALLBACK(close_application), data);
 	widget_add_event(builder, "buttonSave", "clicked", save_mouse_settings, data->mouse);
+	widget_add_event(builder, "buttonAddMouseProfile", "clicked", add_new_mouse_profile, data);
 	
 	g_timeout_add(100, G_SOURCE_FUNC(update_battery_display), data);
 
 	if (data->mouse->dev == NULL) {
 		hide_mouse_settings_visibility(data);
 	} else {
-		load_mouse_settings(data);
+		load_mouse_profile_to_mouse(data);
 	}
 	
 	gtk_window_set_application(data->widgets->window, app);

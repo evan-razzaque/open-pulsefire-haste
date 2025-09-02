@@ -36,4 +36,13 @@ G_DECLARE_FINAL_TYPE(MouseProfileButton, mouse_profile_button, MOUSE, PROFILE_BU
  */
 MouseProfileButton* mouse_profile_button_new(char *name, bool is_default_profile);
 
+/**
+ * @brief Sets the callback for the MouseProfileButton being selected.
+ * 
+ * @param self The MouseProfileButton instance
+ * @param callback The callback to be called
+ * @param user_data user data to pass to the callback
+ */
+void mouse_profile_button_set_selection_callback(MouseProfileButton *self, void (*callback)(GtkButton*, void *user_data), void *user_data);
+
 #endif
