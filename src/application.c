@@ -204,8 +204,6 @@ static void close_application(GtkWindow *window, app_data *data) {
 	g_hash_table_foreach_remove(data->mouse_profiles, (GHRFunc) remove_saved_mouse_profile_from_hash_map, data);
 	g_hash_table_destroy(data->mouse_profiles);
 
-	free(data->app_data_path);
-
 	gtk_window_destroy(data->widgets->window);
 	gtk_window_destroy(data->button_data->window_keyboard_action);
 	printf("window closed\n");
@@ -269,7 +267,7 @@ static void add_mouse_profile_entries(app_data *data) {
 	add_mouse_profile_button((char*) DEFAULT_PROFILE_NAME, data, true);
 	gtk_menu_button_set_label(data->widgets->menu_button_mouse_profiles, data->profile_name);
 
-	GDir *app_data_dir = g_dir_open(data->app_data_path, 0, NULL);
+	GDir *app_data_dir = g_dir_open(".", 0, NULL);
 	if (app_data_dir == NULL) {
 		debug("Error\n");
 	} else {

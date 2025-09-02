@@ -56,14 +56,12 @@ struct mouse_profile {
 
 /**
  * @brief Creates the application data directory
- * if it doesn't exist. On success, the directory path
- * is stored in `data->app_data_dir`, along with its length
- * in `data->app_data_dir_length`.
- * 
- * @param data Application wide data structure
+ * if it doesn't exist. On success, the current working directory of the program
+ * will change to the application data directory.
+ *
  * @return 0 if the directory already exists, or was successfully created. Returns -1 if an error occurred.
  */
-int create_data_directory(app_data *data);
+int create_data_directory();
 
 /**
  * @brief Frees the memory allocated for a mouse profile

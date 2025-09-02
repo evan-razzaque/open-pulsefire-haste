@@ -48,8 +48,15 @@ const char* __asan_default_options() {
 	return "detect_leaks=1:handle_ioctl=true";
 }
 
-const char* __lsan_default_options() {
-	return "suppressions=suppress.txt";
+const char* __lsan_default_suppressions() {
+	return "\
+		leak:XML_ParseBuffer\n \
+		leak:FcFontSetList\n \
+		leak:FcFontRenderPrepare\n \
+		leak:gtk_builder_new_from_resource\n \
+		leak:gtk_layout_manager_measure\n \
+		leak:pango_layout_get_lines_readonly \
+	";
 }
 
 /**
@@ -270,10 +277,9 @@ int main() {
 		.profile_name = DEFAULT_PROFILE_NAME
 	};
 
-	res = create_data_directory(&data);
+	res = create_data_directory();
 	if (res < 0) {
 		printf("Couldn't create data directory\n");
-		free(data.app_data_path);
 		exit(-1);
 	}
 
@@ -304,7 +310,6 @@ int main() {
 	
 	if (data.profile == NULL) {
 		printf("Couldn't load mouse profile '%s'", data.profile_name);
-		free(data.app_data_path);
 		return -1;
 	}
 	

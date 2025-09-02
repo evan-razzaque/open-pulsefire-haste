@@ -84,12 +84,9 @@ struct app_widgets {
 struct app_data {
 	mouse_data *mouse; // The mouse_data struct
 	app_widgets *widgets; // Shared application widgets
-	
-	char *app_data_path; // XDG data base directory
-	int app_data_path_length; // Length of `app_data_path`, including the null-byte
 
 	FILE *profile_file; // File used to store mouse settings
-	char *profile_name; // Name of the profile 
+	char *profile_name; // Name of the profile
 	
 	GHashTable *mouse_profiles;
 	mouse_profile *profile;
