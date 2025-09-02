@@ -251,7 +251,7 @@ static void add_mouse_profile_button(char *profile_name, app_data *data, bool is
 }
 
 static void add_new_mouse_profile(GtkButton *button, app_data *data) {
-	char *profile_name = g_strdup_printf("profile%u.bin", g_hash_table_size(data->mouse_profiles));
+	char *profile_name = g_strdup_printf("profile%u.bin", data->profile_count++);
 	add_mouse_profile_button(profile_name, data, false);
 	switch_mouse_profile(NULL, profile_name, data);
 
@@ -274,6 +274,8 @@ static void add_mouse_profile_entries(app_data *data) {
 		const char *profile_name;
 	
 		while ((profile_name = g_dir_read_name(app_data_dir))) {
+			data->profile_count++;
+
 			if (strcmp(profile_name, DEFAULT_PROFILE_NAME) == 0) continue;
 			add_mouse_profile_button((char*) profile_name, data, false);
 		}

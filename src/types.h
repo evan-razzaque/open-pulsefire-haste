@@ -89,6 +89,8 @@ struct app_data {
 	char *profile_name; // Name of the profile
 	
 	GHashTable *mouse_profiles;
+	int profile_count;
+
 	mouse_profile *profile;
 
 	config_color_data *color_data; // Mouse led data and settings
