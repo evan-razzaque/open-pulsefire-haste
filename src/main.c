@@ -321,6 +321,7 @@ int main() {
 	status = g_application_run(G_APPLICATION(app), 0, NULL);
 
 	g_object_unref(app);
+	assert(mouse.state == CLOSED);
 	mouse.state = CLOSED;
 	
 	g_thread_join(update_thread);

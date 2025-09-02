@@ -208,10 +208,11 @@ static void close_application(GtkWindow *window, app_data *data) {
 
 	gtk_window_destroy(data->widgets->window);
 	gtk_window_destroy(data->button_data->window_keyboard_action);
+	printf("window closed\n");
+
+	data->mouse->state = CLOSED;
 
 	g_mutex_unlock(data->mouse->mutex);
-
-	printf("window closed\n");
 }
 
 /**
