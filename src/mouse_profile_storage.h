@@ -29,8 +29,11 @@
 #define PATH_SEP "/"
 #endif
 
-#define APP_DIR PATH_SEP "open-pulsefire-haste" PATH_SEP
-#define DEFAULT_PROFILE_NAME "default.bin"
+#define APP_DIR "open-pulsefire-haste" PATH_SEP
+#define PROFILE_DIR "profiles" PATH_SEP
+#define DEFAULT_PROFILE_NAME "default"
+#define PROFILE_EXTENSION ".bin"
+#define PROFILE_EXTENSION_SIZE (sizeof(PROFILE_EXTENSION))
 
 /**
  * @brief A struct containing a mouse profile with its settings and macros.
@@ -78,7 +81,7 @@ void destroy_profile(mouse_profile *profile);
  * @param data Application wide data structure
  * @return int 0 if the profile was deleted, -1 if an error has occured
  */
-int delete_profile(char *name, app_data *data);
+int delete_profile(const char *name, app_data *data);
 
 /**
  * @brief Load a mouse profile from disk. 
@@ -88,7 +91,7 @@ int delete_profile(char *name, app_data *data);
  * @param name The name of the profile
  * @return A `mouse_profile` object if the profile was loaded or NULL if an error has occured
  */
-mouse_profile* load_profile_from_file(char *name, app_data *data);
+mouse_profile* load_profile_from_file(const char *name, app_data *data);
 
 /**
  * @brief Save a mouse profile to disk.
@@ -98,15 +101,15 @@ mouse_profile* load_profile_from_file(char *name, app_data *data);
  * @param data Application wide data structure
  * @return 0 if the settings were saved or -1 if there was an error
  */
-int save_profile_to_file(char *name, mouse_profile *profile, app_data *data);
+int save_profile_to_file(const char *name, mouse_profile *profile, app_data *data);
 
 /**
- * @brief A function to switch to a different mouse profile.
+ * @brief A function to switch to a different mouse profile. If the profile doesn't exist, a new one is created.
  * 
  * @param name The name of the profile to switch to
  * @param data Application wide data structure
- * @return 0 if the the mouse profile was successfully switch to or -1 if there was an error 
+ * @return 0 if the the mouse profile was successfully switched to or -1 if there was an error 
  */
-int switch_profile(char *name, app_data *data);
+int switch_profile(const char *name, app_data *data);
 
 #endif

@@ -47,7 +47,7 @@ struct macro_detail {
 } typedef macro_detail;
 
 /**
- * @brief A function to handle errors with fopen() and remove().
+ * @brief A function to handle errors with open_profile_file() and remove().
  * 
  * @param file The accessed file that caused the error. Should be NULL when using remove()
  * @param filename The path of the file
@@ -68,21 +68,46 @@ static int handle_file_error(FILE *file, const char* path, bool file_should_exis
 }
 
 int create_data_directory() {
-    char *app_data_path;
-
-    const char *user_data_dir = g_get_user_data_dir();
-    size_t user_data_dir_len = strlen(user_data_dir) + 1;
-
-    size_t app_data_dir_size = user_data_dir_len * sizeof(char) + sizeof(APP_DIR);
-    app_data_path = malloc(app_data_dir_size);
-
-    strncpy(app_data_path, user_data_dir, user_data_dir_len);
-    strncat(app_data_path, APP_DIR, sizeof(APP_DIR) / sizeof(char));
+    char *app_data_path = g_strdup_printf("%s" PATH_SEP APP_DIR, g_get_user_data_dir());
     
     int res = g_mkdir_with_parents(app_data_path, S_IRWXU);
+    if (res == 0) {
+        chdir(app_data_path);
+        res = g_mkdir_with_parents(PROFILE_DIR, S_IRWXU);
+    }
     
-    if (res == 0) chdir(app_data_path);
     free(app_data_path);
+
+    return res;
+}
+
+/**
+ * @brief Opens a mouse profile file.
+ * 
+ * @param name The name of the profile
+ * @param modes The file mode
+ * @return A FILE* if the file was opened or NULL if there was an error
+ */
+FILE* open_profile_file(const char *name, const char *modes) {
+    char *profile_path = g_strdup_printf(PROFILE_DIR "%s" PROFILE_EXTENSION, name);
+    
+    FILE *file = fopen(profile_path, modes);
+    free(profile_path);
+
+    return file;
+}
+
+/**
+ * @brief Removes a mouse profile file.
+ * 
+ * @param name The name of the profile
+ * @return 0 if the file was removed or -1 if there was an error
+ */
+int remove_profile_file(const char *name) {
+    char *profile_path = g_strdup_printf(PROFILE_DIR "%s" PROFILE_EXTENSION, name);
+    
+    int res = remove(profile_path);
+    free(profile_path);
 
     return res;
 }
@@ -95,7 +120,7 @@ int create_data_directory() {
  * @param data Application wide data structure
  * @return A `mouse_profile` object if the profile was created or NULL if an error has occured
  */
-static mouse_profile* create_profile(char *profile_path, app_data *data) {
+static mouse_profile* create_profile(const char *profile_path, app_data *data) {
     mouse_profile *profile = malloc(sizeof(mouse_profile));
     *profile = (mouse_profile) {
         .led = {.red = 0xff, .brightness = 100},
@@ -121,7 +146,7 @@ static mouse_profile* create_profile(char *profile_path, app_data *data) {
         .macro_indices = {-1, -1, -1, -1, -1, -1}
     };
     
-    data->profile_file = fopen(profile_path, "wb");
+    data->profile_file = open_profile_file(profile_path, "wb");
 
     int res = handle_file_error(data->profile_file, profile_path, true);
     if (res < 0) goto free_profile;
@@ -154,8 +179,8 @@ void destroy_profile(mouse_profile *profile) {
     free(profile);
 }
 
-int delete_profile(char *name, app_data *data) {
-    char *profile_path = name;
+int delete_profile(const char *name, app_data *data) {
+    const char *profile_path = name;
     remove(profile_path);
 
     int res = handle_file_error(NULL, profile_path, true);
@@ -199,17 +224,15 @@ static void load_profile_macros(mouse_profile *profile, app_data *data) {
     }
 }
 
-mouse_profile* load_profile_from_file(char *name, app_data *data) {
+mouse_profile* load_profile_from_file(const char *name, app_data *data) {
     mouse_profile *profile = NULL;
-
-    char *profile_path = name;
     
-    data->profile_file = fopen(profile_path, "rb");
-    int res = handle_file_error(data->profile_file, profile_path, false);
+    data->profile_file = open_profile_file(name, "rb");
+    int res = handle_file_error(data->profile_file, name, false);
     if (res < 0) return profile;
 
     if (data->profile_file == NULL) {
-        profile = create_profile(profile_path, data);
+        profile = create_profile(name, data);
         if (profile == NULL) {
             debug("Error: %d\n", res);
             return profile;
@@ -260,10 +283,9 @@ static void save_profile_macros(mouse_profile *profile, app_data *data) {
     }
 }
 
-int save_profile_to_file(char *name, mouse_profile *profile, app_data *data) {
-    char *profile_path = name;
-    data->profile_file = fopen(profile_path, "wb");
-    int res = handle_file_error(data->profile_file, profile_path, true);
+int save_profile_to_file(const char *name, mouse_profile *profile, app_data *data) {
+    data->profile_file = open_profile_file(name, "wb");
+    int res = handle_file_error(data->profile_file, name, true);
     
     if (res == 0) {
         save_profile_settings(profile, data);
@@ -275,7 +297,7 @@ int save_profile_to_file(char *name, mouse_profile *profile, app_data *data) {
     return res;
 }
 
-int switch_profile(char *name, app_data *data) {
+int switch_profile(const char *name, app_data *data) {
     mouse_profile *profile = g_hash_table_lookup(data->mouse_profiles, name);
 
     if (profile == NULL) {

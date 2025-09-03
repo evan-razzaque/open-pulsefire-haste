@@ -31,6 +31,7 @@
 #include "mouse_profile_storage.h"
 
 #include "util.h"
+#include <assert.h>
 
 void show_connection_lost_overlay(app_data *data) {
     GtkStack *stack_main = data->widgets->stack_main;
@@ -251,7 +252,7 @@ static void add_mouse_profile_button(char *profile_name, app_data *data, bool is
 }
 
 static void add_new_mouse_profile(GtkButton *button, app_data *data) {
-	char *profile_name = g_strdup_printf("profile%u.bin", data->profile_count++);
+	char *profile_name = g_strdup_printf("profile%u", data->profile_count++);
 	add_mouse_profile_button(profile_name, data, false);
 	switch_mouse_profile(NULL, profile_name, data);
 
@@ -267,21 +268,28 @@ static void add_mouse_profile_entries(app_data *data) {
 	add_mouse_profile_button((char*) DEFAULT_PROFILE_NAME, data, true);
 	gtk_menu_button_set_label(data->widgets->menu_button_mouse_profiles, data->profile_name);
 
-	GDir *app_data_dir = g_dir_open(".", 0, NULL);
-	if (app_data_dir == NULL) {
+	GDir *profiles_dir = g_dir_open(PROFILE_DIR, 0, NULL);
+	if (profiles_dir == NULL) {
 		debug("Error\n");
 	} else {
-		const char *profile_name;
+		const char *profile_filename;
 	
-		while ((profile_name = g_dir_read_name(app_data_dir))) {
+		while ((profile_filename = g_dir_read_name(profiles_dir))) {
 			data->profile_count++;
 
-			if (strcmp(profile_name, DEFAULT_PROFILE_NAME) == 0) continue;
-			add_mouse_profile_button((char*) profile_name, data, false);
+			if (strcmp(profile_filename, DEFAULT_PROFILE_NAME PROFILE_EXTENSION) == 0) continue;
+
+			int profile_name_size = ((strlen(profile_filename) + 1) * sizeof(char)) - PROFILE_EXTENSION_SIZE;
+			char *profile_name = g_strndup(profile_filename, profile_name_size);
+
+			assert(profile_name[profile_name_size] == 0);
+
+			add_mouse_profile_button(profile_name, data, false);
+			free(profile_name);
 		}
 	}
 
-	g_dir_close(app_data_dir);
+	g_dir_close(profiles_dir);
 }
 
 /**
