@@ -173,6 +173,13 @@ struct config_macro_data {
 void assign_macro(uint32_t macro_index, byte button, app_data *data);
 
 /**
+ * @brief Creates macros entries from the mouse profile. 
+ * 
+ * @param data Application wide data structure
+ */
+void create_macro_entries(app_data *data);
+
+/**
  * Init for macros.
  * 
  * @param builder GtkBuilder object to obtain widgets

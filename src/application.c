@@ -147,6 +147,7 @@ void load_mouse_profile_to_mouse(app_data *data) {
 	}
 
 	create_dpi_profile_rows(&data->profile->dpi_config, data);
+	create_macro_entries(data);
 
 	g_mutex_lock(mouse->mutex);
 	set_polling_rate(dev, profile->polling_rate_value);

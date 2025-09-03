@@ -85,8 +85,6 @@ struct app_data {
 	mouse_data *mouse; // The mouse_data struct
 	app_widgets *widgets; // Shared application widgets
 
-	
-
 	FILE *profile_file; // File used to store mouse settings
 	char *profile_name; // Name of the profile
 	

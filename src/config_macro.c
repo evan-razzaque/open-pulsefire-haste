@@ -602,6 +602,16 @@ static void claim_click(GtkGesture *gesture, void *data) {
     gtk_gesture_set_state(gesture, GTK_EVENT_SEQUENCE_CLAIMED);
 }
 
+void create_macro_entries(app_data *data) {
+    gtk_list_box_remove_all(data->macro_data->box_saved_macros);
+
+    recorded_macro *macros = data->profile->macros;
+
+    for (int i = 0; i < data->profile->macro_count; i++) {
+        create_macro_item(macros[i].name, i, data);
+    }
+}
+
 /**
  * @brief Set up the event controllers used for listening to mouse and keyboard events. 
  * 
