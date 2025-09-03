@@ -56,6 +56,8 @@ static void update_dpi_settings(app_data *data) {
  */
 static void update_dpi_profile_data(DpiProfileConfig *self, byte profile_index, int dpi_value, GdkRGBA *indicator, app_data *data) {
     dpi_profile *profile = data->profile->dpi_config.profiles + profile_index;
+
+    if (profile == NULL) return;
     
     profile->dpi_value = (uint16_t) dpi_value;
     profile->indicator.red = indicator->red * 255;

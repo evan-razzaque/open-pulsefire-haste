@@ -142,10 +142,12 @@ static mouse_profile* create_profile(const char *profile_path, app_data *data) {
         },
         .polling_rate_value = POLLING_RATE_1000HZ,
         .lift_off_distance = LIFT_OFF_DISTANCE_LOW, // TODO: Find default value
+        .macros = malloc(sizeof(recorded_macro)),
         .macro_count = 0,
         .macro_indices = {-1, -1, -1, -1, -1, -1}
     };
     
+    data->macro_data->macro_array_size = 1;
     data->profile_file = open_profile_file(profile_path, "wb");
 
     int res = handle_file_error(data->profile_file, profile_path, true);
