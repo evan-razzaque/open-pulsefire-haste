@@ -22,7 +22,7 @@
 
 #include "macro_event_item.h"
 #include "device/buttons.h"
-#include "util.h"
+#include "defs.h"
 
 #define ICON_DOWN_ARROW "go-down"
 #define ICON_UP_ARROW "go-up"

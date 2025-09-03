@@ -17,7 +17,9 @@
  */
 
 #include <gtk/gtk.h>
+
 #include "mouse_profile_button.h"
+#include "defs.h"
 
 struct _MouseProfileButton {
     GtkBox parent_instance;

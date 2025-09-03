@@ -42,7 +42,7 @@
 
 #include "application.h"
 
-#include "util.h"
+#include "defs.h"
 
 const char* __asan_default_options() {
 	return "detect_leaks=1:handle_ioctl=true";

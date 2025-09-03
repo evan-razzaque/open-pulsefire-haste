@@ -20,7 +20,7 @@
 #define MOUSE_PROFILE_BUTTON_H
 
 #include <gtk/gtk.h>
-#include <application.h>
+#include "application.h"
 
 G_DECLARE_FINAL_TYPE(MouseProfileButton, mouse_profile_button, MOUSE, PROFILE_BUTTON, GtkBox)
 

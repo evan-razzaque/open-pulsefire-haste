@@ -30,7 +30,7 @@
 #include "../resources/gresources.h"
 #include "mouse_profile_storage.h"
 
-#include "util.h"
+#include "defs.h"
 #include <assert.h>
 
 void show_connection_lost_overlay(app_data *data) {

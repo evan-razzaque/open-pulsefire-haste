@@ -28,7 +28,7 @@
 
 #include "mouse_profile_storage.h"
 
-#include "util.h"
+#include "defs.h"
 
 GtkMenuButton* get_active_menu_button(config_button_data *button_data) {
     return button_data->menu_button_bindings[button_data->selected_button];

@@ -25,7 +25,7 @@
 
 #include "mouse_profile_storage.h"
 
-#include "util.h"
+#include "defs.h"
 
 /**
  * @brief Updates the led rgb color from the color chooser wigdet

@@ -17,7 +17,7 @@
  */
 
 #include <time.h>
-#include "util.h"
+#include "defs.h"
 
 time_t clock_gettime_ms() {
     struct timespec t;

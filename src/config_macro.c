@@ -29,7 +29,7 @@
 
 #include "device/buttons.h"
 #include "types.h"
-#include "util.h"
+#include "defs.h"
 #include "config_buttons.h"
 #include "application.h"
 

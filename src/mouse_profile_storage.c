@@ -35,7 +35,7 @@
 #include "config_buttons.h"
 #include "config_macro.h"
 #include "config_sensor.h"
-#include "util.h"
+#include "defs.h"
 
 /**
  * @brief A struct used for reading and writing information about a `recorded_macro` with the disk.

@@ -22,6 +22,7 @@
 #include "types.h"
 #include "device/sensor.h"
 #include "config_macro.h"
+#include "defs.h"
 
 #ifdef _WIN32
 #define PATH_SEP "\\"

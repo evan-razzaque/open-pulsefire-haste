@@ -24,6 +24,8 @@
 #include <gtk/gtk.h>
 #include "device/mouse.h"
 
+#include "defs.h"
+
 /**
  * @brief Used to cast function pointers to GAction callbacks.
  * 

@@ -16,11 +16,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>. 
  */
 
-#ifndef UTIL_H
-#define UTIL_H
+#ifndef DEFS_H
+#define DEFS_H
 
 #include <time.h>
 #include <gtk/gtk.h>
+
+#ifdef _WIN32
+#define PATH_SEP "\\"
+#else
+#define PATH_SEP "/"
+#endif
+
+#define PROFILE_NAME_MAX_LENGTH (64)
+
+#define BOOL_STR(condition) (((condition)) ? "true" : "false")
 
 /**
  * @brief Removes the element at `index` from `array` and decrements `length`.

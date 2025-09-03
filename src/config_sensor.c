@@ -28,7 +28,7 @@
 #include "device/sensor.h"
 
 #include "types.h"
-#include "util.h"
+#include "defs.h"
 
 #include "templates/dpi_profile_config.h"
 
