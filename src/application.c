@@ -240,6 +240,8 @@ static void switch_mouse_profile(MouseProfileButton *self, char *profile_name, a
 		data->widgets->menu_button_mouse_profiles,
 		profile_name
 	);
+
+	gtk_menu_button_popdown(data->widgets->menu_button_mouse_profiles);
 }
 
 static void add_mouse_profile_button(char *profile_name, app_data *data, bool is_default_profile) {
