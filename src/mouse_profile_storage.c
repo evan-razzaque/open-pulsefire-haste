@@ -95,15 +95,21 @@ static FILE* open_profile_file(const char *name, const char *modes) {
     return fopen(profile_path, modes);
 }
 
+bool profile_file_exists(const char *name) {
+    char profile_path[PROFILE_PATH_MAX_LENGTH + 1];
+    sprintf(profile_path, PROFILE_DIR "%s" PROFILE_EXTENSION, name);
+
+    return file_exists(profile_path);
+}
+
 /**
- * @brief Creates a `mouse_profile`.
+ * @brief Creates a mouse profile.
  * 
- * @param settings The mouse_profile object
- * @param profile_path The path to save the profile to
+ * @param name The name of the profile
  * @param data Application wide data structure
  * @return A `mouse_profile` object if the profile was created or NULL if an error has occured
  */
-static mouse_profile* create_profile(const char *profile_path, app_data *data) {
+static mouse_profile* create_profile(const char *name, app_data *data) {
     mouse_profile *profile = malloc(sizeof(mouse_profile));
     *profile = (mouse_profile) {
         .led = {.red = 0xff, .brightness = 100},
@@ -131,9 +137,9 @@ static mouse_profile* create_profile(const char *profile_path, app_data *data) {
     };
     
     data->macro_data->macro_array_size = 1;
-    data->profile_file = open_profile_file(profile_path, "wb");
+    data->profile_file = open_profile_file(name, "wb");
 
-    int res = handle_file_error(data->profile_file, profile_path, true);
+    int res = handle_file_error(data->profile_file, name, true);
     if (res < 0) goto free_profile;
 
     res = fwrite(profile, sizeof(mouse_profile), 1, data->profile_file);

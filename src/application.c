@@ -209,6 +209,7 @@ static void close_application(GtkWindow *window, app_data *data) {
 	g_hash_table_destroy(data->mouse_profiles);
 
 	gtk_window_destroy(data->widgets->window);
+	gtk_window_destroy(data->widgets->window_new_mouse_profile);
 	gtk_window_destroy(data->button_data->window_keyboard_action);
 	printf("window closed\n");
 
@@ -218,13 +219,13 @@ static void close_application(GtkWindow *window, app_data *data) {
 }
 
 /**
- * @brief Switches to the mouse profile given by `mouse_profile_button`.
+ * @brief Switches to the mouse profile `profile_name`.
  * 
- * @param mouse_profile_button The MouseProfileButton instance
+ * @param mouse_profile_button Unused, can be NULL
  * @param name The name of the profile
  * @param data Application wide data structure
  */
-static void switch_mouse_profile(MouseProfileButton *mouse_profile_button, char *profile_name, app_data *data) {
+static void switch_mouse_profile(MouseProfileButton *mouse_profile_button, const char *profile_name, app_data *data) {
 	if (strcmp(data->profile_name, profile_name) == 0) {
 		debug("Already on profile %s\n", profile_name);
 		return;
@@ -290,12 +291,31 @@ static void add_mouse_profile_button(const char *profile_name, app_data *data, b
 	);
 }
 
-static void add_new_mouse_profile(GtkButton *button, app_data *data) {
-	char *profile_name = g_strdup_printf("profile%u", data->profile_count++);
-	add_mouse_profile_button(profile_name, data, false);
-	switch_mouse_profile(NULL, profile_name, data);
+static void create_new_mouse_profile(GtkButton *button, app_data *data) {
+	const char *name = gtk_editable_get_text(data->widgets->editable_profile_name);
+	
+	if (!is_valid_profile_name(name)) {
+		gtk_label_set_text(data->widgets->label_profile_name_error, "Invalid profile name");
+		return;
+	}
 
-	free(profile_name);
+	if (profile_file_exists(name)) {
+		gtk_label_set_text(data->widgets->label_profile_name_error, "A profile with this name already exists");
+		return;
+	}
+
+	gtk_label_set_text(data->widgets->label_profile_name_error, "");
+
+	add_mouse_profile_button(name, data, false);
+	switch_mouse_profile(NULL, name, data);
+
+	gtk_window_close(data->widgets->window_new_mouse_profile);
+}
+
+static void reset_new_profile_window(GtkWidget *widget, app_data *data) {
+	debug("close profile window\n");
+	gtk_editable_set_text(data->widgets->editable_profile_name, "");
+	gtk_label_set_text(data->widgets->label_profile_name_error, "");
 }
 
 /**
@@ -364,6 +384,9 @@ static GtkBuilder* init_builder(app_data *data) {
 
 	data->widgets->box_mouse_profiles = GTK_BOX(GTK_WIDGET(gtk_builder_get_object(builder, "boxMouseProfiles")));
 	data->widgets->menu_button_mouse_profiles = GTK_MENU_BUTTON(GTK_WIDGET(gtk_builder_get_object(builder, "menuButtonMouseProfile")));
+	data->widgets->window_new_mouse_profile = GTK_WINDOW(GTK_WIDGET(gtk_builder_get_object(builder, "windowNewMouseProfile")));
+	data->widgets->editable_profile_name = GTK_EDITABLE(GTK_WIDGET(gtk_builder_get_object(builder, "editableProfileName")));
+	data->widgets->label_profile_name_error = GTK_LABEL(GTK_WIDGET(gtk_builder_get_object(builder, "labelProfileNameError")));
 
 	data->widgets->label_battery = GTK_LABEL(GTK_WIDGET(gtk_builder_get_object(builder, "labelBattery")));
 
@@ -390,8 +413,9 @@ void activate(GtkApplication *app, app_data *data) {
 	add_mouse_profile_entries(data);
 
 	g_signal_connect(data->widgets->window, "close-request", G_CALLBACK(close_application), data);
+	g_signal_connect(data->widgets->window_new_mouse_profile, "close-request", G_CALLBACK(reset_new_profile_window), data);
 	widget_add_event(builder, "buttonSave", "clicked", save_mouse_settings, data->mouse);
-	widget_add_event(builder, "buttonAddMouseProfile", "clicked", add_new_mouse_profile, data);
+	widget_add_event(builder, "buttonConfirmNewProfile", "clicked", create_new_mouse_profile, data);
 	
 	g_timeout_add(100, G_SOURCE_FUNC(update_battery_display), data);
 
@@ -402,6 +426,7 @@ void activate(GtkApplication *app, app_data *data) {
 	}
 	
 	gtk_window_set_application(data->widgets->window, app);
+	gtk_window_set_transient_for(data->widgets->window_new_mouse_profile, data->widgets->window);
 	gtk_window_present(data->widgets->window);
 }
 
@@ -428,4 +453,16 @@ G_MODULE_EXPORT void disable_main_stack_page(GtkBox *box_main, GtkActionable *bu
 
 G_MODULE_EXPORT void enable_main_stack_page(GtkBox *box_main, GtkActionable *button) {
     gtk_widget_set_sensitive(GTK_WIDGET(box_main), true);
+}
+
+G_MODULE_EXPORT void display_new_profile_window(GtkWindow *window_new_mouse_profile, GtkButton *button) {
+	gtk_window_present(window_new_mouse_profile);
+}
+
+G_MODULE_EXPORT void hide_mouse_profile_popover(GtkMenuButton *menu_button_mouse_profiles, GtkButton *button) {
+	gtk_menu_button_popdown(menu_button_mouse_profiles);
+}
+
+G_MODULE_EXPORT void close_new_profile_window(GtkWindow *window_new_mouse_profile, GtkButton *button) {
+	gtk_window_close(window_new_mouse_profile);
 }

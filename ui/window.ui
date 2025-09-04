@@ -6,6 +6,66 @@
   <requires lib="gtk" version="4.18"/>
   <requires lib="gtk+" version="4.0"/>
   <requires lib="libadwaita" version="1.7"/>
+  <object class="GtkWindow" id="windowNewMouseProfile">
+    <property name="destroy-with-parent">True</property>
+    <property name="hide-on-close">True</property>
+    <property name="title">New Mouse Profile</property>
+    <property name="width-request">300</property>
+    <child>
+      <object class="GtkBox">
+        <property name="margin-bottom">10</property>
+        <property name="margin-end">10</property>
+        <property name="margin-start">10</property>
+        <property name="margin-top">10</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">5</property>
+        <child>
+          <object class="GtkLabel">
+            <property name="css-classes">profile-name</property>
+            <property name="halign">start</property>
+            <property name="label">Name</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkEditableLabel" id="editableProfileName">
+                <property name="css-classes">profile-name</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel" id="labelProfileNameError">
+                <property name="css-classes">error-text</property>
+                <property name="halign">start</property>
+                <property name="margin-top">5</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox">
+            <property name="homogeneous">True</property>
+            <property name="margin-top">10</property>
+            <property name="spacing">10</property>
+            <property name="valign">end</property>
+            <property name="vexpand">True</property>
+            <child>
+              <object class="GtkButton" id="buttonCancelNewProfile">
+                <property name="label">Cancel</property>
+                <signal name="clicked" handler="close_new_profile_window" object="windowNewMouseProfile"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="buttonConfirmNewProfile">
+                <property name="label">Confirm</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
   <object class="GtkWindow" id="window">
     <property name="default-height">800</property>
     <property name="default-width">700</property>
@@ -427,6 +487,8 @@
                                           <object class="GtkButton" id="buttonAddMouseProfile">
                                             <property name="has-frame">False</property>
                                             <property name="label">Add Profile</property>
+                                            <signal name="clicked" handler="display_new_profile_window" object="windowNewMouseProfile"/>
+                                            <signal name="clicked" handler="hide_mouse_profile_popover" object="menuButtonMouseProfile"/>
                                           </object>
                                         </child>
                                       </object>

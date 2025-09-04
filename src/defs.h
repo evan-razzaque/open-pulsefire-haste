@@ -89,4 +89,12 @@ time_t clock_gettime_ms();
  */
 void gtk_spin_button_hide_buttons(GtkSpinButton *self);
 
+/**
+ * @brief A function to validate mouse profile names.
+ * 
+ * @param name The profile name to validate.
+ * @return true if the profile name is valid, otherwise false
+ */
+bool is_valid_profile_name(const char *name);
+
 #endif

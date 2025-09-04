@@ -49,11 +49,7 @@ static void rename_profile(MouseProfileButton *self, const char *name) {
     debug("self->name: %p, name: %p\n", self->name, name);
     if (strcmp(self->name, name) == 0) return;
 
-    if (
-        strstr(name, "..") != NULL
-        || strstr(name, PATH_SEP) != NULL
-        || strlen(name) > PROFILE_NAME_MAX_LENGTH
-    ) {
+    if (!is_valid_profile_name(name)) {
         gtk_editable_set_text(GTK_EDITABLE(self->editable_label_name), self->name);
         return;
     }

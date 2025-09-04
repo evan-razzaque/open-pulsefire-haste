@@ -73,6 +73,14 @@ struct mouse_profile {
 int create_data_directory();
 
 /**
+ * @brief A function to check if a profile with `name` exists.
+ * 
+ * @param name The name of the profile
+ * @return true if the profile exists, otherwise false
+ */
+bool profile_file_exists(const char *name);
+
+/**
  * @brief Frees the memory allocated for a mouse profile
  * when it's removed from `app_data->mouse_profiles`.
  * 

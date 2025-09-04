@@ -72,6 +72,9 @@ struct app_widgets {
 
 	GtkBox *box_mouse_profiles;
 	GtkMenuButton *menu_button_mouse_profiles;
+	GtkWindow *window_new_mouse_profile;
+	GtkEditable *editable_profile_name;
+	GtkLabel *label_profile_name_error;
 
 	GtkStack *stack_main; // The stack containing the main page and the macro page
 	GtkBox *box_main; // The box that contains the content of the main page
