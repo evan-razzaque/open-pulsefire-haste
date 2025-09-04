@@ -60,7 +60,7 @@ static int handle_file_error(FILE *file, const char* path, bool file_should_exis
     if (error == ENOENT && !file_should_exist) return 0;
 
     if (file == NULL && error != 0) {
-        printf("Error accessing %s: %s\n", path, strerror(error));
+        debug("Error accessing %s: %s\n", path, strerror(error));
         return -1;
     }
 
@@ -319,17 +319,16 @@ void destroy_profile(mouse_profile *profile) {
     free(profile);
 }
 
-int delete_profile(const char *name, GHashTable *mouse_profiles) {
+int delete_profile(const char *name, app_data *data) {
     char profile_path[PROFILE_PATH_MAX_LENGTH + 1];
     sprintf(profile_path, PROFILE_DIR "%s" PROFILE_EXTENSION, name);
     
-    remove(profile_path);
-    
-    int res = handle_file_error(NULL, profile_path, true);
-    
-    if (res == 0) {
-        g_hash_table_remove(mouse_profiles, name);
+    int res = remove(profile_path);
+    if (res < 0) {
+        handle_file_error(NULL, profile_path, true);
+        return res;
     }
 
+    g_hash_table_remove(data->mouse_profiles, name);
     return res;
 }

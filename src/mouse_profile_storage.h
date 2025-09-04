@@ -114,7 +114,7 @@ int switch_profile(const char *name, app_data *data);
  * 
  * @param old_name The old profile name
  * @param new_name The new profile name
- * @param mouse_profiles Mouse profile hash table
+ * @param data Application wide data structure
  * @return int 0 if the profile was renamed or -1 if there was an error
  */
 int rename_profile(const char *old_name, const char *new_name, app_data *data);
@@ -123,9 +123,9 @@ int rename_profile(const char *old_name, const char *new_name, app_data *data);
  * @brief A function to delete a mouse profile.
  * 
  * @param name The name of the profile to remove
- * @param mouse_profiles Mouse profile hash table
- * @return int 0 if the profile was deleted, -1 if an error has occured
+ * @param data Application wide data structure
+ * @return int 0 if the profile was deleted or -1 if an error has occured
  */
-int delete_profile(const char *name, GHashTable *mouse_profiles);
+int delete_profile(const char *name, app_data *data);
 
 #endif

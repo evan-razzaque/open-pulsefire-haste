@@ -267,10 +267,22 @@ static bool rename_mouse_profile(MouseProfileButton *self, const char *old_name,
 	return true;
 }
 
+static bool delete_mouse_profile(MouseProfileButton *self, const char *name, app_data *data) {
+	int res = delete_profile(name, data);
+	if (res < 0) return false;
+
+	if (strcmp(data->profile_name, name) == 0) {
+		switch_mouse_profile(NULL, DEFAULT_PROFILE_NAME, data);
+	}
+
+	return true;
+}
+
 static void add_mouse_profile_button(const char *profile_name, app_data *data, bool is_default_profile) {
 	MouseProfileButton *profile_button = mouse_profile_button_new(profile_name, is_default_profile);
 	g_signal_connect(profile_button, "select-profile", G_CALLBACK(switch_mouse_profile), data);
 	g_signal_connect(profile_button, "rename-profile", G_CALLBACK(rename_mouse_profile), data);
+	g_signal_connect(profile_button, "delete-profile", G_CALLBACK(delete_mouse_profile), data);
 
 	gtk_box_append(
 		data->widgets->box_mouse_profiles,
