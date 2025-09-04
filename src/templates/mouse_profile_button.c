@@ -46,6 +46,7 @@ static guint signals[N_SIGNALS];
 G_DEFINE_TYPE(MouseProfileButton, mouse_profile_button, GTK_TYPE_BOX)
 
 static void rename_profile(MouseProfileButton *self, const char *name) {
+    debug("self->name: %p, name: %p\n", self->name, name);
     if (strcmp(self->name, name) == 0) return;
 
     if (
@@ -71,7 +72,7 @@ static void rename_profile(MouseProfileButton *self, const char *name) {
     if (!rename_successful) return;
 
     gtk_button_set_label(self->button_name, name);
-    self->name = name;
+    self->name = gtk_button_get_label(self->button_name);
 }
 
 static void toggle_name_editing(MouseProfileButton *self, bool is_editing_name) {
@@ -99,10 +100,10 @@ static void update_editing_state(MouseProfileButton *self, GParamSpec *param, Gt
 
     if (!self->is_editing_name) {
         toggle_name_editing(self, false);
+
+        debug("self->name: %p, name: %p\n", self->name, gtk_editable_get_text(GTK_EDITABLE(self->editable_label_name)));
         rename_profile(self, gtk_editable_get_text(GTK_EDITABLE(self->editable_label_name)));
     }
-
-    debug("Profile Name: %p, Editing: %s\n", gtk_editable_get_text(GTK_EDITABLE(self->editable_label_name)), BOOL_STR(self->is_editing_name));
 }
 
 static void edit_profile_name(MouseProfileButton *self, GtkButton *button) {
