@@ -34,7 +34,12 @@
 #define PROFILE_DIR "profiles" PATH_SEP
 #define DEFAULT_PROFILE_NAME "default"
 #define PROFILE_EXTENSION ".bin"
-#define PROFILE_EXTENSION_SIZE (sizeof(PROFILE_EXTENSION))
+#define PROFILE_EXTENSION_LENGTH (sizeof(PROFILE_EXTENSION) - 1)
+#define PROFILE_NAME_MAX_LENGTH (64)
+#define PROFILE_FILENAME_MAX_LENGTH (PROFILE_NAME_MAX_LENGTH + PROFILE_EXTENSION_LENGTH)
+
+// Only when cwd is $XDG_DATA_HOME/APP_DIR
+#define PROFILE_PATH_MAX_LENGTH ((sizeof(PROFILE_DIR) - 1) + PROFILE_FILENAME_MAX_LENGTH)
 
 /**
  * @brief A struct containing a mouse profile with its settings and macros.
@@ -76,15 +81,6 @@ int create_data_directory();
 void destroy_profile(mouse_profile *profile);
 
 /**
- * @brief A function to delete a mouse profile.
- * 
- * @param name The name of the profile to remove
- * @param data Application wide data structure
- * @return int 0 if the profile was deleted, -1 if an error has occured
- */
-int delete_profile(const char *name, app_data *data);
-
-/**
  * @brief Load a mouse profile from disk. 
  * If the profile file does not exist, a mouse profile will be created.
  * 
@@ -112,5 +108,24 @@ int save_profile_to_file(const char *name, mouse_profile *profile, app_data *dat
  * @return 0 if the the mouse profile was successfully switched to or -1 if there was an error 
  */
 int switch_profile(const char *name, app_data *data);
+
+/**
+ * @brief A function to rename a mouse profile.
+ * 
+ * @param old_name The old profile name
+ * @param new_name The new profile name
+ * @param mouse_profiles Mouse profile hash table
+ * @return int 0 if the profile was renamed or -1 if there was an error
+ */
+int rename_profile(const char *old_name, const char *new_name, app_data *data);
+
+/**
+ * @brief A function to delete a mouse profile.
+ * 
+ * @param name The name of the profile to remove
+ * @param mouse_profiles Mouse profile hash table
+ * @return int 0 if the profile was deleted, -1 if an error has occured
+ */
+int delete_profile(const char *name, GHashTable *mouse_profiles);
 
 #endif

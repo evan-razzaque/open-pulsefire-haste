@@ -146,22 +146,24 @@ void load_mouse_profile_to_mouse(app_data *data) {
 		assign_button(i, profile->bindings[i], data);
 	}
 
+	g_mutex_lock(mouse->mutex);
+
 	create_dpi_profile_rows(&data->profile->dpi_config, data);
 	create_macro_entries(data);
 
-	g_mutex_lock(mouse->mutex);
 	set_polling_rate(dev, profile->polling_rate_value);
-	g_mutex_unlock(mouse->mutex);
-
+	
 	GVariant *variant_polling_rate = g_variant_new_byte(profile->polling_rate_value);
 	GVariant *variant_lift_off_distance = g_variant_new_byte(profile->lift_off_distance);
 	GVariant *variant_selected_dpi_profile = g_variant_new_byte(profile->dpi_config.selected_profile);
-
+	
 	g_action_group_activate_action(G_ACTION_GROUP(data->widgets->app), CHANGE_POLLING_RATE, variant_polling_rate);
 	g_action_group_activate_action(G_ACTION_GROUP(data->widgets->app), CHANGE_LIFT_OFF_DISTANCE, variant_lift_off_distance);
 	g_action_group_activate_action(G_ACTION_GROUP(data->widgets->app), SELECT_DPI_PROFILE, variant_selected_dpi_profile);
-
+	
 	save_dpi_settings(dev, &data->profile->dpi_config, data->profile->lift_off_distance);
+
+	g_mutex_unlock(mouse->mutex);
 }
 
 /**
@@ -216,26 +218,32 @@ static void close_application(GtkWindow *window, app_data *data) {
 }
 
 /**
- * @brief Switches to the mouse profile corresponding to the button that was clicked
+ * @brief Switches to the mouse profile given by `mouse_profile_button`.
  * 
- * @param self The MouseProfileButton instance
+ * @param mouse_profile_button The MouseProfileButton instance
  * @param name The name of the profile
  * @param data Application wide data structure
  */
-static void switch_mouse_profile(MouseProfileButton *self, char *profile_name, app_data *data) {
-	printf("Switched to %s\n", profile_name);
-
+static void switch_mouse_profile(MouseProfileButton *mouse_profile_button, char *profile_name, app_data *data) {
+	if (strcmp(data->profile_name, profile_name) == 0) {
+		debug("Already on profile %s\n", profile_name);
+		return;
+	}
+	
 	g_mutex_lock(data->mouse->mutex);
 	int res = switch_profile(profile_name, data);
 	g_mutex_unlock(data->mouse->mutex);
-
+	
 	if (res < 0) {
 		debug("Couldn't switch to profile %s\n", profile_name);
 		return;
 	}
 
+	strcpy(data->profile_name, profile_name);
+	printf("Switched to %s\n", profile_name);
+	
 	load_mouse_profile_to_mouse(data);
-
+	
 	gtk_menu_button_set_label(
 		data->widgets->menu_button_mouse_profiles,
 		profile_name
@@ -244,9 +252,25 @@ static void switch_mouse_profile(MouseProfileButton *self, char *profile_name, a
 	gtk_menu_button_popdown(data->widgets->menu_button_mouse_profiles);
 }
 
-static void add_mouse_profile_button(char *profile_name, app_data *data, bool is_default_profile) {
-	MouseProfileButton *profile_button = mouse_profile_button_new(profile_name, false);
+static bool rename_mouse_profile(MouseProfileButton *self, const char *old_name, const char *new_name, app_data *data) {
+	int res = rename_profile(old_name, new_name, data);
+	if (res < 0) return false;
+
+	debug("old_name = %s, data->profile_name = %s\n", old_name, data->profile_name);
+	debug("%d\n", data->profile->polling_rate_value);
+
+	if (strcmp(data->profile_name, old_name) == 0) {
+		strcpy(data->profile_name, new_name);
+		gtk_menu_button_set_label(data->widgets->menu_button_mouse_profiles, new_name);
+	}
+
+	return true;
+}
+
+static void add_mouse_profile_button(const char *profile_name, app_data *data, bool is_default_profile) {
+	MouseProfileButton *profile_button = mouse_profile_button_new(profile_name, is_default_profile);
 	g_signal_connect(profile_button, "select-profile", G_CALLBACK(switch_mouse_profile), data);
+	g_signal_connect(profile_button, "rename-profile", G_CALLBACK(rename_mouse_profile), data);
 
 	gtk_box_append(
 		data->widgets->box_mouse_profiles,
@@ -268,7 +292,7 @@ static void add_new_mouse_profile(GtkButton *button, app_data *data) {
  * @param data Application wide data structure
  */
 static void add_mouse_profile_entries(app_data *data) {
-	add_mouse_profile_button((char*) DEFAULT_PROFILE_NAME, data, true);
+	add_mouse_profile_button(DEFAULT_PROFILE_NAME, data, true);
 	gtk_menu_button_set_label(data->widgets->menu_button_mouse_profiles, data->profile_name);
 
 	GDir *profiles_dir = g_dir_open(PROFILE_DIR, 0, NULL);
@@ -282,7 +306,7 @@ static void add_mouse_profile_entries(app_data *data) {
 
 			if (strcmp(profile_filename, DEFAULT_PROFILE_NAME PROFILE_EXTENSION) == 0) continue;
 
-			int profile_name_size = ((strlen(profile_filename) + 1) * sizeof(char)) - PROFILE_EXTENSION_SIZE;
+			int profile_name_size = (strlen(profile_filename) + 1) - (PROFILE_EXTENSION_LENGTH + 1);
 			char *profile_name = g_strndup(profile_filename, profile_name_size);
 
 			assert(profile_name[profile_name_size] == 0);

@@ -73,6 +73,8 @@
 #define stringify(x) stringify0(x)
 #define stringify0(x) #x
 
+#define file_exists(filename) (stat((filename), &(struct stat) {}) == 0)
+
 /**
  * @brief Gets current time in milliseconds from the clock `CLOCK_MONOTONIC`.
  * 

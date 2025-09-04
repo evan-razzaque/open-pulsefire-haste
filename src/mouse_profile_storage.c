@@ -88,28 +88,11 @@ int create_data_directory() {
  * @param modes The file mode
  * @return A FILE* if the file was opened or NULL if there was an error
  */
-FILE* open_profile_file(const char *name, const char *modes) {
-    char *profile_path = g_strdup_printf(PROFILE_DIR "%s" PROFILE_EXTENSION, name);
-    
-    FILE *file = fopen(profile_path, modes);
-    free(profile_path);
+static FILE* open_profile_file(const char *name, const char *modes) {
+    char profile_path[PROFILE_PATH_MAX_LENGTH + 1];
+    sprintf(profile_path, PROFILE_DIR "%s" PROFILE_EXTENSION, name);
 
-    return file;
-}
-
-/**
- * @brief Removes a mouse profile file.
- * 
- * @param name The name of the profile
- * @return 0 if the file was removed or -1 if there was an error
- */
-int remove_profile_file(const char *name) {
-    char *profile_path = g_strdup_printf(PROFILE_DIR "%s" PROFILE_EXTENSION, name);
-    
-    int res = remove(profile_path);
-    free(profile_path);
-
-    return res;
+    return fopen(profile_path, modes);
 }
 
 /**
@@ -168,31 +151,6 @@ static mouse_profile* create_profile(const char *profile_path, app_data *data) {
         return NULL;
 }
 
-void destroy_profile(mouse_profile *profile) {
-    int macro_count = profile->macro_count;
-
-    for (int i = 0; i < macro_count; i++) {
-        recorded_macro *macro = &profile->macros[i];
-        free(macro->name);
-        free(macro->events);
-    }
-
-    free(profile->macros);
-    free(profile);
-}
-
-int delete_profile(const char *name, app_data *data) {
-    const char *profile_path = name;
-    remove(profile_path);
-
-    int res = handle_file_error(NULL, profile_path, true);
-    if (res == 0) {
-        g_hash_table_remove(data->mouse_profiles, name);
-    }
-
-    return res;
-}
-
 static int load_profile_settings(mouse_profile *profile, app_data *data) {
     int res = fread(profile, sizeof(mouse_profile), 1, data->profile_file);
 
@@ -246,7 +204,8 @@ mouse_profile* load_profile_from_file(const char *name, app_data *data) {
         load_profile_macros(profile, data);
     }
     
-    g_hash_table_insert(data->mouse_profiles, g_strdup(name), profile);
+    char *profile_name = g_strdup(name);
+    g_hash_table_insert(data->mouse_profiles, profile_name, profile);
 
     fclose(data->profile_file);
 
@@ -303,10 +262,74 @@ int switch_profile(const char *name, app_data *data) {
     mouse_profile *profile = g_hash_table_lookup(data->mouse_profiles, name);
 
     if (profile == NULL) {
+        debug("Loading profile %p\n", name);
         profile = load_profile_from_file(name, data);
         if (profile == NULL) return -1;
     }
 
     data->profile = profile;
+    debug("&data->profile_name = %p\n", data->profile_name);
+
     return 0;
+}
+
+int rename_profile(const char *old_name, const char *new_name, app_data *data) {
+    void *profile_key;
+    void *profile;
+    
+    char old_profile_path[PROFILE_PATH_MAX_LENGTH + 1];
+    char new_profile_path[PROFILE_PATH_MAX_LENGTH + 1];
+    
+    sprintf(old_profile_path, PROFILE_DIR "%s.bin", old_name);
+    sprintf(new_profile_path, PROFILE_DIR "%s.bin", new_name);
+
+    if (file_exists(new_profile_path)) {
+        debug("Profile name in use\n");
+        return -1;
+    }
+
+    int res = rename(old_profile_path, new_profile_path);
+    if (res < 0) return res;
+
+    g_hash_table_steal_extended(data->mouse_profiles, old_name, &profile_key, &profile);
+
+    if (profile == NULL) {
+        debug("Loading profile %p\n", new_name);
+        profile = load_profile_from_file(new_name, data);
+        return (profile != NULL) ? 0 : -1;
+    }
+
+    char *profile_name = g_strdup(new_name);
+    g_hash_table_insert(data->mouse_profiles, profile_name, profile);
+
+    free(profile_key);
+    return 0;
+}
+
+void destroy_profile(mouse_profile *profile) {
+    int macro_count = profile->macro_count;
+
+    for (int i = 0; i < macro_count; i++) {
+        recorded_macro *macro = &profile->macros[i];
+        free(macro->name);
+        free(macro->events);
+    }
+
+    free(profile->macros);
+    free(profile);
+}
+
+int delete_profile(const char *name, GHashTable *mouse_profiles) {
+    char profile_path[PROFILE_PATH_MAX_LENGTH + 1];
+    sprintf(profile_path, PROFILE_DIR "%s" PROFILE_EXTENSION, name);
+    
+    remove(profile_path);
+    
+    int res = handle_file_error(NULL, profile_path, true);
+    
+    if (res == 0) {
+        g_hash_table_remove(mouse_profiles, name);
+    }
+
+    return res;
 }

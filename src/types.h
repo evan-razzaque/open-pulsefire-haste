@@ -88,7 +88,7 @@ struct app_data {
 	app_widgets *widgets; // Shared application widgets
 
 	FILE *profile_file; // File used to store mouse settings
-	char *profile_name; // Name of the profile
+	char profile_name[PROFILE_NAME_MAX_LENGTH + 1]; // Name of the profile
 	
 	GHashTable *mouse_profiles;
 	int profile_count;
