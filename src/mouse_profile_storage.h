@@ -31,6 +31,7 @@
 #endif
 
 #define APP_DIR "open-pulsefire-haste" PATH_SEP
+#define SELECTED_PROFILE_NAME_FILE ".selected_profile_name"
 #define PROFILE_DIR "profiles" PATH_SEP
 #define DEFAULT_PROFILE_NAME "default"
 #define PROFILE_EXTENSION ".bin"
@@ -64,7 +65,23 @@ struct mouse_profile {
 };
 
 /**
- * @brief Creates the application data directory
+ * @brief Writes the selected profile to $XDG_DATA_HOME/APP_DIR/SELECTED_PROFILE_NAME_FILE.
+ * 
+ * @param profile_name A buffer to store the profile name into. Must be at least `PROFILE_NAME_MAX_LENGTH + 1` bytes long.
+ * @return int 0 if the selected profile name was read or -1 if there was an error 
+ */
+int save_selected_profile_name(const char *name);
+
+/**
+ * @brief Reads the selected profile name into `profile_name`.
+ * 
+ * @param profile_name A buffer to store the profile name into. Must be at least `PROFILE_NAME_MAX_LENGTH + 1` bytes long.
+ * @return int 0 if the selected profile name was read or -1 if there was an error 
+ */
+int load_selected_profile_name(char *profile_name);
+
+/**
+ * @brief Creates the application data directory and its structure
  * if it doesn't exist. On success, the current working directory of the program
  * will change to the application data directory.
  *

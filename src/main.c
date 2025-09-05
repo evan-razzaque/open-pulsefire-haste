@@ -283,6 +283,12 @@ int main() {
 		exit(-1);
 	}
 
+	res = load_selected_profile_name(data.profile_name);
+	if (res < 0) {
+		printf("Couldn't load selected profile name\n");
+		exit(-1);
+	}
+
 	mouse_hotplug_data hotplug_data = {
 		.mouse = &mouse,
 		.hotplug_callback = (hotplug_listener_callback) mouse_hotplug_callback,

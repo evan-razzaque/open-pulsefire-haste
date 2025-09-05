@@ -199,7 +199,7 @@ static bool remove_saved_mouse_profile_from_hash_map(char *name, mouse_profile *
  * @param data Application wide data structure
  */
 static void close_application(GtkWindow *window, app_data *data) {
-	save_profile_to_file(data->profile_name, data->profile, data);
+	save_selected_profile_name(data->profile_name);
 
 	g_mutex_lock(data->mouse->mutex);
 

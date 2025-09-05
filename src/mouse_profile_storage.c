@@ -67,16 +67,70 @@ static int handle_file_error(FILE *file, const char* path, bool file_should_exis
     return 0;
 }
 
+int save_selected_profile_name(const char *name) {
+    FILE *file = fopen(SELECTED_PROFILE_NAME_FILE, "wb");
+    if (handle_file_error(file, SELECTED_PROFILE_NAME_FILE, true) < 0) return -1;
+
+    uint32_t name_size = (strlen(name) + 1);
+    int res = fwrite(&name_size, sizeof(uint32_t), 1, file);
+    if (res != 1) goto file_error;
+
+    int bytes_written = fwrite(name, sizeof(char), name_size, file);
+    if (bytes_written != name_size) goto file_error;
+
+    fclose(file);
+    return 0;
+
+    file_error:
+        fclose(file);
+        return -1;
+}
+
+int load_selected_profile_name(char *profile_name) {
+    FILE *file = fopen(SELECTED_PROFILE_NAME_FILE, "rb");
+    if (handle_file_error(file, SELECTED_PROFILE_NAME_FILE, false) < 0) return -1;
+
+    if (file == NULL) {
+        strcpy(profile_name, DEFAULT_PROFILE_NAME);
+        debug("Selected profile: %s\n", profile_name);
+        return 0;
+    }
+
+    uint32_t name_size; 
+    int res = fread(&name_size, sizeof(uint32_t), 1, file);
+    if (res != 1) goto file_error;
+
+    int bytes_read = fread(profile_name, sizeof(char), name_size, file);
+    if (bytes_read != name_size) goto file_error;
+
+    debug("Selected profile: %s\n", profile_name);
+
+    fclose(file);
+    return 0;
+
+    file_error:
+        fclose(file);
+        return -1;
+}
+
 int create_data_directory() {
     char *app_data_path = g_strdup_printf("%s" PATH_SEP APP_DIR, g_get_user_data_dir());
     
     int res = g_mkdir_with_parents(app_data_path, S_IRWXU);
-    if (res == 0) {
-        chdir(app_data_path);
-        res = g_mkdir_with_parents(PROFILE_DIR, S_IRWXU);
+    if (res < 0) goto free_path;
+
+    res = chdir(app_data_path);
+    if (res < 0) goto free_path;
+
+    res = g_mkdir_with_parents(PROFILE_DIR, S_IRWXU);
+    if (res < 0) goto free_path;
+
+    if (!file_exists(SELECTED_PROFILE_NAME_FILE)) {
+        res = save_selected_profile_name(DEFAULT_PROFILE_NAME);
     }
     
-    free(app_data_path);
+    free_path:
+        free(app_data_path);
 
     return res;
 }
