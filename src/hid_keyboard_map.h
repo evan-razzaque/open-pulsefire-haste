@@ -68,7 +68,7 @@
     [GDK_KEY_J]            = 0x0D,\
     [GDK_KEY_K]            = 0x0E,\
     [GDK_KEY_L]            = 0x0F,\
-    [GDK_KEY_m]            = 0x10,\
+    [GDK_KEY_M]            = 0x10,\
     [GDK_KEY_N]            = 0x11,\
     [GDK_KEY_O]            = 0x12,\
     [GDK_KEY_P]            = 0x13,\

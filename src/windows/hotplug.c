@@ -33,7 +33,7 @@
 #include <glib.h>
 
 #include "hotplug/hotplug.h"
-#include "util.h"
+#include "defs.h"
 
 // TODO: Adpat callback data to reflect changes in hotplug_common.c 
 

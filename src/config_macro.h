@@ -125,8 +125,6 @@ struct config_macro_data {
 	const byte repeat_mode_map[3]; // Repeat mode values for a macro
 	const char *mouse_button_names[32];
 
-	recorded_macro *macros; // Stores the recorded macros
-	int macro_count; // The number of recorded macros
 	int macro_array_size; // The size of the macros array
 	bool is_recording_macro; // Indicates if the user is recording a macro or not
 	/** Whether the user is adding new macro events after unpausing the macro recording or not */
@@ -143,8 +141,6 @@ struct config_macro_data {
 	uint32_t macro_index; // The index of the macro being recorded/edited
 	uint32_t macro_previous_event_count; // The previous event count in the macro being edited
 	REPEAT_MODE macro_previous_repeat_mode; // The previous repeat mode of the macro being edited
-
-	int macro_indicies[6]; // Used to store the macro index for each button that is assigned to a macro
 
 	GtkGesture *gesture_macro_mouse_events; // Listens to mouse events for macros
 	
@@ -175,6 +171,13 @@ struct config_macro_data {
  * @param data Application wide data structure
  */
 void assign_macro(uint32_t macro_index, byte button, app_data *data);
+
+/**
+ * @brief Creates macros entries from the mouse profile. 
+ * 
+ * @param data Application wide data structure
+ */
+void create_macro_entries(app_data *data);
 
 /**
  * Init for macros.

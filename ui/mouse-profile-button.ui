@@ -5,24 +5,46 @@
   <requires lib="gtk" version="4.18"/>
   <template class="MouseProfileButton" parent="GtkBox">
     <child>
+      <object class="GtkEditableLabel" id="editable_label_name">
+        <property name="focusable">False</property>
+        <property name="halign">start</property>
+        <property name="hexpand">True</property>
+        <property name="visible">False</property>
+        <signal name="notify::editing" handler="update_editing_state" object="MouseProfileButton"/>
+      </object>
+    </child>
+    <child>
       <object class="GtkButton" id="button_name">
+        <property name="focusable">False</property>
         <property name="has-frame">False</property>
         <property name="hexpand">True</property>
-        <property name="label" bind-source="MouseProfileButton" bind-property="name" bind-flags="bidirectional | sync-create">Default</property>
+        <property name="label" bind-source="MouseProfileButton" bind-property="name" bind-flags="bidirectional | sync-create"/>
+        <signal name="clicked" handler="select_profile" object="MouseProfileButton"/>
+      </object>
+    </child>
+    <child>
+      <object class="GtkButton" id="button_cancel_edit">
+        <property name="focusable">False</property>
+        <property name="has-frame">False</property>
+        <property name="icon-name">window-close</property>
+        <property name="visible">False</property>
+        <signal name="clicked" handler="cancel_name_edit" object="MouseProfileButton"/>
       </object>
     </child>
     <child>
       <object class="GtkButton" id="button_edit">
+        <property name="focusable">False</property>
         <property name="has-frame">False</property>
         <property name="icon-name">document-edit-symbolic</property>
-        <property name="visible">False</property>
+        <signal name="clicked" handler="edit_profile_name" object="MouseProfileButton"/>
       </object>
     </child>
     <child>
       <object class="GtkButton" id="button_delete">
+        <property name="focusable">False</property>
         <property name="has-frame">False</property>
         <property name="icon-name">user-trash-symbolic</property>
-        <property name="visible">False</property>
+        <signal name="clicked" handler="delete_profile" object="MouseProfileButton"/>
       </object>
     </child>
   </template>

@@ -16,11 +16,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>. 
  */
 
-#ifndef UTIL_H
-#define UTIL_H
+#ifndef DEFS_H
+#define DEFS_H
 
 #include <time.h>
 #include <gtk/gtk.h>
+
+#ifdef _WIN32
+#define PATH_SEP "\\"
+#else
+#define PATH_SEP "/"
+#endif
+
+#define PROFILE_DIR "profiles" PATH_SEP
+
+#define PROFILE_NAME_MAX_LENGTH (64)
+
+#define BOOL_STR(condition) (((condition)) ? "true" : "false")
 
 /**
  * @brief Removes the element at `index` from `array` and decrements `length`.
@@ -58,7 +70,12 @@
 #define printval(format, expression) \
     printf(#expression ": " format, (expression))
 
-#define debug(format, args...) printf(__FILE__ ":%d: " format, __LINE__ args);
+#define debug(...) printf(__FILE__ ":" stringify(__LINE__) ": " __VA_ARGS__)
+
+#define stringify(x) stringify0(x)
+#define stringify0(x) #x
+
+#define file_exists(filename) (stat((filename), &(struct stat) {}) == 0)
 
 /**
  * @brief Gets current time in milliseconds from the clock `CLOCK_MONOTONIC`.
@@ -73,5 +90,13 @@ time_t clock_gettime_ms();
  * @param self The GtkSpinButton instance
  */
 void gtk_spin_button_hide_buttons(GtkSpinButton *self);
+
+/**
+ * @brief A function to validate mouse profile names.
+ * 
+ * @param name The profile name to validate.
+ * @return true if the profile name is valid, otherwise false
+ */
+bool is_valid_profile_name(const char *name);
 
 #endif

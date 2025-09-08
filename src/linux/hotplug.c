@@ -25,8 +25,7 @@
 #include "hotplug/hotplug.h"
 #include "device/mouse.h"
 #include "types.h"
-#include "util.h"
-#include <utils.h>
+#include "defs.h"
 #define HOTPLUG_COMMON_PRIVATE
 #include "hotplug/hotplug_common.h"
 

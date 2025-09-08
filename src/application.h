@@ -78,11 +78,11 @@ void switch_stack_page(GtkStack *stack, GtkActionable* button);
 void update_menu_button_label(MOUSE_BUTTON button, uint16_t action, app_data *data);
 
 /**
- * @brief Sets the settings for the mouse.
+ * @brief Load the mouse profile `app_data->profile` to the mouse.
  * 
  * @param data Application wide data structure
  */
-void load_mouse_settings(app_data *data);
+void load_mouse_profile_to_mouse(app_data *data);
 
 /**
  * @brief Saves the settings to the mouse.

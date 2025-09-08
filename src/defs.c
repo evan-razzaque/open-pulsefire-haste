@@ -17,7 +17,7 @@
  */
 
 #include <time.h>
-#include "util.h"
+#include "defs.h"
 
 time_t clock_gettime_ms() {
     struct timespec t;
@@ -35,4 +35,17 @@ void gtk_spin_button_hide_buttons(GtkSpinButton *self) {
     gtk_widget_set_visible(button_decrease_value, false);
     gtk_widget_set_visible(button_increase_value, false);
 }
+
+bool is_valid_profile_name(const char *name) {
+    if (name[0] == '\0') return false;
+    if (strlen(name) > PROFILE_NAME_MAX_LENGTH) return false;
+
+    const char *invalid_chars = "<>:\"\\/|?*";
+    
+    return (
+        strstr(name, "..") == NULL
+        && strpbrk(name, invalid_chars) == NULL
+        && strcmp(name, ".") != 0
+    );
+} 
 

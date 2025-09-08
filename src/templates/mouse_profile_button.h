@@ -20,7 +20,6 @@
 #define MOUSE_PROFILE_BUTTON_H
 
 #include <gtk/gtk.h>
-#include <application.h>
 
 G_DECLARE_FINAL_TYPE(MouseProfileButton, mouse_profile_button, MOUSE, PROFILE_BUTTON, GtkBox)
 
@@ -34,6 +33,6 @@ G_DECLARE_FINAL_TYPE(MouseProfileButton, mouse_profile_button, MOUSE, PROFILE_BU
  * @param is_default_profile Whether the mouse profile is the default profile or not
  * @return a new MouseProfileButton
  */
-MouseProfileButton* mouse_profile_button_new(char *name, bool is_default_profile);
+MouseProfileButton* mouse_profile_button_new(const char *name, bool is_default_profile);
 
 #endif

@@ -19,7 +19,7 @@
 #include <gtk/gtk.h>
 
 #include "dpi_profile_config.h"
-#include "util.h"
+#include "defs.h"
 
 struct _DpiProfileConfig {
     GtkListBoxRow parent_instance;

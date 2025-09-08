@@ -24,6 +24,8 @@
 #include <gtk/gtk.h>
 #include "device/mouse.h"
 
+#include "defs.h"
+
 /**
  * @brief Used to cast function pointers to GAction callbacks.
  * 
@@ -34,6 +36,7 @@ typedef struct config_color_data config_color_data;
 typedef struct config_button_data config_button_data;
 typedef struct config_macro_data config_macro_data;
 typedef struct config_sensor_data config_sensor_data;
+typedef struct mouse_profile mouse_profile;
 
 // An enum for describing the current state of the mouse.
 typedef enum MOUSE_STATE {
@@ -67,6 +70,12 @@ struct app_widgets {
 	GtkWindow *window; // The main application window
 	GtkLabel *label_battery; // Displays the mouse's battery level
 
+	GtkBox *box_mouse_profiles;
+	GtkMenuButton *menu_button_mouse_profiles;
+	GtkWindow *window_new_mouse_profile;
+	GtkEditable *editable_profile_name;
+	GtkLabel *label_profile_name_error;
+
 	GtkStack *stack_main; // The stack containing the main page and the macro page
 	GtkBox *box_main; // The box that contains the content of the main page
 	GtkOverlay *overlay_main; // Holds the overlay widget to display when the connection to the mouse is lost
@@ -80,13 +89,15 @@ struct app_widgets {
 struct app_data {
 	mouse_data *mouse; // The mouse_data struct
 	app_widgets *widgets; // Shared application widgets
-	
-	char *app_data_dir; // XDG data base directory
-	int app_data_dir_length; // Length of `app_data_dir`, including the null-byte
 
 	FILE *profile_file; // File used to store mouse settings
-	char *settings_filename; // Name of the settings file
+	char profile_name[PROFILE_NAME_MAX_LENGTH + 1]; // Name of the profile
 	
+	GHashTable *mouse_profiles;
+	int profile_count;
+
+	mouse_profile *profile;
+
 	config_color_data *color_data; // Mouse led data and settings
 	config_button_data *button_data; // Mouse button data and settings 
 	config_macro_data *macro_data; // Macro data and macro bindings for the mouse
