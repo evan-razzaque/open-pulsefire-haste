@@ -32,7 +32,6 @@
 
 #define APP_DIR "open-pulsefire-haste" PATH_SEP
 #define SELECTED_PROFILE_NAME_FILE ".selected_profile_name"
-#define PROFILE_DIR "profiles" PATH_SEP
 #define DEFAULT_PROFILE_NAME "default"
 #define PROFILE_EXTENSION ".bin"
 #define PROFILE_EXTENSION_LENGTH (sizeof(PROFILE_EXTENSION) - 1)
@@ -106,7 +105,7 @@ bool profile_file_exists(const char *name);
 void destroy_profile(mouse_profile *profile);
 
 /**
- * @brief Load a mouse profile from disk. 
+ * @brief Load a mouse profile from disk given its profile name. 
  * If the profile file does not exist, a mouse profile will be created.
  * 
  * @param data Application wide data structure

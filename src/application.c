@@ -404,14 +404,14 @@ void activate(GtkApplication *app, app_data *data) {
 
 	GtkBuilder *builder = init_builder(data);
 	data->widgets->builder = builder;
-	
+
 	app_config_led_init(builder, data);
 	app_config_buttons_init(builder, data);
 	app_config_macro_init(builder, data);
 	app_config_sensor_init(builder, data);
-
+	
 	add_mouse_profile_entries(data);
-
+	
 	g_signal_connect(data->widgets->window, "close-request", G_CALLBACK(close_application), data);
 	g_signal_connect(data->widgets->window_new_mouse_profile, "close-request", G_CALLBACK(reset_new_profile_window), data);
 	widget_add_event(builder, "buttonSave", "clicked", save_mouse_settings, data->mouse);
@@ -465,4 +465,18 @@ G_MODULE_EXPORT void hide_mouse_profile_popover(GtkMenuButton *menu_button_mouse
 
 G_MODULE_EXPORT void close_new_profile_window(GtkWindow *window_new_mouse_profile, GtkButton *button) {
 	gtk_window_close(window_new_mouse_profile);
+}
+
+G_MODULE_EXPORT void open_profiles_directory() {
+	GError *error = NULL;
+
+	#define URI_PREFIX "file://"
+	char path[PATH_MAX + sizeof(URI_PREFIX)] = URI_PREFIX;
+	if (getcwd(path + (sizeof(URI_PREFIX) - 1), PATH_MAX) == NULL) return;
+	#undef URI_PREFIX
+
+	strcat(path, PATH_SEP PROFILE_DIR);
+	g_app_info_launch_default_for_uri(path, NULL, &error);
+
+	if (error != NULL) debug("%s\n", error->message);
 }

@@ -503,17 +503,10 @@
                                 <child>
                                   <object class="GtkButton" id="buttonImport">
                                     <property name="can-focus">True</property>
-                                    <property name="label" translatable="yes">Import</property>
+                                    <property name="label" translatable="yes">Open Profiles Directory</property>
                                     <property name="receives-default">True</property>
                                     <property name="visible">True</property>
-                                  </object>
-                                </child>
-                                <child>
-                                  <object class="GtkButton" id="buttonExport">
-                                    <property name="can-focus">True</property>
-                                    <property name="label" translatable="yes">Export</property>
-                                    <property name="receives-default">True</property>
-                                    <property name="visible">True</property>
+                                    <signal name="clicked" handler="open_profiles_directory"/>
                                   </object>
                                 </child>
                               </object>

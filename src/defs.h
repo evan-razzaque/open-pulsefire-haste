@@ -28,6 +28,8 @@
 #define PATH_SEP "/"
 #endif
 
+#define PROFILE_DIR "profiles" PATH_SEP
+
 #define PROFILE_NAME_MAX_LENGTH (64)
 
 #define BOOL_STR(condition) (((condition)) ? "true" : "false")
