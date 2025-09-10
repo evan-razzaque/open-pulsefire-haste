@@ -24,20 +24,57 @@
 
 typedef uint8_t byte;
 
+enum {
+	LED_MODE_SOLID,
+	LED_MODE_BREATHING,
+	LED_MODE_FADE,
+	LED_MODE_CYCLE,
+};
+
 /**
  * @brief Color options for the mouse led.
  */
 struct color_options {
+	byte brightness;
 	byte red; 
 	byte green; 
 	byte blue;
-	byte brightness;
 } typedef color_options;
 
-struct rgb {
+struct __attribute__((__packed__)) rgb {
 	byte red; 
 	byte green; 
 	byte blue;
+};
+
+union led_settings {
+	byte led_mode;
+
+	struct {
+		byte led_mode;
+		byte _padding;
+		color_options color;
+	} solid;
+
+	struct {
+		byte led_mode;
+		byte speed;
+		color_options color;
+	} breathing;
+
+	struct {
+		byte led_mode;
+		byte speed;
+		byte _padding;
+		struct rgb color;
+	} fade;
+
+	struct {
+		byte led_mode;
+		byte speed;
+		byte brightness;
+		struct rgb colors[5];
+	} cycle;
 };
 
 /**

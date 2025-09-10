@@ -23,22 +23,22 @@
 #include "rgb.h"
 #include "mouse.h"
 
-int change_color(hid_device *dev, color_options *options) {
-	if (options->brightness < 0 || options->brightness > 100) {
+int change_color(hid_device *dev, color_options *color) {
+	if (color->brightness < 0 || color->brightness > 100) {
 		printf("Brightness must be between 0 - 100\n");
 		return -1;
 	}
 	
-	float multiplier = options->brightness / 100.0;
-	byte red = options->red * multiplier;
-	byte green = options->green * multiplier;
-	byte blue = options->blue * multiplier;
+	float multiplier = color->brightness / 100.0;
+	byte red = color->red * multiplier;
+	byte green = color->green * multiplier;
+	byte blue = color->blue * multiplier;
 
 	byte data[PACKET_SIZE] = {
 		REPORT_FIRST_BYTE(SEND_BYTE_LED), 0x00, 0x00, 0x08,
 		red, green, blue,
 		red, green, blue,
-		options->brightness
+		color->brightness
 	};
 
 	return mouse_write(dev, data);

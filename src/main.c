@@ -166,7 +166,7 @@ static void mouse_hotplug_callback(bool connected, app_data *data) {
  */
 static void* mouse_update_loop(app_data *data) {	
 	mouse_data *mouse = data->mouse;
-	color_options *led = &data->profile->led;
+	color_options *color = &data->profile->led.solid.color;
 
 	const int update_interval_ms = 25;
 	const int update_color_interval_ms = 100;
@@ -197,7 +197,7 @@ static void* mouse_update_loop(app_data *data) {
 		}
 		
 		if (clock % update_color_interval_ms == 0) {
-			res = change_color(mouse->dev, led);
+			res = change_color(mouse->dev, color);
 		}
 
 		if (clock % poll_battery_level_interval_ms == 0 && res >= 0) {

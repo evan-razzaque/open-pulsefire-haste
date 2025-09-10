@@ -39,14 +39,14 @@ static int update_color(app_data *data) {
 		return G_SOURCE_CONTINUE;
 	}
 	
-	color_options *mouse_led = &data->profile->led;
+	color_options *color = &data->profile->led.solid.color;
     
-	GdkRGBA color = {};
-	gtk_color_chooser_get_rgba(data->color_data->color_chooser, &color);
+	GdkRGBA rgba = {};
+	gtk_color_chooser_get_rgba(data->color_data->color_chooser, &rgba);
 
-	mouse_led->red = (byte) (color.red * 255);
-	mouse_led->green = (byte) (color.green * 255);
-	mouse_led->blue = (byte) (color.blue * 255);
+	color->red = (byte) (rgba.red * 255);
+	color->green = (byte) (rgba.green * 255);
+	color->blue = (byte) (rgba.blue * 255);
 
 	return G_SOURCE_CONTINUE;
 }
@@ -65,18 +65,18 @@ void app_config_led_init(GtkBuilder *builder, app_data *data) {
     data->color_data->range_brightness = GTK_RANGE(GTK_WIDGET(gtk_builder_get_object(builder, "scaleBrightness")));
 	data->color_data->color_chooser = GTK_COLOR_CHOOSER(GTK_WIDGET(gtk_builder_get_object(builder, "colorChooserLed")));
 
-	color_options led = data->profile->led;
+	color_options color = data->profile->led.solid.color;
 
 	const GdkRGBA rgba = {
-		led.red / 255.0,
-		led.green / 255.0,
-		led.blue / 255.0, 
+		color.red / 255.0,
+		color.green / 255.0,
+		color.blue / 255.0, 
 		1
 	};
 
 	gtk_color_chooser_set_rgba(data->color_data->color_chooser, &rgba);
-	gtk_range_set_value(data->color_data->range_brightness, data->profile->led.brightness);
+	gtk_range_set_value(data->color_data->range_brightness, data->profile->led.solid.color.brightness);
 
     g_timeout_add(10, G_SOURCE_FUNC(update_color), data);
-    g_signal_connect(data->color_data->range_brightness, "value-changed", G_CALLBACK(update_brightness), &data->profile->led.brightness);
+    g_signal_connect(data->color_data->range_brightness, "value-changed", G_CALLBACK(update_brightness), &data->profile->led.solid.color.brightness);
 }

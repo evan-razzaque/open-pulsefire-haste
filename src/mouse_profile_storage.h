@@ -20,6 +20,7 @@
 #define MOUSE_PROFILE_STORAGE_H
 
 #include "types.h"
+#include "device/rgb.h"
 #include "device/sensor.h"
 #include "config_macro.h"
 #include "defs.h"
@@ -45,7 +46,7 @@
  * @brief A struct containing a mouse profile with its settings and macros.
  */
 struct mouse_profile {
-	color_options led; // The mouse's led color and brightness
+	union led_settings led; // The mouse's led settings
 
     // Bindings for the mouse button. Each binding is 2 bytes,
 	// where the upper byte is the action type and the lower byte is the action value.
