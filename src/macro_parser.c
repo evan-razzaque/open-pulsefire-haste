@@ -23,6 +23,9 @@
 
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
 
+/**
+ * @brief A struct for storing data when parsing a `recorded_macro`.
+ */
 struct macro_parser_data {
     recorded_macro *recored_macro; // Macro recored by the user
     macro_event *events; // Stores the macro events to write to the mouse

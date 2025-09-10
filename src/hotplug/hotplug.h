@@ -30,6 +30,9 @@
  */
 typedef struct hotplug_listener_data hotplug_listener_data;
 
+/**
+ * @brief Function pointer type for mouse hotplug events.
+ */
 typedef void (*hotplug_listener_callback)(bool connected, void *user_data);
 
 /**

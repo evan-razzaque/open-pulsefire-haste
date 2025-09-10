@@ -109,7 +109,7 @@ struct config_button_data {
 	GtkWindow *window_keyboard_action; // The window used re-assign a mouse button to a keyboard key
 	GtkLabel *label_selected_button; // Display the name of the mouse button being binded to a keyboard key
 	GtkLabel *label_pressed_key; // Displays the key that will be assigned to selected mouse button
-	GtkEventController *event_key_controller; // Used to listen to key events when assigning a keyboard action
+	GtkEventController *event_key_controller; // Used to listen to key events when assigning to a keyboard action
 };
 
 /**

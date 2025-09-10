@@ -45,6 +45,14 @@ static guint signals[N_SIGNALS];
 
 G_DEFINE_TYPE(MouseProfileButton, mouse_profile_button, GTK_TYPE_BOX)
 
+/**
+ * @brief A function to change the mouse profile button display name.
+ * If the new display name is different and valid, the `rename-profile` signal
+ * will be emitted.
+ * 
+ * @param self The MouseProfileButton instance 
+ * @param name The new display name
+ */
 static void rename_profile(MouseProfileButton *self, const char *name) {
     debug("self->name: %p, name: %p\n", self->name, name);
     if (strcmp(self->name, name) == 0) return;
@@ -71,6 +79,12 @@ static void rename_profile(MouseProfileButton *self, const char *name) {
     self->name = gtk_button_get_label(self->button_name);
 }
 
+/**
+ * @brief A function to toggle editing for the mouse profile button name.
+ * 
+ * @param self The MouseProfileButton instance 
+ * @param is_editing_name Whether or not the name is being edited or not
+ */
 static void toggle_name_editing(MouseProfileButton *self, bool is_editing_name) {
     self->is_editing_name = is_editing_name;
 
@@ -79,19 +93,25 @@ static void toggle_name_editing(MouseProfileButton *self, bool is_editing_name) 
     gtk_widget_set_visible(GTK_WIDGET(self->button_cancel_edit), self->is_editing_name);
 }
 
+/**
+ * @brief Cancels editing the mouse profile button name.
+ * 
+ * @param self The MouseProfileButton instance 
+ * @param button Unused
+ */
 static void cancel_name_edit(MouseProfileButton *self, GtkButton *button) {
     toggle_name_editing(self, false);
     gtk_editable_label_stop_editing(self->editable_label_name, true);
 }
 
 /**
- * @brief Handles editing state changes with the profile name editable label.
+ * @brief Handles editing state changes with the `MouseProfileButton->editable_label_name`.
  * 
  * @param self The MouseProfileButton instance
  * @param param Unused
- * @param editable_label_name The editable label widget 
+ * @param editable_label The editable label widget 
  */
-static void update_editing_state(MouseProfileButton *self, GParamSpec *param, GtkEditableLabel *editable_label_name) {
+static void update_editing_state(MouseProfileButton *self, GParamSpec *param, GtkEditableLabel *editable_label) {
     self->is_editing_name = gtk_editable_label_get_editing(self->editable_label_name);
 
     if (!self->is_editing_name) {
@@ -102,6 +122,12 @@ static void update_editing_state(MouseProfileButton *self, GParamSpec *param, Gt
     }
 }
 
+/**
+ * @brief A function to start/stop editing of the mouse profile button name.
+ * 
+ * @param self The MouseProfileButton instance
+ * @param button Unused
+ */
 static void edit_profile_name(MouseProfileButton *self, GtkButton *button) {
     toggle_name_editing(self, !self->is_editing_name);
 
@@ -116,6 +142,12 @@ static void edit_profile_name(MouseProfileButton *self, GtkButton *button) {
     }
 }
 
+/**
+ * @brief Emits `select-profile` when the profile name is clicked.
+ * 
+ * @param self The MouseProfileButton instance
+ * @param button Unused
+ */
 static void select_profile(MouseProfileButton *self, GtkButton *button) {
     g_signal_emit(
         self,
@@ -125,6 +157,12 @@ static void select_profile(MouseProfileButton *self, GtkButton *button) {
     );
 }
 
+/**
+ * @brief Emits `delete-profile` when the delete button is clicked.
+ * 
+ * @param self The MouseProfileButton instance
+ * @param button Unused
+ */
 static void delete_profile(MouseProfileButton *self, GtkButton *button) {
     bool delete_success;
 

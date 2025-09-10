@@ -166,12 +166,6 @@ void load_mouse_profile_to_mouse(app_data *data) {
 	g_mutex_unlock(mouse->mutex);
 }
 
-/**
- * @brief Saves the settings to the mouse.
- * 
- * @param self The save button
- * @param mouse mouse_data instance
- */
 void save_mouse_settings(GtkWidget *self, mouse_data *mouse) {
 	gtk_widget_set_sensitive(self, false);
 	
@@ -184,6 +178,7 @@ void save_mouse_settings(GtkWidget *self, mouse_data *mouse) {
 
 /**
  * A function to save mouse profiles to disk then remove them from `app_data->mouse_profiles`.
+ *
  * See also: `save_profile_to_file`, `close_application`.
  */
 static bool remove_saved_mouse_profile_from_hash_map(char *name, mouse_profile *profile, app_data *data) {
@@ -253,6 +248,15 @@ static void switch_mouse_profile(MouseProfileButton *mouse_profile_button, const
 	gtk_menu_button_popdown(data->widgets->menu_button_mouse_profiles);
 }
 
+/**
+ * @brief Rename the mouse profile `old_name` to `new_name`.
+ * 
+ * @param self The MouseProfileButton instance
+ * @param old_name The current name of the mouse profile
+ * @param new_name The new profile name
+ * @param data Application wide data structure
+ * @return true if the profile was renamed or false if it wasn't
+ */
 static bool rename_mouse_profile(MouseProfileButton *self, const char *old_name, const char *new_name, app_data *data) {
 	int res = rename_profile(old_name, new_name, data);
 	if (res < 0) return false;
@@ -268,6 +272,14 @@ static bool rename_mouse_profile(MouseProfileButton *self, const char *old_name,
 	return true;
 }
 
+/**
+ * @brief Deletes a mouse profile
+ * 
+ * @param self The MouseProfileButton instance
+ * @param name The name of the mouse profile
+ * @param data Application wide data structure
+ * @return true if the profile was deleted or false if it wasn't
+ */
 static bool delete_mouse_profile(MouseProfileButton *self, const char *name, app_data *data) {
 	int res = delete_profile(name, data);
 	if (res < 0) return false;
@@ -279,6 +291,13 @@ static bool delete_mouse_profile(MouseProfileButton *self, const char *name, app
 	return true;
 }
 
+/**
+ * @brief A function to add `MouseProfileButton` to the mouse profile dropdown list.
+ * 
+ * @param profile_name The name of the mouse profile
+ * @param data Application wide data structure
+ * @param is_default_profile Whether the mouse profile is the default profile or not
+ */
 static void add_mouse_profile_button(const char *profile_name, app_data *data, bool is_default_profile) {
 	MouseProfileButton *profile_button = mouse_profile_button_new(profile_name, is_default_profile);
 	g_signal_connect(profile_button, "select-profile", G_CALLBACK(switch_mouse_profile), data);
@@ -291,6 +310,12 @@ static void add_mouse_profile_button(const char *profile_name, app_data *data, b
 	);
 }
 
+/**
+ * @brief A function to create a new mouse profile.
+ * 
+ * @param button Unused
+ * @param data Application wide data structure
+ */
 static void create_new_mouse_profile(GtkButton *button, app_data *data) {
 	const char *name = gtk_editable_get_text(data->widgets->editable_profile_name);
 	
@@ -312,6 +337,12 @@ static void create_new_mouse_profile(GtkButton *button, app_data *data) {
 	gtk_window_close(data->widgets->window_new_mouse_profile);
 }
 
+/**
+ * @brief A method to reset the window used to create a new mouse profile.
+ * 
+ * @param widget Unused
+ * @param data Application wide data structure
+ */
 static void reset_new_profile_window(GtkWidget *widget, app_data *data) {
 	debug("close profile window\n");
 	gtk_editable_set_text(data->widgets->editable_profile_name, "");
@@ -393,6 +424,12 @@ static GtkBuilder* init_builder(app_data *data) {
 	return builder;
 }
 
+/**
+ * @brief The function used to initialize application widgets and mouse settings.
+ * 
+ * @param app The GtkApplication instance
+ * @param data Application wide data structure
+ */
 void activate(GtkApplication *app, app_data *data) {
 	GtkSettings *settings = gtk_settings_get_default();
 	g_object_set(settings, 
@@ -430,12 +467,6 @@ void activate(GtkApplication *app, app_data *data) {
 	gtk_window_present(data->widgets->window);
 }
 
-/**
- * @brief A function to switch to the main stack page.
- * 
- * @param stack The main stack widget
- * @param controller Unused
- */
 G_MODULE_EXPORT void enter_main_stack_page(GtkStack *stack, GtkEventController *controller) {
     gtk_stack_set_page(stack, STACK_PAGE_MAIN);
 }

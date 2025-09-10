@@ -24,11 +24,11 @@
 
 typedef uint8_t byte;
 
-enum BUTTON_ASSIGN_ERROR {
-    BUTTON_ASSIGN_ERROR_DEVICE_ERROR = -1,
-    BUTTON_ASSIGN_ERROR_INVALID_ASSIGNMENT = -2
-} typedef BUTTON_ASSIGN_ERROR;
+#define BUTTON_ASSIGN_ERROR_INVALID_ASSIGNMENT (-2)
 
+/**
+ * @brief An enum for mouse action types
+ */
 enum {
     MOUSE_ACTION_TYPE_DISABLED = 0x00,
     MOUSE_ACTION_TYPE_MOUSE    = 0x01,
@@ -40,7 +40,7 @@ enum {
 };
 
 /**
- * The size of a macro event (in bytes).
+ * @brief The size of a macro event (in bytes).
  */
 #define MACRO_EVENT_SIZE (10)
 
@@ -57,8 +57,8 @@ enum {
 #define MACRO_PACKET_SUM(x) ((3*(x)) / 2)
 
 /**
- * @brief The event count byte in odd numbered macro data packets have 0x80 added to it.
- * For example, an event with 2 events would be 0x02 if it was even, and 0x82 if it was odd.
+ * @brief The event count byte in even numbered macro data packets have 0x80 added to it.
+ * For example, an packet with 2 events would be 0x02 if it was even, and 0x82 if it was odd.
  */
 #define MACRO_PACKET_EVENT_COUNT(x) (((x) % 2) * 0x80)
 
@@ -102,7 +102,7 @@ enum MOUSE_BUTTON {
 } typedef MOUSE_BUTTON;
 
 /**
- * @brief An enum for the buttons pressed in a generic event.
+ * @brief An enum for the button(s) pressed in a generic event.
  * 
  */
 enum GENERIC_EVENT_BUTTON {
@@ -115,7 +115,7 @@ enum GENERIC_EVENT_BUTTON {
 } typedef GENERIC_EVENT_BUTTON;
 
 /**
- * An enum for simple mouse actions (mouse, media, and windows shortcut).
+ * @brief An enum for simple mouse actions (mouse, media, windows shortcut, and dpi toggle).
  * Each member is a uint16_t composed of the type of action and the action itself.
  * Format (in hex bytes): <type> <action>
  */
@@ -148,6 +148,9 @@ enum SIMPLE_MOUSE_ACTION {
     DPI_TOGGLE          = 0x0708,
 } typedef SIMPLE_MOUSE_ACTION;
 
+/**
+* @brief An enum for macro bindings, since we don't want macro to be assigned to left and/or right click.
+*/
 enum MACRO_BINDING {
     MACRO_BINDING_MIDDLE  = 0x0402,
     MACRO_BINDING_BACK    = 0x0403,
@@ -155,6 +158,9 @@ enum MACRO_BINDING {
     MACRO_BINDING_DPI     = 0x0405
 } typedef MACRO_BINDING;
 
+/**
+ * @brief The type of a macro event.
+ */
 enum MACRO_ACTION_TYPE {
     MACRO_ACTION_TYPE_KEYBOARD = 0x1a,
     MACRO_ACTION_TYPE_MOUSE    = 0x25
@@ -211,7 +217,7 @@ union marcro_event {
 } __attribute__((__packed__)) typedef macro_event;
 
 /**
- * Change a binding for a mouse button.
+ * @brief Change a binding for a mouse button.
  * 
  * @param dev The mouse device handle
  * @param button The mouse button to re-assign
@@ -221,7 +227,7 @@ union marcro_event {
 int assign_button_action(hid_device *dev, MOUSE_BUTTON button, uint16_t action);
 
 /**
- * Assign a macro to a mouse button.
+ * @brief Assign a macro to a mouse button.
  * 
  * @param dev The mouse device handle
  * @param button The mouse button to re-assign

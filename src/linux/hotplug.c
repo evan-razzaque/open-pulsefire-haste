@@ -29,7 +29,6 @@
 #define HOTPLUG_COMMON_PRIVATE
 #include "hotplug/hotplug_common.h"
 
-
 struct hotplug_listener_data {
     libusb_hotplug_callback_handle hotplug_cb_handle_wired;
     libusb_hotplug_callback_handle hotplug_cb_handle_wireless;

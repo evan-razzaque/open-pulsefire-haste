@@ -65,7 +65,7 @@ const char* __lsan_default_suppressions() {
  * @param data Application wide data structure
  * @return the report type of the report that was read, or -1 on error
  */
-int read_mouse_reports(app_data *data) {
+static int read_mouse_reports(app_data *data) {
 	mouse_data *mouse = data->mouse;
 
 	union report_packet_data report_data = {0};
@@ -126,7 +126,7 @@ int read_mouse_reports(app_data *data) {
  * 
  * @param mouse The mouse_data instance
  */
-void reconnect_mouse(app_data *data) {
+static void reconnect_mouse(app_data *data) {
 	while (data->mouse->dev == NULL) {
 		printf("Reconnecting...\n");
 		data->mouse->dev = open_device(get_active_devices(data->mouse->connection_type));
@@ -137,7 +137,14 @@ void reconnect_mouse(app_data *data) {
 	g_idle_add_once((GSourceOnceFunc) load_mouse_profile_to_mouse, data);
 }
 
-void mouse_hotplug_callback(bool connected, app_data *data) {
+/**
+ * @brief The callback used to update the mouse and application state
+ * when a mouse hotplug event occurs.
+ * 
+ * @param connected Whether the mouse is connected or not
+ * @param data Application wide data structure
+ */
+static void mouse_hotplug_callback(bool connected, app_data *data) {
 	mouse_data *mouse = data->mouse;
 	
 	if (connected) {
@@ -157,7 +164,7 @@ void mouse_hotplug_callback(bool connected, app_data *data) {
  * @param mouse mouse_data instance
  * @return Unused
  */
-void* mouse_update_loop(app_data *data) {	
+static void* mouse_update_loop(app_data *data) {	
 	mouse_data *mouse = data->mouse;
 	color_options *led = &data->profile->led;
 
@@ -227,7 +234,7 @@ void* mouse_update_loop(app_data *data) {
 /**
  * @brief A function to set various environment variables.
  */
-void set_env() {
+static void set_env() {
 	// Fixes memory leaks when switching pages with GtkStack
 	g_setenv("GSK_RENDERER", "cairo", true);
 }

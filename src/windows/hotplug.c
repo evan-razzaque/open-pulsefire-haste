@@ -35,8 +35,6 @@
 #include "hotplug/hotplug.h"
 #include "defs.h"
 
-// TODO: Adpat callback data to reflect changes in hotplug_common.c 
-
 struct device_connection_data {
     HANDLE device_handle;
     CM_NOTIFY_FILTER notify_filter_removal;

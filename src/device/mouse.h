@@ -37,7 +37,7 @@
 #define REPORT_FIRST_BYTE(value) 0x00, (value)
 #define PACKET_SIZE (65)
 #else
-// Everything other platform other than windows doesn't use report ids, so this is used for compatability
+// Everything other platform other than windows doesn't use report ids (for `hid_write`), so this is used for compatability
 #define REPORT_FIRST_BYTE(byte) (byte)
 #define PACKET_SIZE (64)
 #endif
@@ -58,6 +58,11 @@ enum CONNECTION_TYPE {
     CONNECTION_TYPE_WIRELESS     = 2
 } typedef CONNECTION_TYPE;
 
+/**
+ * @brief An enum for the value of the first byte when sending packets
+ * to update a specific setting/state.
+ * 
+ */
 enum SEND_BYTE {
     SEND_BYTE_POLLING_RATE                  = 0xd0,
     SEND_BYTE_LOWER_POWER_WARNING           = 0xd1, // TODO: verify value
@@ -67,8 +72,8 @@ enum SEND_BYTE {
     SEND_BYTE_MACRO_ASSIGNMENT              = 0xd5,
     SEND_BYTE_MACRO_DATA                    = 0xd6,
     
-    // Ngenuity sends packets starting with this byte when saving settings, but as far as I can tell it seems to be unessesary
-    SEND_BYTE_SAVE_SETTINGS_OLD             = 0xda, 
+    // Used to save led effects, currently unused
+    SEND_BYTE_SAVE_SETTINGS_LED             = 0xda, 
     SEND_BYTE_SAVE_SETTINGS                 = 0xde
 } typedef SEND_BYTE;
 
@@ -152,13 +157,6 @@ union report_packet_data {
         byte button_bitmask; // GENERIC_EVENT_BUTTON value(s)
     } generic_event;
 };
-
-/**
- * @brief An enum used to extract data from a specific index from read reports.
- */
-enum REPORT_INDEX {
-    REPORT_INDEX_BATTERY = FIRST_BYTE + 0x04
-} typedef REPORT_INDEX;
 
 /**
  * A helper function to print packet data in 16 byte rows.

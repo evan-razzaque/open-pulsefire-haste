@@ -28,23 +28,6 @@ G_DECLARE_FINAL_TYPE(DpiProfileConfig, dpi_profile_config, DPI, PROFILE_CONFIG, 
 #define DPI_PROFILE_CONFIG(inst) (G_TYPE_CHECK_INSTANCE_CAST((inst), DPI_TYPE_PROFILE_CONFIG, DpiProfileConfig))
 
 /**
- * @brief Emitted when the one of the values in the dpi profile row changes.
- * 
- * @param self The DpiProfileConfig instance
- * @param profile_index The index of the dpi profile
- * @param dpi_value The updated dpi value
- * @param indicator The updated color indicator
- * @param user_data User data to pass to the signal callback
- */
-void profile_updated(
-    DpiProfileConfig *self,
-    uint8_t profile_index,
-    int dpi_value,
-    GdkRGBA *indicator,
-    gpointer *user_data
-);
-
-/**
  * @brief Creates a DpiProfileConfig.
  * 
  * @param check_button_group The GtkButtonGroup for dpi profile config
