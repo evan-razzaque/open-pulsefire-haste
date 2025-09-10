@@ -74,6 +74,8 @@ static void update_macro_event_delay_next_event(MacroEventItem *self, int event_
     macro->events[event_index - 1].delay_next_event = delay;
 }
 
+#ifndef ADW_AVAILABLE_IN_1_8
+
 /**
  * @brief Removes all children from an AdwWrapBox.
  * 
@@ -88,6 +90,7 @@ void adw_wrap_box_remove_all(AdwWrapBox *self) {
         adw_wrap_box_remove(self, widget);
 }
 
+#endif
 
 /**
  * @brief Stores a MacroEventItem widget into a wrap box.
