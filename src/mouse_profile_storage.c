@@ -196,7 +196,11 @@ static mouse_profile* create_profile(const char *name, app_data *data) {
     int res = handle_file_error(data->profile_file, name, true);
     if (res < 0) goto free_profile;
 
+    recorded_macro *macros = profile->macros;
+
+    profile->macros = NULL;
     res = fwrite(profile, sizeof(mouse_profile), 1, data->profile_file);
+    profile->macros = macros;
 
     if (res != 1) {
         debug("Error\n");
