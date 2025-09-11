@@ -88,9 +88,9 @@ void load_mouse_profile_to_mouse(app_data *data);
  * @brief Saves the settings to the mouse.
  * 
  * @param self The save button
- * @param mouse mouse_data instance
+ * @param data Application wide data structure
  */
-void save_mouse_settings(GtkWidget *self, mouse_data *mouse);
+void save_mouse_settings(GtkWidget *self, app_data *data);
 
 /**
  * @brief A function to setup and activate the application.

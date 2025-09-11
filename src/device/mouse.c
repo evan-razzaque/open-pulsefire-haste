@@ -138,21 +138,39 @@ int mouse_read(hid_device *dev, byte *data) {
 	return data[FIRST_BYTE];
 }
 
-int save_device_settings(hid_device *dev) {
-	/* byte d1[PACKET_SIZE] = {REPORT_FIRST_BYTE(SEND_BYTE_SAVE_SETTINGS), 0x01, 0x00, 0x3c, color->red, color->green, color->blue};
-	mouse_write(dev, d1);
+int save_device_settings(hid_device *dev, union led_settings *led) {
+	color_options *color = &led->solid.color;
 
-	for (int i = 0; i < 5; i++) {
-		byte d2[PACKET_SIZE] = {REPORT_FIRST_BYTE(SEND_BYTE_SAVE_SETTINGS_OLD), 0x01, i + 1, 0x3c};
-		mouse_write(dev, d2); 
+	// Makes the led flicker (probably does something else idk)
+	mouse_write(dev, (byte[PACKET_SIZE]) {
+		REPORT_FIRST_BYTE(SEND_BYTE_LED), 0x00, 0x40, 0x08,
+		0xff, 0xff, 0xff,
+		0x00, 0x00, 0x00,
+		0x64
+	});
+
+	// Saving led settings
+	mouse_write(dev, (byte[PACKET_SIZE]) {
+		REPORT_FIRST_BYTE(SEND_BYTE_SAVE_SETTINGS_LED), led->mode, 0x00, 0x3c,
+		color->red, color->green, color->blue
+	});
+
+	for (int i = 1; i < 6; i++) {
+		mouse_write(dev, (byte[PACKET_SIZE]) {
+			REPORT_FIRST_BYTE(SEND_BYTE_SAVE_SETTINGS_LED), led->mode, i, 0x3c
+		});
 	}
 
-	byte d3[PACKET_SIZE] = {REPORT_FIRST_BYTE(0xd9), 0x00, 0x00, 0x03, 0x55, 0x01, 0x23};
-	mouse_write(dev, d3);
+	// Saving led mode?
+	mouse_write(dev, (byte[PACKET_SIZE]) {
+		REPORT_FIRST_BYTE(0xd9), 0x00, 0x00, 0x03, 0x55, led->mode, 0x23
+	});
 
-	byte d4[PACKET_SIZE] = {REPORT_FIRST_BYTE(0xdb), 0x55};
-	mouse_write(dev, d4); */
+	// Honestly no clue
+	mouse_write(dev, (byte[PACKET_SIZE]) {REPORT_FIRST_BYTE(0xdb), 0x55});
 
-	byte data[PACKET_SIZE] = {REPORT_FIRST_BYTE(SEND_BYTE_SAVE_SETTINGS), SAVE_BYTE_ALL};
-	return mouse_write(dev, data);
+	// Saves settings to the mouse
+	return mouse_write(dev, (byte[PACKET_SIZE]) {
+		REPORT_FIRST_BYTE(SEND_BYTE_SAVE_SETTINGS), SAVE_BYTE_ALL
+	});
 }

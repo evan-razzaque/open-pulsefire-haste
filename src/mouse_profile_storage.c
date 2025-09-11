@@ -166,7 +166,7 @@ bool profile_file_exists(const char *name) {
 static mouse_profile* create_profile(const char *name, app_data *data) {
     mouse_profile *profile = malloc(sizeof(mouse_profile));
     *profile = (mouse_profile) {
-        .led = {.solid = {.color = {.red = 0xff, .brightness = 100}}},
+        .led = {.solid = {.mode = LED_MODE_SOLID, .color = {.red = 0xff, .brightness = 100}}},
         .bindings = {
             LEFT_CLICK,
             RIGHT_CLICK,

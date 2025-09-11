@@ -72,7 +72,6 @@ enum SEND_BYTE {
     SEND_BYTE_MACRO_ASSIGNMENT              = 0xd5,
     SEND_BYTE_MACRO_DATA                    = 0xd6,
     
-    // Used to save led effects, currently unused
     SEND_BYTE_SAVE_SETTINGS_LED             = 0xda, 
     SEND_BYTE_SAVE_SETTINGS                 = 0xde
 } typedef SEND_BYTE;
@@ -229,8 +228,9 @@ int mouse_send_read_request(hid_device *dev, REPORT_TYPE report_type);
  * Saves the mouse settings to its on-board memory.
  * 
  * @param dev The mouse device handle
+ * @param led The led settings for the mouse
  * @return the number of bytes written or -1 on error
  */
-int save_device_settings(hid_device *dev);
+int save_device_settings(hid_device *dev, union led_settings *led);
 
 #endif

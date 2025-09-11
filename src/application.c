@@ -166,12 +166,12 @@ void load_mouse_profile_to_mouse(app_data *data) {
 	g_mutex_unlock(mouse->mutex);
 }
 
-void save_mouse_settings(GtkWidget *self, mouse_data *mouse) {
+void save_mouse_settings(GtkWidget *self, app_data *data) {
 	gtk_widget_set_sensitive(self, false);
 	
-	g_mutex_lock(mouse->mutex);
-	save_device_settings(mouse->dev);
-	g_mutex_unlock(mouse->mutex);
+	g_mutex_lock(data->mouse->mutex);
+	save_device_settings(data->mouse->dev, &data->profile->led);
+	g_mutex_unlock(data->mouse->mutex);
 
 	gtk_widget_set_sensitive(self, true);
 }
@@ -451,7 +451,7 @@ void activate(GtkApplication *app, app_data *data) {
 	
 	g_signal_connect(data->widgets->window, "close-request", G_CALLBACK(close_application), data);
 	g_signal_connect(data->widgets->window_new_mouse_profile, "close-request", G_CALLBACK(reset_new_profile_window), data);
-	widget_add_event(builder, "buttonSave", "clicked", save_mouse_settings, data->mouse);
+	widget_add_event(builder, "buttonSave", "clicked", save_mouse_settings, data);
 	widget_add_event(builder, "buttonConfirmNewProfile", "clicked", create_new_mouse_profile, data);
 	
 	g_timeout_add(100, G_SOURCE_FUNC(update_battery_display), data);

@@ -25,7 +25,7 @@
 typedef uint8_t byte;
 
 enum {
-	LED_MODE_SOLID,
+	LED_MODE_SOLID = 0x01,
 	LED_MODE_BREATHING,
 	LED_MODE_FADE,
 	LED_MODE_CYCLE,
@@ -48,10 +48,10 @@ struct __attribute__((__packed__)) rgb {
 };
 
 union led_settings {
-	byte led_mode;
+	byte mode;
 
 	struct {
-		byte led_mode;
+		byte mode;
 		byte _padding;
 		color_options color;
 	} solid;
