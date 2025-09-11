@@ -166,6 +166,14 @@ union report_packet_data {
 void print_data(byte *data);
 
 /**
+ * A helper function to print packet data formatted as comma-separated hex values.
+ * Useful for sending packets with hidapitester.
+ * 
+ * @param data The packet data
+ */
+void print_data_hex_array(byte *data);
+
+/**
  * Gets a list of device info objects for ths mouse for each connection type.
  * 
  * @param connection_type Output location to store the type of connection

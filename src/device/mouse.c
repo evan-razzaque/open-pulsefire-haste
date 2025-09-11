@@ -33,6 +33,14 @@ void print_data(byte *data) {
 	printf("\n");
 }
 
+void print_data_hex_array(byte *data) {
+	for (int i = 0; i < PACKET_SIZE; i++) {
+		printf("0x%.2x,", data[i]);
+	}
+
+	printf("\n");
+}
+
 struct hid_device_info* get_active_devices(CONNECTION_TYPE connection_type) {
 	struct hid_device_info *dev_list = hid_enumerate(
 		VID,
