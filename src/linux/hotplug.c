@@ -1,19 +1,19 @@
 /*
  * This file is part of the open-pulsefire-haste project
  * Copyright (C) 2025  Evan Razzaque
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>. 
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <libusb-1.0/libusb.h>
@@ -36,7 +36,7 @@ struct hotplug_listener_data {
 
 /**
  * @brief Handles the attachment and detachment of the mouse.
- * 
+ *
  * @param ctx Unused
  * @param device The device that was attached/detached
  * @param event Whether the mouse was connected or disconnected
@@ -55,7 +55,7 @@ static int device_hotplug_callback(libusb_context *ctx, libusb_device *device,
 
 /**
  * @brief Handles the device hotplug events
- * 
+ *
  * @param hotplug_data The mouse_data object
  * @return void* Unused
  */
@@ -93,7 +93,7 @@ void hotplug_listener_init(mouse_hotplug_data *hotplug_data) {
         hotplug_data,
         &hotplug_data->listener_data->hotplug_cb_handle_wired
     );
-    
+
     libusb_hotplug_register_callback(
         NULL,
         LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED
@@ -117,6 +117,6 @@ void hotplug_listener_exit(mouse_hotplug_data *hotplug_data) {
 	g_thread_unref(hotplug_data->hotplug_thread);
 
     free(hotplug_data->listener_data);
-    
+
     libusb_exit(NULL);
 }

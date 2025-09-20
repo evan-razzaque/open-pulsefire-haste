@@ -1,19 +1,19 @@
 /*
  * This file is part of the open-pulsefire-haste project
  * Copyright (C) 2025  Evan Razzaque
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>. 
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <gtk/gtk.h>
@@ -23,9 +23,9 @@
 
 struct _MouseProfileButton {
     GtkBox parent_instance;
-    
+
     GtkEditableLabel *editable_label_name;
-    GtkButton *button_name; 
+    GtkButton *button_name;
     GtkButton *button_edit;
     GtkButton *button_cancel_edit;
     GtkButton *button_delete;
@@ -49,8 +49,8 @@ G_DEFINE_TYPE(MouseProfileButton, mouse_profile_button, GTK_TYPE_BOX)
  * @brief A function to change the mouse profile button display name.
  * If the new display name is different and valid, the `rename-profile` signal
  * will be emitted.
- * 
- * @param self The MouseProfileButton instance 
+ *
+ * @param self The MouseProfileButton instance
  * @param name The new display name
  */
 static void rename_profile(MouseProfileButton *self, const char *name) {
@@ -61,7 +61,7 @@ static void rename_profile(MouseProfileButton *self, const char *name) {
         gtk_editable_set_text(GTK_EDITABLE(self->editable_label_name), self->name);
         return;
     }
-    
+
     bool rename_successful;
 
     g_signal_emit(
@@ -81,8 +81,8 @@ static void rename_profile(MouseProfileButton *self, const char *name) {
 
 /**
  * @brief A function to toggle editing for the mouse profile button name.
- * 
- * @param self The MouseProfileButton instance 
+ *
+ * @param self The MouseProfileButton instance
  * @param is_editing_name Whether or not the name is being edited or not
  */
 static void toggle_name_editing(MouseProfileButton *self, bool is_editing_name) {
@@ -95,8 +95,8 @@ static void toggle_name_editing(MouseProfileButton *self, bool is_editing_name) 
 
 /**
  * @brief Cancels editing the mouse profile button name.
- * 
- * @param self The MouseProfileButton instance 
+ *
+ * @param self The MouseProfileButton instance
  * @param button Unused
  */
 static void cancel_name_edit(MouseProfileButton *self, GtkButton *button) {
@@ -106,10 +106,10 @@ static void cancel_name_edit(MouseProfileButton *self, GtkButton *button) {
 
 /**
  * @brief Handles editing state changes with the `MouseProfileButton->editable_label_name`.
- * 
+ *
  * @param self The MouseProfileButton instance
  * @param param Unused
- * @param editable_label The editable label widget 
+ * @param editable_label The editable label widget
  */
 static void update_editing_state(MouseProfileButton *self, GParamSpec *param, GtkEditableLabel *editable_label) {
     self->is_editing_name = gtk_editable_label_get_editing(self->editable_label_name);
@@ -124,7 +124,7 @@ static void update_editing_state(MouseProfileButton *self, GParamSpec *param, Gt
 
 /**
  * @brief A function to start/stop editing of the mouse profile button name.
- * 
+ *
  * @param self The MouseProfileButton instance
  * @param button Unused
  */
@@ -144,7 +144,7 @@ static void edit_profile_name(MouseProfileButton *self, GtkButton *button) {
 
 /**
  * @brief Emits `select-profile` when the profile name is clicked.
- * 
+ *
  * @param self The MouseProfileButton instance
  * @param button Unused
  */
@@ -159,7 +159,7 @@ static void select_profile(MouseProfileButton *self, GtkButton *button) {
 
 /**
  * @brief Emits `delete-profile` when the delete button is clicked.
- * 
+ *
  * @param self The MouseProfileButton instance
  * @param button Unused
  */
@@ -217,7 +217,7 @@ static void mouse_profile_button_class_init(MouseProfileButtonClass *klass) {
         G_TYPE_BOOLEAN,
         1, G_TYPE_STRING
     );
-    
+
     gtk_widget_class_bind_template_child(widget_class, MouseProfileButton, editable_label_name);
     gtk_widget_class_bind_template_child(widget_class, MouseProfileButton, button_name);
     gtk_widget_class_bind_template_child(widget_class, MouseProfileButton, button_edit);
@@ -241,9 +241,9 @@ static void mouse_profile_button_init(MouseProfileButton *self) {
 MouseProfileButton* mouse_profile_button_new(const char *name, bool is_default_profile) {
     MouseProfileButton *self = g_object_new(MOUSE_TYPE_PROFILE_BUTTON, "name", name, NULL);
     self->name = gtk_button_get_label(self->button_name);
-    
+
     gtk_widget_set_sensitive(GTK_WIDGET(self->button_edit), !is_default_profile);
     gtk_widget_set_sensitive(GTK_WIDGET(self->button_delete), !is_default_profile);
-    
+
     return self;
 }

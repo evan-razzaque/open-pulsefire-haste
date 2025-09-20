@@ -1,19 +1,19 @@
 /*
  * This file is part of the open-pulsefire-haste project
  * Copyright (C) 2025  Evan Razzaque
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>. 
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef CONFIG_BUTTONS_H
@@ -97,7 +97,7 @@ struct config_button_data {
 	const uint16_t default_bindings[BUTTON_COUNT]; // Default binding for the mouse buttons
 	const char *selected_button_name; // The name of the selected mouse button
 
-	const byte keyboard_keys[1 << 16]; // An array for mapping Gdk keyvals to hid usage ids 
+	const byte keyboard_keys[1 << 16]; // An array for mapping Gdk keyvals to hid usage ids
 	uint16_t current_keyboard_action; // The current keyboard action when re-assigning a button to a keyboard action
 
     const char **simple_action_names[MOUSE_ACTION_TYPE_DPI + 1]; // A 2d array for storing the names of simple mouse actions, grouped by action type
@@ -114,7 +114,7 @@ struct config_button_data {
 
 /**
  * @brief Gets the menu button that has its popover shown.
- * 
+ *
  * @param button_data The button data for the mouse
  * @return GtkMenuButton* the active menu button widget
  */
@@ -122,7 +122,7 @@ GtkMenuButton* get_active_menu_button(config_button_data *button_data);
 
 /**
  * @brief Sets the visibility of a menu button popover
- * 
+ *
  * @param self The menu button that contains the popover
  * @param visible Whether the popover should be visible or not
  */
@@ -130,7 +130,7 @@ void menu_button_set_popover_visibility(GtkMenuButton *self, bool visible);
 
 /**
  * @brief A method to set the stack's page.
- * 
+ *
  * @param stack The GtkStack widget
  * @param page The page number
  */
@@ -138,7 +138,7 @@ void gtk_stack_set_page(GtkStack *stack, uint32_t page);
 
 /**
  * @brief Re-binds a mouse button.
- * 
+ *
  * @param button The button being rebound
  * @param action The action to bind to
  * @param menu_button_active The menu button corresponding to the button being re-binded
@@ -149,7 +149,7 @@ int assign_button(MOUSE_BUTTON button, uint16_t action, app_data *data);
 
 /**
  * Init for mouse button remapping.
- * 
+ *
  * @param builder GtkBuilder object to obtain widgets
  * @param data Application wide data structure
  */

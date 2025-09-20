@@ -13,7 +13,7 @@ fi
 # Exit code is 0 if asan is found, which means its not in release mode, and vice versa
 RELEASE_MODE=$(grep __asan_init $TARGET > /dev/null; echo $?)
 
-if [ $RELEASE_MODE -eq $DEBUG ]; then 
+if [ $RELEASE_MODE -eq $DEBUG ]; then
     echo build_mode_mismatch_${BUILD_MODE}
 else
     echo $TARGET

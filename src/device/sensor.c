@@ -1,19 +1,19 @@
 /*
  * This file is part of the open-pulsefire-haste project
  * Copyright (C) 2025  Evan Razzaque
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>. 
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <stdint.h>
@@ -29,7 +29,7 @@ int set_polling_rate(hid_device *dev, byte polling_rate_value) {
 
 /**
  * @brief Sets the lift off distance for the mouse.
- * 
+ *
  * @param dev The mouse device handle
  * @param lift_off_distance A LIFT_OFF_DISTANCE value
  * @return the number of bytes written or -1 on error
@@ -49,9 +49,9 @@ static int set_lift_off_distance(hid_device *dev, LIFT_OFF_DISTANCE lift_off_dis
 
 int save_dpi_settings(hid_device *dev, dpi_settings *settings, byte lift_off_distance) {
     int res;
-    
+
     byte data_enabled_profiles[PACKET_SIZE] = {
-        REPORT_FIRST_BYTE(SEND_BYTE_DPI), 
+        REPORT_FIRST_BYTE(SEND_BYTE_DPI),
         SENSOR_CONFIG_BYTE_ENABLED_DPI_PROFILES,
         0x00,
         0x01,
@@ -69,7 +69,7 @@ int save_dpi_settings(hid_device *dev, dpi_settings *settings, byte lift_off_dis
             0x02,
             settings->profiles[i].dpi_value / 100
         };
-        
+
         res = mouse_write(dev, data_dpi_value);
         if (res < 0) return res;
 
@@ -86,7 +86,7 @@ int save_dpi_settings(hid_device *dev, dpi_settings *settings, byte lift_off_dis
         res = mouse_write(dev, data_dpi_color_indicator);
         if (res < 0) return res;
     }
-    
+
     res = set_lift_off_distance(dev, lift_off_distance);
     if (res < 0) return res;
 

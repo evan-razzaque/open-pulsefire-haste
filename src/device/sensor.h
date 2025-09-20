@@ -1,19 +1,19 @@
 /*
  * This file is part of the open-pulsefire-haste project
  * Copyright (C) 2025  Evan Razzaque
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>. 
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef SENSOR_H
@@ -70,7 +70,7 @@ struct dpi_settings {
     byte profile_count; // The number of dpi profiles
     byte selected_profile; // The selected profile number
 
-    /** 
+    /**
      * A 5 bit number where each bit is the enabled state of the dpi profile number n,
      * where n is the bit's position.
      */
@@ -79,7 +79,7 @@ struct dpi_settings {
 
 /**
  * @brief Sets the polling rate for the mouse.
- * 
+ *
  * @param dev The mouse device handle
  * @param polling_rate_value The polling rate value
  * @return the number of bytes written or -1 on error
@@ -89,7 +89,7 @@ int set_polling_rate(hid_device *dev, byte polling_rate_value);
 /**
  * @brief Saves dpi settings to mouse's on-board memory. Also sets and saves lift-off distance, because
  * there's literally no other way to do it.
- * 
+ *
  * @param dev The mouse device handle
  * @param profiles The dpi settings for the mouse
  * @param lift_off_distance The lift-off distance for the mouse

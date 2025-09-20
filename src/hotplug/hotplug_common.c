@@ -1,19 +1,19 @@
 /*
  * This file is part of the open-pulsefire-haste project
  * Copyright (C) 2025  Evan Razzaque
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>. 
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #define HOTPLUG_COMMON_PRIVATE
@@ -33,7 +33,7 @@ void update_device_connection_detached(mouse_hotplug_data *hotplug_data) {
         mouse->dev = NULL;
         mouse->state = DISCONNECTED;
     }
-    
+
     bool device_connected = mouse->connection_type == CONNECTION_TYPE_WIRELESS;
     if (device_connected) mouse->state = RECONNECT;
 
@@ -59,7 +59,7 @@ void update_device_connection_attached(mouse_hotplug_data *hotplug_data, CONNECT
 void update_mouse_connection_type(mouse_hotplug_data *hotplug_data, uint16_t product_id, int event) {
     mouse_data *mouse = hotplug_data->mouse;
 
-    CONNECTION_TYPE connection_type = 
+    CONNECTION_TYPE connection_type =
         (product_id == PID_WIRED)?
         CONNECTION_TYPE_WIRED:
         CONNECTION_TYPE_WIRELESS;
@@ -67,7 +67,7 @@ void update_mouse_connection_type(mouse_hotplug_data *hotplug_data, uint16_t pro
     g_mutex_lock(mouse->mutex);
 
     CONNECTION_TYPE last_connection_type = mouse->connection_type;
-    
+
     if (event == DEVICE_REMOVE) {
         mouse->connection_type -= connection_type;
         update_device_connection_detached(hotplug_data);

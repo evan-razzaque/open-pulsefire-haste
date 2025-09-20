@@ -1,19 +1,19 @@
 /*
  * This file is part of the open-pulsefire-haste project
  * Copyright (C) 2025  Evan Razzaque
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>. 
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef BUTTONS_H
@@ -47,9 +47,9 @@ enum {
 /**
  * @brief Every macro data packet seems to have a sum byte? after the button byte that alternates between adding 1 and 2 each packet.
  * Another way of thinking about it is half of the numbers in the sum are 1 and half are 2.
- * 
+ *
  * Thus, we get the following formula: (1x / 2) + (2x / 2). Which is simplified to 3x / 2. Note that this is int division, so there would be no fractional part.
- * 
+ *
  * For example, the sum bytes for 6 packets would be: 0x00, 0x01, 0x03, 0x04, 0x06, 0x07
  *
  * TODO: explain 80+ events
@@ -79,7 +79,7 @@ enum MODIFIER_KEY {
 /**
  * @brief Maps the hid usage ids for modifier keys
  * to its corresponding modifier bit.
- * 
+ *
  */
 #define MACRO_MODIFIER_MAP {\
     [0xE0] = L_CTRL,\
@@ -103,7 +103,7 @@ enum MOUSE_BUTTON {
 
 /**
  * @brief An enum for the button(s) pressed in a generic event.
- * 
+ *
  */
 enum GENERIC_EVENT_BUTTON {
     GENERIC_EVENT_BUTTON_LEFT       = 0x01,
@@ -127,7 +127,7 @@ enum SIMPLE_MOUSE_ACTION {
     MIDDLE_CLICK        = 0x0103,
     BACK                = 0x0104,
     FORWARD             = 0x0105,
-    
+
     PLAY_PAUSE          = 0x0300,
     STOP                = 0x0301,
     PREVIOUS            = 0x0302,
@@ -135,7 +135,7 @@ enum SIMPLE_MOUSE_ACTION {
     MUTE                = 0x0304,
     VOLUME_DOWN         = 0x0305,
     VOLUME_UP           = 0x0306,
-    
+
     TASK_MANAGER        = 0x0501,
     SYSTEM_UTILITY      = 0x0502,
     SHOW_DESKTOP        = 0x0503,
@@ -144,7 +144,7 @@ enum SIMPLE_MOUSE_ACTION {
     CUT                 = 0x0506,
     COPY                = 0x0507,
     PASTE               = 0x0508,
-    
+
     DPI_TOGGLE          = 0x0708,
 } typedef SIMPLE_MOUSE_ACTION;
 
@@ -218,7 +218,7 @@ union marcro_event {
 
 /**
  * @brief Change a binding for a mouse button.
- * 
+ *
  * @param dev The mouse device handle
  * @param button The mouse button to re-assign
  * @param action The action to assign to the button
@@ -228,7 +228,7 @@ int assign_button_action(hid_device *dev, MOUSE_BUTTON button, uint16_t action);
 
 /**
  * @brief Assign a macro to a mouse button.
- * 
+ *
  * @param dev The mouse device handle
  * @param button The mouse button to re-assign
  * @param repeat_mode The repeat behavior of the macro

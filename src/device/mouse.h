@@ -1,19 +1,19 @@
 /*
  * This file is part of the open-pulsefire-haste project
  * Copyright (C) 2025  Evan Razzaque
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>. 
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef MOUSE_H
@@ -46,7 +46,7 @@
 #define FIRST_BYTE (PACKET_SIZE - TRUE_PACKET_SIZE)
 #define BUTTON_COUNT 6
 
-#define READ_TIMEOUT (10) 
+#define READ_TIMEOUT (10)
 
 /**
  * An enum that represents how the mouse is connected.
@@ -61,7 +61,7 @@ enum CONNECTION_TYPE {
 /**
  * @brief An enum for the value of the first byte when sending packets
  * to update a specific setting/state.
- * 
+ *
  */
 enum SEND_BYTE {
     SEND_BYTE_POLLING_RATE                  = 0xd0,
@@ -71,14 +71,14 @@ enum SEND_BYTE {
     SEND_BYTE_BUTTON_ASSIGNMENT             = 0xd4,
     SEND_BYTE_MACRO_ASSIGNMENT              = 0xd5,
     SEND_BYTE_MACRO_DATA                    = 0xd6,
-    
-    SEND_BYTE_SAVE_SETTINGS_LED             = 0xda, 
+
+    SEND_BYTE_SAVE_SETTINGS_LED             = 0xda,
     SEND_BYTE_SAVE_SETTINGS                 = 0xde
 } typedef SEND_BYTE;
 
 /**
  * @brief An enum for the type of save to perform.
- * 
+ *
  */
 enum SAVE_BYTE {
     SAVE_BYTE_ALL                    = 0xff,
@@ -107,7 +107,7 @@ enum REPORT_TYPE {
 /**
  * @brief A union for reading information from report packets
  * sent by the mouse.
- * 
+ *
  */
 union report_packet_data {
     byte packet_data[PACKET_SIZE];
@@ -159,7 +159,7 @@ union report_packet_data {
 
 /**
  * A helper function to print packet data in 16 byte rows.
- * 
+ *
  * @param data The packet data
  */
 void print_data(byte *data);
@@ -167,14 +167,14 @@ void print_data(byte *data);
 /**
  * A helper function to print packet data formatted as comma-separated hex values.
  * Useful for sending packets with hidapitester.
- * 
+ *
  * @param data The packet data
  */
 void print_data_hex_array(byte *data);
 
 /**
  * Gets a list of device info objects for ths mouse for each connection type.
- * 
+ *
  * @param connection_type Output location to store the type of connection
  * @return a linked list of device info objects
  */
@@ -182,7 +182,7 @@ struct hid_device_info* get_devices(CONNECTION_TYPE *connection_type);
 
 /**
  * @brief Gets a list of device info objects for the active mouse connection.
- * 
+ *
  * @param connection_type The active mouse connection type
  * @return struct hid_device_info* a linked list of device info objects
  */
@@ -190,7 +190,7 @@ struct hid_device_info* get_active_devices(CONNECTION_TYPE connection_type);
 
 /**
  * Opens the mouse device handle.
- * 
+ *
  * @param dev_list a linked list of device info objects. Will be freed once this function returns.
  * @return the mouse device handle, or NULL if no device was found
  */
@@ -198,7 +198,7 @@ hid_device* open_device(struct hid_device_info *dev_list);
 
 /**
  * Write data to the mouse.
- * 
+ *
  * @param dev The mouse device handle
  * @param data The packet data containing a request byte
  * @return the number of bytes written or -1 on error
@@ -226,7 +226,7 @@ int mouse_send_read_request(hid_device *dev, REPORT_TYPE report_type);
 
 /**
  * Saves the mouse settings to its on-board memory.
- * 
+ *
  * @param dev The mouse device handle
  * @param led The led settings for the mouse
  * @return the number of bytes written or -1 on error

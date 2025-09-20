@@ -1,19 +1,19 @@
 /*
  * This file is part of the open-pulsefire-haste project
  * Copyright (C) 2025  Evan Razzaque
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>. 
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef MOUSE_PROFILE_STORAGE_H
@@ -57,7 +57,7 @@ struct mouse_profile {
 	byte lift_off_distance; // A `LIFT_OFF_DISTANCE` value
 
     // An array of macro indices for each button that is assigned to a macro. Non-macro bindings must be -1.
-    int macro_indices[6];   
+    int macro_indices[6];
     int macro_count;
 
     // An array containing the profile's recorded macros. MUST be set to NULL when writing the profile to disk.
@@ -66,17 +66,17 @@ struct mouse_profile {
 
 /**
  * @brief Writes the selected profile to $XDG_DATA_HOME/APP_DIR/SELECTED_PROFILE_NAME_FILE.
- * 
+ *
  * @param profile_name A buffer to store the profile name into. Must be at least `PROFILE_NAME_MAX_LENGTH + 1` bytes long.
- * @return int 0 if the selected profile name was read or -1 if there was an error 
+ * @return int 0 if the selected profile name was read or -1 if there was an error
  */
 int save_selected_profile_name(const char *name);
 
 /**
  * @brief Reads the selected profile name into `profile_name`.
- * 
+ *
  * @param profile_name A buffer to store the profile name into. Must be at least `PROFILE_NAME_MAX_LENGTH + 1` bytes long.
- * @return int 0 if the selected profile name was read or -1 if there was an error 
+ * @return int 0 if the selected profile name was read or -1 if there was an error
  */
 int load_selected_profile_name(char *profile_name);
 
@@ -91,7 +91,7 @@ int create_data_directory();
 
 /**
  * @brief A function to check if a profile with `name` exists.
- * 
+ *
  * @param name The name of the profile
  * @return true if the profile exists, otherwise false
  */
@@ -100,15 +100,15 @@ bool profile_file_exists(const char *name);
 /**
  * @brief Frees the memory allocated for a mouse profile
  * when it's removed from `app_data->mouse_profiles`.
- * 
+ *
  * @param profile The mouse profile being removed
  */
 void destroy_profile(mouse_profile *profile);
 
 /**
- * @brief Load a mouse profile from disk given its profile name. 
+ * @brief Load a mouse profile from disk given its profile name.
  * If the profile file does not exist, a mouse profile will be created.
- * 
+ *
  * @param data Application wide data structure
  * @param name The name of the profile
  * @return A `mouse_profile` object if the profile was loaded or NULL if an error has occured
@@ -117,7 +117,7 @@ mouse_profile* load_profile_from_file(const char *name, app_data *data);
 
 /**
  * @brief Save a mouse profile to disk.
- * 
+ *
  * @param name The name of the profile
  * @param profile The profile to save
  * @param data Application wide data structure
@@ -127,16 +127,16 @@ int save_profile_to_file(const char *name, mouse_profile *profile, app_data *dat
 
 /**
  * @brief A function to switch to a different mouse profile. If the profile doesn't exist, a new one is created.
- * 
+ *
  * @param name The name of the profile to switch to
  * @param data Application wide data structure
- * @return 0 if the the mouse profile was successfully switched to or -1 if there was an error 
+ * @return 0 if the the mouse profile was successfully switched to or -1 if there was an error
  */
 int switch_profile(const char *name, app_data *data);
 
 /**
  * @brief A function to rename a mouse profile.
- * 
+ *
  * @param old_name The old profile name
  * @param new_name The new profile name
  * @param data Application wide data structure
@@ -146,7 +146,7 @@ int rename_profile(const char *old_name, const char *new_name, app_data *data);
 
 /**
  * @brief A function to delete a mouse profile.
- * 
+ *
  * @param name The name of the profile to remove
  * @param data Application wide data structure
  * @return int 0 if the profile was deleted or -1 if an error has occured

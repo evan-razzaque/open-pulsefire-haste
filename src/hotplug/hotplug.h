@@ -1,19 +1,19 @@
 /*
  * This file is part of the open-pulsefire-haste project
  * Copyright (C) 2025  Evan Razzaque
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>. 
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef HOTPLUG_H
@@ -26,7 +26,7 @@
 
 /**
  * @brief An opaque struct for storing platform specific hotplug listener data.
- * 
+ *
  */
 typedef struct hotplug_listener_data hotplug_listener_data;
 
@@ -48,15 +48,15 @@ struct mouse_hotplug_data {
 
 /**
  * @brief Initializes the hotplug listener.
- * 
+ *
  * @param hotplug_data A pointer to a mouse_hotplug_data struct to store the hotplug listener into
  */
 void hotplug_listener_init(mouse_hotplug_data *hotplug_data);
 
 /**
- * @brief Deinitialize the hotplug listener 
+ * @brief Deinitialize the hotplug listener
  * and free any resources associated with it.
- * 
+ *
  * @param hotplug The mouse_hotplug_data struct containing the hotplug listener
  */
 void hotplug_listener_exit(mouse_hotplug_data *listener_data);
@@ -64,7 +64,7 @@ void hotplug_listener_exit(mouse_hotplug_data *listener_data);
 /**
  * @brief Initializes the device removal callbacks for each connected device.
  * Only has an effect on windows.
- * 
+ *
  * @param hotplug_data The mouse_hotplug_data struct containing the hotplug listener
  * @param dev_list A list of device info objects for each connected device interface
  */

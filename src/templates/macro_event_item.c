@@ -1,19 +1,19 @@
 /*
  * This file is part of the open-pulsefire-haste project
  * Copyright (C) 2025  Evan Razzaque
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>. 
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <gtk/gtk.h>
@@ -47,7 +47,7 @@ static guint signals[N_SIGNALS] = {0};
 
 /**
  * @brief A function to signal when the delay value changes via the `delay-changed` signal.
- * 
+ *
  * @param self The MacroEventItem instance
  * @param spin_button_delay The spin button delay widget
  */
@@ -95,7 +95,7 @@ MacroEventItem* macro_event_item_new(const char* action_name, uint16_t delay, MA
     MacroEventItem *self = g_object_new(MACRO_TYPE_EVENT_ITEM, NULL);
     self->event_index = event_index;
     self->delay = delay;
-    
+
     if (delay > 0) {
         gtk_spin_button_hide_buttons(self->spin_button_delay);
         gtk_spin_button_set_value(self->spin_button_delay, delay);
@@ -106,9 +106,9 @@ MacroEventItem* macro_event_item_new(const char* action_name, uint16_t delay, MA
     gtk_label_set_text(self->label_action_name, action_name);
 
     gtk_image_set_from_icon_name(
-        self->image_action_type, 
+        self->image_action_type,
         (event_type == MACRO_EVENT_TYPE_DOWN)? ICON_DOWN_ARROW : ICON_UP_ARROW
     );
-    
+
     return self;
 }

@@ -1,19 +1,19 @@
 /*
  * This file is part of the open-pulsefire-haste project
  * Copyright (C) 2025  Evan Razzaque
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>. 
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <stdlib.h>
@@ -61,7 +61,7 @@ const char* __lsan_default_suppressions() {
 
 /**
  * @brief Reads mouse reports and events.
- * 
+ *
  * @param data Application wide data structure
  * @return the report type of the report that was read, or -1 on error
  */
@@ -70,7 +70,7 @@ static int read_mouse_reports(app_data *data) {
 
 	union report_packet_data report_data = {0};
 	REPORT_TYPE report_type = mouse_read(mouse->dev, report_data.packet_data);
-	
+
 	switch (report_type) {
 	case REPORT_TYPE_HARDWARE:
 	case REPORT_TYPE_ONBOARD_LED_SETTINGS:
@@ -99,7 +99,7 @@ static int read_mouse_reports(app_data *data) {
 		if (report_data.generic_event.selected_dpi_profile == data->profile->dpi_config.selected_profile) {
 			break;
 		}
-		
+
 		if (data->sensor_data->user_changed_dpi_profile) {
 			data->sensor_data->user_changed_dpi_profile = false;
 			break;
@@ -111,7 +111,7 @@ static int read_mouse_reports(app_data *data) {
 			.index = report_data.generic_event.selected_dpi_profile,
 			.free_func = g_free
 		};
-	
+
 		g_idle_add_once((GSourceOnceFunc) update_dpi_profile_selection, args);
 		break;
 	default:
@@ -123,7 +123,7 @@ static int read_mouse_reports(app_data *data) {
 
 /**
  * @brief A function to periodically attempt to connect to the mouse.
- * 
+ *
  * @param mouse The mouse_data instance
  */
 static void reconnect_mouse(app_data *data) {
@@ -140,13 +140,13 @@ static void reconnect_mouse(app_data *data) {
 /**
  * @brief The callback used to update the mouse and application state
  * when a mouse hotplug event occurs.
- * 
+ *
  * @param connected Whether the mouse is connected or not
  * @param data Application wide data structure
  */
 static void mouse_hotplug_callback(bool connected, app_data *data) {
 	mouse_data *mouse = data->mouse;
-	
+
 	if (connected) {
 		reconnect_mouse(data);
 		mouse->state = UPDATE;
@@ -160,11 +160,11 @@ static void mouse_hotplug_callback(bool connected, app_data *data) {
 
 /**
  * @brief Updates the mouse's status and led settings.
- * 
+ *
  * @param mouse mouse_data instance
  * @return Unused
  */
-static void* mouse_update_loop(app_data *data) {	
+static void* mouse_update_loop(app_data *data) {
 	mouse_data *mouse = data->mouse;
 	color_options *color = &data->profile->led.solid.color;
 
@@ -174,8 +174,8 @@ static void* mouse_update_loop(app_data *data) {
 	const int poll_connection_status_interval_ms = 5000;
 
 	int clock = 0;
-	const int clock_reset_ms = poll_connection_status_interval_ms; 
-	
+	const int clock_reset_ms = poll_connection_status_interval_ms;
+
 	while (mouse->state != CLOSED) {
 		int res = 0;
 
@@ -195,7 +195,7 @@ static void* mouse_update_loop(app_data *data) {
 		default:
 			break;
 		}
-		
+
 		if (clock % update_color_interval_ms == 0) {
 			res = change_color(mouse->dev, color);
 		}
@@ -203,25 +203,25 @@ static void* mouse_update_loop(app_data *data) {
 		if (clock % poll_battery_level_interval_ms == 0 && res >= 0) {
 			res = mouse_send_read_request(mouse->dev, REPORT_TYPE_HEARTBEAT);
 		}
-		
+
 		poll_connection:
 
 		if (clock % poll_connection_status_interval_ms == 0 && res >= 0) {
 			res = mouse_send_read_request(mouse->dev, REPORT_TYPE_CONNECTION);
 		}
-		
+
 		if (res >= 0) res = read_mouse_reports(data);
-		
-		if (res < 0) {		
+
+		if (res < 0) {
 			mouse->state = DISCONNECTED;
 		}
-		
+
 		clock = (clock + update_interval_ms) % clock_reset_ms;
 
 		g_mutex_unlock(mouse->mutex);
 		sleep_ms(update_interval_ms - READ_TIMEOUT);
 	}
-	
+
 	debug("mouse update thread exit\n");
 
 	exit_update_loop:
@@ -241,8 +241,8 @@ static void set_env() {
 
 /**
  * @brief Opens the mouse device handle and mouse update thread, sets up application data, and initializes GTK.
- * 
- * @return exit status 
+ *
+ * @return exit status
  */
 int main() {
 	int res;
@@ -252,11 +252,11 @@ int main() {
 
 	res = hid_init();
 	if (res < 0) return 1;
-	
+
 	mouse_data mouse = {.mutex = &mutex, .battery_level = -1};
-	
+
 	app_widgets widgets = {0};
-	
+
 	app_data data = {
 		.mouse = &mouse,
 		.widgets = &widgets,
@@ -303,7 +303,7 @@ int main() {
 	};
 
 	struct hid_device_info *dev_list = get_devices(&mouse.connection_type);
-	
+
 	hotplug_listener_init(&hotplug_data);
 
 	#ifdef _WIN32
@@ -320,33 +320,33 @@ int main() {
 	);
 
 	data.profile = load_profile_from_file(data.profile_name, &data);
-	
+
 	if (data.profile == NULL) {
 		printf("Couldn't load mouse profile '%s'", data.profile_name);
 		return -1;
 	}
-	
+
 	GThread *update_thread = g_thread_new("mouse_update_loop", (GThreadFunc) mouse_update_loop, &data);
-	
+
 	GtkApplication *app;
 	int status;
-	
+
 	set_env();
 	app = gtk_application_new("com.github.evan-razzaque.open-pulsefire-haste", G_APPLICATION_DEFAULT_FLAGS);
 	widgets.app = app;
-	
+
 	g_signal_connect(app, "activate", G_CALLBACK(activate), &data);
 	status = g_application_run(G_APPLICATION(app), 0, NULL);
 
 	g_object_unref(app);
 	assert(mouse.state == CLOSED);
 	mouse.state = CLOSED;
-	
+
 	g_thread_join(update_thread);
 	g_thread_unref(update_thread);
-	
+
 	hotplug_listener_exit(&hotplug_data);
-	
+
 	hid_exit();
 	return status;
 }

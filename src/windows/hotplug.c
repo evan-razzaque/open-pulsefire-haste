@@ -1,19 +1,19 @@
 /*
  * This file is part of the open-pulsefire-haste project
  * Copyright (C) 2025  Evan Razzaque
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>. 
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef WINVER
@@ -39,10 +39,10 @@ struct device_connection_data {
     HANDLE device_handle;
     CM_NOTIFY_FILTER notify_filter_removal;
     HCMNOTIFICATION notify_context_removal;
-    
+
     uint16_t product_id;
     bool device_connected;
-    
+
     mouse_data *mouse;
 } typedef device_connection_data;
 
@@ -80,7 +80,7 @@ static HANDLE open_device_handle(void *path, bool is_wide_char) {
 
 /**
  * @brief Get the device handle from a path and a product id.
- * 
+ *
  * @param path The path of the device
  * @param product_id The product id of the device
  * @return the device handle, or `INVALID_HANDLE_VALUE` if not found or an error has occured
@@ -116,7 +116,7 @@ static HANDLE get_device_handle(wchar_t *path, uint16_t product_id) {
 
 /**
  * @brief Handles the detachment of the mouse.
- * 
+ *
  * @param notify_handle Unused
  * @param connection_data The connection data for the mouse given its CONNECTION_TYPE
  * @param action The notification action that occured
@@ -137,7 +137,7 @@ static CALLBACK DWORD device_hotplug_removal(HCMNOTIFICATION notify_handle, devi
     connection_data->device_connected = false;
 
     update_mouse_connection_type(mouse, product_id, action);
-    
+
     printf("%d\n", CloseHandle(connection_data->device_handle));
     CM_Unregister_Notification(connection_data->notify_context_removal);
 
@@ -159,7 +159,7 @@ static void register_device_removal_callback(device_connection_data *connection_
 
 /**
  * @brief Handles the attachment of the mouse.
- * 
+ *
  * @param notify_handle Unused
  * @param connection_data The connection data for the mouse given its CONNECTION_TYPE
  * @param action The notification action that occured
@@ -225,7 +225,7 @@ void setup_mouse_removal_callbacks(mouse_hotplug_data *hotplug_data, struct hid_
 
 void hotplug_listener_init(mouse_hotplug_data *hotplug_data) {
     hotplug_data->listener_data = malloc(sizeof(hotplug_listener_data));
-    
+
     hotplug_listener_data *listener_data = hotplug_data->listener_data;
 
     listener_data->notify_filter_arrival = (CM_NOTIFY_FILTER) {
@@ -279,13 +279,13 @@ void hotplug_listener_init(mouse_hotplug_data *hotplug_data) {
 }
 
 void hotplug_listener_exit(mouse_hotplug_data *hotplug_data) {
-    device_connection_data *connection_data_wired = 
+    device_connection_data *connection_data_wired =
         &hotplug_data->listener_data->connection_data_wired;
 
-    device_connection_data *connection_data_wireless = 
+    device_connection_data *connection_data_wireless =
         &hotplug_data->listener_data->connection_data_wireless;
 
-    if (connection_data_wired->device_connected) {            
+    if (connection_data_wired->device_connected) {
         CM_Unregister_Notification(hotplug_data->listener_data->notify_context_wireless);
         CloseHandle(connection_data_wired->device_handle);
     }

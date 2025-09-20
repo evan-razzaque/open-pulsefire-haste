@@ -1,19 +1,19 @@
 /*
  * This file is part of the open-pulsefire-haste project
  * Copyright (C) 2025  Evan Razzaque
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>. 
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <gtk/gtk.h>
@@ -22,7 +22,7 @@
 struct _MouseMacroButton {
     GtkBox parent_instance;
 
-    GtkButton *button_name; 
+    GtkButton *button_name;
     GtkButton *button_edit;
     GtkButton *button_delete;
 };
@@ -41,7 +41,7 @@ static void mouse_macro_button_class_init(MouseMacroButtonClass *klass) {
 
     gtk_widget_class_set_template_from_resource(widget_class, "/open_pulsefire_haste/mouse-macro-button.ui");
     gtk_widget_class_set_layout_manager_type(widget_class, GTK_TYPE_BOX_LAYOUT);
-    
+
     gtk_widget_class_bind_template_child(widget_class, MouseMacroButton, button_name);
     gtk_widget_class_bind_template_child(widget_class, MouseMacroButton, button_edit);
     gtk_widget_class_bind_template_child(widget_class, MouseMacroButton, button_delete);

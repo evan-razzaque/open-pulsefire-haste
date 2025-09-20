@@ -7,7 +7,7 @@ TARGET            = $(BIN_DIR)/$(NAME)
 VPATH             = src src/device src/hotplug src/templates
 
 RESOURCES         := $(shell find ui -name *.ui -o -name *.css)
-GRESOURCE_BUNDLE  = ui/gresources.gresource.xml 
+GRESOURCE_BUNDLE  = ui/gresources.gresource.xml
 GRESOURCES_SRC    = resources/gresources.c
 GRESOURCES_HEADER = resources/gresources.h
 GRESOURCES_OBJ    = $(BUILD_DIR)/gresources.o
@@ -53,7 +53,7 @@ $(shell \
 )
 
 all: $(ACTUAL_TARGET)
-	
+
 $(TARGET): $(GEN_DIRS) $(GRESOURCES_OBJ) $(OBJS)
 	$(CC) -o $(TARGET) $(OBJS) $(LDLIBS) $(LDFLAGS)
 
@@ -61,7 +61,7 @@ $(BUILD_DIR)/%.o : %.c
 	$(CC) $(DEPFLAGS) -Isrc $<
 	$(CC) -c $(CFLAGS) $< -o $@
 
-$(GEN_DIRS): 
+$(GEN_DIRS):
 	mkdir -p $@
 
 # Generated files
@@ -71,7 +71,7 @@ $(GRESOURCES_OBJ): $(GRESOURCES_SRC) $(GRESOURCES_HEADER)
 
 $(GRESOURCES_HEADER): $(GRESOURCE_BUNDLE)
 	glib-compile-resources $< --sourcedir ui --target $@ --generate-header
-	
+
 $(GRESOURCES_SRC): $(GRESOURCE_BUNDLE) $(RESOURCES)
 	glib-compile-resources $< --sourcedir ui --target $@ --generate-source
 

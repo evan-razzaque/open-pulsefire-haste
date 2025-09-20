@@ -1,19 +1,19 @@
 /*
  * This file is part of the open-pulsefire-haste project
  * Copyright (C) 2025  Evan Razzaque
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>. 
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef DEFS_H
@@ -36,7 +36,7 @@
 
 /**
  * @brief Removes the element at `index` from `array` and decrements `length`.
- * 
+ *
  * @param array The array to remove the element from
  * @param length A variable containing the number of elements in the array
  * @param index The index of the element to remove
@@ -79,21 +79,21 @@
 
 /**
  * @brief Gets current time in milliseconds from the clock `CLOCK_MONOTONIC`.
- * 
+ *
  * @return time_t the clocks time in ms
  */
 time_t clock_gettime_ms();
 
 /**
  * @brief A function to hide the buttons for a GtkSpinButton widget.
- * 
+ *
  * @param self The GtkSpinButton instance
  */
 void gtk_spin_button_hide_buttons(GtkSpinButton *self);
 
 /**
  * @brief A function to validate mouse profile names.
- * 
+ *
  * @param name The profile name to validate.
  * @return true if the profile name is valid, otherwise false
  */

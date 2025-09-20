@@ -1,19 +1,19 @@
 /*
  * This file is part of the open-pulsefire-haste project
  * Copyright (C) 2025  Evan Razzaque
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>. 
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef CONFIG_MACRO_H
@@ -47,7 +47,7 @@
 
 /**
  * Convieniece macro for a mouse event.
- *   
+ *
  * @param btn The mouse button
  * @param duration The duration of mouse down event
  * @param delay How long to wait before executing the next event (in milliseconds)
@@ -79,7 +79,7 @@
 
 /**
  * @brief An enum for generic macro event button pressed/released states.
- * 
+ *
  */
 typedef enum MACRO_EVENT_TYPE {
 	MACRO_EVENT_TYPE_UP   = 0x00,
@@ -112,7 +112,7 @@ struct generic_macro_event {
 struct recorded_macro {
 	generic_macro_event *events; // The generic macro events
 	REPEAT_MODE repeat_mode; // The repeat behavior of the macro
-	
+
 	char* name; // The name of the macro
 	int generic_event_count; // The number of events
 	int generic_event_array_size; // The size of the events array
@@ -133,19 +133,19 @@ struct config_macro_data {
 	bool is_resuming_macro_recording;
 
 	/**
-	 * Used to hold the value of the last pressed key when recording a macro. 
-	 * Should be set to 0 once the same key is released. This is necessary because 
+	 * Used to hold the value of the last pressed key when recording a macro.
+	 * Should be set to 0 once the same key is released. This is necessary because
 	 * key press events in Gtk are also emitted on key repeats (for some reason), so we use this
 	 * variable to prevent the same key down event occuring multiple times in a row.
 	 */
-	uint32_t last_pressed_key; 
+	uint32_t last_pressed_key;
 
 	uint32_t macro_index; // The index of the macro being recorded/edited
 	uint32_t macro_previous_event_count; // The previous event count in the macro being edited
 	REPEAT_MODE macro_previous_repeat_mode; // The previous repeat mode of the macro being edited
 
 	GtkGesture *gesture_macro_mouse_events; // Listens to mouse events for macros
-	
+
 	// Used to save a macro while claiming the click event before it's added to the macro
 	GtkGesture *gesture_button_save_macro_claim_click;
 	// Used toggle the recording of the macro while claiming the click event before it's added to the macro
@@ -167,7 +167,7 @@ struct config_macro_data {
 
 /**
  * @brief Assigns a macro to a mouse button.
- * 
+ *
  * @param macro_index The index of the macro
  * @param button The button number being re-assigned
  * @param data Application wide data structure
@@ -175,15 +175,15 @@ struct config_macro_data {
 void assign_macro(uint32_t macro_index, byte button, app_data *data);
 
 /**
- * @brief Creates macros entries from the mouse profile. 
- * 
+ * @brief Creates macros entries from the mouse profile.
+ *
  * @param data Application wide data structure
  */
 void create_macro_entries(app_data *data);
 
 /**
  * Init for macros.
- * 
+ *
  * @param builder GtkBuilder object to obtain widgets
  * @param data Application wide data structure
  */

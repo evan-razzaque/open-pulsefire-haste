@@ -1,19 +1,19 @@
 /*
  * This file is part of the open-pulsefire-haste project
  * Copyright (C) 2025  Evan Razzaque
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>. 
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include "application.h"
@@ -57,7 +57,7 @@ void remove_connnection_lost_overlay(app_data *data) {
 /**
  * @brief A function that will enable the mouse settings screen
  * when the mouse is plugged in and disable it when the mouse is unplugged.
- * 
+ *
  * @param data Application wide data structure
  * @return value indicating to leave this in the gtk main loop
  */
@@ -92,7 +92,7 @@ void show_mouse_settings_visibility(app_data *data) {
 
 /**
  * @brief Updates the mouse battery level display.
- * 
+ *
  * @param battery_data mouse_battery_data instance
  * @return value indicating to leave this in the gtk main loop
  */
@@ -106,7 +106,7 @@ static int update_battery_display(app_data *data) {
 
 	char battery[5];
 	sprintf(battery, "%d%%", mouse->battery_level);
-	
+
 	gtk_label_set_text(data->widgets->label_battery, battery);
 	printf("battery updated\n");
 	return G_SOURCE_CONTINUE;
@@ -152,15 +152,15 @@ void load_mouse_profile_to_mouse(app_data *data) {
 	create_macro_entries(data);
 
 	set_polling_rate(dev, profile->polling_rate_value);
-	
+
 	GVariant *variant_polling_rate = g_variant_new_byte(profile->polling_rate_value);
 	GVariant *variant_lift_off_distance = g_variant_new_byte(profile->lift_off_distance);
 	GVariant *variant_selected_dpi_profile = g_variant_new_byte(profile->dpi_config.selected_profile);
-	
+
 	g_action_group_activate_action(G_ACTION_GROUP(data->widgets->app), CHANGE_POLLING_RATE, variant_polling_rate);
 	g_action_group_activate_action(G_ACTION_GROUP(data->widgets->app), CHANGE_LIFT_OFF_DISTANCE, variant_lift_off_distance);
 	g_action_group_activate_action(G_ACTION_GROUP(data->widgets->app), SELECT_DPI_PROFILE, variant_selected_dpi_profile);
-	
+
 	save_dpi_settings(dev, &data->profile->dpi_config, data->profile->lift_off_distance);
 
 	g_mutex_unlock(mouse->mutex);
@@ -168,7 +168,7 @@ void load_mouse_profile_to_mouse(app_data *data) {
 
 void save_mouse_settings(GtkWidget *self, app_data *data) {
 	gtk_widget_set_sensitive(self, false);
-	
+
 	g_mutex_lock(data->mouse->mutex);
 	save_device_settings(data->mouse->dev, &data->profile->led);
 	g_mutex_unlock(data->mouse->mutex);
@@ -189,7 +189,7 @@ static bool remove_saved_mouse_profile_from_hash_map(char *name, mouse_profile *
 
 /**
  * @brief Destroys all windows and saves all mouse profiles when the main window is closed.
- * 
+ *
  * @param window The main window
  * @param data Application wide data structure
  */
@@ -199,7 +199,7 @@ static void close_application(GtkWindow *window, app_data *data) {
 	g_mutex_lock(data->mouse->mutex);
 
 	data->profile = NULL;
-	
+
 	g_hash_table_foreach_remove(data->mouse_profiles, (GHRFunc) remove_saved_mouse_profile_from_hash_map, data);
 	g_hash_table_destroy(data->mouse_profiles);
 
@@ -215,7 +215,7 @@ static void close_application(GtkWindow *window, app_data *data) {
 
 /**
  * @brief Switches to the mouse profile `profile_name`.
- * 
+ *
  * @param mouse_profile_button Unused, can be NULL
  * @param name The name of the profile
  * @param data Application wide data structure
@@ -225,11 +225,11 @@ static void switch_mouse_profile(MouseProfileButton *mouse_profile_button, const
 		debug("Already on profile %s\n", profile_name);
 		return;
 	}
-	
+
 	g_mutex_lock(data->mouse->mutex);
 	int res = switch_profile(profile_name, data);
 	g_mutex_unlock(data->mouse->mutex);
-	
+
 	if (res < 0) {
 		debug("Couldn't switch to profile %s\n", profile_name);
 		return;
@@ -237,9 +237,9 @@ static void switch_mouse_profile(MouseProfileButton *mouse_profile_button, const
 
 	strcpy(data->profile_name, profile_name);
 	printf("Switched to %s\n", profile_name);
-	
+
 	load_mouse_profile_to_mouse(data);
-	
+
 	gtk_menu_button_set_label(
 		data->widgets->menu_button_mouse_profiles,
 		profile_name
@@ -250,7 +250,7 @@ static void switch_mouse_profile(MouseProfileButton *mouse_profile_button, const
 
 /**
  * @brief Rename the mouse profile `old_name` to `new_name`.
- * 
+ *
  * @param self The MouseProfileButton instance
  * @param old_name The current name of the mouse profile
  * @param new_name The new profile name
@@ -274,7 +274,7 @@ static bool rename_mouse_profile(MouseProfileButton *self, const char *old_name,
 
 /**
  * @brief Deletes a mouse profile
- * 
+ *
  * @param self The MouseProfileButton instance
  * @param name The name of the mouse profile
  * @param data Application wide data structure
@@ -293,7 +293,7 @@ static bool delete_mouse_profile(MouseProfileButton *self, const char *name, app
 
 /**
  * @brief A function to add `MouseProfileButton` to the mouse profile dropdown list.
- * 
+ *
  * @param profile_name The name of the mouse profile
  * @param data Application wide data structure
  * @param is_default_profile Whether the mouse profile is the default profile or not
@@ -312,13 +312,13 @@ static void add_mouse_profile_button(const char *profile_name, app_data *data, b
 
 /**
  * @brief A function to create a new mouse profile.
- * 
+ *
  * @param button Unused
  * @param data Application wide data structure
  */
 static void create_new_mouse_profile(GtkButton *button, app_data *data) {
 	const char *name = gtk_editable_get_text(data->widgets->editable_profile_name);
-	
+
 	if (!is_valid_profile_name(name)) {
 		gtk_label_set_text(data->widgets->label_profile_name_error, "Invalid profile name");
 		return;
@@ -339,7 +339,7 @@ static void create_new_mouse_profile(GtkButton *button, app_data *data) {
 
 /**
  * @brief A method to reset the window used to create a new mouse profile.
- * 
+ *
  * @param widget Unused
  * @param data Application wide data structure
  */
@@ -351,7 +351,7 @@ static void reset_new_profile_window(GtkWidget *widget, app_data *data) {
 
 /**
  * @brief Adds the mouse profiles entries to the profile menu button.
- * 
+ *
  * @param data Application wide data structure
  */
 static void add_mouse_profile_entries(app_data *data) {
@@ -363,7 +363,7 @@ static void add_mouse_profile_entries(app_data *data) {
 		debug("Error\n");
 	} else {
 		const char *profile_filename;
-	
+
 		while ((profile_filename = g_dir_read_name(profiles_dir))) {
 			data->profile_count++;
 
@@ -383,7 +383,7 @@ static void add_mouse_profile_entries(app_data *data) {
 }
 
 /**
- * @brief A function to initialize the GtkBuilder instance and 
+ * @brief A function to initialize the GtkBuilder instance and
  * obtain widgets to store into `data->widgets`.
  *
  * @param data Application wide data structure
@@ -426,14 +426,14 @@ static GtkBuilder* init_builder(app_data *data) {
 
 /**
  * @brief The function used to initialize application widgets and mouse settings.
- * 
+ *
  * @param app The GtkApplication instance
  * @param data Application wide data structure
  */
 void activate(GtkApplication *app, app_data *data) {
 	GtkSettings *settings = gtk_settings_get_default();
-	g_object_set(settings, 
-		"gtk-application-prefer-dark-theme", true, 
+	g_object_set(settings,
+		"gtk-application-prefer-dark-theme", true,
 		"gtk-enable-animations", 0,
 		"gtk-theme-name", "Adwaita",
 		NULL
@@ -446,14 +446,14 @@ void activate(GtkApplication *app, app_data *data) {
 	app_config_buttons_init(builder, data);
 	app_config_macro_init(builder, data);
 	app_config_sensor_init(builder, data);
-	
+
 	add_mouse_profile_entries(data);
-	
+
 	g_signal_connect(data->widgets->window, "close-request", G_CALLBACK(close_application), data);
 	g_signal_connect(data->widgets->window_new_mouse_profile, "close-request", G_CALLBACK(reset_new_profile_window), data);
 	widget_add_event(builder, "buttonSave", "clicked", save_mouse_settings, data);
 	widget_add_event(builder, "buttonConfirmNewProfile", "clicked", create_new_mouse_profile, data);
-	
+
 	g_timeout_add(100, G_SOURCE_FUNC(update_battery_display), data);
 
 	if (data->mouse->dev == NULL) {
@@ -461,7 +461,7 @@ void activate(GtkApplication *app, app_data *data) {
 	} else {
 		load_mouse_profile_to_mouse(data);
 	}
-	
+
 	gtk_window_set_application(data->widgets->window, app);
 	gtk_window_set_transient_for(data->widgets->window_new_mouse_profile, data->widgets->window);
 	gtk_window_present(data->widgets->window);
@@ -473,7 +473,7 @@ G_MODULE_EXPORT void enter_main_stack_page(GtkStack *stack, GtkEventController *
 
 G_MODULE_EXPORT void switch_stack_page(GtkStack *stack, GtkActionable *button) {
     gtk_stack_set_page(
-        stack, 
+        stack,
         g_variant_get_int32(gtk_actionable_get_action_target_value(button)
     ));
 }

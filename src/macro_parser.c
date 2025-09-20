@@ -1,19 +1,19 @@
 /*
  * This file is part of the open-pulsefire-haste project
  * Copyright (C) 2025  Evan Razzaque
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>. 
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #define MACRO_PARSER_PRIVATE
@@ -29,7 +29,7 @@
 struct macro_parser_data {
     recorded_macro *recored_macro; // Macro recored by the user
     macro_event *events; // Stores the macro events to write to the mouse
-    
+
     int event_count, event_index;
     bool keys_down[256], event_keys[256];
     int keys_down_count, event_keys_count;
@@ -38,7 +38,7 @@ struct macro_parser_data {
 
 /**
  * @brief Parses a key down event.
- * 
+ *
  * @param p The macro_parser_data object
  * @param modifier_map The array used to map hid usage ids to modifier bit flags
  * @param generic_event A generic_macro_event object
@@ -53,7 +53,7 @@ static void parse_key_down_event(macro_parser_data *p, const byte *modifier_map,
     } else {
         return;
     }
-    
+
     p->event_keys[generic_event->action] = true;
     p->keys_down[generic_event->action] = true;
     p->keys_down_count++;
@@ -69,21 +69,21 @@ static void parse_key_down_event(macro_parser_data *p, const byte *modifier_map,
 
 /**
  * @brief Parses a key up event.
- * 
+ *
  * @param p The macro_parser_data object
  * @param generic_event A generic_macro_event object
  */
 static void parse_key_up_event(macro_parser_data *p, generic_macro_event *generic_event) {
     p->keys_down[generic_event->action] = false;
     p->keys_down_count--;
-    
+
     if (p->keys_down_count > 0) return;
     p->event_count++;
 
     p->event_index++;
     p->events[p->event_index] = KEYBOARD_EVENT_UP(generic_event->delay_next_event);
     p->event_index++;
-    
+
     p->event_keys_count = 0;
     memset(&p->keys_down, false, sizeof(p->keys_down));
     memset(&p->event_keys, false, sizeof(p->event_keys));
@@ -91,7 +91,7 @@ static void parse_key_up_event(macro_parser_data *p, generic_macro_event *generi
 
 /**
  * @brief Parse a mouse event.
- * 
+ *
  * @param p The macro_parser_data object
  * @param generic_event A generic_macro_event object
  * @param event_type A MACRO_EVENT_TYPE value
@@ -115,13 +115,13 @@ int parse_macro(recorded_macro *macro, macro_event *events, const byte *modifier
         .recored_macro = macro,
         .events = events,
     };
-    
+
     bool *keys_down = parser_data.keys_down;
     bool *event_keys = parser_data.event_keys;
 
     for (int i = 0; i < macro->generic_event_count; i++) {
         generic_macro_event generic_event = macro->events[i];
-        uint16_t action_event_type = (uint16_t) (generic_event.action_type << 8) + (uint16_t) generic_event.event_type; 
+        uint16_t action_event_type = (uint16_t) (generic_event.action_type << 8) + (uint16_t) generic_event.event_type;
 
         switch (action_event_type) {
         case KEY_DOWN:
@@ -135,7 +135,7 @@ int parse_macro(recorded_macro *macro, macro_event *events, const byte *modifier
             parse_key_up_event(&parser_data, &generic_event);
             break;
         case MOUSE_DOWN:
-        case MOUSE_UP: 
+        case MOUSE_UP:
             if (parser_data.keys_down_count > 0) break;
             parse_mouse_event(&parser_data, &generic_event, generic_event.event_type);
             break;
