@@ -1,19 +1,19 @@
 /*
  * This file is part of the open-pulsefire-haste project
  * Copyright (C) 2025  Evan Razzaque
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>. 
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <stdint.h>
@@ -68,7 +68,7 @@ struct hid_device_info* get_devices(CONNECTION_TYPE *connection_type) {
 		while (dev_list_last->next != NULL) {
 			dev_list_last = dev_list_last->next;
 		}
-		
+
 		dev_list_last->next = dev_list_wireless;
 	} else {
 		dev_list = dev_list_wireless;
@@ -108,7 +108,7 @@ int mouse_write(hid_device *dev, byte *data) {
 	if (bytes_written == -1) {
 		printf("mouse_write: %S\n", hid_error(dev));
 	}
-	
+
 	return bytes_written;
 }
 
@@ -116,9 +116,9 @@ int mouse_send_read_request(hid_device *dev, REPORT_TYPE report_type) {
 	int res;
 
 	byte temp[PACKET_SIZE] = {REPORT_FIRST_BYTE(report_type)};
-	
+
 	res = mouse_write(dev, temp);
-	
+
 	if (res < 0) {
 		printf("mouse_send_read_request: %S\n", hid_error(dev));
 	}
@@ -149,10 +149,15 @@ int save_device_settings(hid_device *dev, union led_settings *led) {
 		0x64
 	});
 
+	float multiplier = color->brightness / 100.0;
+	byte red = (byte) color->red * multiplier;
+	byte green = (byte) color->green * multiplier;
+	byte blue = (byte) color->blue * multiplier;
+
 	// Saving led settings
 	mouse_write(dev, (byte[PACKET_SIZE]) {
 		REPORT_FIRST_BYTE(SEND_BYTE_SAVE_SETTINGS_LED), led->mode, 0x00, 0x3c,
-		color->red, color->green, color->blue
+		red, green, blue
 	});
 
 	for (int i = 1; i < 6; i++) {
