@@ -40,8 +40,6 @@
 
 #include "mouse_profile_storage.h"
 
-#define MAX_MACRO_EVENT_COUNT (80)
-
 static void claim_click(GtkGesture *gesture, void *data);
 
 /**
@@ -72,6 +70,8 @@ static void update_macro_event_delay_next_event(MacroEventItem *self, int event_
     recorded_macro *macro = &data->profile->macros[data->macro_data->macro_index];
     macro->events[event_index].delay = delay;
     macro->events[event_index - 1].delay_next_event = delay;
+
+    gtk_root_set_focus(GTK_ROOT(data->widgets->window), NULL);
 }
 
 #ifndef ADW_AVAILABLE_IN_1_8
@@ -523,7 +523,7 @@ void assign_macro(uint32_t macro_index, byte button, app_data *data) {
 
     if (event_count < 0) {
         printf("Invalid macro\n");
-        return;
+        goto free_events;
     }
 
     g_mutex_lock(data->mouse->mutex);
@@ -536,14 +536,15 @@ void assign_macro(uint32_t macro_index, byte button, app_data *data) {
     );
     g_mutex_unlock(data->mouse->mutex);
 
-    if (res < 0) return;
-
-    free(events);
+    if (res < 0) goto free_events;
 
     data->profile->bindings[button] = MOUSE_ACTION_TYPE_MACRO << 8;
     data->profile->macro_indices[button] = macro_index;
 
     update_menu_button_label(button, data->profile->bindings[button], data);
+
+    free_events:
+        free(events);
 }
 
 /**

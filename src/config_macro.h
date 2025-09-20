@@ -23,6 +23,8 @@
 #include "device/buttons.h"
 #include "types.h"
 
+#define MAX_MACRO_EVENT_COUNT (108)
+
 /**
  * Convieniece macro for a key(s) down event
  *
