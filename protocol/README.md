@@ -1,44 +1,49 @@
 # HyperX Pulsefire Haste Protocol
 
 - [Device Info](#device-info)
-	- [lsusb](#lsusb)
-	- [Operation](#operation)
+  - [lsusb](#lsusb)
+  - [Operation](#operation)
 - [Sent Packets](#sent-packets)
-	- [Polling Rate](#polling-rate)
-	- [LED](#led)
-		- [RGB value](#rgb-value)
-		- [Set LED settings](#set-led-settings)
-	- [DPI](#dpi)
-		- [Enabled profile bitmask](#enabled-profile-bitmask)
-		- [DPI profile](#dpi-profile)
-			- [DPI value](#dpi-value)
-			- [Profile indicator LED color](#profile-indicator-led-color)
-		- [Set lift-off distance](#set-lift-off-distance)
-		- [Selected DPI profile](#selected-dpi-profile)
-		- [Save DPI settings](#save-dpi-settings)
-	- [Buttons](#buttons)
-		- [Physical button](#physical-button)
-		- [Set button assignment](#set-button-assignment)
-	- [Macros](#macros)
-		- [Macro data](#macro-data)
-		- [Macro event](#macro-event)
-			- [Keyboard event](#keyboard-event)
-			- [Mouse event](#mouse-event)
-		- [Set macro assignment](#set-macro-assignment)
-	- [Saving Settings](#saving-settings)
-		- [Revert LED settings](#revert-led-settings)
-		- [Set fade LED effect](#set-fade-led-effect)
-		- [Set LED effect](#set-led-effect)
-		- [Set LED mode](#set-led-mode)
-		- [Unknown packet](#unknown-packet)
-		- [Save mouse settings](#save-mouse-settings)
+  - [Polling Rate](#polling-rate)
+  - [LED](#led)
+    - [RGB value](#rgb-value)
+    - [Adjusted RGB value](#adjusted-rgb-value)
+    - [Set LED settings](#set-led-settings)
+  - [DPI](#dpi)
+    - [Enabled profile bitmask](#enabled-profile-bitmask)
+    - [DPI profile](#dpi-profile)
+      - [DPI value](#dpi-value)
+      - [Profile indicator LED color](#profile-indicator-led-color)
+    - [Set lift-off distance](#set-lift-off-distance)
+    - [Selected DPI profile](#selected-dpi-profile)
+    - [Save DPI settings](#save-dpi-settings)
+  - [Buttons](#buttons)
+    - [Physical button](#physical-button)
+    - [Set button assignment](#set-button-assignment)
+  - [Macros](#macros)
+    - [Macro data](#macro-data)
+    - [Macro event](#macro-event)
+      - [Keyboard event](#keyboard-event)
+      - [Mouse event](#mouse-event)
+    - [Set macro assignment](#set-macro-assignment)
+  - [Saving Settings](#saving-settings)
+    - [Revert LED settings](#revert-led-settings)
+    - [Set fade LED effect](#set-fade-led-effect)
+    - [Set LED effect](#set-led-effect)
+    - [Set LED mode](#set-led-mode)
+    - [Unknown packet](#unknown-packet)
+    - [Save mouse settings](#save-mouse-settings)
 - [Received Packets](#received-packets)
-	- [Reports](#reports)
-	- [Generic Event](#generic-event)
+  - [Reports](#reports)
+    - [Connection status](#connection-status)
+    - [Hardware Information](#hardware-information)
+    - [Heartbeat](#heartbeat)
+    - [Current LED settings](#current-led-settings)
+  - [Generic Event](#generic-event)
 - [Button Assignment Codes](#button-assignment-codes)
 - [Miscellaneous](#miscellaneous)
-	- [Macro data sum value byte](#macro-data-sum-value-byte)
-	- [Macro event count](#macro-event-count)
+  - [Macro data sum value byte](#macro-data-sum-value-byte)
+  - [Macro event count](#macro-event-count)
 
 # Device Info
 
@@ -52,311 +57,308 @@ TODO: explain saving settings better
 
 ## lsusb
 
-TODO: fix formatting
-
-<details>
-<summary>
-Wired
-</summary>
-
-```
-Bus 001 Device 022: ID 03f0:048e HP, Inc HyperX Pulsefire Haste Wireless
-Negotiated speed: Full Speed (12Mbps)
-Device Descriptor:
- bLength								18
- bDescriptorType				 1
- bcdUSB							 2.00
- bDeviceClass						0 [unknown]
- bDeviceSubClass				 0 [unknown]
- bDeviceProtocol				 0
- bMaxPacketSize0				64
- idVendor					 0x03f0 HP, Inc
- idProduct					0x048e HyperX Pulsefire Haste Wireless
- bcdDevice					 11.11
- iManufacturer					 1 HP, Inc
- iProduct								2 HyperX Pulsefire Haste Wireless
- iSerial								 0
- bNumConfigurations			1
- Configuration Descriptor:
-	bLength								 9
-	bDescriptorType				 2
-	wTotalLength			 0x0074
-	bNumInterfaces					4
-	bConfigurationValue		 1
-	iConfiguration					0
-	bmAttributes				 0xe0
-	 Self Powered
-	 Remote Wakeup
-	MaxPower							500mA
-	Interface Descriptor:
-	 bLength								 9
-	 bDescriptorType				 4
-	 bInterfaceNumber				0
-	 bAlternateSetting			 0
-	 bNumEndpoints					 1
-	 bInterfaceClass				 3 Human Interface Device
-	 bInterfaceSubClass			1 Boot Interface Subclass
-	 bInterfaceProtocol			2 Mouse
-	 iInterface							0
-		HID Device Descriptor:
-		 bLength								 9
-		 bDescriptorType				33
-		 bcdHID							 1.11
-		 bCountryCode						0 Not supported
-		 bNumDescriptors				 1
-		 bDescriptorType				34 (null)
-		 wDescriptorLength			80
-		 Report Descriptors:
-			** UNAVAILABLE **
-	 Endpoint Descriptor:
-		bLength								 7
-		bDescriptorType				 5
-		bEndpointAddress		 0x81	EP 1 IN
-		bmAttributes						3
-		 Transfer Type						Interrupt
-		 Synch Type							 None
-		 Usage Type							 Data
-		wMaxPacketSize		 0x0040	1x 64 bytes
-		bInterval							 1
-	Interface Descriptor:
-	 bLength								 9
-	 bDescriptorType				 4
-	 bInterfaceNumber				1
-	 bAlternateSetting			 0
-	 bNumEndpoints					 1
-	 bInterfaceClass				 3 Human Interface Device
-	 bInterfaceSubClass			0 [unknown]
-	 bInterfaceProtocol			1 Keyboard
-	 iInterface							0
-		HID Device Descriptor:
-		 bLength								 9
-		 bDescriptorType				33
-		 bcdHID							 1.11
-		 bCountryCode						0 Not supported
-		 bNumDescriptors				 1
-		 bDescriptorType				34 (null)
-		 wDescriptorLength			47
-		 Report Descriptors:
-			** UNAVAILABLE **
-	 Endpoint Descriptor:
-		bLength								 7
-		bDescriptorType				 5
-		bEndpointAddress		 0x83	EP 3 IN
-		bmAttributes						3
-		 Transfer Type						Interrupt
-		 Synch Type							 None
-		 Usage Type							 Data
-		wMaxPacketSize		 0x0040	1x 64 bytes
-		bInterval							 1
-	Interface Descriptor:
-	 bLength								 9
-	 bDescriptorType				 4
-	 bInterfaceNumber				2
-	 bAlternateSetting			 0
-	 bNumEndpoints					 2
-	 bInterfaceClass				 3 Human Interface Device
-	 bInterfaceSubClass			0 [unknown]
-	 bInterfaceProtocol			0
-	 iInterface							0
-		HID Device Descriptor:
-		 bLength								 9
-		 bDescriptorType				33
-		 bcdHID							 1.11
-		 bCountryCode						0 Not supported
-		 bNumDescriptors				 1
-		 bDescriptorType				34 (null)
-		 wDescriptorLength			25
-		 Report Descriptors:
-			** UNAVAILABLE **
-	 Endpoint Descriptor:
-		bLength								 7
-		bDescriptorType				 5
-		bEndpointAddress		 0x82	EP 2 IN
-		bmAttributes						3
-		 Transfer Type						Interrupt
-		 Synch Type							 None
-		 Usage Type							 Data
-		wMaxPacketSize		 0x0040	1x 64 bytes
-		bInterval							 1
-	 Endpoint Descriptor:
-		bLength								 7
-		bDescriptorType				 5
-		bEndpointAddress		 0x02	EP 2 OUT
-		bmAttributes						3
-		 Transfer Type						Interrupt
-		 Synch Type							 None
-		 Usage Type							 Data
-		wMaxPacketSize		 0x0040	1x 64 bytes
-		bInterval							 1
-	Interface Descriptor:
-	 bLength								 9
-	 bDescriptorType				 4
-	 bInterfaceNumber				3
-	 bAlternateSetting			 0
-	 bNumEndpoints					 1
-	 bInterfaceClass				 3 Human Interface Device
-	 bInterfaceSubClass			0 [unknown]
-	 bInterfaceProtocol			0
-	 iInterface							0
-		HID Device Descriptor:
-		 bLength								 9
-		 bDescriptorType				33
-		 bcdHID							 1.11
-		 bCountryCode						0 Not supported
-		 bNumDescriptors				 1
-		 bDescriptorType				34 (null)
-		 wDescriptorLength			23
-		 Report Descriptors:
-			** UNAVAILABLE **
-	 Endpoint Descriptor:
-		bLength								 7
-		bDescriptorType				 5
-		bEndpointAddress		 0x84	EP 4 IN
-		bmAttributes						3
-		 Transfer Type						Interrupt
-		 Synch Type							 None
-		 Usage Type							 Data
-		wMaxPacketSize		 0x0040	1x 64 bytes
-		bInterval							 1
-Device Status:		 0x0001
- Self Powered
-```
-
-</details>
 <details>
 <summary>Wireless</summary>
 
 ```
-Bus 001 Device 021: ID 03f0:028e HP, Inc HyperX Pulsefire Haste Wireless
+Bus 001 Device 007: ID 03f0:028e HP, Inc HyperX Pulsefire Haste Wireless
 Negotiated speed: Full Speed (12Mbps)
 Device Descriptor:
- bLength								18
- bDescriptorType				 1
- bcdUSB							 2.00
- bDeviceClass						0 [unknown]
- bDeviceSubClass				 0 [unknown]
- bDeviceProtocol				 0
- bMaxPacketSize0				64
- idVendor					 0x03f0 HP, Inc
- idProduct					0x028e HyperX Pulsefire Haste Wireless
- bcdDevice					 41.09
- iManufacturer					 1 HP, Inc
- iProduct								2 HyperX Pulsefire Haste Wireless
- iSerial								 0
- bNumConfigurations			1
- Configuration Descriptor:
-	bLength								 9
-	bDescriptorType				 2
-	wTotalLength			 0x005b
-	bNumInterfaces					3
-	bConfigurationValue		 1
-	iConfiguration					0
-	bmAttributes				 0xa0
-	 (Bus Powered)
-	 Remote Wakeup
-	MaxPower							500mA
-	Interface Descriptor:
-	 bLength								 9
-	 bDescriptorType				 4
-	 bInterfaceNumber				0
-	 bAlternateSetting			 0
-	 bNumEndpoints					 1
-	 bInterfaceClass				 3 Human Interface Device
-	 bInterfaceSubClass			1 Boot Interface Subclass
-	 bInterfaceProtocol			2 Mouse
-	 iInterface							0
-		HID Device Descriptor:
-		 bLength								 9
-		 bDescriptorType				33
-		 bcdHID							 1.11
-		 bCountryCode						0 Not supported
-		 bNumDescriptors				 1
-		 bDescriptorType				34 (null)
-		 wDescriptorLength			78
-		 Report Descriptors:
-			** UNAVAILABLE **
-	 Endpoint Descriptor:
-		bLength								 7
-		bDescriptorType				 5
-		bEndpointAddress		 0x81	EP 1 IN
-		bmAttributes						3
-		 Transfer Type						Interrupt
-		 Synch Type							 None
-		 Usage Type							 Data
-		wMaxPacketSize		 0x000b	1x 11 bytes
-		bInterval							 1
-	Interface Descriptor:
-	 bLength								 9
-	 bDescriptorType				 4
-	 bInterfaceNumber				1
-	 bAlternateSetting			 0
-	 bNumEndpoints					 1
-	 bInterfaceClass				 3 Human Interface Device
-	 bInterfaceSubClass			0 [unknown]
-	 bInterfaceProtocol			1 Keyboard
-	 iInterface							0
-		HID Device Descriptor:
-		 bLength								 9
-		 bDescriptorType				33
-		 bcdHID							 1.11
-		 bCountryCode						0 Not supported
-		 bNumDescriptors				 1
-		 bDescriptorType				34 (null)
-		 wDescriptorLength			92
-		 Report Descriptors:
-			** UNAVAILABLE **
-	 Endpoint Descriptor:
-		bLength								 7
-		bDescriptorType				 5
-		bEndpointAddress		 0x82	EP 2 IN
-		bmAttributes						3
-		 Transfer Type						Interrupt
-		 Synch Type							 None
-		 Usage Type							 Data
-		wMaxPacketSize		 0x0010	1x 16 bytes
-		bInterval							 1
-	Interface Descriptor:
-	 bLength								 9
-	 bDescriptorType				 4
-	 bInterfaceNumber				2
-	 bAlternateSetting			 0
-	 bNumEndpoints					 2
-	 bInterfaceClass				 3 Human Interface Device
-	 bInterfaceSubClass			0 [unknown]
-	 bInterfaceProtocol			0
-	 iInterface							0
-		HID Device Descriptor:
-		 bLength								 9
-		 bDescriptorType				33
-		 bcdHID							 1.11
-		 bCountryCode						0 Not supported
-		 bNumDescriptors				 1
-		 bDescriptorType				34 (null)
-		 wDescriptorLength			34
-		 Report Descriptors:
-			** UNAVAILABLE **
-	 Endpoint Descriptor:
-		bLength								 7
-		bDescriptorType				 5
-		bEndpointAddress		 0x83	EP 3 IN
-		bmAttributes						3
-		 Transfer Type						Interrupt
-		 Synch Type							 None
-		 Usage Type							 Data
-		wMaxPacketSize		 0x0040	1x 64 bytes
-		bInterval							 1
-	 Endpoint Descriptor:
-		bLength								 7
-		bDescriptorType				 5
-		bEndpointAddress		 0x04	EP 4 OUT
-		bmAttributes						3
-		 Transfer Type						Interrupt
-		 Synch Type							 None
-		 Usage Type							 Data
-		wMaxPacketSize		 0x0040	1x 64 bytes
-		bInterval							 1
-Device Status:		 0x0000
- (Bus Powered)
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               2.00
+  bDeviceClass            0 [unknown]
+  bDeviceSubClass         0 [unknown]
+  bDeviceProtocol         0
+  bMaxPacketSize0        64
+  idVendor           0x03f0 HP, Inc
+  idProduct          0x028e HyperX Pulsefire Haste Wireless
+  bcdDevice           41.09
+  iManufacturer           1 HP, Inc
+  iProduct                2 HyperX Pulsefire Haste Wireless
+  iSerial                 0
+  bNumConfigurations      1
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength       0x005b
+    bNumInterfaces          3
+    bConfigurationValue     1
+    iConfiguration          0
+    bmAttributes         0xa0
+      (Bus Powered)
+      Remote Wakeup
+    MaxPower              500mA
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        0
+      bAlternateSetting       0
+      bNumEndpoints           1
+      bInterfaceClass         3 Human Interface Device
+      bInterfaceSubClass      1 Boot Interface Subclass
+      bInterfaceProtocol      2 Mouse
+      iInterface              0
+        HID Device Descriptor:
+          bLength                 9
+          bDescriptorType        33
+          bcdHID               1.11
+          bCountryCode            0 Not supported
+          bNumDescriptors         1
+          bDescriptorType        34 (null)
+          wDescriptorLength      78
+          Report Descriptors:
+            ** UNAVAILABLE **
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x81  EP 1 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x000b  1x 11 bytes
+        bInterval               1
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        1
+      bAlternateSetting       0
+      bNumEndpoints           1
+      bInterfaceClass         3 Human Interface Device
+      bInterfaceSubClass      0 [unknown]
+      bInterfaceProtocol      1 Keyboard
+      iInterface              0
+        HID Device Descriptor:
+          bLength                 9
+          bDescriptorType        33
+          bcdHID               1.11
+          bCountryCode            0 Not supported
+          bNumDescriptors         1
+          bDescriptorType        34 (null)
+          wDescriptorLength      92
+          Report Descriptors:
+            ** UNAVAILABLE **
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x82  EP 2 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0010  1x 16 bytes
+        bInterval               1
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        2
+      bAlternateSetting       0
+      bNumEndpoints           2
+      bInterfaceClass         3 Human Interface Device
+      bInterfaceSubClass      0 [unknown]
+      bInterfaceProtocol      0
+      iInterface              0
+        HID Device Descriptor:
+          bLength                 9
+          bDescriptorType        33
+          bcdHID               1.11
+          bCountryCode            0 Not supported
+          bNumDescriptors         1
+          bDescriptorType        34 (null)
+          wDescriptorLength      34
+          Report Descriptors:
+            ** UNAVAILABLE **
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x83  EP 3 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               1
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x04  EP 4 OUT
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               1
+Device Status:     0x0000
+  (Bus Powered)
+```
+
+</details>
+
+<details>
+<summary>Wired</summary>
+
+```
+Bus 001 Device 008: ID 03f0:048e HP, Inc HyperX Pulsefire Haste Wireless
+Negotiated speed: Full Speed (12Mbps)
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               2.00
+  bDeviceClass            0 [unknown]
+  bDeviceSubClass         0 [unknown]
+  bDeviceProtocol         0
+  bMaxPacketSize0        64
+  idVendor           0x03f0 HP, Inc
+  idProduct          0x048e HyperX Pulsefire Haste Wireless
+  bcdDevice           11.11
+  iManufacturer           1 HP, Inc
+  iProduct                2 HyperX Pulsefire Haste Wireless
+  iSerial                 0
+  bNumConfigurations      1
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength       0x0074
+    bNumInterfaces          4
+    bConfigurationValue     1
+    iConfiguration          0
+    bmAttributes         0xe0
+      Self Powered
+      Remote Wakeup
+    MaxPower              500mA
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        0
+      bAlternateSetting       0
+      bNumEndpoints           1
+      bInterfaceClass         3 Human Interface Device
+      bInterfaceSubClass      1 Boot Interface Subclass
+      bInterfaceProtocol      2 Mouse
+      iInterface              0
+        HID Device Descriptor:
+          bLength                 9
+          bDescriptorType        33
+          bcdHID               1.11
+          bCountryCode            0 Not supported
+          bNumDescriptors         1
+          bDescriptorType        34 (null)
+          wDescriptorLength      80
+          Report Descriptors:
+            ** UNAVAILABLE **
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x81  EP 1 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               1
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        1
+      bAlternateSetting       0
+      bNumEndpoints           1
+      bInterfaceClass         3 Human Interface Device
+      bInterfaceSubClass      0 [unknown]
+      bInterfaceProtocol      1 Keyboard
+      iInterface              0
+        HID Device Descriptor:
+          bLength                 9
+          bDescriptorType        33
+          bcdHID               1.11
+          bCountryCode            0 Not supported
+          bNumDescriptors         1
+          bDescriptorType        34 (null)
+          wDescriptorLength      47
+          Report Descriptors:
+            ** UNAVAILABLE **
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x83  EP 3 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               1
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        2
+      bAlternateSetting       0
+      bNumEndpoints           2
+      bInterfaceClass         3 Human Interface Device
+      bInterfaceSubClass      0 [unknown]
+      bInterfaceProtocol      0
+      iInterface              0
+        HID Device Descriptor:
+          bLength                 9
+          bDescriptorType        33
+          bcdHID               1.11
+          bCountryCode            0 Not supported
+          bNumDescriptors         1
+          bDescriptorType        34 (null)
+          wDescriptorLength      25
+          Report Descriptors:
+            ** UNAVAILABLE **
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x82  EP 2 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               1
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x02  EP 2 OUT
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               1
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        3
+      bAlternateSetting       0
+      bNumEndpoints           1
+      bInterfaceClass         3 Human Interface Device
+      bInterfaceSubClass      0 [unknown]
+      bInterfaceProtocol      0
+      iInterface              0
+        HID Device Descriptor:
+          bLength                 9
+          bDescriptorType        33
+          bcdHID               1.11
+          bCountryCode            0 Not supported
+          bNumDescriptors         1
+          bDescriptorType        34 (null)
+          wDescriptorLength      23
+          Report Descriptors:
+            ** UNAVAILABLE **
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x84  EP 4 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               1
+Device Status:     0x0001
+  Self Powered
 ```
 
 </details>
@@ -364,7 +366,7 @@ Device Status:		 0x0000
 ## Operation
 
 This mouse operates in "direct" mode, and seems to use LED updates to persist its settings while awake. Therefore, LED packets must be constantly sent. See [Set LED settings](#set-led-settings) for more information.
- That is, 
+ That is,
 # Sent Packets
 
 Packets sent by Ngenuity.
@@ -387,20 +389,30 @@ Since Ngenuity constantly sends LED packets, every LED effect is acheived by sen
 
 ### RGB value
 
-Used in: [Set LED settings](#set-led-settings), [Set LED effect](#set-led-effect)
+Used in: [Set LED settings](#set-led-settings), [Current LED settings](#current-led-settings)
 
-| Byte Index | Value | Description                  |
-|------------|-------|------------------------------|
-| 0          | 0x**  | `red * (brightness / 100)`   |
+| Byte Index | Value | Description |
+|------------|-------|-------------|
+| 0          | 0x**  | RED         |
+| 1          | 0x**  | GREEN       |
+| 2          | 0x**  | BLUE        |
+
+### Adjusted RGB value
+
+Used in [Set LED effect](#set-led-effect), because they don't contain any brightness values.
+
+| Byte Index | Value | Description |
+|------------|-------|-------------|
+| 0          | 0x**  | `red * (brightness / 100)` |
 | 1          | 0x**  | `green * (brightness / 100)` |
-| 2          | 0x**  | `blue * (brightness / 100)`  |
+| 2          | 0x**  | `blue * (brightness / 100)` |
 
 ### Set LED settings
 
 A couple of seconds after sending this packet, the mouse reverts back to the settings saved in its onboard memory.
 
 
-| Byte Index | Value | Description |                                            
+| Byte Index | Value | Description |
 |------------|-------|-------------|
 | 0          | 0xD2  | Set LED     |
 | 1          | 0x00  | Padding     |
@@ -457,7 +469,7 @@ Each DPI profile contains 2 packets, being its DPI value and LED color indicator
 |------------|-------|---------------------------------|
 | 0          | 0xD3  | Send DPI settings               |
 | 1          | 0x01  | Set profile LED color indicator |
-| 2          | 0x00  | Profile number (0x01 - 0x04)                 |
+| 2          | 0x00  | Profile number (0x01 - 0x04)    |
 | 3          | 0x01  | 3 bytes after index 3           |
 | 4          | 0xAA  | RED                             |
 | 5          | 0xBB  | GREEN                           |
@@ -521,7 +533,7 @@ _Why is this with DPI profiles?_
 
 Macros are assigned as follows:
 <pre>
-1. <a href="#set-button-assignment">Set button assignment</a> 
+1. <a href="#set-button-assignment">Set button assignment</a>
 2. Macro data packet(s)
 3. Set macro assignment
 </pre>
@@ -534,7 +546,7 @@ Each macro data packet contains a maximum of 6 events. The first 4 bytes are res
 |------------|----------------|-----------------------|
 | 0          | 0xD6           | Send macro assignment |
 | 1          | 0x0*           | [Phyiscal button](#physical-button) |
-| 2          | 0x**           | Some sort of order value that can be calculated with the following formula:<br>$floor(\frac{3n}{2})$, where n is the nth macro data packet (starting at 0) <br>[Explanation](#macro-data-sum-value-byte)|
+| 2          | 0x**           | Some sort of order value that can be calculated with the following formula:<br>$floor(\frac{3n}{2})$, where n is the nth macro data packet (starting at 0) <br>[Details](#macro-data-sum-value-byte)|
 | 3          | 0x**           | The number of events contained in this packet. If the macro data packet is odd numbered, 0x80 is added to the event count. |
 | 4 - 63     | 6 macro events | Each event starts with an "event type" <ul><li>0x1A = Keyboard function</li><li>0x25 = Mouse function</li></ul> |
 
@@ -651,7 +663,7 @@ Used when LED mode is 'fade'
 
 Currently, this only covers solid colors.
 
-The LED effect is set from 6 of these packets, with each packet containing all the colors the mouse will cycle through in order to achieve the desired LED effect. 
+The LED effect is set from 6 of these packets, with each packet containing all the colors the mouse will cycle through in order to achieve the desired LED effect.
 
 Unlike [Set LED settings](#led), the LED effect isn't reverted until the mouse is unplugged/turned off. Technically, this could be used as a replacement for spamming Set LED setting packets, but it would be slower to change the LED effect, especially ones that are dynamic.
 
@@ -661,7 +673,7 @@ Unlike [Set LED settings](#led), the LED effect isn't reverted until the mouse i
 | 1          | 0x**  | [LED mode](#led-mode) |
 | 2          | 0x0*  | LED effect packet number (0x00-0x05) |
 | 3          | 0x3c  | 60 bytes after index 3 |
-| 4 - 63     | 20 [RGB](#rgb-value) colors | The colors that the LED will cycle through. If the LED mode is static, only 1 color should be present. If the LED mode is fade, no colors should be present. |
+| 4 - 63     | 20 [Adjusted RGB](#adjusted-rgb-value) colors | The colors that the LED will cycle through. If the LED mode is static, only 1 color should be present. If the LED mode is fade, no colors should be present. |
 
 ### Set LED mode
 
@@ -682,7 +694,7 @@ This packet seems to be related to [Set LED mode](#set-led-mode). However, the v
 | Byte Index | Value | Description       |
 |------------|-------|-------------------|
 | 0          | 0xDB  | Unknown           |
-| 1          | 0x55  | Byte before LED mode? | 
+| 1          | 0x55  | Byte before LED mode? |
 
 ### Save mouse settings
 
@@ -699,11 +711,79 @@ Packets sent by the mouse
 
 TODO: add additional reports
 
-Requires a request packet to be sent with one of the follow values as the first byte:
-- 0x46 = Connection status
-- 0x50 = Hardware information
-- 0x51 = Heartbeat
-- 0x52 = Onboard LED settings 
+Requires a request packet to be sent with the report's first byte.
+
+### Connection status
+
+| Byte Index | Value | Description        |
+|------------|-------|--------------------|
+| 0          | 0x46  | Connection Status  |
+| 1          | 0x00  | Padding            |
+| 2          | 0x00  | Padding            |
+| 3          | 0x0*  | <ul><li>0x01 = Wireless connection (1 byte after byte index 0x03) </li><li>0x02 = Wired connection (2 bytes after byte index 0x03) </li></ul> |
+| 4          | 0x**  | Wireless<ul><li>0x00 = Asleep</li><li>0x01 = Awake</li></ul></ul>Wired<ul><li>0xEC = Unknown</li></ul> |
+| 5          | 0x00  | Wireless = 0x00, Wired = 0xAC |
+
+### Hardware Information
+
+| Byte Index | Value | Description           |
+|------------|-------|-----------------------|
+| 0          | 0x46  | Hardware information  |
+| 1          | 0x00  | Padding               |
+| 2          | 0x00  | Padding               |
+| 3          | 0x3C  | 60 bytes after index 3 |
+| 4          | 0x8E  | Product id lower byte |
+| 5          | 0x0*  | Product id upper byte <ul><li>Wireless = 0x02<li>Wired = 0x04</ul> |
+| 6          | 0xF0  | Vendor id lower byte  |
+| 7          | 0x03  | Vendor id upper byte  |
+| 8-11       | 0x******** | Little-endian bcd release number<ul><li>Wireless = 4.1.0.9<li>Wired = 1.1.1.1</ul> |
+| 12         | 0x8E  | Unknown               |
+| 13         | 0x0*  | Unknown <ul><li>Wireless = 0x03<li>Wired = 0x05</ul> |
+| 14         | 0xF0  | Unknown               |
+| 15         | 0x03  | Unknown               |
+| 16         | 0x0*  | Number of interfaces?<ul><li>Wireless = 0x03<li>Wired = 0x04</ul> |
+| 17         | 0x00  | Unknown / Padding |
+| 18         | 0x0*  | Unknown <ul><li>Wireless = 0x01<li>Wired = 0x00</ul> |
+| 19         | 0x0*  | Unknown <ul><li>Wireless = 0x00<li>Wired = 0x01</ul> |
+| 20-52      | 0x03  | Product string (includes null-byte) |
+
+Product string: "HyperX Pulsefire Haste Wireless"
+
+### Heartbeat
+
+TODO: figure out voltage?
+
+| Byte Index | Value | Description        |
+|------------|-------|--------------------|
+| 0          | 0x51  | Heartbeat          |
+| 1          | 0x00  | Padding            |
+| 2          | 0x00  | Padding            |
+| 3          | 0x09  | 9 bytes after index 3 |
+| 4          | 0x**  | Battery level <ul><li>Min: 0x00</li><li>Max: 0x64 (100)</li><li>Step: 0x01</li>|
+| 5          | 0x0*  | Charging Status <ul><li>Wireless = 0x00<li>Wired = 0x01<li>Wired, Fully Charged = 0x02</ul> |
+| 6          | 0x0A  | Unknown            |
+| 7          | 0x1D  | Unknown            |
+| 8          | 0x00  | Unknown / Padding  |
+| 9          | 0x**  | Unknown            |
+| 10         | 0x10  | Unknown            |
+| 11         | 0x02  | Unknown            |
+| 12         | 0x04  | Unknown            |
+
+### Current LED settings
+
+This packets contains the current LED effect set by [Set LED settings](#set-led-settings). If no LED settings packet has been sent in the last couple of seconds, the brightness will default to 0x64 (100) and the RGB will default to #FFFFFF.
+
+| Byte Index | Value | Description       |
+|------------|-------|-------------------|
+| 0          | 0x52  | Onboard LED Settings |
+| 1          | 0x00  | Padding           |
+| 2          | 0x00  | Padding           |
+| 3          | 0x0A  | 10 bytes after index 3 |
+| 4          | 0x0*  | LED settings type? <ul><li>0x00 = Direct settings<li>0x04 = Saved settings</ul> |
+| 5          | 0x00  | Unknown/Padding   |
+| 6          | 0x00  | Unknown/Padding   |
+| 7          | 0x**  | Brightness        |
+| 8-10       | [RGB](#rgb-value) | LED color |
 
 ## Generic Event
 
