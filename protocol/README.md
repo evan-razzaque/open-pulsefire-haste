@@ -41,6 +41,12 @@
     - [Current LED settings](#current-led-settings)
   - [Generic Event](#generic-event)
 - [Button Assignment Codes](#button-assignment-codes)
+  - [Disabled (Assignment type = 0x00)](#disabled-assignment-type--0x00)
+  - [Mouse functions (Assignment type = 0x01)](#mouse-functions-assignment-type--0x01)
+  - [Keyboard functions (Assignment type = 0x02)](#keyboard-functions-assignment-type--0x02)
+  - [Media functions (Assignment type = 0x03)](#media-functions-assignment-type--0x03)
+  - [Shortcut functions (Assignment type = 0x05)](#shortcut-functions-assignment-type--0x05)
+  - [DPI toggle (Assignment type = 0x07)](#dpi-toggle-assignment-type--0x07)
 - [Miscellaneous](#miscellaneous)
   - [Macro data sum value byte](#macro-data-sum-value-byte)
   - [Macro event count](#macro-event-count)
@@ -49,11 +55,10 @@
 
 Vendor ID: **0x03F0**<br>
 Product IDs: **0x048E** (wired), **0x028E** (wireless)<br>
+Usage page: **0xFF00**
 
 Interface: 2<br>
 Packet Length: 64 bytes
-
-TODO: explain saving settings better
 
 ## lsusb
 
@@ -366,7 +371,7 @@ Device Status:     0x0001
 ## Operation
 
 This mouse operates in "direct" mode, and seems to use LED updates to persist its settings while awake. Therefore, LED packets must be constantly sent. See [Set LED settings](#set-led-settings) for more information.
- That is,
+
 # Sent Packets
 
 Packets sent by Ngenuity.
@@ -381,7 +386,7 @@ Packets sent by Ngenuity.
 | 1          | 0x00  | Padding              |
 | 2          | 0x00  | Padding              |
 | 3          | 0x01  | 1 byte after index 3 |
-| 4          | 0x0*  | Polling Rate Value  <ul><li>0x00 = 125Hz</li><li>0x01 = 250Hz</li><li>0x02 = 500Hz</li><li>0x03 = 1000Hz</li></ul> |
+| 4          | 0x0*  | Polling rate value  <ul><li>0x00 = 125Hz</li><li>0x01 = 250Hz</li><li>0x02 = 500Hz</li><li>0x03 = 1000Hz</li></ul> |
 
 ## LED
 
@@ -389,7 +394,7 @@ Since Ngenuity constantly sends LED packets, every LED effect is acheived by sen
 
 ### RGB value
 
-Used in: [Set LED settings](#set-led-settings), [Current LED settings](#current-led-settings)
+Used in: [Set LED settings](#set-led-settings), [LED settings](#led-settings)
 
 | Byte Index | Value | Description |
 |------------|-------|-------------|
@@ -399,7 +404,7 @@ Used in: [Set LED settings](#set-led-settings), [Current LED settings](#current-
 
 ### Adjusted RGB value
 
-Used in [Set LED effect](#set-led-effect), because they don't contain any brightness values.
+Used in [Set LED effect](#set-led-effect)
 
 | Byte Index | Value | Description |
 |------------|-------|-------------|
@@ -421,6 +426,7 @@ A couple of seconds after sending this packet, the mouse reverts back to the set
 | 4-6        | [RGB](#rgb-value) | LED color |
 | 7-9        | [RGB](#rgb-value) | LED effect color, unused |
 | 10         | 0x**  | Brightness <ul><li>Min: 0x00</li><li>Max: 0x64 (100)</li><li>Step: 0x01</li></ul> |
+| 11         | 0x00  | Unknown     |
 
 
 ## DPI
@@ -449,31 +455,32 @@ A 5-bit (little-endian) number, where the nth bit corresponds to profile n.
 | 3          | 0x01    | 1 byte after index 3                                |
 | 4          | 0b11100 | Enabled profiles (in this case profile 0, 1, and 2) |
 
-### DPI profile
+### DPI profile (max 5 profiles)
 
 Each DPI profile contains 2 packets, being its DPI value and LED color indicator.
 
 #### DPI value
 
-| Byte Index | Value | Description                                                     |
-|------------|-------|-----------------------------------------------------------------|
-| 0          | 0xD3  | Send DPI settings                                               |
-| 1          | 0x01  | Set profile DPI value                                           |
-| 2          | 0x0*  | Profile number                                                  |
-| 3          | 0x02  | 2 bytes after index 3 (Should be 1, but Ngenuity uses 2)        |
-| 4          | 0x0A  | DPI step, where the step is 100<br>10 * step -> 1000 DPI        |
+| Byte Index | Value | Description                                              |
+|------------|-------|----------------------------------------------------------|
+| 0          | 0xD3  | Send DPI settings                                        |
+| 1          | 0x02  | Set profile DPI value                                    |
+| 2          | 0x0*  | Profile number (0x01 - 0x04)                             |
+| 3          | 0x02  | 2 bytes after index 3                                    |
+| 4          | 0x0A  | DPI step, where the step is 100<br>0x0A * step -> 1000 DPI |
+| 5          | 0x00  | Unknown                                                  |
 
 #### Profile indicator LED color
 
 | Byte Index | Value | Description                     |
 |------------|-------|---------------------------------|
 | 0          | 0xD3  | Send DPI settings               |
-| 1          | 0x01  | Set profile LED color indicator |
-| 2          | 0x00  | Profile number (0x01 - 0x04)    |
-| 3          | 0x01  | 3 bytes after index 3           |
-| 4          | 0xAA  | RED                             |
-| 5          | 0xBB  | GREEN                           |
-| 6          | 0xCC  | BLUE                            |
+| 1          | 0x03  | Set profile LED color indicator |
+| 2          | 0x0*  | Profile number (0x01 - 0x04)    |
+| 3          | 0x03  | 3 bytes after index 3           |
+| 4          | 0x**  | RED                             |
+| 5          | 0x**  | GREEN                           |
+| 6          | 0x**  | BLUE                            |
 
 ### Set lift-off distance
 
@@ -483,7 +490,7 @@ _Why is this with DPI profiles?_
 | Byte Index | Value | Description                                              |
 |------------|-------|----------------------------------------------------------|
 | 0          | 0xD3  | Send DPI settings                                        |
-| 1          | 0x01  | Set lift-off distance                                    |
+| 1          | 0x05  | Set lift-off distance                                    |
 | 2          | 0x00  | Padding                                                  |
 | 3          | 0x01  | 1 byte after index 3 (no clue why there's 2 bytes after) |
 | 4          | 0x0*  | Lift-off distance (in millimeters)<ul><li>Low: 1mm</li><li>High: 2mm</li><ul> |
@@ -524,10 +531,11 @@ _Why is this with DPI profiles?_
 | Byte Index | Value | Description            |
 |------------|-------|------------------------|
 | 0          | 0xD4  | Send button assignment |
-| 1          | 0x00  | [Physical button](#physical-button) |
-| 2          | 0x00  | Assignment type<ul><li>0x00 = Disabled<li>0x01 = Mouse functions (USB HID Button Page 0x09) </li><li>0x02 = Keyboard functions (USB HID Keyboard Page 0x07) </li><li>0x03 = Media functions (Non-standard codes) </li><li>0x04 = Macro </li><li>0x05 = Shortcut</li><li>0x07 = DPI Switch function</li></ul> |
-| 3          | 0x01  | 2 bytes after index 3  |
-| 4          | 0x00  | Physical button number (for macros), Assignment code or USB HID Usage ID<br>See [Button Assignment Codes](#button-assignment-codes) for more information |
+| 1          | 0x0*  | [Physical button](#physical-button) |
+| 2          | 0x0*  | Assignment type<ul><li>0x00 = Disabled<li>0x01 = Mouse functions (USB HID Button Page 0x09) </li><li>0x02 = Keyboard functions (USB HID Keyboard Page 0x07) </li><li>0x03 = Media functions (Non-standard codes) </li><li>0x04 = Macro </li><li>0x05 = Shortcut functions</li><li>0x07 = DPI Toggle function</li></ul> |
+| 3          | 0x02  | 2 bytes after index 3 |
+| 4          | 0x**  | [Physical button](#physical-button) (for macros), Assignment code, or USB HID Usage ID<br>See [Button Assignment Codes](#button-assignment-codes) for more information |
+| 5          | 0x00  | Unknown               |
 
 ## Macros
 
@@ -548,7 +556,7 @@ Each macro data packet contains a maximum of 6 events. The first 4 bytes are res
 | 1          | 0x0*           | [Phyiscal button](#physical-button) |
 | 2          | 0x**           | Some sort of order value that can be calculated with the following formula:<br>$floor(\frac{3n}{2})$, where n is the nth macro data packet (starting at 0) <br>[Details](#macro-data-sum-value-byte)|
 | 3          | 0x**           | The number of events contained in this packet. If the macro data packet is odd numbered, 0x80 is added to the event count. |
-| 4 - 63     | 6 macro events | Each event starts with an "event type" <ul><li>0x1A = Keyboard function</li><li>0x25 = Mouse function</li></ul> |
+| 4 - 63     | 6 [macro events](#macro-event) | Each event starts with an "event type" <ul><li>0x1A = Keyboard function</li><li>0x25 = Mouse function</li></ul> |
 
 
 ### Macro event
@@ -588,17 +596,16 @@ Since mouse events cannot be performed at the same time as a key event, each mou
 
 | Byte index | Value | Description |
 | ------ | ------ | ------ |
-| 0x00 | 0xD5 | Set macro assignment |
-| 0x01 | 0x** | [Physical button](#physical-button) |
-| 0x02 | 0x00 | Unknown |
-| 0x03 | 0x05 | 5 bytes after byte index 0x03 |
-| 0x04 | 0x** | Number of macro events (0x01-0x6C)<br>[Details](#macro-event-count) |
-| 0x05 | 0x00 | Unknown |
-| 0x06 | 0x00 | Repeat mode <br><ul><li>0x00 = Play once </li><li>0x02 = Toggle repeat </li><li>0x03 = Hold repeat </li></ul> |
-| 0x07 | 0x00 | Unknown |
-| 0x08 | 0x00 | Unknown |
+| 0 | 0xD5 | Set macro assignment |
+| 1 | 0x** | [Physical button](#physical-button) |
+| 2 | 0x00 | Padding |
+| 3 | 0x05 | 5 bytes after byte index 0x03 |
+| 4 | 0x** | Number of macro events (0x01-0x6C)<br>[Details](#macro-event-count) |
+| 5 | 0x00 | Unknown |
+| 6 | 0x00 | Repeat mode <br><ul><li>0x00 = Play once </li><li>0x02 = Toggle repeat </li><li>0x03 = Hold repeat </li></ul> |
+| 7 | 0x00 | Unknown |
+| 8 | 0x00 | Unknown |
 
-<a name="saving-settings">
 
 ## Saving Settings
 
@@ -622,42 +629,44 @@ s = speed
 |------------|-------|
 | Solid      | 0x01  |
 | Fade       | 0x01  |
-| Breathing  | $\operatorname{floor}\left(120-\left(1+\frac{e}{30}\right)\cdot s\right)$ <br> |
-| Cycle      | $\operatorname{floor}\left(120-0.4s\right)$  |
+| Breathing  | $floor\left(120-\left(1+\frac{e}{30}\right)\cdot s\right)$ <br> |
+| Cycle      | $floor\left(120-0.4s\right)$  |
 
 ### Revert LED settings
 
-Used when LED mode is not 'fade'
+Used when LED mode is not fade
 
 | Byte Index | Value | Description       |
 |------------|-------|-------------------|
 | 0          | 0xD2  | Set LED           |
-| 1          | 0x00  | Unknown/Padding   |
+| 1          | 0x00  | Padding           |
 | 2          | 0x40  | Revert LED settings? |
 | 3          | 0x08  | 8 bytes after index 3 (TODO: figure out if the following bytes mean anything) |
-| 4          | 0xFF  | White (R) |
-| 5          | 0xFF  | White (G) |
-| 6          | 0xFF  | White (B) |
+| 4          | 0xFF  | White (R)         |
+| 5          | 0xFF  | White (G)         |
+| 6          | 0xFF  | White (B)         |
 | 7          | 0x00  | Padding / RED effect (unused)  |
 | 8          | 0x00  | Padding / GREEN effect (unused) |
 | 9          | 0x00  | Padding / BLUE effect  (unused) |
 | 10         | 0x64  | Brightness, always seems to be 100 |
+| 11         | 0x00  | Unknown           |
 
 ### Set fade LED effect
 
-Used when LED mode is 'fade'
+Used when LED mode is fade
 
-| Byte Index | Value | Description       |
-|------------|-------|-------------------|
-| 0          | 0xD2  | Set LED           |
-| 1          | 0x00  | Unknown/Padding   |
+| Byte Index | Value | Description |
+|------------|-------|-------------|
+| 0          | 0xD2  | Set LED     |
+| 1          | 0x00  | Padding     |
 | 2          | 0x30  | Set fade LED effect |
 | 3          | 0x08  | 8 bytes after index 3 |
 | 4-6        | [RGB](#rgb-value) | LED Fade color |
-| 7          | 0x00  | Padding |
-| 8          | 0x00  | Padding |
-| 9          | 0x00  | Padding |
+| 7          | 0x00  | Padding     |
+| 8          | 0x00  | Padding     |
+| 9          | 0x00  | Padding     |
 | 10         | 0x64  | Unknown / Fixed brightness? |
+| 11         | 0x00  | Unknown     |
 
 ### Set LED effect
 
@@ -665,7 +674,7 @@ Currently, this only covers solid colors.
 
 The LED effect is set from 6 of these packets, with each packet containing all the colors the mouse will cycle through in order to achieve the desired LED effect.
 
-Unlike [Set LED settings](#led), the LED effect isn't reverted until the mouse is unplugged/turned off. Technically, this could be used as a replacement for spamming Set LED setting packets, but it would be slower to change the LED effect, especially ones that are dynamic.
+Unlike [Set LED settings](#led), the LED effect isn't reverted until the mouse is unplugged/turned off. Technically, this could be used instead of spamming Set LED setting packets, but it would be slower to change the LED effect, especially ones that are dynamic.
 
 | Byte Index | Value | Description       |
 |------------|-------|-------------------|
@@ -680,8 +689,8 @@ Unlike [Set LED settings](#led), the LED effect isn't reverted until the mouse i
 | Byte Index | Value | Description       |
 |------------|-------|-------------------|
 | 0          | 0xD9  | Set LED mode?     |
-| 1          | 0x00  | Unknown / Padding |
-| 2          | 0x00  | Unknown / Padding |
+| 1          | 0x00  | Padding |
+| 2          | 0x00  | Padding |
 | 3          | 0x03  | 3 bytes after index 3 |
 | 4          | 0x55  | Byte before LED mode? |
 | 5          | 0x**  | [LED mode](#led-mode) |
@@ -701,7 +710,7 @@ This packet seems to be related to [Set LED mode](#set-led-mode). However, the v
 | Byte Index | Value | Description        |
 |------------|-------|--------------------|
 | 0          | 0xDE  | Save               |
-| 1          | 0xff  | Save all settings? |
+| 1          | 0xFF  | Save all settings? |
 
 # Received Packets
 
@@ -720,15 +729,15 @@ Requires a request packet to be sent with the report's first byte.
 | 0          | 0x46  | Connection Status  |
 | 1          | 0x00  | Padding            |
 | 2          | 0x00  | Padding            |
-| 3          | 0x0*  | <ul><li>0x01 = Wireless connection (1 byte after byte index 0x03) </li><li>0x02 = Wired connection (2 bytes after byte index 0x03) </li></ul> |
+| 3          | 0x0*  | Connection type<ul><li>0x01 = Wireless connection (1 byte after byte index 0x03) </li><li>0x02 = Wired connection (2 bytes after byte index 0x03) </li></ul> |
 | 4          | 0x**  | Wireless<ul><li>0x00 = Asleep</li><li>0x01 = Awake</li></ul></ul>Wired<ul><li>0xEC = Unknown</li></ul> |
-| 5          | 0x00  | Wireless = 0x00, Wired = 0xAC |
+| 5          | 0x**  | Wireless = 0x00, Wired = 0xAC |
 
 ### Hardware Information
 
 | Byte Index | Value | Description           |
 |------------|-------|-----------------------|
-| 0          | 0x46  | Hardware information  |
+| 0          | 0x50  | Hardware information  |
 | 1          | 0x00  | Padding               |
 | 2          | 0x00  | Padding               |
 | 3          | 0x3C  | 60 bytes after index 3 |
@@ -769,50 +778,110 @@ TODO: figure out voltage?
 | 11         | 0x02  | Unknown            |
 | 12         | 0x04  | Unknown            |
 
-### Current LED settings
-
-This packets contains the current LED effect set by [Set LED settings](#set-led-settings). If no LED settings packet has been sent in the last couple of seconds, the brightness will default to 0x64 (100) and the RGB will default to #FFFFFF.
+### LED settings
 
 | Byte Index | Value | Description       |
 |------------|-------|-------------------|
-| 0          | 0x52  | Onboard LED Settings |
+| 0          | 0x52  | LED Settings      |
 | 1          | 0x00  | Padding           |
 | 2          | 0x00  | Padding           |
 | 3          | 0x0A  | 10 bytes after index 3 |
-| 4          | 0x0*  | LED settings type? <ul><li>0x00 = Direct settings<li>0x04 = Saved settings</ul> |
+| 4          | 0x00  | Unknown/Padding   |
 | 5          | 0x00  | Unknown/Padding   |
 | 6          | 0x00  | Unknown/Padding   |
 | 7          | 0x**  | Brightness        |
 | 8-10       | [RGB](#rgb-value) | LED color |
+| 11-13      | [RGB](#rgb-value) | LED effect color, unused |
 
 ## Generic Event
 
+TODO: figure out non-mouse buttons
+
 Sent by the mouse without a request.
 
-<table></table>
+| Byte index | Value | Description |
+|------------|-------|-------------|
+| 0       | 0xFF  | Generic event |
+| 1       | 0x03  | Unknown |
+| 2       | 0x0*  | Selected dpi profile number (0x00-0x04) |
+| 3       | 0x0*  | Charging Status <ul><li>Wireless = 0x00<li>Wired = 0x01<li>Wired, Fully Charged = 0x02</ul> |
+| 4       | 0x0*  | Only applies to wireless connection<ul><li>0x00 = Going to sleep </li><li>0x01 = Wakes from sleep </li></ul> |
+| 5       | 0x00  | Unknown / Padding |
+| 6       | 0x00  | Unknown / Padding |
+| 7       | 0x**  | The button(s) being pressed (eg. LMB + RMB = 0x03)<ul><li>0x00 = No buttons pressed</li> <li>0x01 = Left click</li> <li>0x02 = Right click</li> <li>0x04 = Middle click</li> <li>0x08 = Side button back</li><li>0x10 = Side button forward</li><li>0x20 = DPI toggle button</li> |
+| 8       | 0x0*  | [Shortcut function](#shortcut-functions-assignment-type--0x05) (0x00 if the button is not set to a shortcut) |
 
 # Button Assignment Codes
+
+## Disabled (Assignment type = 0x00)
+
+| Code | Action   |
+|------|----------|
+| 0x00 | Disabled |
+
+## Mouse functions (Assignment type = 0x01)
+
+[USB HID Usage Tables PDF Page 102](https://www.usb.org/sites/default/files/hut1_2.pdf#page=103)
+| Code | Action       |
+|------|--------------|
+| 0x01 | Left click   |
+| 0x02 | Right click  |
+| 0x03 | Middle click |
+| 0x04 | Back         |
+| 0x05 | Forward      |
+
+## Keyboard functions (Assignment type = 0x02)
+[USB HID Usage Tables PDF Page 82-88](https://www.usb.org/sites/default/files/hut1_2.pdf#page=83)
+
+## Media functions (Assignment type = 0x03)
+
+| Code | Action      |
+|------|-------------|
+| 0x00 | Play/Pause  |
+| 0x01 | Stop        |
+| 0x02 | Previous    |
+| 0x03 | Next        |
+| 0x04 | Volume mute |
+| 0x05 | Volume down |
+| 0x06 | Volume up   |
+
+## Shortcut functions (Assignment type = 0x05)
+
+| Code | Action |
+|------|--------|
+| 0x01 | Task Manager (Ctrl + Shift + Esc) |
+| 0x02 | System Utility (Win + X) |
+| 0x03 | Show desktop (Ctrl + D) |
+| 0x04 | Cycle apps (Win + Tab) |
+| 0x05 | Close window (Alt + F4) |
+| 0x06 | Cut    |
+| 0x07 | Copy   |
+| 0x08 | Paste  |
+
+## DPI toggle function (Assignment type = 0x07)
+
+| Code | Action     |
+|------|------------|
+| 0x08 | DPI toggle |
 
 # Miscellaneous
 Extra information that doesn't belong directly in the documenation.
 
 ## Macro data sum value byte
 
-Every macro data packet seems to have a sum byte? after the button byte that alternates between adding 1 and 2 each packet. Another way of thinking about it is half of the numbers in the sum are 1 and half are 2.
+Every [macro data packet](#macro-data) seems to have a sum byte? after the button byte that alternates between adding 1 and 2 each packet. Another way of thinking about it is half of the numbers in the sum are 1 and half are 2.
 
 Thus, we get the following formula: $\frac{1x}{2}+\frac{2x}{2}$. Which is simplified to $\frac{3x}{2}$. Note that this is int division, so there would be no fractional part.
 
 For example, the sum bytes for 6 packets would be: 0x00, 0x01, 0x03, 0x04, 0x06, 0x07
 
-Now this byte probably has a completely different meaning, but it works so who cares?
+Now this byte probably has a completely different meaning, but it works so who cares???
 
 ## Macro event count
 
 Generic Event = key down/up or mouse down/up<br>
-Event = Macro key event with up to 6 keys along with the modifier keys value or a macro mouse down / up event
+Event = macro key event with up to 6 keys along with the modifier keys value or a macro mouse down / up event
 
-The max event count in Ngenuity seems 80 events, because the max generic event count is also 80.  However, there is a strange bug in Ngenuity where once you reach 80 generic events, you can't add any more generic events to any macros, even new ones. This is the case until you restart Ngenuity, where you'll be able to add 1 more generic event to the macro with 80 generic events, and then the same issue occurs. However, this introduces another issue. Because 1 more generic event gets added, only the key/mouse down event is captured. This causes the button to be held down until the mouse is disconnected or asleep.
+The max event count in Ngenuity seems to be 80 events, because the max generic event count is also 80.  However, there is a strange bug in Ngenuity where once you reach 80 generic events, you can't add any more generic events to any macros, even new ones. This is the case until you restart Ngenuity, where you'll be able to add 1 more generic event to the macro with 80 generic events, and then the same issue occurs. However, this introduces another issue. Because 1 more generic event gets added, only the key/mouse down event is captured. This causes the button to be held down until the mouse is disconnected or asleep.
 
-For the actual max event count, it seems to be 108 events, which is exactly 18 macro data packets. Anything beyond 108 events can produce erroneous behavior (eg. incorrect keys/buttons being sent, mouse disconnecting midway through the macro).
-
-
+For the actual max event count, it seems to be 108 events, which is exactly 18 macro data packets. Anything beyond 108 events can produce erroneous behavior (eg. incorrect keys/buttons being sent or mouse disconnecting midway through the macro).
