@@ -63,7 +63,6 @@ void hotplug_listener_exit(mouse_hotplug_data *listener_data);
 
 /**
  * @brief Initializes the device removal callbacks for each connected device.
- * Only has an effect on windows.
  *
  * @param hotplug_data The mouse_hotplug_data struct containing the hotplug listener
  * @param dev_list A list of device info objects for each connected device interface
