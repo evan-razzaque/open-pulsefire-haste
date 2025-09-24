@@ -235,7 +235,7 @@ static void switch_mouse_profile(MouseProfileButton *mouse_profile_button, const
 		return;
 	}
 
-	strcpy(data->profile_name, profile_name);
+	g_strlcpy(data->profile_name, profile_name, sizeof(data->profile_name));
 	printf("Switched to %s\n", profile_name);
 
 	load_mouse_profile_to_mouse(data);
@@ -265,7 +265,7 @@ static bool rename_mouse_profile(MouseProfileButton *self, const char *old_name,
 	debug("%d\n", data->profile->polling_rate_value);
 
 	if (strcmp(data->profile_name, old_name) == 0) {
-		strcpy(data->profile_name, new_name);
+		g_strlcpy(data->profile_name, new_name, PROFILE_NAME_MAX_LENGTH);
 		gtk_menu_button_set_label(data->widgets->menu_button_mouse_profiles, new_name);
 	}
 
@@ -501,10 +501,12 @@ G_MODULE_EXPORT void close_new_profile_window(GtkWindow *window_new_mouse_profil
 G_MODULE_EXPORT void open_profiles_directory() {
 	GError *error = NULL;
 
-	#define URI_PREFIX "file://"
-	char path[PATH_MAX + sizeof(URI_PREFIX)] = URI_PREFIX;
-	if (getcwd(path + (sizeof(URI_PREFIX) - 1), PATH_MAX) == NULL) return;
-	#undef URI_PREFIX
+	const char uri_prefix[] = "file://";
+
+	char path[sizeof(uri_prefix) + PATH_MAX + sizeof(PATH_SEP PROFILE_DIR)] = {0};
+	memcpy(path, uri_prefix, sizeof(uri_prefix));
+
+	if (getcwd(path + (sizeof(uri_prefix) - 1), PATH_MAX) == NULL) return;
 
 	strcat(path, PATH_SEP PROFILE_DIR);
 	g_app_info_launch_default_for_uri(path, NULL, &error);

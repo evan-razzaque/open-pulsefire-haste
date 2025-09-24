@@ -139,9 +139,9 @@ static void change_mouse_simple_binding(GSimpleAction *action, GVariant *mapping
 	uint64_t size = 65;
 
 	const char *menu_item_value = g_variant_get_string(mapping_data, &size);
-	char hex_value[5] = {};
+	char hex_value[5] = {0};
 
-	strncpy(hex_value, menu_item_value, 5);
+	g_strlcpy(hex_value, menu_item_value, 5);
 
 	uint16_t action_value = (uint16_t) strtol(hex_value, NULL, 16);
 

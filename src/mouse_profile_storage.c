@@ -91,7 +91,7 @@ int load_selected_profile_name(char *profile_name) {
     if (handle_file_error(file, SELECTED_PROFILE_NAME_FILE, false) < 0) return -1;
 
     if (file == NULL) {
-        strcpy(profile_name, DEFAULT_PROFILE_NAME);
+        g_strlcpy(profile_name, DEFAULT_PROFILE_NAME, sizeof(DEFAULT_PROFILE_NAME));
         debug("Selected profile: %s\n", profile_name);
         return 0;
     }
