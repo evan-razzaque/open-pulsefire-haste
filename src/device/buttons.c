@@ -26,7 +26,7 @@
 
 #define MIN(a, b) (((a) < (b))? (a) : (b))
 
-int assign_button_action(hid_device *dev, MOUSE_BUTTON button, uint16_t action) {
+int assign_button_action(hid_device *dev, MOUSE_BUTTON button, mouse_action action) {
 	if (
 		(button == MOUSE_BUTTON_LEFT || button == MOUSE_BUTTON_RIGHT) &&
 		!(action == LEFT_CLICK || action == RIGHT_CLICK))
@@ -64,12 +64,7 @@ int assign_button_macro(hid_device *dev, MOUSE_BUTTON button, REPEAT_MODE repeat
 
 		// Macro events
 		for (int j = 6; j > 0 && events_remaining > 0;) {
-			/**
-			 * Since the first byte of a macro event is the macro type,
-			 * and MACRO_ACTION_TYPE_KEYBOARD = 0x1a and MACRO_ACTION_TYPE_MOUSE = 0x25,
-			 * we can shift the byte right 4 bits to obtain the actual number of events.
-			 */
-			int actual_event_count = events[i].event_data[0] >> 4;
+			int actual_event_count = events[i].action_type >> 4;
 
 			events_remaining -= actual_event_count;
 			j -= actual_event_count;
@@ -79,7 +74,8 @@ int assign_button_macro(hid_device *dev, MOUSE_BUTTON button, REPEAT_MODE repeat
 			i++;
 		}
 
-		memset(data + offset, 0, PACKET_SIZE - offset); // Zeros out unessesary event bytes from previous packets
+		// Zeros out unessesary event bytes from previous packets
+		memset(data + offset, 0, PACKET_SIZE - offset);
 
 		res = mouse_write(dev, data);
 		if (res < 0) return res;

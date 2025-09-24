@@ -24,6 +24,11 @@
 
 typedef uint8_t byte;
 
+/**
+ * @brief A mouse action, which is comprised of the action type (upper byte) and the action value (lower byte).
+ */
+typedef uint16_t mouse_action;
+
 #define BUTTON_ASSIGN_ERROR_INVALID_ASSIGNMENT (-2)
 
 /**
@@ -116,8 +121,7 @@ enum GENERIC_EVENT_BUTTON {
 
 /**
  * @brief An enum for simple mouse actions (mouse, media, windows shortcut, and dpi toggle).
- * Each member is a uint16_t composed of the type of action and the action itself.
- * Format (in hex bytes): <type> <action>
+ * Each member is a `mouse_action`.
  */
 enum SIMPLE_MOUSE_ACTION {
     DISABLED            = 0x0000,
@@ -159,7 +163,9 @@ enum MACRO_BINDING {
 } typedef MACRO_BINDING;
 
 /**
- * @brief The type of a macro event.
+ * @brief The action type of a macro event.
+ * The upper four bits represent the number of sub events contained
+ * in the macro event. The lower four bits represent the size of each sub event (in bytes).
  */
 enum MACRO_ACTION_TYPE {
     MACRO_ACTION_TYPE_KEYBOARD = 0x1a,
@@ -181,7 +187,7 @@ enum REPEAT_MODE {
  * @brief A struct for a keyboard event.
  */
 struct macro_key_event {
-    /** A MACRO_ACTION_TYPE value */
+    /** A `MACRO_ACTION_TYPE` value */
     byte action_type;
     byte modifier_keys;
     byte keys[6];
@@ -192,7 +198,7 @@ struct macro_key_event {
  * @brief A struct for a mouse event.
  */
 struct macro_mouse_event {
-    /** A MACRO_ACTION_TYPE value */
+    /** A `MACRO_ACTION_TYPE` value */
     byte action_type;
     byte button;
     byte _padding;
@@ -211,6 +217,8 @@ struct macro_mouse_event_pair {
  * @brief A union for a macro event.
  */
 union marcro_event {
+    /** A `MACRO_ACTION_TYPE` value */
+    byte action_type;
     byte event_data[10];
     macro_key_event key_event;
     macro_mouse_event_pair mouse_event;
@@ -224,7 +232,7 @@ union marcro_event {
  * @param action The action to assign to the button
  * @return the number of bytes written or a BUTTON_ASSIGN_ERROR value on error
  */
-int assign_button_action(hid_device *dev, MOUSE_BUTTON button, uint16_t action);
+int assign_button_action(hid_device *dev, MOUSE_BUTTON button, mouse_action action);
 
 /**
  * @brief Assign a macro to a mouse button.
