@@ -34,28 +34,13 @@ int assign_button_action(hid_device *dev, MOUSE_BUTTON button, uint16_t action) 
 		return BUTTON_ASSIGN_ERROR_INVALID_ASSIGNMENT;
 	}
 
-	byte type = action >> 8;
-	byte data[PACKET_SIZE] = {REPORT_FIRST_BYTE(SEND_BYTE_BUTTON_ASSIGNMENT), button, type, 0x02, action};
-
-	return mouse_write(dev, data);
-}
-
-/**
- * @brief Send a macro assignment packet to the mouse. Must be sent right after the last packet of macro data.
- *
- * @param dev The mouse device handle
- * @param button The mouse button to re-assign
- * @param repeat_mode The repeat behavior of the macro
- * @param event_count The number of events
- * @return the number of bytes written or -1 on error
- */
-static int send_macro_assignment(hid_device *dev, MOUSE_BUTTON button, REPEAT_MODE repeat_mode, int event_count) {
-	byte data[PACKET_SIZE] = {REPORT_FIRST_BYTE(SEND_BYTE_MACRO_ASSIGNMENT), button, 0x00, 0x05, event_count, 0x00, repeat_mode};
-	int res;
-
-	res = mouse_write(dev, data);
-
-	return res;
+	return mouse_write(dev, (byte[PACKET_SIZE]) {
+		REPORT_FIRST_BYTE(SEND_BYTE_BUTTON_ASSIGNMENT),
+		button,
+		action >> 8,
+		0x02,
+		action
+	});
 }
 
 int assign_button_macro(hid_device *dev, MOUSE_BUTTON button, REPEAT_MODE repeat_mode, macro_event *events, int event_count) {
@@ -100,7 +85,13 @@ int assign_button_macro(hid_device *dev, MOUSE_BUTTON button, REPEAT_MODE repeat
 		if (res < 0) return res;
 	}
 
-	res = send_macro_assignment(dev, button, repeat_mode, event_count);
-
-	return res;
+	return mouse_write(dev, (byte[PACKET_SIZE]) {
+		REPORT_FIRST_BYTE(SEND_BYTE_MACRO_ASSIGNMENT),
+		button,
+		0x00,
+		0x05,
+		event_count,
+		0x00,
+		repeat_mode
+	});
 }

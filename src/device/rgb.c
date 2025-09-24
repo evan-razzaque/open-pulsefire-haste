@@ -33,12 +33,10 @@ int change_color(hid_device *dev, color_options *color) {
 	byte green = color->green;
 	byte blue = color->blue;
 
-	byte data[PACKET_SIZE] = {
+	return mouse_write(dev, (byte[PACKET_SIZE]) {
 		REPORT_FIRST_BYTE(SEND_BYTE_LED), 0x00, 0x00, 0x08,
 		red, green, blue,
 		red, green, blue,
 		color->brightness
-	};
-
-	return mouse_write(dev, data);
+	});
 }

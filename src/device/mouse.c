@@ -25,6 +25,8 @@
 #include "mouse.h"
 
 void print_data(byte *data) {
+	if (data[FIRST_BYTE] == SEND_BYTE_LED) return;
+
 	for (int i = 0; i < PACKET_SIZE; i++) {
 		if (i % 16 == 0) printf("\n");
 		printf("%.2x ", data[i]);
@@ -105,6 +107,8 @@ int mouse_write(hid_device *dev, byte *data) {
 	if (dev == NULL) return -1;
 	int bytes_written = hid_write(dev, data, PACKET_SIZE);
 
+	print_data(data);
+
 	if (bytes_written == -1) {
 		printf("mouse_write: %S\n", hid_error(dev));
 	}
@@ -113,11 +117,10 @@ int mouse_write(hid_device *dev, byte *data) {
 }
 
 int mouse_send_read_request(hid_device *dev, REPORT_TYPE report_type) {
-	int res;
-
-	byte temp[PACKET_SIZE] = {REPORT_FIRST_BYTE(report_type)};
-
-	res = mouse_write(dev, temp);
+	int res = hid_write(dev,
+		(byte[PACKET_SIZE]) {REPORT_FIRST_BYTE(report_type)},
+		PACKET_SIZE
+	);
 
 	if (res < 0) {
 		printf("mouse_send_read_request: %S\n", hid_error(dev));
