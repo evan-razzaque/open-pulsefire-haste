@@ -21,8 +21,6 @@
 #include "config_macro.h"
 #include "hid_keyboard_map.h"
 
-#define MAX(a, b) (((a) > (b)) ? (a) : (b))
-
 /**
  * @brief A struct for storing data when parsing a `recorded_macro`.
  */

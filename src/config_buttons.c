@@ -60,7 +60,15 @@ int assign_button(MOUSE_BUTTON button, uint16_t action, app_data *data) {
 	mouse_data *mouse = data->mouse;
 
 	g_mutex_lock(mouse->mutex);
-	int res = assign_button_action(mouse->dev, button, action);
+
+	int res = 0;
+
+	if (data->mouse->is_saving_settings) {
+        data->mouse->outdated_settings[SEND_BYTE_BUTTON_ASSIGNMENT & 0x0f] = true;
+    } else {
+		res = assign_button_action(mouse->dev, button, action);
+	}
+
 	g_mutex_unlock(mouse->mutex);
 
 	if (res < 0) return res;

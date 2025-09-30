@@ -59,6 +59,12 @@ struct mouse_data {
 	MOUSE_STATE state; // The MOUSE_STATE value
 	int battery_level; // The battery percentage of the mouse. A value of -1 indicates that the battery level is unknown.
 	int current_battery_level; // Used to check if the battery level has changed
+
+	// A flag to prevent updating device settings while saving
+	bool is_saving_settings;
+
+	// An array used to determine which settings need to be updated after saving the mouse settings
+	bool outdated_settings[(SEND_BYTE_BUTTON_ASSIGNMENT & 0x0f) + 1];
 } typedef mouse_data;
 
 /**
@@ -69,6 +75,8 @@ struct app_widgets {
 	GtkApplication *app; // The application instance
 	GtkWindow *window; // The main application window
 	GtkLabel *label_battery; // Displays the mouse's battery level
+
+	GtkButton *button_save_mouse_settings;
 
 	GtkBox *box_mouse_profiles;
 	GtkMenuButton *menu_button_mouse_profiles;

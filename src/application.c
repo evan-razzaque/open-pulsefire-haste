@@ -151,8 +151,6 @@ void load_mouse_profile_to_mouse(app_data *data) {
 	create_dpi_profile_rows(&data->profile->dpi_config, data);
 	create_macro_entries(data);
 
-	set_polling_rate(dev, profile->polling_rate_value);
-
 	GVariant *variant_polling_rate = g_variant_new_byte(profile->polling_rate_value);
 	GVariant *variant_lift_off_distance = g_variant_new_byte(profile->lift_off_distance);
 	GVariant *variant_selected_dpi_profile = g_variant_new_byte(profile->dpi_config.selected_profile);
@@ -161,19 +159,84 @@ void load_mouse_profile_to_mouse(app_data *data) {
 	g_action_group_activate_action(G_ACTION_GROUP(data->widgets->app), CHANGE_LIFT_OFF_DISTANCE, variant_lift_off_distance);
 	g_action_group_activate_action(G_ACTION_GROUP(data->widgets->app), SELECT_DPI_PROFILE, variant_selected_dpi_profile);
 
-	save_dpi_settings(dev, &data->profile->dpi_config, data->profile->lift_off_distance);
+	if (mouse->is_saving_settings) {
+		mouse->outdated_settings[SEND_BYTE_POLLING_RATE & 0x0f] = true;
+		mouse->outdated_settings[SEND_BYTE_DPI & 0x0f] = true;
+	} else {
+		set_polling_rate(dev, profile->polling_rate_value);
+		save_dpi_settings(dev, &data->profile->dpi_config, data->profile->lift_off_distance);
+	}
 
 	g_mutex_unlock(mouse->mutex);
+}
+
+/**
+ * @brief Updates the button assignments for the mosue.
+ *
+ * @param data Application wide data structure
+ */
+static void update_mouse_button_assignments(app_data *data) {
+	mouse_data *mouse = data->mouse;
+	mouse_profile *profile = data->profile;
+
+	for (int i = 0; i < BUTTON_COUNT; i++) {
+		if (profile->bindings[i] >> 8 == MOUSE_ACTION_TYPE_MACRO) {
+			assign_macro_to_mouse(profile->macro_indices[i], i, data);
+			continue;
+		}
+
+		assign_button_action(mouse->dev, i, profile->bindings[i]);
+	}
+}
+
+static void save_mouse_settings_timeout(app_data *data) {
+	GtkWidget *button_save_mouse_settings = (GtkWidget*) data->widgets->button_save_mouse_settings;
+	mouse_data *mouse = data->mouse;
+
+	g_mutex_lock(mouse->mutex);
+
+	mouse->is_saving_settings = false;
+
+	// Update mouse settings during mouse save
+
+	for (int i = 0; i < sizeof(mouse->outdated_settings); i++) {
+		int setting_to_update = (i + SEND_BYTE_POLLING_RATE) * mouse->outdated_settings[i];
+
+		switch (setting_to_update) {
+		case SEND_BYTE_POLLING_RATE:
+			set_polling_rate(mouse->dev, data->profile->polling_rate_value);
+			break;
+		case SEND_BYTE_DPI:
+			save_dpi_settings(mouse->dev, &data->profile->dpi_config, data->profile->lift_off_distance);
+			break;
+		case SEND_BYTE_BUTTON_ASSIGNMENT:
+			update_mouse_button_assignments(data);
+			break;
+		default:
+			break;
+		}
+
+		mouse->outdated_settings[i] = false;
+	}
+
+	// End update
+
+	g_mutex_unlock(mouse->mutex);
+
+	gtk_widget_set_sensitive(button_save_mouse_settings, true);
 }
 
 void save_mouse_settings(GtkWidget *self, app_data *data) {
 	gtk_widget_set_sensitive(self, false);
 
 	g_mutex_lock(data->mouse->mutex);
+
+	data->mouse->is_saving_settings = true;
 	save_device_settings(data->mouse->dev, &data->profile->led);
+
 	g_mutex_unlock(data->mouse->mutex);
 
-	gtk_widget_set_sensitive(self, true);
+	g_timeout_add_seconds_once(3, (GSourceOnceFunc) save_mouse_settings_timeout, data);
 }
 
 /**
@@ -408,10 +471,8 @@ static GtkBuilder* init_builder(app_data *data) {
 		GTK_STYLE_PROVIDER_PRIORITY_APPLICATION
 	);
 
-	data->widgets->stack_main = GTK_STACK(GTK_WIDGET(gtk_builder_get_object(builder, "stackMain")));
-	data->widgets->box_main = GTK_BOX(GTK_WIDGET(gtk_builder_get_object(builder, "boxMain")));
-	data->widgets->overlay_main = GTK_OVERLAY(GTK_WIDGET(gtk_builder_get_object(builder, "overlayMain")));
-	data->widgets->box_connection_lost = GTK_WIDGET(gtk_builder_get_object(builder, "boxConnectionLost"));
+	data->widgets->label_battery = GTK_LABEL(GTK_WIDGET(gtk_builder_get_object(builder, "labelBattery")));
+	data->widgets->button_save_mouse_settings = GTK_BUTTON(GTK_WIDGET(gtk_builder_get_object(builder, "buttonSave")));
 
 	data->widgets->box_mouse_profiles = GTK_BOX(GTK_WIDGET(gtk_builder_get_object(builder, "boxMouseProfiles")));
 	data->widgets->menu_button_mouse_profiles = GTK_MENU_BUTTON(GTK_WIDGET(gtk_builder_get_object(builder, "menuButtonMouseProfile")));
@@ -419,7 +480,10 @@ static GtkBuilder* init_builder(app_data *data) {
 	data->widgets->editable_profile_name = GTK_EDITABLE(GTK_WIDGET(gtk_builder_get_object(builder, "editableProfileName")));
 	data->widgets->label_profile_name_error = GTK_LABEL(GTK_WIDGET(gtk_builder_get_object(builder, "labelProfileNameError")));
 
-	data->widgets->label_battery = GTK_LABEL(GTK_WIDGET(gtk_builder_get_object(builder, "labelBattery")));
+	data->widgets->stack_main = GTK_STACK(GTK_WIDGET(gtk_builder_get_object(builder, "stackMain")));
+	data->widgets->box_main = GTK_BOX(GTK_WIDGET(gtk_builder_get_object(builder, "boxMain")));
+	data->widgets->overlay_main = GTK_OVERLAY(GTK_WIDGET(gtk_builder_get_object(builder, "overlayMain")));
+	data->widgets->box_connection_lost = GTK_WIDGET(gtk_builder_get_object(builder, "boxConnectionLost"));
 
 	return builder;
 }
@@ -451,7 +515,7 @@ void activate(GtkApplication *app, app_data *data) {
 
 	g_signal_connect(data->widgets->window, "close-request", G_CALLBACK(close_application), data);
 	g_signal_connect(data->widgets->window_new_mouse_profile, "close-request", G_CALLBACK(reset_new_profile_window), data);
-	widget_add_event(builder, "buttonSave", "clicked", save_mouse_settings, data);
+	g_signal_connect(data->widgets->button_save_mouse_settings, "clicked", G_CALLBACK(save_mouse_settings), data);
 	widget_add_event(builder, "buttonConfirmNewProfile", "clicked", create_new_mouse_profile, data);
 
 	g_timeout_add(100, G_SOURCE_FUNC(update_battery_display), data);

@@ -513,38 +513,53 @@ static void delete_macro(GSimpleAction *action, GVariant *variant_index, app_dat
     update_macro_assignments(macro_index, data);
 }
 
-void assign_macro(uint32_t macro_index, byte button, app_data *data) {
-    if (button == MOUSE_BUTTON_LEFT || button == MOUSE_BUTTON_RIGHT) return;
+int assign_macro_to_mouse(uint32_t macro_index, byte button, app_data *data) {
+    if (button == MOUSE_BUTTON_LEFT || button == MOUSE_BUTTON_RIGHT) {
+		return BUTTON_ASSIGN_ERROR_INVALID_ASSIGNMENT;
+	}
 
     recorded_macro *macro = data->profile->macros + macro_index;
-
     macro_event *events = malloc(sizeof(macro_event) * macro->generic_event_count);
+
     int event_count = parse_macro(macro, events, data->macro_data->modifier_map);
 
     if (event_count < 0) {
         printf("Invalid macro\n");
-        goto free_events;
+        free(events);
+        return -1;
     }
 
+    int res = 0;
+
+    if (data->mouse->is_saving_settings) {
+        data->mouse->outdated_settings[SEND_BYTE_BUTTON_ASSIGNMENT & 0x0f] = true;
+    } else {
+        res = assign_button_macro(
+            data->mouse->dev,
+            button,
+            macro->repeat_mode,
+            events,
+            event_count
+        );
+    }
+
+    free(events);
+    return res;
+}
+
+void assign_macro(uint32_t macro_index, byte button, app_data *data) {
+    if (button == MOUSE_BUTTON_LEFT || button == MOUSE_BUTTON_RIGHT) return;
+
     g_mutex_lock(data->mouse->mutex);
-    int res = assign_button_macro(
-        data->mouse->dev,
-        button,
-        macro->repeat_mode,
-        events,
-        event_count
-    );
+    int res = assign_macro_to_mouse(macro_index, button, data);
     g_mutex_unlock(data->mouse->mutex);
 
-    if (res < 0) goto free_events;
+    if (res < 0) return;
 
     data->profile->bindings[button] = MOUSE_ACTION_TYPE_MACRO << 8;
     data->profile->macro_indices[button] = macro_index;
 
     update_menu_button_label(button, data->profile->bindings[button], data);
-
-    free_events:
-        free(events);
 }
 
 /**

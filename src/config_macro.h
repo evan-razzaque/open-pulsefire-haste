@@ -166,6 +166,15 @@ struct config_macro_data {
 };
 
 /**
+ * @brief Assigns a macro to the mouse.
+ *
+ * @param macro_index The index of the macro
+ * @param button The button number being re-assigned
+ * @param data Application wide data structure
+ */
+int assign_macro_to_mouse(uint32_t macro_index, byte button, app_data *data);
+
+/**
  * @brief Assigns a macro to a mouse button.
  *
  * @param macro_index The index of the macro

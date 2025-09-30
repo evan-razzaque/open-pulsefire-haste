@@ -181,6 +181,12 @@ static void* mouse_update_loop(app_data *data) {
 
 		g_mutex_lock(mouse->mutex);
 
+		if (mouse->is_saving_settings) {
+			g_mutex_unlock(mouse->mutex);
+			sleep_ms(100);
+			continue;
+		}
+
 		switch (mouse->state) {
 		case IDLE:
 			goto poll_connection;

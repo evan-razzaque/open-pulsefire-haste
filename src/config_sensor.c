@@ -41,7 +41,13 @@
  */
 static void update_dpi_settings(app_data *data) {
     g_mutex_lock(data->mouse->mutex);
-    save_dpi_settings(data->mouse->dev, &data->profile->dpi_config, data->profile->lift_off_distance);
+
+    if (data->mouse->is_saving_settings) {
+        data->mouse->outdated_settings[SEND_BYTE_DPI & 0x0f] = true;
+    } else {
+        save_dpi_settings(data->mouse->dev, &data->profile->dpi_config, data->profile->lift_off_distance);
+    }
+
     g_mutex_unlock(data->mouse->mutex);
 }
 
@@ -76,16 +82,26 @@ static void update_dpi_profile_data(DpiProfileConfig *self, byte profile_index, 
  */
 static void change_polling_rate(GSimpleAction* action, GVariant *value, app_data *data) {
     byte polling_rate_value = g_variant_get_byte(value);
-    g_simple_action_set_state(action, value);
 
     if (data->profile->polling_rate_value == polling_rate_value) return;
 
     g_mutex_lock(data->mouse->mutex);
 
-    data->profile->polling_rate_value = polling_rate_value;
-    set_polling_rate(data->mouse->dev, polling_rate_value);
+    int res = 0;
+
+    if (data->mouse->is_saving_settings) {
+        data->mouse->outdated_settings[SEND_BYTE_POLLING_RATE & 0x0f] = true;
+    } else {
+        res = set_polling_rate(data->mouse->dev, polling_rate_value);
+    }
 
     g_mutex_unlock(data->mouse->mutex);
+
+    if (res < 0) return;
+
+    data->profile->polling_rate_value = polling_rate_value;
+    g_simple_action_set_state(action, value);
+
 }
 
 /**
