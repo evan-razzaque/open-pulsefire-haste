@@ -56,6 +56,13 @@ void gtk_stack_set_page(GtkStack *stack, uint32_t page) {
  * @param app_data Application wide data structure
  */
 int assign_button(MOUSE_BUTTON button, uint16_t action, app_data *data) {
+	if (
+		(button == MOUSE_BUTTON_LEFT || button == MOUSE_BUTTON_RIGHT) &&
+		!(action == LEFT_CLICK || action == RIGHT_CLICK))
+	{
+		return BUTTON_ASSIGN_ERROR_INVALID_ASSIGNMENT;
+	}
+
 	GtkMenuButton *menu_button_active = get_active_menu_button(data->button_data);
 	mouse_data *mouse = data->mouse;
 

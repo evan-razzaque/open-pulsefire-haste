@@ -27,13 +27,6 @@
 #define MIN(a, b) (((a) < (b))? (a) : (b))
 
 int assign_button_action(hid_device *dev, MOUSE_BUTTON button, mouse_action action) {
-	if (
-		(button == MOUSE_BUTTON_LEFT || button == MOUSE_BUTTON_RIGHT) &&
-		!(action == LEFT_CLICK || action == RIGHT_CLICK))
-	{
-		return BUTTON_ASSIGN_ERROR_INVALID_ASSIGNMENT;
-	}
-
 	return mouse_write(dev, (byte[PACKET_SIZE]) {
 		REPORT_FIRST_BYTE(SEND_BYTE_BUTTON_ASSIGNMENT),
 		button,

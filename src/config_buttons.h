@@ -23,6 +23,8 @@
 #include "device/buttons.h"
 #include "types.h"
 
+#define BUTTON_ASSIGN_ERROR_INVALID_ASSIGNMENT (-2)
+
 #define MOUSE_ACTION_NAMES {\
     [LEFT_CLICK     & 0x00ff] = "Left Click",\
     [RIGHT_CLICK    & 0x00ff] = "Right Click",\

@@ -29,8 +29,6 @@ typedef uint8_t byte;
  */
 typedef uint16_t mouse_action;
 
-#define BUTTON_ASSIGN_ERROR_INVALID_ASSIGNMENT (-2)
-
 /**
  * @brief An enum for mouse action types
  */
