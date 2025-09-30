@@ -26,7 +26,7 @@
 #include "templates/stack_menu_button.h"
 #include "templates/stack_menu_button_back.h"
 #include "templates/recorded_macro_button.h"
-#include "templates/mouse_profile_button.h"
+#include "templates/profile_button.h"
 #include "../resources/gresources.h"
 #include "mouse_profile_storage.h"
 
@@ -279,11 +279,11 @@ static void close_application(GtkWindow *window, app_data *data) {
 /**
  * @brief Switches to the mouse profile `profile_name`.
  *
- * @param mouse_profile_button Unused, can be NULL
+ * @param profile_button Unused, can be NULL
  * @param name The name of the profile
  * @param data Application wide data structure
  */
-static void switch_mouse_profile(MouseProfileButton *mouse_profile_button, const char *profile_name, app_data *data) {
+static void switch_mouse_profile(ProfileButton *profile_button, const char *profile_name, app_data *data) {
 	if (strcmp(data->profile_name, profile_name) == 0) {
 		debug("Already on profile %s\n", profile_name);
 		return;
@@ -314,13 +314,13 @@ static void switch_mouse_profile(MouseProfileButton *mouse_profile_button, const
 /**
  * @brief Rename the mouse profile `old_name` to `new_name`.
  *
- * @param self The MouseProfileButton instance
+ * @param self The ProfileButton instance
  * @param old_name The current name of the mouse profile
  * @param new_name The new profile name
  * @param data Application wide data structure
  * @return true if the profile was renamed or false if it wasn't
  */
-static bool rename_mouse_profile(MouseProfileButton *self, const char *old_name, const char *new_name, app_data *data) {
+static bool rename_mouse_profile(ProfileButton *self, const char *old_name, const char *new_name, app_data *data) {
 	int res = rename_profile(old_name, new_name, data);
 	if (res < 0) return false;
 
@@ -338,12 +338,12 @@ static bool rename_mouse_profile(MouseProfileButton *self, const char *old_name,
 /**
  * @brief Deletes a mouse profile
  *
- * @param self The MouseProfileButton instance
+ * @param self The ProfileButton instance
  * @param name The name of the mouse profile
  * @param data Application wide data structure
  * @return true if the profile was deleted or false if it wasn't
  */
-static bool delete_mouse_profile(MouseProfileButton *self, const char *name, app_data *data) {
+static bool delete_mouse_profile(ProfileButton *self, const char *name, app_data *data) {
 	int res = delete_profile(name, data);
 	if (res < 0) return false;
 
@@ -355,14 +355,14 @@ static bool delete_mouse_profile(MouseProfileButton *self, const char *name, app
 }
 
 /**
- * @brief A function to add `MouseProfileButton` to the mouse profile dropdown list.
+ * @brief A function to add a `ProfileButton` to the mouse profile dropdown list.
  *
  * @param profile_name The name of the mouse profile
  * @param data Application wide data structure
  * @param is_default_profile Whether the mouse profile is the default profile or not
  */
 static void add_mouse_profile_button(const char *profile_name, app_data *data, bool is_default_profile) {
-	MouseProfileButton *profile_button = mouse_profile_button_new(profile_name, is_default_profile);
+	ProfileButton *profile_button = profile_button_new(profile_name, is_default_profile);
 	g_signal_connect(profile_button, "select-profile", G_CALLBACK(switch_mouse_profile), data);
 	g_signal_connect(profile_button, "rename-profile", G_CALLBACK(rename_mouse_profile), data);
 	g_signal_connect(profile_button, "delete-profile", G_CALLBACK(delete_mouse_profile), data);
@@ -456,7 +456,7 @@ static GtkBuilder* init_builder(app_data *data) {
 	g_type_ensure(STACK_TYPE_MENU_BUTTON);
 	g_type_ensure(STACK_TYPE_MENU_BUTTON_BACK);
 	g_type_ensure(RECORDED_TYPE_MACRO_BUTTON);
-	g_type_ensure(MOUSE_TYPE_PROFILE_BUTTON);
+	g_type_ensure(PROFILE_TYPE_BUTTON);
 
 	g_resources_register(gresources_get_resource());
 

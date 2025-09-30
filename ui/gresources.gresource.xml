@@ -8,7 +8,7 @@
     <file compressed="true">stack-menu-button-back.ui</file>
     <file compressed="true">recorded-macro-button.ui</file>
     <file compressed="true">macro-event-item.ui</file>
-    <file compressed="true">mouse-profile-button.ui</file>
+    <file compressed="true">profile-button.ui</file>
     <file compressed="true">window.css</file>
   </gresource>
 </gresources>

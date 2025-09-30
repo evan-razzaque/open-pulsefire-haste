@@ -1,16 +1,16 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- Created with Cambalache 0.96.1 -->
 <interface>
-  <!-- interface-name mouse-profile-button.ui -->
+  <!-- interface-name profile-button.ui -->
   <requires lib="gtk" version="4.18"/>
-  <template class="MouseProfileButton" parent="GtkBox">
+  <template class="ProfileButton" parent="GtkBox">
     <child>
       <object class="GtkEditableLabel" id="editable_label_name">
         <property name="focusable">False</property>
         <property name="halign">start</property>
         <property name="hexpand">True</property>
         <property name="visible">False</property>
-        <signal name="notify::editing" handler="update_editing_state" object="MouseProfileButton"/>
+        <signal name="notify::editing" handler="update_editing_state" object="ProfileButton"/>
       </object>
     </child>
     <child>
@@ -18,8 +18,8 @@
         <property name="focusable">False</property>
         <property name="has-frame">False</property>
         <property name="hexpand">True</property>
-        <property name="label" bind-source="MouseProfileButton" bind-property="name" bind-flags="bidirectional | sync-create"/>
-        <signal name="clicked" handler="select_profile" object="MouseProfileButton"/>
+        <property name="label" bind-source="ProfileButton" bind-property="name" bind-flags="bidirectional | sync-create"/>
+        <signal name="clicked" handler="select_profile" object="ProfileButton"/>
       </object>
     </child>
     <child>
@@ -28,7 +28,7 @@
         <property name="has-frame">False</property>
         <property name="icon-name">window-close</property>
         <property name="visible">False</property>
-        <signal name="clicked" handler="cancel_name_edit" object="MouseProfileButton"/>
+        <signal name="clicked" handler="cancel_name_edit" object="ProfileButton"/>
       </object>
     </child>
     <child>
@@ -36,7 +36,7 @@
         <property name="focusable">False</property>
         <property name="has-frame">False</property>
         <property name="icon-name">document-edit-symbolic</property>
-        <signal name="clicked" handler="edit_profile_name" object="MouseProfileButton"/>
+        <signal name="clicked" handler="edit_profile_name" object="ProfileButton"/>
       </object>
     </child>
     <child>
@@ -44,7 +44,7 @@
         <property name="focusable">False</property>
         <property name="has-frame">False</property>
         <property name="icon-name">user-trash-symbolic</property>
-        <signal name="clicked" handler="delete_profile" object="MouseProfileButton"/>
+        <signal name="clicked" handler="delete_profile" object="ProfileButton"/>
       </object>
     </child>
   </template>

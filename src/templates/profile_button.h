@@ -16,23 +16,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef MOUSE_PROFILE_BUTTON_H
-#define MOUSE_PROFILE_BUTTON_H
+#ifndef PROFILE_BUTTON_H
+#define PROFILE_BUTTON_H
 
 #include <gtk/gtk.h>
 
-G_DECLARE_FINAL_TYPE(MouseProfileButton, mouse_profile_button, MOUSE, PROFILE_BUTTON, GtkBox)
+G_DECLARE_FINAL_TYPE(ProfileButton, profile_button, MOUSE, PROFILE_BUTTON, GtkBox)
 
-#define MOUSE_TYPE_PROFILE_BUTTON (mouse_profile_button_get_type())
-#define MOUSE_PROFILE_BUTTON(inst) (G_TYPE_CHECK_INSTANCE_CAST((inst), MOUSE_TYPE_PROFILE_BUTTON, MouseProfileButton))
+#define PROFILE_TYPE_BUTTON (profile_button_get_type())
+#define PROFILE_BUTTON(inst) (G_TYPE_CHECK_INSTANCE_CAST((inst), PROFILE_TYPE_BUTTON, ProfileButton))
 
 /**
- * @brief Creates a MouseProfileButton.
+ * @brief Creates a ProfileButton.
  *
- * @param name The name of the mouse profile
- * @param is_default_profile Whether the mouse profile is the default profile or not
- * @return a new MouseProfileButton
+ * @param name The name of the profile
+ * @param is_default_profile Whether the profile is the default profile or not
+ * @return a new ProfileButton
  */
-MouseProfileButton* mouse_profile_button_new(const char *name, bool is_default_profile);
+ProfileButton* profile_button_new(const char *name, bool is_default_profile);
 
 #endif
