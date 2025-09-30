@@ -144,17 +144,17 @@ static void reconnect_mouse(app_data *data) {
  * @param connected Whether the mouse is connected or not
  * @param data Application wide data structure
  */
-static void mouse_hotplug_callback(bool connected, app_data *data) {
+static void device_hotplug_callback(bool connected, app_data *data) {
 	mouse_data *mouse = data->mouse;
 
 	if (connected) {
 		reconnect_mouse(data);
 		mouse->state = UPDATE;
 		g_idle_add_once((GSourceOnceFunc) show_mouse_settings_visibility, data);
-		printf("mouse_hotplug_callback: connected\n");
+		printf("device_hotplug_callback: connected\n");
 	} else {
 		g_idle_add_once((GSourceOnceFunc) hide_mouse_settings_visibility, data);
-		printf("mouse_hotplug_callback: disconnected\n");
+		printf("device_hotplug_callback: disconnected\n");
 	}
 }
 
@@ -304,7 +304,7 @@ int main() {
 
 	mouse_hotplug_data hotplug_data = {
 		.mouse = &mouse,
-		.hotplug_callback = (hotplug_listener_callback) mouse_hotplug_callback,
+		.hotplug_callback = (hotplug_listener_callback) device_hotplug_callback,
 		.hotplug_callback_user_data = &data
 	};
 
