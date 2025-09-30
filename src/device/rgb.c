@@ -23,7 +23,7 @@
 #include "rgb.h"
 #include "mouse.h"
 
-int change_color(hid_device *dev, color_options *color) {
+int mouse_change_color(hid_device *dev, color_options *color) {
 	if (color->brightness < 0 || color->brightness > 100) {
 		printf("Brightness must be between 0 - 100\n");
 		return -1;

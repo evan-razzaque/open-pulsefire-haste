@@ -203,7 +203,7 @@ static void* mouse_update_loop(app_data *data) {
 		}
 
 		if (clock % update_color_interval_ms == 0) {
-			res = change_color(mouse->dev, color);
+			res = mouse_change_color(mouse->dev, color);
 		}
 
 		if (clock % poll_battery_level_interval_ms == 0 && res >= 0) {

@@ -22,12 +22,12 @@
 #include "sensor.h"
 #include "mouse.h"
 
-int set_polling_rate(hid_device *dev, byte polling_rate_value) {
+int mouse_set_polling_rate(hid_device *dev, byte polling_rate_value) {
 	byte data[PACKET_SIZE] = {REPORT_FIRST_BYTE(SEND_BYTE_POLLING_RATE), 0x00, 0x00, 0x01, polling_rate_value};
 	return mouse_write(dev, data);
 }
 
-int save_dpi_settings(hid_device *dev, dpi_settings *settings, byte lift_off_distance) {
+int mouse_save_dpi_settings(hid_device *dev, dpi_settings *settings, byte lift_off_distance) {
     int res;
 
     res = mouse_write(dev, (byte[PACKET_SIZE]) {

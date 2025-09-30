@@ -230,7 +230,7 @@ union marcro_event {
  * @param action The action to assign to the button
  * @return the number of bytes written or a BUTTON_ASSIGN_ERROR value on error
  */
-int assign_button_action(hid_device *dev, MOUSE_BUTTON button, mouse_action action);
+int mouse_assign_button(hid_device *dev, MOUSE_BUTTON button, mouse_action action);
 
 /**
  * @brief Assign a macro to a mouse button.
@@ -242,6 +242,6 @@ int assign_button_action(hid_device *dev, MOUSE_BUTTON button, mouse_action acti
  * @param event_count The number of events
  * @return the number of bytes written or a BUTTON_ASSIGN_ERROR value on error
  */
-int assign_button_macro(hid_device *dev, MOUSE_BUTTON button,  REPEAT_MODE repeat_mode, macro_event *events, int event_count);
+int mouse_assign_macro(hid_device *dev, MOUSE_BUTTON button,  REPEAT_MODE repeat_mode, macro_event *events, int event_count);
 
 #endif

@@ -231,6 +231,6 @@ int mouse_send_read_request(hid_device *dev, REPORT_TYPE report_type);
  * @param led The led settings for the mouse
  * @return the number of bytes written or -1 on error
  */
-int save_device_settings(hid_device *dev, union led_settings *led);
+int mouse_save_settings(hid_device *dev, union led_settings *led);
 
 #endif

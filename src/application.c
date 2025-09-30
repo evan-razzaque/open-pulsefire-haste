@@ -163,8 +163,8 @@ void load_mouse_profile_to_mouse(app_data *data) {
 		mouse->outdated_settings[SEND_BYTE_POLLING_RATE & 0x0f] = true;
 		mouse->outdated_settings[SEND_BYTE_DPI & 0x0f] = true;
 	} else {
-		set_polling_rate(dev, profile->polling_rate_value);
-		save_dpi_settings(dev, &data->profile->dpi_config, data->profile->lift_off_distance);
+		mouse_set_polling_rate(dev, profile->polling_rate_value);
+		mouse_save_dpi_settings(dev, &data->profile->dpi_config, data->profile->lift_off_distance);
 	}
 
 	g_mutex_unlock(mouse->mutex);
@@ -185,7 +185,7 @@ static void update_mouse_button_assignments(app_data *data) {
 			continue;
 		}
 
-		assign_button_action(mouse->dev, i, profile->bindings[i]);
+		mouse_assign_button(mouse->dev, i, profile->bindings[i]);
 	}
 }
 
@@ -204,10 +204,10 @@ static void save_mouse_settings_timeout(app_data *data) {
 
 		switch (setting_to_update) {
 		case SEND_BYTE_POLLING_RATE:
-			set_polling_rate(mouse->dev, data->profile->polling_rate_value);
+			mouse_set_polling_rate(mouse->dev, data->profile->polling_rate_value);
 			break;
 		case SEND_BYTE_DPI:
-			save_dpi_settings(mouse->dev, &data->profile->dpi_config, data->profile->lift_off_distance);
+			mouse_save_dpi_settings(mouse->dev, &data->profile->dpi_config, data->profile->lift_off_distance);
 			break;
 		case SEND_BYTE_BUTTON_ASSIGNMENT:
 			update_mouse_button_assignments(data);
@@ -232,7 +232,7 @@ void save_mouse_settings(GtkWidget *self, app_data *data) {
 	g_mutex_lock(data->mouse->mutex);
 
 	data->mouse->is_saving_settings = true;
-	save_device_settings(data->mouse->dev, &data->profile->led);
+	mouse_save_settings(data->mouse->dev, &data->profile->led);
 
 	g_mutex_unlock(data->mouse->mutex);
 

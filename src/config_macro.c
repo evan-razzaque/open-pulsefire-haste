@@ -534,7 +534,7 @@ int assign_macro_to_mouse(uint32_t macro_index, byte button, app_data *data) {
     if (data->mouse->is_saving_settings) {
         data->mouse->outdated_settings[SEND_BYTE_BUTTON_ASSIGNMENT & 0x0f] = true;
     } else {
-        res = assign_button_macro(
+        res = mouse_assign_macro(
             data->mouse->dev,
             button,
             macro->repeat_mode,

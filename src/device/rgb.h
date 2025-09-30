@@ -84,6 +84,6 @@ union led_settings {
  * @param options The options to set for the LED configuration
  * @return the number of bytes written or -1 on error
  */
-int change_color(hid_device *dev, color_options *options);
+int mouse_change_color(hid_device *dev, color_options *options);
 
 #endif

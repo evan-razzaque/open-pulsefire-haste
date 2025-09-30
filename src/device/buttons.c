@@ -26,7 +26,7 @@
 
 #define MIN(a, b) (((a) < (b))? (a) : (b))
 
-int assign_button_action(hid_device *dev, MOUSE_BUTTON button, mouse_action action) {
+int mouse_assign_button(hid_device *dev, MOUSE_BUTTON button, mouse_action action) {
 	return mouse_write(dev, (byte[PACKET_SIZE]) {
 		REPORT_FIRST_BYTE(SEND_BYTE_BUTTON_ASSIGNMENT),
 		button,
@@ -36,10 +36,10 @@ int assign_button_action(hid_device *dev, MOUSE_BUTTON button, mouse_action acti
 	});
 }
 
-int assign_button_macro(hid_device *dev, MOUSE_BUTTON button, REPEAT_MODE repeat_mode, macro_event *events, int event_count) {
+int mouse_assign_macro(hid_device *dev, MOUSE_BUTTON button, REPEAT_MODE repeat_mode, macro_event *events, int event_count) {
 	int res;
 
-	res = assign_button_action(dev, button, (MOUSE_ACTION_TYPE_MACRO << 8) + button);
+	res = mouse_assign_button(dev, button, (MOUSE_ACTION_TYPE_MACRO << 8) + button);
 	if (res < 0) return res;
 
 	byte data[PACKET_SIZE] = {REPORT_FIRST_BYTE(SEND_BYTE_MACRO_DATA), button, 0x00, event_count};

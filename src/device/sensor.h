@@ -84,7 +84,7 @@ struct dpi_settings {
  * @param polling_rate_value The polling rate value
  * @return the number of bytes written or -1 on error
  */
-int set_polling_rate(hid_device *dev, byte polling_rate_value);
+int mouse_set_polling_rate(hid_device *dev, byte polling_rate_value);
 
 /**
  * @brief Saves dpi settings to mouse's on-board memory. Also sets and saves lift-off distance, because
@@ -95,6 +95,6 @@ int set_polling_rate(hid_device *dev, byte polling_rate_value);
  * @param lift_off_distance The lift-off distance for the mouse
  * @return the number of bytes written or -1 on error
  */
-int save_dpi_settings(hid_device *dev, dpi_settings *settings, byte lift_off_distance);
+int mouse_save_dpi_settings(hid_device *dev, dpi_settings *settings, byte lift_off_distance);
 
 #endif

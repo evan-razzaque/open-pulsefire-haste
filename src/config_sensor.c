@@ -45,7 +45,7 @@ static void update_dpi_settings(app_data *data) {
     if (data->mouse->is_saving_settings) {
         data->mouse->outdated_settings[SEND_BYTE_DPI & 0x0f] = true;
     } else {
-        save_dpi_settings(data->mouse->dev, &data->profile->dpi_config, data->profile->lift_off_distance);
+        mouse_save_dpi_settings(data->mouse->dev, &data->profile->dpi_config, data->profile->lift_off_distance);
     }
 
     g_mutex_unlock(data->mouse->mutex);
@@ -92,7 +92,7 @@ static void change_polling_rate(GSimpleAction* action, GVariant *value, app_data
     if (data->mouse->is_saving_settings) {
         data->mouse->outdated_settings[SEND_BYTE_POLLING_RATE & 0x0f] = true;
     } else {
-        res = set_polling_rate(data->mouse->dev, polling_rate_value);
+        res = mouse_set_polling_rate(data->mouse->dev, polling_rate_value);
     }
 
     g_mutex_unlock(data->mouse->mutex);

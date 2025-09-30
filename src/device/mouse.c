@@ -141,7 +141,7 @@ int mouse_read(hid_device *dev, byte *data) {
 	return data[FIRST_BYTE];
 }
 
-int save_device_settings(hid_device *dev, union led_settings *led) {
+int mouse_save_settings(hid_device *dev, union led_settings *led) {
 	color_options *color = &led->solid.color;
 
 	// Makes the led flicker (probably does something else idk)
