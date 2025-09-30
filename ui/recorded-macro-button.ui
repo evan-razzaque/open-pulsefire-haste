@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- Created with Cambalache 0.96.1 -->
 <interface>
-  <!-- interface-name mouse-macro-button.ui -->
+  <!-- interface-name recorded-macro-button.ui -->
   <requires lib="gtk" version="4.18"/>
-  <template class="MouseMacroButton" parent="GtkBox">
+  <template class="RecordedMacroButton" parent="GtkBox">
     <child>
       <object class="GtkButton" id="button_name">
         <property name="action-name">app.select-macro</property>
@@ -11,7 +11,7 @@
           <object class="GtkLabel">
             <property name="halign">start</property>
             <property name="hexpand">True</property>
-            <property name="label" bind-source="MouseMacroButton" bind-property="name" bind-flags="bidirectional | sync-create"/>
+            <property name="label" bind-source="RecordedMacroButton" bind-property="name" bind-flags="bidirectional | sync-create"/>
           </object>
         </property>
         <property name="has-frame">False</property>

@@ -35,7 +35,7 @@
 
 #include "macro_parser.h"
 
-#include "templates/mouse_macro_button.h"
+#include "templates/recorded_macro_button.h"
 #include "templates/macro_event_item.h"
 
 #include "mouse_profile_storage.h"
@@ -332,10 +332,10 @@ static void close_macro_overlay(GtkButton *button, app_data *data) {
  * @param macro_name The name of the macro
  * @param index The index of the macro
  * @param data Application wide data structure
- * @return MouseMacroButton widget
+ * @return RecordedMacroButton widget
  */
-static MouseMacroButton* create_macro_item(char *macro_name, byte index, app_data *data) {
-    MouseMacroButton *self = mouse_macro_button_new(
+static RecordedMacroButton* create_macro_item(char *macro_name, byte index, app_data *data) {
+    RecordedMacroButton *self = recorded_macro_button_new(
         macro_name,
         index
     );
@@ -357,7 +357,7 @@ static MouseMacroButton* create_macro_item(char *macro_name, byte index, app_dat
  */
 static void modify_recorded_macro(uint32_t macro_index, char *macro_name, app_data *data) {
     GtkListBox *box_saved_macros = data->macro_data->box_saved_macros;
-    MouseMacroButton *macro_button = MOUSE_MACRO_BUTTON(gtk_list_box_row_get_child(
+    RecordedMacroButton *macro_button = recorded_macro_button(gtk_list_box_row_get_child(
         gtk_list_box_get_row_at_index(box_saved_macros, macro_index)
     ));
 
@@ -503,11 +503,11 @@ static void delete_macro(GSimpleAction *action, GVariant *variant_index, app_dat
     );
 
     for (int i = 0; i < data->profile->macro_count; i++) {
-        MouseMacroButton *macro_button = MOUSE_MACRO_BUTTON(
+        RecordedMacroButton *macro_button = recorded_macro_button(
             gtk_list_box_row_get_child(gtk_list_box_get_row_at_index(box_saved_macros, i))
         );
 
-        mouse_macro_button_set_index(macro_button, i);
+        recorded_macro_button_set_index(macro_button, i);
     }
 
     update_macro_assignments(macro_index, data);

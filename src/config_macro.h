@@ -161,7 +161,7 @@ struct config_macro_data {
 	GtkDropDown *drop_down_repeat_mode; // A dropdown to select the macro's repeat behavior
 
 	GtkButton *button_save_macro; // The actual button used to save the macro
-	GtkListBox *box_saved_macros; // Holds the MouseMacroButton widgets
+	GtkListBox *box_saved_macros; // Holds the RecordedMacroButton widgets
 	GtkEditable *editable_macro_name; // Contains the name of the macro that is being created/edited
 };
 
