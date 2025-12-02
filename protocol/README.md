@@ -1,4 +1,5 @@
 # HyperX Pulsefire Haste Protocol
+Adapted from [https://github.com/santeri3700/hyperx_pulsefire_dart_reverse_engineering/blob/main/protocol/index.md](https://github.com/santeri3700/hyperx_pulsefire_dart_reverse_engineering/blob/main/protocol/index.md)
 
 - [Device Info](#device-info)
   - [lsusb](#lsusb)
