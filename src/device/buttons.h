@@ -54,14 +54,12 @@ enum {
  * Thus, we get the following formula: (1x / 2) + (2x / 2). Which is simplified to 3x / 2. Note that this is int division, so there would be no fractional part.
  *
  * For example, the sum bytes for 6 packets would be: 0x00, 0x01, 0x03, 0x04, 0x06, 0x07
- *
- * TODO: explain 80+ events
  */
 #define MACRO_PACKET_SUM(x) ((3*(x)) / 2)
 
 /**
- * @brief The event count byte in even numbered macro data packets have 0x80 added to it.
- * For example, an packet with 2 events would be 0x02 if it was even, and 0x82 if it was odd.
+ * @brief The event count byte in odd indexed macro data packets have 0x80 added to it.
+ * For example, a packet with 2 events would be 0x02 if it was even, and 0x82 if it was odd.
  */
 #define MACRO_PACKET_EVENT_COUNT(x) (((x) % 2) * 0x80)
 
