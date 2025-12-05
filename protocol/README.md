@@ -418,7 +418,6 @@ Used in [Set LED effect](#set-led-effect)
 
 A couple of seconds after sending this packet, the mouse reverts back to the settings saved in its onboard memory.
 
-
 | Byte Index | Value | Description |
 |------------|-------|-------------|
 | 0          | 0xD2  | Set LED     |
@@ -433,7 +432,7 @@ A couple of seconds after sending this packet, the mouse reverts back to the set
 
 ## DPI
 
-The DPI settings are saved as follows:
+The DPI settings are saved as follows (in Ngenuity):
 
 ```
 1. Enabled profile bitmask
@@ -443,7 +442,19 @@ The DPI settings are saved as follows:
 5. Save DPI settings
 ```
 
-Note that these settings are saved to the onboard memory.
+Note that 3 and 5 are optional. Also 1 can be sent after the DPI profiles.
+
+### DPI step value
+
+Used in: [DPI value](#dpi-value), [DPI settings](#dpi-settings)
+
+To obtain the DPI step value, The DPI value (200 - 16,000) is divided by 100 (step). The dpi step is stored as a little endian value.
+
+| Byte Index | Value | Description |
+|------------|-------|-------------|
+| 0          | 0x**  | DPI step value first byte |
+| 1          | 0x00  | DPI step value second byte (unused for this mouse) |
+
 
 ### Enabled profile bitmask
 
@@ -459,7 +470,7 @@ A 5-bit (little-endian) number, where the nth bit corresponds to profile n.
 
 ### DPI profile (max 5 profiles)
 
-Each DPI profile contains 2 packets, being its DPI value and LED color indicator.
+Each DPI profile contains 2 packets, being its DPI value and LED color indicator. 
 
 #### DPI value
 
@@ -469,7 +480,7 @@ Each DPI profile contains 2 packets, being its DPI value and LED color indicator
 | 1          | 0x02  | Set profile DPI value                                    |
 | 2          | 0x0*  | Profile number (0x01 - 0x04)                             |
 | 3          | 0x02  | 2 bytes after index 3                                    |
-| 4-5        | 0x000A | DPI step (little endian), where the step is 100<br>0x000A * step -> 1000 DPI |
+| 4-5        | [DPI step value](#dpi-step-value) | DPI step value               |
 
 #### Profile indicator LED color
 
@@ -486,7 +497,6 @@ Each DPI profile contains 2 packets, being its DPI value and LED color indicator
 ### Set lift-off distance
 
 Distance from the surface the sensor can track on.<br>
-_Why is this with DPI profiles?_
 
 | Byte Index | Value | Description                                              |
 |------------|-------|----------------------------------------------------------|
@@ -610,7 +620,7 @@ Since mouse events cannot be performed at the same time as a key event, each mou
 
 ## Saving Settings
 
-The Mouse settings are saved as follows:
+The Mouse settings are saved as follows (in Ngenuity):
 
 ```
 1. Revert LED settings or Set fade LED effect
@@ -620,9 +630,12 @@ The Mouse settings are saved as follows:
 5. Save settings
 ```
 
+1, 4, and 5 are optional if you only want to change the LED for the mouse (unless the LED effect is fade).
+
 ### LED mode
 
 Used in: [Set LED effect](#set-led-effect), [Set LED mode](#set-led-mode)
+The modes for breathing and cycle could be wrong, and needs further testing.
 
 s = speed
 
@@ -711,15 +724,13 @@ This packet seems to be related to [Set LED mode](#set-led-mode). However, the v
 | Byte Index | Value | Description        |
 |------------|-------|--------------------|
 | 0          | 0xDE  | Save               |
-| 1          | 0xFF  | Save all settings? |
+| 1          | 0xFF  | Save all settings |
 
 # Received Packets
 
 Packets sent by the mouse
 
 ## Reports
-
-TODO: add additional reports
 
 Requires a request packet to be sent with the report's first byte.
 
@@ -780,6 +791,9 @@ TODO: figure out voltage?
 | 12         | 0x04  | Unknown            |
 
 ### LED settings
+(needs more testing)
+
+This packet seems to only send white as its color?
 
 | Byte Index | Value | Description       |
 |------------|-------|-------------------|
@@ -806,11 +820,11 @@ TODO: figure out voltage?
 | 5          | 0x**  | [Enabled profile bitmask](#enabled-profile-bitmask) |
 | 6          | 0x01  | Unknown           |
 | 7          | 0x00  | Unknown/Padding   |
-| 8          | 0xA0  | Unknown           |
+| 8          | 0xA0  | Max DPI step value? |
 | 9          | 0x00  | Unknown/Padding   |
 | 10         | 0x10  | Unknown/          |
 | 11         | 0x00  | Unknown/Padding   |
-| 12-21      | 5 [DPI step values](#dpi-value) | The dpi values for each profile |
+| 12-21      | 5 [DPI step values](#dpi-step-value) | The dpi step values for each profile |
 | 22-36      | 5 [RGB values](#rgb-value) | The indicator colors for each profile |
 | 37         | 0x0*  | Lift-off distance (in millimeters)<ul><li>Low: 1mm</li><li>High: 2mm</li><ul> |
 
