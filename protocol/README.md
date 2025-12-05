@@ -41,6 +41,8 @@ Adapted from [https://github.com/santeri3700/hyperx_pulsefire_dart_reverse_engin
     - [Heartbeat](#heartbeat)
     - [LED settings](#led-settings)
     - [DPI settings](#dpi-settings)
+    - [Button settings](#button-assignments)
+    - [Device settings](#device-settings)
   - [Generic Event](#generic-event)
 - [Button Assignment Codes](#button-assignment-codes)
   - [Disabled (Assignment type = 0x00)](#disabled-assignment-type--0x00)
@@ -470,7 +472,7 @@ A 5-bit (little-endian) number, where the nth bit corresponds to profile n.
 
 ### DPI profile (max 5 profiles)
 
-Each DPI profile contains 2 packets, being its DPI value and LED color indicator. 
+Each DPI profile contains 2 packets, being its DPI value and LED color indicator.
 
 #### DPI value
 
@@ -528,6 +530,8 @@ Distance from the surface the sensor can track on.<br>
 
 ### Physical button
 
+Used in: [Set button assignment](#set-button-assignment), [Send macro data](#macro-data), [Set macro assignment](#set-macro-assignment), [Button action](#button-action)
+
 | Button     | Value |
 |------------|-------|
 | Left       | 0x00  |
@@ -563,7 +567,7 @@ Each macro data packet contains a maximum of 6 events. The first 4 bytes are res
 
 | Byte index | Value          | Description           |
 |------------|----------------|-----------------------|
-| 0          | 0xD6           | Send macro assignment |
+| 0          | 0xD6           | Send macro data       |
 | 1          | 0x0*           | [Phyiscal button](#physical-button) |
 | 2          | 0x**           | Some sort of order value that can be calculated with the following formula:<br>$floor(\frac{3n}{2})$, where n is the nth macro data packet (starting at 0) <br>[Details](#macro-data-sum-value-byte)|
 | 3          | 0x**           | The number of events contained in this packet. If the macro data packet is odd numbered, 0x80 is added to the event count. |
@@ -597,6 +601,7 @@ A key up event is signified with an event with all 6 keycodes set to 0x00.
 | R-WIN           | 0b**1**0000000 |
 
 #### Mouse event
+
 Since mouse events cannot be performed at the same time as a key event, each mouse event consists of a mouse up and mouse down event. Thus, this is counted as 2 events.
 
 | Event type | Keycode | Padding | Delay upper byte | Delay lower byte | Event type | Keycode | Padding | Delay upper byte | Delay lower byte |
@@ -655,7 +660,7 @@ Used when LED mode is not fade
 | 0          | 0xD2  | Set LED           |
 | 1          | 0x00  | Padding           |
 | 2          | 0x40  | Revert LED settings? |
-| 3          | 0x08  | 8 bytes after index 3 (TODO: figure out if the following bytes mean anything) |
+| 3          | 0x08  | 8 bytes after index 3 |
 | 4          | 0xFF  | White (R)         |
 | 5          | 0xFF  | White (G)         |
 | 6          | 0xFF  | White (B)         |
@@ -679,7 +684,7 @@ Used when LED mode is fade
 | 7          | 0x00  | Padding     |
 | 8          | 0x00  | Padding     |
 | 9          | 0x00  | Padding     |
-| 10         | 0x64  | Unknown / Fixed brightness? |
+| 10         | 0x64  | Unknown/Fixed brightness? |
 | 11         | 0x00  | Unknown     |
 
 ### Set LED effect
@@ -724,7 +729,7 @@ This packet seems to be related to [Set LED mode](#set-led-mode). However, the v
 | Byte Index | Value | Description        |
 |------------|-------|--------------------|
 | 0          | 0xDE  | Save               |
-| 1          | 0xFF  | Save all settings |
+| 1          | 0xFF  | Save all settings  |
 
 # Received Packets
 
@@ -749,7 +754,7 @@ Requires a request packet to be sent with the report's first byte.
 
 | Byte Index | Value | Description           |
 |------------|-------|-----------------------|
-| 0          | 0x50  | Hardware information  |
+| 0          | 0x50  | Device information    |
 | 1          | 0x00  | Padding               |
 | 2          | 0x00  | Padding               |
 | 3          | 0x3C  | 60 bytes after index 3 |
@@ -772,8 +777,6 @@ Product string: "HyperX Pulsefire Haste Wireless"
 
 ### Heartbeat
 
-TODO: figure out voltage?
-
 | Byte Index | Value | Description        |
 |------------|-------|--------------------|
 | 0          | 0x51  | Heartbeat          |
@@ -784,16 +787,15 @@ TODO: figure out voltage?
 | 5          | 0x0*  | Charging Status <ul><li>Wireless = 0x00<li>Wired = 0x01<li>Wired, Fully Charged = 0x02</ul> |
 | 6          | 0x0A  | Unknown            |
 | 7          | 0x1D  | Unknown            |
-| 8          | 0x00  | Unknown / Padding  |
+| 8          | 0x00  | Unknown/Padding    |
 | 9          | 0x**  | Unknown            |
 | 10         | 0x10  | Unknown            |
 | 11         | 0x02  | Unknown            |
 | 12         | 0x04  | Unknown            |
 
 ### LED settings
-(needs more testing)
 
-This packet seems to only send white as its color?
+This packet reports the led settings sent by a [Set LED settings](#set-led-settings) packet. If a led settings packet hasn't been sent in the past couple of seconds, the color will be white, and the brightness will be 100. So basically, this packet is entirely useless.
 
 | Byte Index | Value | Description       |
 |------------|-------|-------------------|
@@ -801,7 +803,7 @@ This packet seems to only send white as its color?
 | 1          | 0x00  | Padding           |
 | 2          | 0x00  | Padding           |
 | 3          | 0x0A  | 10 bytes after index 3 |
-| 4          | 0x00  | Unknown/Padding   |
+| 4          | 0x04  | Unknown/Padding   |
 | 5          | 0x00  | Unknown/Padding   |
 | 6          | 0x00  | Unknown/Padding   |
 | 7          | 0x**  | Brightness        |
@@ -815,35 +817,74 @@ This packet seems to only send white as its color?
 | 0          | 0x53  | DPI Settings      |
 | 1          | 0x00  | Padding           |
 | 2          | 0x00  | Padding           |
-| 3          | 0x21  | 33 bytes after index 3 |
+| 3          | 0x21  | 33 bytes after index 3 (off by one) |
 | 4          | 0x0*  | Profile number (0x01 - 0x04) |
 | 5          | 0x**  | [Enabled profile bitmask](#enabled-profile-bitmask) |
 | 6          | 0x01  | Unknown           |
 | 7          | 0x00  | Unknown/Padding   |
 | 8          | 0xA0  | Max DPI step value? |
 | 9          | 0x00  | Unknown/Padding   |
-| 10         | 0x10  | Unknown/          |
+| 10         | 0x10  | Unknown           |
 | 11         | 0x00  | Unknown/Padding   |
 | 12-21      | 5 [DPI step values](#dpi-step-value) | The dpi step values for each profile |
 | 22-36      | 5 [RGB values](#rgb-value) | The indicator colors for each profile |
 | 37         | 0x0*  | Lift-off distance (in millimeters)<ul><li>Low: 1mm</li><li>High: 2mm</li><ul> |
 
-## Generic Event
+### Button assignments
 
-TODO: figure out non-mouse buttons
+| Byte Index | Value | Description       |
+|------------|-------|-------------------|
+| 0          | 0x54  | Button Settings   |
+| 1          | 0x00  | Padding           |
+| 2          | 0x00  | Padding           |
+| 3          | 0x0C  | 12 bytes after index 3? Idk why is wrong |
+| 4-21       | 6 [Button actions](#button-action) | The action for each mouse button |
+
+#### Button action
+
+Used by: [Button settings](#button-assignments)
+
+| Byte index | Value | Description |
+|------------|-------|-------------|
+| 0          | 0x0*  | Assignment type<ul><li>0x00 = Disabled<li>0x01 = Mouse functions (USB HID Button Page 0x09) </li><li>0x02 = Keyboard functions (USB HID Keyboard Page 0x07) </li><li>0x03 = Media functions (Non-standard codes) </li><li>0x04 = Macro </li><li>0x05 = Shortcut functions</li><li>0x07 = DPI Toggle function</li></ul> |
+| 1          | 0x**  | [Physical button](#physical-button) (for macros), Assignment code, or USB HID Usage ID<br>See [Button Assignment Codes](#button-assignment-codes) for more information |
+| 2          | 0x**  | If the action is a mouse button or media function, the value is (1 << n), where n is the button index or the code of the media function. Otherwise, the value is equal to the previous byte. |
+
+### Device settings
+
+Doesn't contain every device setting, but I can't think of a better name.
+
+| Byte Index | Value | Description        |
+|------------|-------|--------------------|
+| 0          | 0x50  | Device information |
+| 1          | 0x03  | Get device settings? |
+| 2          | 0x00  | Padding            |
+| 3          | 0x31  | 49 bytes after index 3<br>(off by one again) |
+| 4          | 0x04  | Unknown            |
+| 5          | 0x00  | Unknown/Padding    |
+| 6          | 0x04  | Unknown            |
+| 7          | 0x00  | Padding            |
+| 8          | 0x10  | Unknown            |
+| 9          | 0x00  | Padding            |
+| 10-19      | 5 [DPI step values](#dpi-step-value) | The dpi step values for each profile |
+| 20-34      | 5 [RGB values](#rgb-value) | The indicator colors for each profile |
+| 35-52      | 6 [Button actions](#button-action) | The action for each mouse button |
+| 53         | 0x0*  | Polling rate value <ul><li>0x00 = 125Hz</li><li>0x01 = 250Hz</li><li>0x02 = 500Hz</li><li>0x03 = 1000Hz</li></ul> |
+
+## Generic Event
 
 Sent by the mouse without a request.
 
 | Byte index | Value | Description |
 |------------|-------|-------------|
-| 0       | 0xFF  | Generic event |
-| 1       | 0x03  | Unknown |
-| 2       | 0x0*  | Selected dpi profile number (0x00-0x04) |
-| 3       | 0x0*  | Charging Status <ul><li>Wireless = 0x00<li>Wired = 0x01<li>Wired, Fully Charged = 0x02</ul> |
-| 4       | 0x0*  | Only applies to wireless connection<ul><li>0x00 = Going to sleep </li><li>0x01 = Wakes from sleep </li></ul> |
-| 5       | 0x00  | Unknown / Padding |
-| 6       | 0x00  | Unknown / Padding |
-| 7       | 0x**  | The button(s) being pressed (eg. LMB + RMB = 0x03)<ul><li>0x00 = No buttons pressed</li> <li>0x01 = Left click</li> <li>0x02 = Right click</li> <li>0x04 = Middle click</li> <li>0x08 = Side button back</li><li>0x10 = Side button forward</li><li>0x20 = DPI toggle button</li> |
+| 0          | 0xFF  | Generic event |
+| 1          | 0x03  | Unknown |
+| 2          | 0x0*  | Selected dpi profile number (0x00-0x04) |
+| 3          | 0x0*  | Charging Status <ul><li>Wireless = 0x00<li>Wired = 0x01<li>Wired, Fully Charged = 0x02</ul> |
+| 4          | 0x0*  | Only applies to wireless connection<ul><li>0x00 = Going to sleep </li><li>0x01 = Wakes from sleep </li></ul> |
+| 5          | 0x00  | Unknown / Padding |
+| 6          | 0x00  | Unknown / Padding |
+| 7          | 0x**  | The button(s) being pressed (eg. LMB + RMB = 0x03)<ul><li>0x00 = No buttons pressed</li> <li>0x01 = Left click</li> <li>0x02 = Right click</li> <li>0x04 = Middle click</li> <li>0x08 = Side button back</li><li>0x10 = Side button forward</li><li>0x20 = DPI toggle button</li> |
 | 8       | 0x0*  | [Shortcut function](#shortcut-functions-assignment-type--0x05) (0x00 if the button is not set to a shortcut) |
 
 # Button Assignment Codes
@@ -857,6 +898,7 @@ Sent by the mouse without a request.
 ## Mouse functions (Assignment type = 0x01)
 
 [USB HID Usage Tables PDF Page 102](https://www.usb.org/sites/default/files/hut1_2.pdf#page=103)
+
 | Code | Action       |
 |------|--------------|
 | 0x01 | Left click   |
@@ -866,6 +908,7 @@ Sent by the mouse without a request.
 | 0x05 | Forward      |
 
 ## Keyboard functions (Assignment type = 0x02)
+
 [USB HID Usage Tables PDF Page 82-88](https://www.usb.org/sites/default/files/hut1_2.pdf#page=83)
 
 ## Media functions (Assignment type = 0x03)
@@ -900,6 +943,7 @@ Sent by the mouse without a request.
 | 0x08 | DPI toggle |
 
 # Miscellaneous
+
 Extra information that doesn't belong directly in the documenation.
 
 ## Macro data sum value byte
