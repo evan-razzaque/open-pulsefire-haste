@@ -40,6 +40,7 @@ Adapted from [https://github.com/santeri3700/hyperx_pulsefire_dart_reverse_engin
     - [Hardware Information](#hardware-information)
     - [Heartbeat](#heartbeat)
     - [Current LED settings](#current-led-settings)
+    - [DPI settings](#dpi-settings)
   - [Generic Event](#generic-event)
 - [Button Assignment Codes](#button-assignment-codes)
   - [Disabled (Assignment type = 0x00)](#disabled-assignment-type--0x00)
@@ -395,7 +396,7 @@ Since Ngenuity constantly sends LED packets, every LED effect is acheived by sen
 
 ### RGB value
 
-Used in: [Set LED settings](#set-led-settings), [LED settings](#led-settings)
+Used in: [Set LED settings](#set-led-settings), [LED settings](#led-settings), [DPI settings](#dpi-settings)
 
 | Byte Index | Value | Description |
 |------------|-------|-------------|
@@ -454,7 +455,7 @@ A 5-bit (little-endian) number, where the nth bit corresponds to profile n.
 | 1          | 0x01    | Set enabled profiles                                |
 | 2          | 0x00    | Padding                                             |
 | 3          | 0x01    | 1 byte after index 3                                |
-| 4          | 0b11100 | Enabled profiles (in this case profile 0, 1, and 2) |
+| 4          | 0b00111 | Enabled profiles (in this case profile 0, 1, and 2) |
 
 ### DPI profile (max 5 profiles)
 
@@ -468,8 +469,7 @@ Each DPI profile contains 2 packets, being its DPI value and LED color indicator
 | 1          | 0x02  | Set profile DPI value                                    |
 | 2          | 0x0*  | Profile number (0x01 - 0x04)                             |
 | 3          | 0x02  | 2 bytes after index 3                                    |
-| 4          | 0x0A  | DPI step, where the step is 100<br>0x0A * step -> 1000 DPI |
-| 5          | 0x00  | Unknown                                                  |
+| 4-5        | 0x000A | DPI step (little endian), where the step is 100<br>0x000A * step -> 1000 DPI |
 
 #### Profile indicator LED color
 
@@ -793,6 +793,26 @@ TODO: figure out voltage?
 | 7          | 0x**  | Brightness        |
 | 8-10       | [RGB](#rgb-value) | LED color |
 | 11-13      | [RGB](#rgb-value) | LED effect color, unused |
+
+### DPI settings
+
+| Byte Index | Value | Description       |
+|------------|-------|-------------------|
+| 0          | 0x53  | DPI Settings      |
+| 1          | 0x00  | Padding           |
+| 2          | 0x00  | Padding           |
+| 3          | 0x21  | 33 bytes after index 3 |
+| 4          | 0x0*  | Profile number (0x01 - 0x04) |
+| 5          | 0x**  | [Enabled profile bitmask](#enabled-profile-bitmask) |
+| 6          | 0x01  | Unknown           |
+| 7          | 0x00  | Unknown/Padding   |
+| 8          | 0xA0  | Unknown           |
+| 9          | 0x00  | Unknown/Padding   |
+| 10         | 0x10  | Unknown/          |
+| 11         | 0x00  | Unknown/Padding   |
+| 12-21      | 5 [DPI step values](#dpi-value) | The dpi values for each profile |
+| 22-36      | 5 [RGB values](#rgb-value) | The indicator colors for each profile |
+| 37         | 0x0*  | Lift-off distance (in millimeters)<ul><li>Low: 1mm</li><li>High: 2mm</li><ul> |
 
 ## Generic Event
 
