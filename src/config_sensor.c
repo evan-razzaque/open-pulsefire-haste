@@ -45,7 +45,7 @@ static void update_dpi_settings(app_data *data) {
     if (data->mouse->is_saving_settings) {
         data->mouse->outdated_settings[SEND_BYTE_DPI & 0x0f] = true;
     } else {
-        mouse_save_dpi_settings(data->mouse->dev, &data->profile->dpi_config, data->profile->lift_off_distance);
+        mouse_set_dpi_settings(data->mouse->dev, &data->profile->dpi_config, data->profile->lift_off_distance);
     }
 
     g_mutex_unlock(data->mouse->mutex);

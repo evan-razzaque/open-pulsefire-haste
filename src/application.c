@@ -164,7 +164,7 @@ void load_mouse_profile_to_mouse(app_data *data) {
 		mouse->outdated_settings[SEND_BYTE_DPI & 0x0f] = true;
 	} else {
 		mouse_set_polling_rate(dev, profile->polling_rate_value);
-		mouse_save_dpi_settings(dev, &data->profile->dpi_config, data->profile->lift_off_distance);
+		mouse_set_dpi_settings(dev, &data->profile->dpi_config, data->profile->lift_off_distance);
 	}
 
 	g_mutex_unlock(mouse->mutex);
@@ -207,7 +207,7 @@ static void save_mouse_settings_timeout(app_data *data) {
 			mouse_set_polling_rate(mouse->dev, data->profile->polling_rate_value);
 			break;
 		case SEND_BYTE_DPI:
-			mouse_save_dpi_settings(mouse->dev, &data->profile->dpi_config, data->profile->lift_off_distance);
+			mouse_set_dpi_settings(mouse->dev, &data->profile->dpi_config, data->profile->lift_off_distance);
 			break;
 		case SEND_BYTE_BUTTON_ASSIGNMENT:
 			update_mouse_button_assignments(data);
