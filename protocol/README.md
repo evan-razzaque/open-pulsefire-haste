@@ -41,7 +41,7 @@ Adapted from [https://github.com/santeri3700/hyperx_pulsefire_dart_reverse_engin
     - [Heartbeat](#heartbeat)
     - [LED settings](#led-settings)
     - [DPI settings](#dpi-settings)
-    - [Button settings](#button-assignments)
+    - [Button assignments](#button-assignments)
     - [Device settings](#device-settings)
   - [Generic Event](#generic-event)
 - [Button Assignment Codes](#button-assignment-codes)
@@ -834,7 +834,7 @@ This packet reports the led settings sent by a [Set LED settings](#set-led-setti
 
 | Byte Index | Value | Description       |
 |------------|-------|-------------------|
-| 0          | 0x54  | Button Settings   |
+| 0          | 0x54  | Button assignments   |
 | 1          | 0x00  | Padding           |
 | 2          | 0x00  | Padding           |
 | 3          | 0x0C  | 12 bytes after index 3? Idk why is wrong |
@@ -842,7 +842,7 @@ This packet reports the led settings sent by a [Set LED settings](#set-led-setti
 
 #### Button action
 
-Used by: [Button settings](#button-assignments)
+Used by: [Button assignments](#button-assignments)
 
 | Byte index | Value | Description |
 |------------|-------|-------------|
