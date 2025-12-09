@@ -1,0 +1,139 @@
+No.     Time           Source                Destination           Length Info                                                            Comment
+   1075 1.015091       host                  1.2.4                 91     URB_INTERRUPT out                                               
+
+Frame 1075: 91 bytes on wire (728 bits), 91 bytes captured (728 bits) on interface \\.\USBPcap1, id 0
+USB URB
+HID Data: d2004008ffffff000000640000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+0000  1b 00 20 5a 80 0d 85 ba ff ff 00 00 00 00 09 00   .. Z............
+0010  00 01 00 02 00 04 01 40 00 00 00 d2 00 40 08 ff   .......@.....@..
+0020  ff ff 00 00 00 64 00 00 00 00 00 00 00 00 00 00   .....d..........
+0030  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................
+0040  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................
+0050  00 00 00 00 00 00 00 00 00 00 00                  ...........
+
+No.     Time           Source                Destination           Length Info                                                            Comment
+   1079 1.085680       host                  1.2.4                 91     URB_INTERRUPT out                                               
+
+Frame 1079: 91 bytes on wire (728 bits), 91 bytes captured (728 bits) on interface \\.\USBPcap1, id 0
+USB URB
+HID Data: da78003cff0000ff0a00ff1500ff2000ff2a00ff3500ff4000ff4a00ff5500ff6000ff6b00ff7500ff8000ff8b00ff9500ffa000ffab00ffb600ffc000ffcb00
+
+0000  1b 00 20 5a 80 0d 85 ba ff ff 00 00 00 00 09 00   .. Z............
+0010  00 01 00 02 00 04 01 40 00 00 00 da 78 00 3c ff   .......@....x.<.
+0020  00 00 ff 0a 00 ff 15 00 ff 20 00 ff 2a 00 ff 35   ......... ..*..5
+0030  00 ff 40 00 ff 4a 00 ff 55 00 ff 60 00 ff 6b 00   ..@..J..U..`..k.
+0040  ff 75 00 ff 80 00 ff 8b 00 ff 95 00 ff a0 00 ff   .u..............
+0050  ab 00 ff b6 00 ff c0 00 ff cb 00                  ...........
+
+No.     Time           Source                Destination           Length Info                                                            Comment
+   1083 1.209994       host                  1.2.4                 91     URB_INTERRUPT out                                               
+
+Frame 1083: 91 bytes on wire (728 bits), 91 bytes captured (728 bits) on interface \\.\USBPcap1, id 0
+USB URB
+HID Data: da78013cffd600ffe100ffeb00fff600fcff00f2ff00e7ff00dcff00d2ff00c7ff00bcff00b1ff00a7ff009cff0091ff0086ff007cff0071ff0066ff005cff00
+
+0000  1b 00 20 5a 80 0d 85 ba ff ff 00 00 00 00 09 00   .. Z............
+0010  00 01 00 02 00 04 01 40 00 00 00 da 78 01 3c ff   .......@....x.<.
+0020  d6 00 ff e1 00 ff eb 00 ff f6 00 fc ff 00 f2 ff   ................
+0030  00 e7 ff 00 dc ff 00 d2 ff 00 c7 ff 00 bc ff 00   ................
+0040  b1 ff 00 a7 ff 00 9c ff 00 91 ff 00 86 ff 00 7c   ...............|
+0050  ff 00 71 ff 00 66 ff 00 5c ff 00                  ..q..f..\..
+
+No.     Time           Source                Destination           Length Info                                                            Comment
+   1087 1.312098       host                  1.2.4                 91     URB_INTERRUPT out                                               
+
+Frame 1087: 91 bytes on wire (728 bits), 91 bytes captured (728 bits) on interface \\.\USBPcap1, id 0
+USB URB
+HID Data: da78023c51ff0046ff003bff0031ff0026ff001bff0011ff0006ff0000fa0400f00e00e51900da2400cf2f00c53900ba4400af4f00a559009a64008f6f00847a
+
+0000  1b 00 20 5a 80 0d 85 ba ff ff 00 00 00 00 09 00   .. Z............
+0010  00 01 00 02 00 04 01 40 00 00 00 da 78 02 3c 51   .......@....x.<Q
+0020  ff 00 46 ff 00 3b ff 00 31 ff 00 26 ff 00 1b ff   ..F..;..1..&....
+0030  00 11 ff 00 06 ff 00 00 fa 04 00 f0 0e 00 e5 19   ................
+0040  00 da 24 00 cf 2f 00 c5 39 00 ba 44 00 af 4f 00   ..$../..9..D..O.
+0050  a5 59 00 9a 64 00 8f 6f 00 84 7a                  .Y..d..o..z
+
+No.     Time           Source                Destination           Length Info                                                            Comment
+   1091 1.428819       host                  1.2.4                 91     URB_INTERRUPT out                                               
+
+Frame 1091: 91 bytes on wire (728 bits), 91 bytes captured (728 bits) on interface \\.\USBPcap1, id 0
+USB URB
+HID Data: da78033c007a84006f8f00649a0059a5004faf0044ba0039c5002fcf0024da0019e5000ef00004fa0600ff1100ff1b00ff2600ff3100ff3c00ff4600ff5100ff
+
+0000  1b 00 20 5a 80 0d 85 ba ff ff 00 00 00 00 09 00   .. Z............
+0010  00 01 00 02 00 04 01 40 00 00 00 da 78 03 3c 00   .......@....x.<.
+0020  7a 84 00 6f 8f 00 64 9a 00 59 a5 00 4f af 00 44   z..o..d..Y..O..D
+0030  ba 00 39 c5 00 2f cf 00 24 da 00 19 e5 00 0e f0   ..9../..$.......
+0040  00 04 fa 06 00 ff 11 00 ff 1b 00 ff 26 00 ff 31   ............&..1
+0050  00 ff 3c 00 ff 46 00 ff 51 00 ff                  ..<..F..Q..
+
+No.     Time           Source                Destination           Length Info                                                            Comment
+   1095 1.553979       host                  1.2.4                 91     URB_INTERRUPT out                                               
+
+Frame 1095: 91 bytes on wire (728 bits), 91 bytes captured (728 bits) on interface \\.\USBPcap1, id 0
+USB URB
+HID Data: da78043c5c00ff6600ff7100ff7c00ff8700ff9100ff9c00ffa700ffb100ffbc00ffc700ffd200ffdc00ffe700fff200fffc00ffff00f6ff00ebff00e1ff00d6
+
+0000  1b 00 20 5a 80 0d 85 ba ff ff 00 00 00 00 09 00   .. Z............
+0010  00 01 00 02 00 04 01 40 00 00 00 da 78 04 3c 5c   .......@....x.<\
+0020  00 ff 66 00 ff 71 00 ff 7c 00 ff 87 00 ff 91 00   ..f..q..|.......
+0030  ff 9c 00 ff a7 00 ff b1 00 ff bc 00 ff c7 00 ff   ................
+0040  d2 00 ff dc 00 ff e7 00 ff f2 00 ff fc 00 ff ff   ................
+0050  00 f6 ff 00 eb ff 00 e1 ff 00 d6                  ...........
+
+No.     Time           Source                Destination           Length Info                                                            Comment
+   1099 1.655951       host                  1.2.4                 91     URB_INTERRUPT out                                               
+
+Frame 1099: 91 bytes on wire (728 bits), 91 bytes captured (728 bits) on interface \\.\USBPcap1, id 0
+USB URB
+HID Data: da78053cff00cbff00c0ff00b6ff00abff00a0ff0096ff008bff0080ff0075ff006bff0060ff0055ff004bff0040ff0035ff002aff0020ff0015ff000aff0000
+
+0000  1b 00 20 5a 80 0d 85 ba ff ff 00 00 00 00 09 00   .. Z............
+0010  00 01 00 02 00 04 01 40 00 00 00 da 78 05 3c ff   .......@....x.<.
+0020  00 cb ff 00 c0 ff 00 b6 ff 00 ab ff 00 a0 ff 00   ................
+0030  96 ff 00 8b ff 00 80 ff 00 75 ff 00 6b ff 00 60   .........u..k..`
+0040  ff 00 55 ff 00 4b ff 00 40 ff 00 35 ff 00 2a ff   ..U..K..@..5..*.
+0050  00 20 ff 00 15 ff 00 0a ff 00 00                  . .........
+
+No.     Time           Source                Destination           Length Info                                                            Comment
+   1103 1.769543       host                  1.2.4                 91     URB_INTERRUPT out                                               
+
+Frame 1103: 91 bytes on wire (728 bits), 91 bytes captured (728 bits) on interface \\.\USBPcap1, id 0
+USB URB
+HID Data: d9000003557823000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+0000  1b 00 20 5a 80 0d 85 ba ff ff 00 00 00 00 09 00   .. Z............
+0010  00 01 00 02 00 04 01 40 00 00 00 d9 00 00 03 55   .......@.......U
+0020  78 23 00 00 00 00 00 00 00 00 00 00 00 00 00 00   x#..............
+0030  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................
+0040  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................
+0050  00 00 00 00 00 00 00 00 00 00 00                  ...........
+
+No.     Time           Source                Destination           Length Info                                                            Comment
+   1107 1.805112       host                  1.2.4                 91     URB_INTERRUPT out                                               
+
+Frame 1107: 91 bytes on wire (728 bits), 91 bytes captured (728 bits) on interface \\.\USBPcap1, id 0
+USB URB
+HID Data: db550000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+0000  1b 00 20 5a 80 0d 85 ba ff ff 00 00 00 00 09 00   .. Z............
+0010  00 01 00 02 00 04 01 40 00 00 00 db 55 00 00 00   .......@....U...
+0020  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................
+0030  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................
+0040  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................
+0050  00 00 00 00 00 00 00 00 00 00 00                  ...........
+
+No.     Time           Source                Destination           Length Info                                                            Comment
+   1129 2.312101       host                  1.2.4                 91     URB_INTERRUPT out                                               
+
+Frame 1129: 91 bytes on wire (728 bits), 91 bytes captured (728 bits) on interface \\.\USBPcap1, id 0
+USB URB
+HID Data: deff0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+0000  1b 00 20 5a 80 0d 85 ba ff ff 00 00 00 00 09 00   .. Z............
+0010  00 01 00 02 00 04 01 40 00 00 00 de ff 00 00 00   .......@........
+0020  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................
+0030  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................
+0040  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   ................
+0050  00 00 00 00 00 00 00 00 00 00 00                  ...........
