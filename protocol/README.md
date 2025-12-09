@@ -640,7 +640,7 @@ The Mouse settings are saved as follows (in Ngenuity):
 ### LED mode
 
 Used in: [Set LED effect](#set-led-effect), [Set LED mode](#set-led-mode)
-The modes for breathing and cycle could be wrong, and needs further testing.
+<br>The modes for breathing and cycle could be wrong, and needs further testing.
 
 s = speed
 
