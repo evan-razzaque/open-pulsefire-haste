@@ -1,59 +1,114 @@
 # HyperX Pulsefire Haste Protocol
 Adapted from [https://github.com/santeri3700/hyperx_pulsefire_dart_reverse_engineering/blob/main/protocol/index.md](https://github.com/santeri3700/hyperx_pulsefire_dart_reverse_engineering/blob/main/protocol/index.md)
 
-- [Device Info](#device-info)
-  - [lsusb](#lsusb)
-  - [Operation](#operation)
-- [Sent Packets](#sent-packets)
-  - [Polling Rate](#polling-rate)
-  - [LED](#led)
-    - [RGB value](#rgb-value)
-    - [Adjusted RGB value](#adjusted-rgb-value)
-    - [Set LED settings](#set-led-settings)
-  - [DPI](#dpi)
-    - [Enabled profile bitmask](#enabled-profile-bitmask)
-    - [DPI profile](#dpi-profile-max-5-profiles)
-      - [DPI value](#dpi-value)
-      - [Profile indicator LED color](#profile-indicator-led-color)
-    - [Set lift-off distance](#set-lift-off-distance)
-    - [Selected DPI profile](#selected-dpi-profile)
-    - [Save DPI settings](#save-dpi-settings)
-  - [Buttons](#buttons)
-    - [Physical button](#physical-button)
-    - [Set button assignment](#set-button-assignment)
-  - [Macros](#macros)
-    - [Macro data](#macro-data)
-    - [Macro event](#macro-event)
-      - [Keyboard event](#keyboard-event)
-      - [Mouse event](#mouse-event)
-    - [Set macro assignment](#set-macro-assignment)
-  - [Saving Settings](#saving-settings)
-    - [Revert LED settings](#revert-led-settings)
-    - [Set fade LED effect](#set-fade-led-effect)
-    - [Set LED effect](#set-led-effect)
-    - [Set LED mode](#set-led-mode)
-    - [Unknown packet](#unknown-packet)
-    - [Save mouse settings](#save-mouse-settings)
-- [Received Packets](#received-packets)
-  - [Reports](#reports)
-    - [Connection status](#connection-status)
-    - [Hardware Information](#hardware-information)
-    - [Heartbeat](#heartbeat)
-    - [LED settings](#led-settings)
-    - [DPI settings](#dpi-settings)
-    - [Button assignments](#button-assignments)
-    - [Device settings](#device-settings)
-  - [Generic Event](#generic-event)
-- [Button Assignment Codes](#button-assignment-codes)
-  - [Disabled (Assignment type = 0x00)](#disabled-assignment-type--0x00)
-  - [Mouse functions (Assignment type = 0x01)](#mouse-functions-assignment-type--0x01)
-  - [Keyboard functions (Assignment type = 0x02)](#keyboard-functions-assignment-type--0x02)
-  - [Media functions (Assignment type = 0x03)](#media-functions-assignment-type--0x03)
-  - [Shortcut functions (Assignment type = 0x05)](#shortcut-functions-assignment-type--0x05)
-  - [DPI toggle (Assignment type = 0x07)](#dpi-toggle-function-assignment-type--0x07)
-- [Miscellaneous](#miscellaneous)
-  - [Macro data sum value byte](#macro-data-sum-value-byte)
-  - [Macro event count](#macro-event-count)
+<ul>
+	<li>
+		<a href="#device-info">Device Info</a>
+		<ul>
+			<li><a href="#lsusb">lsusb</a></li>
+			<li><a href="#operation">Operation</a></li>
+		</ul>
+	</li>
+	<li>
+		<a href="#sent-packets">Sent Packets</a>
+		<ul>
+			<li><a href="#polling-rate">Polling Rate</a></li>
+			<li><details style="margin-bottom: 0" close>
+				<summary><a href="#led">LED</a></summary>
+				<ul>
+					<li><a href="#rgb-value">RGB value</a></li>
+					<li><a href="#adjusted-rgb-value">Adjusted RGB value</a></li>
+					<li><a href="#set-led-settings">Set LED settings</a></li>
+				</ul>
+			</details></li>
+			<li><details close>
+				<summary><a href="#dpi">DPI</a></summary>
+				<ul>
+					<li><a href="#enabled-profile-bitmask">Enabled profile bitmask</a></li>
+					<li>
+						<a href="#dpi-profile-max-5-profiles">DPI profile</a>
+						<ul>
+							<li><a href="#dpi-value">DPI value</a></li>
+							<li><a href="#profile-indicator-led-color">Profile indicator LED color</a></li>
+						</ul>
+					</li>
+					<li><a href="#set-lift-off-distance">Set lift-off distance</a></li>
+					<li><a href="#selected-dpi-profile">Selected DPI profile</a></li>
+					<li><a href="#save-dpi-settings">Save DPI settings</a></li>
+				</ul>
+			</details></li>
+			<li><details close>
+				<summary><a href="#buttons">Buttons</a></summary>
+				<ul>
+					<li><a href="#physical-button">Physical button</a></li>
+					<li><a href="#set-button-assignment">Set button assignment</a></li>
+				</ul>
+			</details></li>
+			<li><details close>
+				<summary><a href="#macros">Macros</a></summary>
+				<ul>
+					<li><a href="#macro-data">Macro data</a></li>
+					<li>
+						<a href="#macro-event">Macro event</a>
+						<ul>
+							<li><a href="#keyboard-event">Keyboard event</a></li>
+							<li><a href="#mouse-event">Mouse event</a></li>
+						</ul>
+					</li>
+					<li><a href="#set-macro-assignment">Set macro assignment</a></li>
+				</ul>
+			</details></li>
+			<li><details close>
+				<summary><a href="#saving-settings">Saving Settings</a></summary>
+				<ul>
+					<li><a href="#revert-led-settings">Revert LED settings</a></li>
+					<li><a href="#set-fade-led-effect">Set fade LED effect</a></li>
+					<li><a href="#set-led-effect">Set LED effect</a></li>
+					<li><a href="#set-led-mode">Set LED mode</a></li>
+					<li><a href="#unknown-packet">Unknown packet</a></li>
+					<li><a href="#save-mouse-settings">Save mouse settings</a></li>
+				</ul>
+			</details></li>
+		</ul>
+	</li>
+	<li>
+		<a href="#received-packets">Received Packets</a>
+		<ul>
+			<li><details close>
+				<summary><a href="#reports">Reports</a></summary>
+				<ul>
+					<li><a href="#connection-status">Connection status</a></li>
+					<li><a href="#hardware-information">Hardware Information</a></li>
+					<li><a href="#heartbeat">Heartbeat</a></li>
+					<li><a href="#led-settings">LED settings</a></li>
+					<li><a href="#dpi-settings">DPI settings</a></li>
+					<li><a href="#button-assignments">Button assignments</a></li>
+					<li><a href="#device-settings">Device settings</a></li>
+				</ul>
+			</details></li>
+			<li><a href="#generic-event">Generic Event</a></li>
+		</ul>
+	</li>
+	<li>
+		<a href="#button-assignment-codes">Button Assignment Codes</a>
+		<ul>
+			<li><a href="#disabled-assignment-type--0x00">Disabled (Assignment type = 0x00)</a></li>
+			<li><a href="#mouse-functions-assignment-type--0x01">Mouse functions (Assignment type = 0x01)</a></li>
+			<li><a href="#keyboard-functions-assignment-type--0x02">Keyboard functions (Assignment type = 0x02)</a></li>
+			<li><a href="#media-functions-assignment-type--0x03">Media functions (Assignment type = 0x03)</a></li>
+			<li><a href="#shortcut-functions-assignment-type--0x05">Shortcut functions (Assignment type = 0x05)</a></li>
+			<li><a href="#dpi-toggle-function-assignment-type--0x07">DPI toggle (Assignment type = 0x07)</a></li>
+		</ul>
+	</li>
+	<li>
+		<a href="#miscellaneous">Miscellaneous</a>
+		<ul>
+			<li><a href="#macro-data-sum-value-byte">Macro data sum value byte</a></li>
+			<li><a href="#macro-event-count">Macro event count</a></li>
+		</ul>
+	</li>
+</ul>
+
 
 # Device Info
 
