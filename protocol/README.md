@@ -744,8 +744,6 @@ Used when LED mode is fade
 
 ### Set LED effect
 
-Currently, this only covers solid colors.
-
 The LED effect is set from 6 of these packets, with each packet containing all the colors the mouse will cycle through in order to achieve the desired LED effect.
 
 Unlike [Set LED settings](#led), the LED effect isn't reverted until the mouse is unplugged/turned off. Technically, this could be used instead of spamming Set LED setting packets, but it would be slower to change the LED effect, especially ones that are dynamic.
