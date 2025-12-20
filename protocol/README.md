@@ -61,7 +61,7 @@ Adapted from [https://github.com/santeri3700/hyperx_pulsefire_dart_reverse_engin
 			<li><details close>
 				<summary><a href="#saving-settings">Saving Settings</a></summary>
 				<ul>
-					<li><a href="#revert-led-settings">Revert LED settings</a></li>
+					<li><a href="#store-led-settings">Store LED settings</a></li>
 					<li><a href="#set-fade-led-effect">Set fade LED effect</a></li>
 					<li><a href="#set-led-effect">Set LED effect</a></li>
 					<li><a href="#set-led-mode">Set LED mode</a></li>
@@ -453,7 +453,7 @@ Since Ngenuity constantly sends LED packets, every LED effect is acheived by sen
 
 ### RGB value
 
-Used in: [Set LED settings](#set-led-settings), [LED settings](#led-settings), [DPI settings](#dpi-settings)
+Used in: [Set LED settings](#set-led-settings), [Store LED settings](#store-led-settings), [LED settings](#led-settings), [DPI settings](#dpi-settings)
 
 | Byte Index | Value | Description |
 |------------|-------|-------------|
@@ -683,14 +683,14 @@ Since mouse events cannot be performed at the same time as a key event, each mou
 The Mouse settings are saved as follows (in Ngenuity):
 
 ```
-1. Revert LED settings or Set fade LED effect
+1. Store LED settings or Set fade LED effect
 2. Set LED effect
 3. Set LED mode
 4. Unknown packet
 5. Save settings
 ```
 
-1, 4, and 5 are optional if you only want to change the LED for the mouse (unless the LED effect is fade).
+1, 2, 4, and 5 are optional if you only want to change the LED for the mouse (unless the LED effect is fade).
 
 ### LED mode
 
@@ -704,25 +704,23 @@ s = speed
 | Solid      | 0x01  |
 | Fade       | 0x01  |
 | Breathing  | $floor\left(120-\left(1+\frac{e}{30}\right)\cdot s\right)$ <br> |
-| Cycle      | $floor\left(120-0.4s\right)$  |
+| Cycle      | $floor\left(120-0.4s\right)$ |
 
-### Revert LED settings
+### Store LED settings
 
-Used when LED mode is not fade
+Used when LED mode is not fade. Despite the name, this doesn't affect the on-board LED settings at all, but rather changes the values read in a [LED settings report](#led-settings) packet. Additionally, this packet will make the LED flicker.
+
+Ngenuity will always send white for the LED color, nothing (black) for the effect color, and 100 for the brightness.
 
 | Byte Index | Value | Description       |
 |------------|-------|-------------------|
 | 0          | 0xD2  | Set LED           |
 | 1          | 0x00  | Padding           |
-| 2          | 0x40  | Revert LED settings? |
+| 2          | 0x40  | Store LED settings |
 | 3          | 0x08  | 8 bytes after index 3 |
-| 4          | 0xFF  | White (R)         |
-| 5          | 0xFF  | White (G)         |
-| 6          | 0xFF  | White (B)         |
-| 7          | 0x00  | Padding / RED effect (unused)  |
-| 8          | 0x00  | Padding / GREEN effect (unused) |
-| 9          | 0x00  | Padding / BLUE effect  (unused) |
-| 10         | 0x64  | Brightness, always seems to be 100 |
+| 4-6        | [RGB](#rgb-value) | LED color, white |
+| 7-9        | [RGB](#rgb-value) | LED effect color, unused |
+| 10         | 0x64  | Brightness, 100 |
 | 11         | 0x00  | Unknown           |
 
 ### Set fade LED effect
@@ -746,7 +744,7 @@ Used when LED mode is fade
 
 The LED effect is set from 6 of these packets, with each packet containing all the colors the mouse will cycle through in order to achieve the desired LED effect.
 
-Unlike [Set LED settings](#led), the LED effect isn't reverted until the mouse is unplugged/turned off. Technically, this could be used instead of spamming Set LED setting packets, but it would be slower to change the LED effect, especially ones that are dynamic.
+Unlike [Set LED settings](#set-led-settings), the LED effect isn't reverted until the mouse is unplugged/turned off. Technically, this could be used instead of spamming Set LED setting packets, but it would be slower to change the LED effect, especially ones that are dynamic.
 
 | Byte Index | Value | Description       |
 |------------|-------|-------------------|
@@ -848,7 +846,9 @@ Product string: "HyperX Pulsefire Haste Wireless"
 
 ### LED settings
 
-This packet reports the led settings sent by a [Set LED settings](#set-led-settings) packet. If a led settings packet hasn't been sent in the past couple of seconds, the color will be white, and the brightness will be 100. So basically, this packet is entirely useless.
+This packet reports the led settings sent by a [Set LED settings](#set-led-settings) packet. If a led settings packet hasn't been sent in the past couple of seconds, the led settings will be determined by the last [Store LED settings](#store-led-settings) packet that was sent/saved.
+
+Not used by Ngenuity.
 
 | Byte Index | Value | Description       |
 |------------|-------|-------------------|
@@ -864,6 +864,8 @@ This packet reports the led settings sent by a [Set LED settings](#set-led-setti
 | 11-13      | [RGB](#rgb-value) | LED effect color, unused |
 
 ### DPI settings
+
+Not used by Ngenuity.
 
 | Byte Index | Value | Description       |
 |------------|-------|-------------------|
@@ -885,6 +887,8 @@ This packet reports the led settings sent by a [Set LED settings](#set-led-setti
 
 ### Button assignments
 
+Note used by Ngenuity.
+
 | Byte Index | Value | Description       |
 |------------|-------|-------------------|
 | 0          | 0x54  | Button assignments   |
@@ -905,7 +909,8 @@ Used by: [Button assignments](#button-assignments)
 
 ### Device settings
 
-Doesn't contain every device setting, but I can't think of a better name.
+Doesn't contain every device setting, but I can't think of a better name.<br>
+Ngenuity does make a request for this packet, but doesn't seem to use it to read device settings.
 
 | Byte Index | Value | Description        |
 |------------|-------|--------------------|
