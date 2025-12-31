@@ -721,7 +721,7 @@ Ngenuity will always send white for the LED color, nothing (black) for the effec
 | 4-6        | [RGB](#rgb-value) | LED color, white |
 | 7-9        | [RGB](#rgb-value) | LED effect color, unused |
 | 10         | 0x64  | Brightness, 100 |
-| 11         | 0x00  | Unknown           |
+| 11         | 0x00  | Unknown |
 
 ### Set fade LED effect
 
@@ -737,8 +737,8 @@ Used when LED mode is fade
 | 7          | 0x00  | Padding     |
 | 8          | 0x00  | Padding     |
 | 9          | 0x00  | Padding     |
-| 10         | 0x64  | Unknown/Fixed brightness? |
-| 11         | 0x00  | Unknown     |
+| 10         | 0x**  | Brightness <ul><li>Min: 0x00</li><li>Max: 0x64 (100)</li><li>Step: 0x01</li></ul> |
+| 11         | 0x**  | LED fade speed. See [LED fade packet captures](https://github.com/evan-razzaque/open-pulsefire-haste/tree/main/captures) for specific values. |
 
 ### Set LED effect
 
